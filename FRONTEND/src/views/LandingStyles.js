@@ -202,6 +202,14 @@ export const landingCSS = `
 @keyframes toastSlideUp{0%{opacity:0;transform:translateY(24px) scale(0.95)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes toastSlideDown{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(24px) scale(0.95)}}
 
+/* ═══ EXAMPLE CONTRACT ═══ */
+.lex{padding:0 0 40px}
+.lex-box{background:var(--p);border:1px solid var(--d);padding:28px 32px;max-width:760px;box-shadow:0 12px 36px rgba(0,0,0,.04);position:relative;overflow:hidden}
+.lex-box::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--r)}
+.lex .lred-dash{margin-bottom:14px}
+.lex-body{font-family:'Inter Tight',sans-serif;font-size:24px;line-height:1.35;letter-spacing:-.5px;color:var(--t1);margin:0 0 16px;max-width:660px}
+.lex-small{font-size:13px;color:var(--t2);font-weight:600;letter-spacing:.1px}
+
 /* ═══ LIVE CONTRACTS ═══ */
 .lcontracts{padding:40px 0 64px;background:var(--p);border-top:1px solid var(--d)}
 .lcontracts .lw{max-width:1280px}
@@ -343,8 +351,9 @@ export const landingCSS = `
   .ltype-h{font-size:22px;margin-bottom:8px}
   .ltype-p{font-size:14px;margin-bottom:20px}
   .ltype-detail{font-size:13px;padding-top:16px}
-  .lex{padding:32px 0}
-  .lex-box{margin:0 auto}
+  .lex{padding:0 0 32px}
+  .lex-box{margin:0 auto;padding:24px}
+  .lex-body{font-size:18px}
   .lfaq{padding:32px 0}
   .fq-q{font-size:14px;padding:14px 0}
   .lfoot{padding:48px 20px 64px}
