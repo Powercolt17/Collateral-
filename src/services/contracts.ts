@@ -23,6 +23,7 @@ import { deriveState, canTransition, InvalidTransitionError } from './state-deri
 import { eq, and, sql, gt } from 'drizzle-orm';
 import { createHash } from 'crypto';
 import { stripeRevenueAdapter } from '../adapters/stripe-revenue.js';
+import { computeSettlementDate } from '../adapters/plaid-income.js';
 import { githubAdapter, getGithubClient } from '../adapters/github.js';
 import { MINIMUM_BASELINES, MIN_ACCOUNT_AGE_DAYS } from './contract-calculator.js';
 
@@ -917,6 +918,41 @@ export async function updateContractBaseline(
 /**
  * Get contracts that are due for verification (state = LOCKED + past deadline)
  */
+/**
+ * Effective settlement date for a contract.
+ *
+ * Income (bank) contracts settle ONCE at deadline + a short posting-lag grace
+ * window (default 7 days), so a deposit DATED inside the contract window has
+ * time to finish posting before we read the bank.
+ *
+ * This delays only WHEN we check. It does not extend the measured window: a
+ * deposit dated after the deadline belongs to the next contract, so each
+ * deposit still counts toward exactly one contract. No re-check, no clawback.
+ *
+ * Every other platform returns deadlineUtc unchanged.
+ */
+export function getEffectiveSettlementAt(contract: Contract): Date {
+    if (contract.platform !== 'PLAID') return contract.deadlineUtc;
+
+    const frozen = contract.baselineJson as {
+        graceDays?: number;
+        incomeTerms?: { settlementDueUtc?: string };
+    } | null;
+
+    // PREFER THE FROZEN INSTANT. The closing date is agreed at lock and read back
+    // verbatim — never re-derived. Recomputing it would let a later change to the
+    // posting buffer, or a timezone/DST shift, move a contract's closing date
+    // after the user signed. That is the dispute we are not going to have.
+    const frozenDue = frozen?.incomeTerms?.settlementDueUtc;
+    if (frozenDue) {
+        const parsed = new Date(frozenDue);
+        if (!Number.isNaN(parsed.getTime())) return parsed;
+    }
+
+    // Legacy/fallback only: contracts locked before the instant was frozen.
+    return computeSettlementDate(contract.deadlineUtc, frozen?.graceDays);
+}
+
 export async function getContractsDueForVerification(): Promise<Contract[]> {
     // Get all contracts, then filter by derived state
     const allContracts = await db.select().from(contracts);
@@ -925,7 +961,8 @@ export async function getContractsDueForVerification(): Promise<Contract[]> {
     const results: Contract[] = [];
 
     for (const contract of allContracts) {
-        if (contract.deadlineUtc > now) continue; // Not past deadline
+        // Income contracts settle after their posting-lag grace; all others at deadline
+        if (getEffectiveSettlementAt(contract) > now) continue;
 
         const events = await getEventsForContract(contract.id);
         const state = deriveState(events);

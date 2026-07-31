@@ -59,6 +59,14 @@ import {
     SYSTEM_DURATIONS,
     PAYOUT_MULTIPLIERS,
 } from '../services/house-edge-policy.js';
+import {
+    suggestIncomeTerms,
+    freezeIncomeTerms,
+    calculateIncomePayout,
+    RISK_TIER_TO_INCOME_TIER,
+    type FrozenIncomeTerms,
+} from '../services/income-terms.js';
+import { getSelectedStreamDeposits } from '../adapters/plaid-income.js';
 
 // =====================================================
 // WRITE ENDPOINT EVENT TYPES (explicit canonical list)
@@ -220,8 +228,73 @@ const contractWriteRoutes: FastifyPluginAsync = async (fastify) => {
             }
 
             // 2. System-calculate payout (NEVER trust user input)
-            const systemPayoutUsdCents = calculatePayout(lockAmountUsdCents, tier);
-            console.log(`[contracts-write] SYSTEM TERMS: stake=$${(lockAmountUsdCents / 100).toFixed(0)}, payout=$${(systemPayoutUsdCents / 100).toFixed(0)}, multiplier=${PAYOUT_MULTIPLIERS[tier]}x, tier=${tier}`);
+            //
+            // Income (PLAID) contracts price off the user's OWN verified history:
+            // the multiplier is derived server-side from their hit rate, so no two
+            // users get the same line and nothing here comes from the request body.
+            // Every other platform keeps its fixed tier multiplier, untouched.
+            let systemPayoutUsdCents: number;
+            let frozenIncomeTerms: FrozenIncomeTerms | null = null;
+
+            if (platform === 'PLAID') {
+                let incomeQuote;
+                let incomeSuggestion;
+                try {
+                    const { deposits, cadence, lastDepositDate } =
+                        await getSelectedStreamDeposits(principalUserId);
+                    incomeSuggestion = suggestIncomeTerms(deposits, cadence, lastDepositDate);
+                    incomeQuote = incomeSuggestion.tiers.find(
+                        q => q.tier === RISK_TIER_TO_INCOME_TIER[tier]
+                    );
+                } catch (err: any) {
+                    reply.status(400);
+                    return {
+                        error: err?.message || 'Could not read income history',
+                        code: 'INCOME_HISTORY_UNAVAILABLE',
+                    };
+                }
+
+                if (!incomeQuote || !incomeQuote.available) {
+                    reply.status(400);
+                    return {
+                        error: incomeQuote?.unavailableReason || 'This tier is not available yet',
+                        code: 'TIER_UNAVAILABLE',
+                    };
+                }
+
+                // Stake ceiling is computed up front, never enforced after the fact
+                const maxStake = incomeQuote.maxAllowableStakeUsdCents;
+                if (maxStake !== undefined && lockAmountUsdCents > maxStake) {
+                    reply.status(400);
+                    return {
+                        error: `Stake exceeds the ceiling for this tier`,
+                        code: 'STAKE_OUT_OF_BOUNDS',
+                        allowedRange: {
+                            min: incomeQuote.minStakeUsdCents,
+                            max: maxStake,
+                            minDisplay: `$${(incomeQuote.minStakeUsdCents / 100).toFixed(0)}`,
+                            maxDisplay: `$${(maxStake / 100).toFixed(0)}`,
+                        },
+                    };
+                }
+
+                systemPayoutUsdCents = calculateIncomePayout(
+                    lockAmountUsdCents,
+                    incomeQuote.payoutMultiplier
+                );
+                // Freeze against the contract's ACTUAL agreed deadline, so the
+                // closing instant is recorded rather than re-derived at settlement.
+                frozenIncomeTerms = freezeIncomeTerms(
+                    incomeQuote,
+                    incomeSuggestion!,
+                    new Date(condition.deadline)
+                );
+
+                console.log(`[contracts-write] INCOME TERMS (derived): stake=$${(lockAmountUsdCents / 100).toFixed(0)}, payout=$${(systemPayoutUsdCents / 100).toFixed(0)}, multiplier=${incomeQuote.payoutMultiplier}x, hitRate=${incomeQuote.rawHitRate}, edge=${incomeQuote.houseEdge}, tier=${incomeQuote.tier}`);
+            } else {
+                systemPayoutUsdCents = calculatePayout(lockAmountUsdCents, tier);
+                console.log(`[contracts-write] SYSTEM TERMS: stake=$${(lockAmountUsdCents / 100).toFixed(0)}, payout=$${(systemPayoutUsdCents / 100).toFixed(0)}, multiplier=${PAYOUT_MULTIPLIERS[tier]}x, tier=${tier}`);
+            }
 
             // 3. If user sent payoutAmountUsdCents, WARN and override
             if (request.body.payoutAmountUsdCents && request.body.payoutAmountUsdCents !== systemPayoutUsdCents) {
@@ -263,7 +336,11 @@ const contractWriteRoutes: FastifyPluginAsync = async (fastify) => {
                     platform,
                     metricType,
                     condition,
-                    baseline,
+                    // Income terms are frozen here and never recomputed: tier, target,
+                    // hitRate, multiplier, edge used, multiplier cap, posting buffer.
+                    baseline: frozenIncomeTerms
+                        ? { ...(baseline as Record<string, unknown> | null), incomeTerms: frozenIncomeTerms, graceDays: frozenIncomeTerms.postingBufferDays }
+                        : baseline,
                     lockAmountUsdCents,
                     payoutAmountUsdCents: systemPayoutUsdCents, // SYSTEM-CALCULATED
                     fundingMethod,

@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { db } from './client.js';
 import { contractTemplates, marketContractInstances, marketStatsCache } from './schema.js';
 import { eq, and, gt } from 'drizzle-orm';
+import { STAKE_CAPS, PAYOUT_MULTIPLIERS } from '../services/house-edge-policy.js';
 
 // =============================================================================
 // STRICT TEMPLATE CATALOG (12 Templates — Sprint & Marathon only)
@@ -367,26 +368,28 @@ export async function seedCatalog() {
             const rules = t.rulesJson as any;
             const tierOptions = t.tierOptionsJson as any;
 
-            // Smart Stake Ladder — matches house-edge-policy.ts EXACTLY
-            let minStake = 10000;   // $100
-            let maxStake = 250000;  // $2,500
-            let multiplier = 1.7;
+            // Smart Stake Ladder — values come from house-edge-policy.ts
+            let minStake = STAKE_CAPS.STANDARD.minUsdCents;
+            let maxStake = STAKE_CAPS.STANDARD.maxUsdCents;
+            let multiplier = PAYOUT_MULTIPLIERS.STANDARD;
             let feeBps = 200;      // 2%
 
+            // Sourced from house-edge-policy.ts — never re-typed as literals here.
+            // Hardcoded copies silently drift the moment the policy changes.
             if (tier === 'controlled') {
-                minStake = 10000;    // $100
-                maxStake = 250000;   // $2,500  ← STAKE_CAPS.STANDARD
-                multiplier = 1.7;    // ← PAYOUT_MULTIPLIERS.STANDARD
+                minStake = STAKE_CAPS.STANDARD.minUsdCents;
+                maxStake = STAKE_CAPS.STANDARD.maxUsdCents;
+                multiplier = PAYOUT_MULTIPLIERS.STANDARD;
                 feeBps = 200;       // 2%
             } else if (tier === 'elevated') {
-                minStake = 25000;   // $250
-                maxStake = 500000;  // $5,000  ← STAKE_CAPS.ADVANCED
-                multiplier = 2.5;   // ← PAYOUT_MULTIPLIERS.ADVANCED
+                minStake = STAKE_CAPS.ADVANCED.minUsdCents;
+                maxStake = STAKE_CAPS.ADVANCED.maxUsdCents;
+                multiplier = PAYOUT_MULTIPLIERS.ADVANCED;
                 feeBps = 300;       // 3%
             } else if (tier === 'maximum') {
-                minStake = 50000;   // $500
-                maxStake = 1000000; // $10,000 ← STAKE_CAPS.ELITE
-                multiplier = 4.0;   // ← PAYOUT_MULTIPLIERS.ELITE
+                minStake = STAKE_CAPS.ELITE.minUsdCents;
+                maxStake = STAKE_CAPS.ELITE.maxUsdCents;
+                multiplier = PAYOUT_MULTIPLIERS.ELITE;
                 feeBps = 500;       // 5%
             }
 
