@@ -33,6 +33,8 @@ export const platformEnum = pgEnum('platform', [
     'TIKTOK',
     'SHOPIFY',
     'AMAZON',
+    // Bank income verification (verifies INCOME RECEIVED, not sales)
+    'PLAID',
     // Tier 3 - Add Later
     'SUBSTACK',
     'APP_STORE',
@@ -55,6 +57,8 @@ export const metricTypeEnum = pgEnum('metric_type', [
     'CHARGE_VOLUME',
     'GROSS_SALES',
     'ORDER_COUNT',
+    // Income metrics - bank-verified deposits RECEIVED (never sales/commission)
+    'NET_INCOME_DEPOSITS',
     // Developer metrics
     'COMMITS',
     'PRS_MERGED',
@@ -461,8 +465,11 @@ export const connectAccounts = pgTable('connect_accounts', {
 // SALES INTEGRATION TABLES (Stripe Revenue)
 // =============================================================================
 
-// Sales provider enum - currently Stripe only
-export const salesProviderEnum = pgEnum('sales_provider', ['stripe']);
+// Sales provider enum
+// NOTE: 'stripe' doubles as the legacy catch-all that existing Shopify/Amazon
+// rows were written under. Those rows are intentionally left as-is. New Plaid
+// contracts write 'plaid' properly rather than reusing that workaround.
+export const salesProviderEnum = pgEnum('sales_provider', ['stripe', 'plaid']);
 
 // Sales baseline snapshots - immutable baseline captures using Stripe revenue
 export const salesBaselineSnapshots = pgTable('sales_baseline_snapshots', {

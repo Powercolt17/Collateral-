@@ -12,7 +12,7 @@
 
 import { db } from '../db/client.js';
 import { contracts, ContractStatus, EventType } from '../db/schema.js';
-import { getContract, getContractWithState, getContractsDueForVerification } from '../services/contracts.js';
+import { getContract, getContractWithState, getContractsDueForVerification, getEffectiveSettlementAt } from '../services/contracts.js';
 import { appendEvent, getEventsForContract } from '../services/ledger.js';
 import { deriveState } from '../services/state-derivation.js';
 
@@ -57,9 +57,9 @@ async function verifyContract(contractId: string): Promise<void> {
         return;
     }
 
-    // Check deadline has passed
-    if (contract.deadlineUtc > new Date()) {
-        console.log(`Skipping contract ${contractId}: deadline not reached`);
+    // Check settlement date has passed (deadline + posting-lag grace for income contracts)
+    if (getEffectiveSettlementAt(contract) > new Date()) {
+        console.log(`Skipping contract ${contractId}: settlement date not reached`);
         return;
     }
 

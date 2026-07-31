@@ -690,11 +690,57 @@ export async function getVerifiedShopifyAccount(userId: string): Promise<Connect
 // ADAPTER INTERFACE
 // =============================================================================
 
+/**
+ * Neutral baseline snapshot shared by ALL verification sources.
+ *
+ * Only the fields every source can honestly produce are required. Source-specific
+ * fields (commerce order data, bank income stream data) are optional so each
+ * adapter fills in what its rail actually supports.
+ *
+ * ShopifyBaselineSnapshot is structurally assignable to this type, so the
+ * Shopify and Amazon adapters satisfy it without any change to their code.
+ */
+export interface IncomeBaselineSnapshot {
+    // ---- Neutral core (every source) ----
+    snapshotAt: string;
+    provider: string;           // widened from the 'shopify' literal
+    windowStart: string;
+    windowEnd: string;
+    netCents: number;           // the one universal money figure
+    apiVersion: string;
+    dataHash: string;
+
+    // ---- Commerce-specific (Shopify / Amazon) ----
+    storeRef?: string;
+    grossCents?: number;
+    discountsCents?: number;
+    refundsCents?: number;
+    shippingCents?: number;
+    taxCents?: number;
+    orderCount?: number;
+    fulfilledOrderCount?: number;
+    lastOrderId?: string | null;
+    pagesProcessed?: number;
+    financialStatusFilter?: string[];
+    currencyFilter?: string;
+
+    // ---- Bank-income-specific (Plaid) ----
+    // Bank rails verify MONEY RECEIVED (deposits), never sales made.
+    streamId?: string;
+    streamLabel?: string;
+    depositCount?: number;
+    cadence?: string;
+    medianDepositCents?: number;
+    trailingAvgCents?: number;
+    monthsOfHistory?: number;
+    graceDays?: number;
+}
+
 export interface CommerceAdapter {
-    platform: 'SHOPIFY' | 'AMAZON';
+    platform: 'SHOPIFY' | 'AMAZON' | 'PLAID';
     healthCheck(userId: string): Promise<{ ok: boolean; shop?: string }>;
     validateConnection(userId: string): Promise<ShopifyConnectionValidation | { valid: boolean; errorCode?: CommerceErrorCode }>;
-    snapshotBaseline(userId: string, windowDays?: number, executionTime?: Date): Promise<ShopifyBaselineSnapshot>;
+    snapshotBaseline(userId: string, windowDays?: number, executionTime?: Date): Promise<IncomeBaselineSnapshot>;
     evaluate(userId: string, baselineRevenueCents: number, targetDeltaCents: number, windowStart: Date, windowEnd: Date): Promise<{
         pass: boolean;
         currentRevenueCents: number;

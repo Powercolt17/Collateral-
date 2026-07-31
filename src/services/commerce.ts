@@ -36,13 +36,18 @@ import { eq, desc, and, inArray, lt } from 'drizzle-orm';
 import { appendEvent } from './ledger.js';
 import { shopifyAdapter, type CommerceAdapter, type ShopifyBaselineSnapshot } from '../adapters/shopify.js';
 import { amazonAdapter } from '../adapters/amazon-seller.js';
+import { plaidIncomeAdapter } from '../adapters/plaid-income.js';
 import { CommerceError, CommerceErrorCode, isRetryableError } from '../invariants/commerce-errors.js';
 
 // =============================================================================
 // TYPES
 // =============================================================================
 
-export type CommercePlatform = 'shopify' | 'amazon';
+/**
+ * Verification rails plugged into this engine.
+ * 'plaid' verifies INCOME RECEIVED (bank deposits) — not sales.
+ */
+export type CommercePlatform = 'shopify' | 'amazon' | 'plaid';
 
 export interface CreateCommerceBaselineParams {
     userId: string;
@@ -111,12 +116,23 @@ const WORKER_ID = process.env.WORKER_ID || `worker-${process.pid}`;
 // HELPERS
 // =============================================================================
 
+/**
+ * Map a rail to its sales_provider enum value.
+ * New rails write their real provider; legacy Shopify/Amazon rows keep 'stripe'
+ * so existing data is untouched.
+ */
+function toSalesProvider(platform: CommercePlatform): 'stripe' | 'plaid' {
+    return platform === 'plaid' ? 'plaid' : 'stripe';
+}
+
 function getAdapter(platform: CommercePlatform): CommerceAdapter {
     switch (platform) {
         case 'shopify':
             return shopifyAdapter;
         case 'amazon':
             return amazonAdapter;
+        case 'plaid':
+            return plaidIncomeAdapter;
         default:
             throw new CommerceError(
                 CommerceErrorCode.DATA_AMBIGUOUS_FAIL_CLOSED,
@@ -361,7 +377,7 @@ export async function createCommerceBaseline(
     // Insert baseline snapshot
     const [snapshot] = await db.insert(salesBaselineSnapshots).values({
         userId,
-        provider: 'stripe', // Schema uses 'stripe' enum, we store platform details in baselineJson
+        provider: toSalesProvider(platform),
         windowDays,
         windowStartAt,
         windowEndAt,
@@ -494,7 +510,7 @@ export async function attachCommerceTerms(
     // Insert contract terms
     const [terms] = await db.insert(salesContractTerms).values({
         contractId,
-        provider: 'stripe', // Schema enum
+        provider: toSalesProvider(platform as CommercePlatform),
         metric,
         windowDays,
         baselineSnapshotId: snapshotId,
@@ -588,7 +604,7 @@ export async function enqueueCommerceVerification(
     // Insert verification run
     const [run] = await db.insert(salesVerificationRuns).values({
         contractId,
-        provider: 'stripe', // Schema enum
+        provider: toSalesProvider(platform as CommercePlatform),
         status: 'queued',
         attempt: 1,
     } as any).returning();
