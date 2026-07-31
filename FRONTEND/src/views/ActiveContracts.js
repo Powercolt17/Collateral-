@@ -1,8 +1,8 @@
 // ActiveContracts.js — Collateral Execution Queue (Market View)
 // Mechanical Weight & Consequence Interactions (Stamp Press, Odometer, Live Commit Ticker, Hover Position, Truthful Fill States)
 
-import api, { getMarketListings, hasAuthToken } from '../api.js';
-import { openExecutionModal } from './ExecutionModal.js';
+// Market-listing and execution-modal imports removed with the contract catalog:
+// the source picker fetches nothing, and terms are derived after the examination.
 
 export function renderActiveContracts() {
     return `
@@ -233,6 +233,72 @@ export function renderActiveContracts() {
             }
             .eq-tab:hover { color: var(--ink, #0E1420); }
 
+            /* ═══ SOLO SOURCE PICKER ═══ */
+            .ss { --ss-ease: cubic-bezier(.22,1,.36,1); margin: 0 0 8px; }
+            .ss * { box-sizing: border-box; }
+            .ss p, .ss h2, .ss ul { margin: 0; }
+            .ss-eyebrow { display:flex; align-items:center; font-family:var(--mono,'JetBrains Mono',monospace); font-size:10px; letter-spacing:.2em; color:var(--ink-3,#8C877B); margin-bottom:18px; }
+            .ss-mark { display:inline-block; width:26px; height:6px; margin-right:11px; border-top:2px solid var(--blood,#7A1C29); border-bottom:2px solid var(--blood,#7A1C29); }
+            .ss-title { font-family:var(--display,'Archivo',sans-serif); font-weight:700; font-size:clamp(28px,4.6vw,46px); letter-spacing:-.032em; line-height:1.02; margin-bottom:18px; max-width:16ch; color:var(--ink,#1A1A18); }
+            .ss-title em { font-style:normal; color:var(--blood,#7A1C29); }
+            .ss-lede { font-family:var(--display,'Archivo',sans-serif); font-weight:500; font-size:15px; line-height:1.72; color:var(--ink-2,#4A463E); max-width:56ch; margin-bottom:38px; }
+
+            .ss-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(228px,1fr)); border:1px solid var(--ink,#1A1A18); }
+            .ss-card {
+                display:flex; flex-direction:column; text-decoration:none; color:inherit;
+                background:var(--plate,#FBFAF6); padding:22px 20px 20px;
+                border-left:1px solid var(--rule-soft,#E6E1D6);
+                opacity:0; transform:translateY(16px);
+                transition:opacity 620ms var(--ss-ease) var(--d,0ms), transform 620ms var(--ss-ease) var(--d,0ms), background 280ms var(--ss-ease);
+            }
+            /* Reveal ADDS motion to content that is already in the DOM; it is never
+               what makes the content exist. The JS forces data-seen="true" on a
+               timeout so a missed observer can't leave a blank bordered box. */
+            .ss[data-seen="true"] .ss-card { opacity:1; transform:none; }
+            /* Last-resort paint. If the transition never actually ran — throttled
+               tab, paused animation timeline, sleeping compositor — the cards must
+               still be on screen. Skips the transition entirely rather than
+               waiting on one that may never tick. */
+            .ss.ss-forced .ss-card { opacity:1 !important; transform:none !important; transition:none !important; }
+            .ss-card:first-child { border-left:none; }
+            .ss-card:hover { background:var(--plate-alt,#F5F2EA); }
+            .ss-card.flagship { background:#F7ECEE; }
+            .ss-card.flagship:hover { background:#F3E2E5; }
+
+            .ss-top { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:16px; min-height:20px; }
+            .ss-kicker { font-family:var(--mono,'JetBrains Mono',monospace); font-size:9px; letter-spacing:.16em; color:var(--ink-3,#8C877B); }
+            .ss-card.flagship .ss-kicker { color:var(--blood,#7A1C29); }
+            .ss-tag { font-family:var(--mono,'JetBrains Mono',monospace); font-size:8.5px; letter-spacing:.13em; color:var(--win,#186B4A); border:1px solid #9AC0AE; background:#E9F1ED; padding:3px 6px; white-space:nowrap; }
+
+            .ss-name { font-family:var(--display,'Archivo',sans-serif); font-weight:700; font-size:26px; letter-spacing:-.03em; line-height:1; margin-bottom:8px; }
+            .ss-card.flagship .ss-name { color:var(--blood,#7A1C29); }
+            .ss-verb { font-family:var(--display,'Archivo',sans-serif); font-weight:500; font-size:13px; line-height:1.6; color:var(--ink-2,#4A463E); margin-bottom:18px; min-height:3.4em; }
+
+            .ss-measures { list-style:none; padding:12px 0 0; font-family:var(--mono,'JetBrains Mono',monospace); font-size:11px; line-height:1.5; color:var(--ink-3,#8C877B); border-top:1px dotted var(--rule,#DCD5C6); margin-bottom:20px; }
+            .ss-measures li { position:relative; padding:4px 0 4px 13px; }
+            .ss-measures li::before { content:"\\00B7"; position:absolute; left:2px; color:var(--blood,#7A1C29); }
+
+            .ss-foot { margin-top:auto; border-top:1px solid var(--rule,#DCD5C6); padding-top:14px; }
+            .ss-oracle { display:block; font-family:var(--mono,'JetBrains Mono',monospace); font-size:9.5px; letter-spacing:.11em; color:var(--ink-3,#8C877B); margin-bottom:10px; }
+            .ss-go { display:inline-block; font-family:var(--mono,'JetBrains Mono',monospace); font-size:12px; color:var(--blood,#7A1C29); border-bottom:1px solid var(--blood,#7A1C29); padding-bottom:3px; transition:transform 260ms var(--ss-ease), opacity 200ms ease; }
+            .ss-card:hover .ss-go { transform:translateX(4px); opacity:.75; }
+
+            .ss-pair { display:flex; gap:16px; flex-wrap:wrap; margin-top:20px; padding:16px 20px; border:1px solid var(--rule,#DCD5C6); background:var(--plate-alt,#F5F2EA); }
+            .ss-pair-k { flex:0 0 auto; font-family:var(--mono,'JetBrains Mono',monospace); font-size:9.5px; letter-spacing:.15em; color:var(--blood,#7A1C29); padding-top:2px; }
+            .ss-pair-v { flex:1 1 320px; font-size:11.5px; line-height:1.7; color:var(--ink-2,#4A463E); }
+            .ss-note { margin-top:16px; font-family:var(--mono,'JetBrains Mono',monospace); font-size:11px; line-height:1.7; color:var(--ink-3,#8C877B); max-width:62ch; }
+
+            @media (max-width:640px) {
+                .ss-grid { grid-template-columns:1fr; }
+                .ss-card { border-left:none; border-top:1px solid var(--rule-soft,#E6E1D6); }
+                .ss-card:first-child { border-top:none; }
+                .ss-verb { min-height:0; }
+            }
+            @media (prefers-reduced-motion:reduce) {
+                .ss-card, .ss-go { transition:none !important; }
+                .ss-card { opacity:1; transform:none; }
+            }
+
             .eq-search-wrap {
                 display: flex;
                 align-items: center;
@@ -280,7 +346,9 @@ export function renderActiveContracts() {
                 align-items: center;
                 margin-bottom: 28px;
             }
-            .eq-pills { display: flex; align-items: center; gap: 8px; }
+            /* Wrap rather than run off-screen: at 390px the four pills need ~409px,
+               which pushed FINANCE outside the viewport and made it unclickable. */
+            .eq-pills { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
             .eq-filter-lbl {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 10.5px;
@@ -842,28 +910,12 @@ export function renderActiveContracts() {
                     </div>
                 </div>
 
-                <!-- Controls -->
+                <!-- Controls — sort tabs and DOMAIN filters relocated above the
+                     Rivalry grid, which is the only thing they drive now that the
+                     contract catalog is gone. -->
                 <div class="eq-controls">
-                    <div class="eq-tabs" id="eq-tabs">
-                        <button class="eq-tab active" data-sort="trending_24h">TRENDING</button>
-                        <button class="eq-tab" data-sort="new">NEW</button>
-                        <button class="eq-tab" data-sort="closing_soon">CLOSING SOON</button>
-                        <button class="eq-tab" data-sort="volume_24h">HIGH VOLUME</button>
-                    </div>
                     <div class="eq-search-wrap">
-                        <input type="text" class="eq-search-box" id="eq-search" placeholder="Search contracts or creators">
                         <button class="eq-btn-rules" id="btn-rules">Rules</button>
-                    </div>
-                </div>
-
-                <!-- Filters -->
-                <div class="eq-filter-bar">
-                    <div class="eq-pills" id="eq-filters">
-                        <span class="eq-filter-lbl">DOMAIN</span>
-                        <button class="eq-pill active" data-category="all">ALL</button>
-                        <button class="eq-pill" data-category="social">SOCIAL</button>
-                        <button class="eq-pill" data-category="commerce">COMMERCE</button>
-                        <button class="eq-pill" data-category="finance">FINANCE</button>
                     </div>
                     <div class="eq-status-operational">
                         SYSTEM STATUS <div class="dot"></div> OPERATIONAL
@@ -871,27 +923,94 @@ export function renderActiveContracts() {
                 </div>
             </section>
 
-            <!-- Contract Grid & Live Commit Ticker -->
+            <!-- ═══ SOLO SOURCE PICKER ═══
+                 Replaces the old pre-priced contract catalog. No targets, no
+                 multipliers, no stake ranges: every term is derived per person from
+                 their own verified history after the examination, so any number
+                 printed here would be decoration or a bait-and-switch.
+
+                 Each source answers a different question, so nothing overlaps.
+                 Bullets list only metrics with a real backing metric_type. -->
             <div class="eq-grid-container" style="padding: 0 32px; max-width: 1300px; margin: 0 auto;">
                 <!-- Universal Clause Line -->
                 <div class="eq-grid-banner">
                     <span class="mono">§ 3.1 &middot; ALL CONTRACTS FEATURE AUTOMATIC ORACLE TRACKING &middot; DEPOSITS RETURNED UPON VERIFIED GOAL SETTLEMENT</span>
                 </div>
 
-                <!-- Item 3: Live Commit Ticker Strip -->
-                <div class="eq-commit-ticker">
-                    <span class="eq-ticker-label">RECENT COMMITMENTS</span>
-                    <div class="eq-ticker-body" id="ticker-body">
-                        <span class="eq-market-dot" style="display:inline-block; margin-right:6px;"></span>
-                        <span id="ticker-text">@northloop committed $2,400 &middot; Order Volume Growth (30d) &middot; 12s ago</span>
-                    </div>
-                </div>
+                <section class="ss" id="ss-root" data-seen="false" aria-labelledby="ss-title">
+                    <p class="ss-eyebrow"><span class="ss-mark"></span>SOLO CONTRACTS</p>
+                    <h2 class="ss-title" id="ss-title">What do you want to be <em>measured on?</em></h2>
+                    <p class="ss-lede">
+                        Connect a source and Collateral reads twelve months of your own
+                        history before it offers you anything. Your target, your
+                        difficulty, and your payout multiplier all come out of your
+                        numbers &mdash; not a menu.
+                    </p>
 
-                <div class="mono-lbl" style="margin-bottom: 16px;" id="eq-count-lbl">8 CONTRACTS</div>
-                <div class="eq-grid" id="eq-grid">
-                    <!-- Dynamic cards go here -->
-                </div>
-                <div id="eq-empty" style="display:none; padding:60px; text-align:center; color:var(--ink-3); font-size:14px; grid-column:1/-1;">No contracts match your filters.</div>
+                    <div class="ss-grid">
+                        <a class="ss-card flagship" style="--d:0ms" href="/solo/new?source=bank" data-source="bank">
+                            <div class="ss-top">
+                                <span class="ss-kicker">MONEY RECEIVED</span>
+                                <span class="ss-tag">BANK VERIFIED</span>
+                            </div>
+                            <div class="ss-name">Your bank</div>
+                            <div class="ss-verb">Cash that actually lands in your account</div>
+                            <ul class="ss-measures"><li>Net income received</li></ul>
+                            <div class="ss-foot">
+                                <span class="ss-oracle">Plaid &middot; read-only</span>
+                                <span class="ss-go">Examine my income &rarr;</span>
+                            </div>
+                        </a>
+
+                        <a class="ss-card" style="--d:70ms" href="/solo/new?source=mrr" data-source="mrr">
+                            <div class="ss-top"><span class="ss-kicker">RECURRING REVENUE</span></div>
+                            <div class="ss-name">Stripe</div>
+                            <div class="ss-verb">MRR &mdash; what a bank statement can't show you</div>
+                            <ul class="ss-measures"><li>MRR</li></ul>
+                            <div class="ss-foot">
+                                <span class="ss-oracle">Stripe &middot; every 6h</span>
+                                <span class="ss-go">Examine my MRR &rarr;</span>
+                            </div>
+                        </a>
+
+                        <a class="ss-card" style="--d:140ms" href="/solo/new?source=orders" data-source="orders">
+                            <div class="ss-top"><span class="ss-kicker">ORDERS</span></div>
+                            <div class="ss-name">Shopify</div>
+                            <div class="ss-verb">Units moved, not dollars banked</div>
+                            <ul class="ss-measures"><li>Order count</li></ul>
+                            <div class="ss-foot">
+                                <span class="ss-oracle">Shopify &middot; every 6h</span>
+                                <span class="ss-go">Examine my orders &rarr;</span>
+                            </div>
+                        </a>
+
+                        <a class="ss-card" style="--d:210ms" href="/solo/new?source=views" data-source="views">
+                            <div class="ss-top"><span class="ss-kicker">AUDIENCE</span></div>
+                            <div class="ss-name">YouTube</div>
+                            <div class="ss-verb">Audience you earned</div>
+                            <ul class="ss-measures"><li>Views</li></ul>
+                            <div class="ss-foot">
+                                <span class="ss-oracle">YouTube &middot; every 12h</span>
+                                <span class="ss-go">Examine my channel &rarr;</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="ss-pair">
+                        <span class="ss-pair-k">&sect; CONNECT BOTH</span>
+                        <span class="ss-pair-v">
+                            Bank settles the contract. Stripe fills in the timing a payout
+                            delay hides &mdash; a sale on the 28th of a window closing the
+                            30th reaches your account in March. Together they beat either
+                            alone.
+                        </span>
+                    </div>
+
+                    <p class="ss-note">
+                        No terms exist until a source is connected. Nothing here commits you
+                        to a contract, and read access can be revoked at any time.
+                    </p>
+                </section>
             </div>
 
             <!-- Mechanism Section -->
@@ -945,6 +1064,27 @@ export function renderActiveContracts() {
                     <div style="display:flex; flex-direction:column; gap:4px;">
                         <div style="font-family: var(--display, 'Archivo', sans-serif); font-size: 24px; font-weight: 700; color: var(--win, #186B4A); font-variant-numeric: tabular-nums;">18</div>
                         <div class="mono-lbl">DUELS SETTLED THIS WEEK</div>
+                    </div>
+                </div>
+
+                <!-- Sort tabs + DOMAIN filters. Relocated here from the page header:
+                     they only drive the Rivalry board, and above the source picker
+                     they read as picker filters that do nothing. -->
+                <div class="eq-controls">
+                    <div class="eq-tabs" id="eq-tabs">
+                        <button class="eq-tab active" data-sort="trending_24h">TRENDING</button>
+                        <button class="eq-tab" data-sort="new">NEW</button>
+                        <button class="eq-tab" data-sort="closing_soon">CLOSING SOON</button>
+                        <button class="eq-tab" data-sort="volume_24h">HIGH VOLUME</button>
+                    </div>
+                </div>
+                <div class="eq-filter-bar">
+                    <div class="eq-pills" id="eq-filters">
+                        <span class="eq-filter-lbl">DOMAIN</span>
+                        <button class="eq-pill active" data-category="all">ALL</button>
+                        <button class="eq-pill" data-category="social">SOCIAL</button>
+                        <button class="eq-pill" data-category="commerce">COMMERCE</button>
+                        <button class="eq-pill" data-category="finance">FINANCE</button>
                     </div>
                 </div>
 
@@ -1007,13 +1147,9 @@ export function renderActiveContracts() {
 }
 
 export function initActiveContracts() {
+    // Sort + domain filters now drive the Rivalry board only.
     let activeSort = 'trending_24h';
     let activeCategory = 'all';
-
-    const grid = document.getElementById('eq-grid');
-    const countLbl = document.getElementById('eq-count-lbl');
-
-    if (!grid) return;
 
     // Item 2: Mechanical Odometer count-up on first paint
     function animateOdometer(el, endVal, suffix = '', duration = 1400) {
@@ -1034,156 +1170,7 @@ export function initActiveContracts() {
     animateOdometer(document.getElementById('stat-contracts'), 528);
     animateOdometer(document.getElementById('stat-pool'), 148200);
 
-    // Item 3: Live Commit Ticker Rolling Loop
-    const tickerCommits = [
-        "@northloop committed $2,400 &middot; Order Volume Growth (30d) &middot; 12s ago",
-        "@vance_cap committed $5,000 &middot; Monthly Recurring Revenue (30d) &middot; 45s ago",
-        "@solomon_k committed $1,200 &middot; Follower Growth (14d) &middot; 2m ago",
-        "@atlas_ventures committed $10,000 &middot; Checkout Volume (14d) &middot; 5m ago",
-        "@meridian committed $3,500 &middot; Store Net Sales (30d) &middot; 8m ago"
-    ];
-    let tickerIdx = 0;
-    const tickerTextEl = document.getElementById('ticker-text');
-    const tickerBodyEl = document.getElementById('ticker-body');
-    if (tickerTextEl && tickerBodyEl) {
-        setInterval(() => {
-            tickerBodyEl.style.opacity = '0';
-            tickerBodyEl.style.transform = 'translateY(-10px)';
-            setTimeout(() => {
-                tickerIdx = (tickerIdx + 1) % tickerCommits.length;
-                tickerTextEl.innerHTML = tickerCommits[tickerIdx];
-                tickerBodyEl.style.transform = 'translateY(10px)';
-                setTimeout(() => {
-                    tickerBodyEl.style.opacity = '1';
-                    tickerBodyEl.style.transform = 'translateY(0)';
-                }, 50);
-            }, 380);
-        }, 4000);
-    }
 
-    // Differentiated 8 Contracts Data (including Item 5 Fill State for Card 6)
-    const defaultListings = [
-        {
-            id: 'B1A6-9901',
-            title: 'Order Volume Growth (30d)',
-            domain: 'commerce',
-            provider: 'shopify',
-            tier: 'maximum',
-            badge: 'FILLING FAST',
-            min_stake: 500,
-            max_stake: 10000,
-            multiplier: 4.0,
-            days_left: 14,
-            committed_count: 14,
-            total_staked: 18200,
-            is_filled: false
-        },
-        {
-            id: 'FDA5-4421',
-            title: 'Monthly Recurring Revenue (30d)',
-            domain: 'finance',
-            provider: 'stripe',
-            tier: 'maximum',
-            badge: 'MOST STAKED',
-            min_stake: 500,
-            max_stake: 5000,
-            multiplier: 3.5,
-            days_left: 4,
-            committed_count: 22,
-            total_staked: 34500,
-            is_filled: false
-        },
-        {
-            id: 'D5CF-8812',
-            title: 'Follower Growth (14d)',
-            domain: 'social',
-            provider: 'x',
-            tier: 'elevated',
-            badge: 'POPULAR',
-            min_stake: 250,
-            max_stake: 3000,
-            multiplier: 2.5,
-            days_left: 7,
-            committed_count: 9,
-            total_staked: 11800,
-            is_filled: false
-        },
-        {
-            id: '399F-1029',
-            title: 'Store Net Sales (30d)',
-            domain: 'commerce',
-            provider: 'shopify',
-            tier: 'elevated',
-            badge: '48 ACTIVE',
-            min_stake: 250,
-            max_stake: 2500,
-            multiplier: 2.5,
-            days_left: 18,
-            committed_count: 18,
-            total_staked: 22400,
-            is_filled: false
-        },
-        {
-            id: 'E882-7710',
-            title: 'Channel Subscribers (60d)',
-            domain: 'social',
-            provider: 'youtube',
-            tier: 'controlled',
-            badge: 'POPULAR',
-            min_stake: 100,
-            max_stake: 1500,
-            multiplier: 1.5,
-            days_left: 22,
-            committed_count: 6,
-            total_staked: 4200,
-            is_filled: false
-        },
-        {
-            id: '91B4-6603',
-            title: 'App Store Downloads (30d)',
-            domain: 'commerce',
-            provider: 'apple',
-            tier: 'elevated',
-            badge: 'MOST STAKED',
-            min_stake: 500,
-            max_stake: 4000,
-            multiplier: 2.8,
-            days_left: 12,
-            committed_count: 15,
-            total_staked: 19800,
-            is_filled: false
-        },
-        {
-            id: '440A-2291',
-            title: 'API Request Volume (14d)',
-            domain: 'social',
-            provider: 'x',
-            tier: 'controlled',
-            badge: '48 ACTIVE',
-            min_stake: 150,
-            max_stake: 2000,
-            multiplier: 1.8,
-            days_left: 9,
-            committed_count: 11,
-            total_staked: 8900,
-            is_filled: false
-        },
-        {
-            id: '771C-3382',
-            title: 'Checkout Volume (14d)',
-            domain: 'finance',
-            provider: 'stripe',
-            tier: 'maximum',
-            badge: 'FILLED',
-            min_stake: 1000,
-            max_stake: 15000,
-            multiplier: 4.0,
-            days_left: 0,
-            committed_count: 50,
-            total_staked: 150000,
-            is_filled: true // Item 5: Truthful Fill state (sorted to end)
-        }
-    ];
 
     
     // Mock Rivalries Data (Open challenges sorted above Live duels)
@@ -1337,112 +1324,7 @@ export function initActiveContracts() {
         });
     }
 
-    function renderGrid(contracts) {
-        grid.innerHTML = '';
 
-        let list = (contracts && contracts.length > 0) ? contracts : defaultListings;
-
-        if (activeCategory !== 'all') {
-            list = list.filter(c => (c.domain || 'social').toLowerCase() === activeCategory.toLowerCase());
-        }
-
-        // Item 5: Sort filled cards to the end of the grid
-        list.sort((a, b) => (a.is_filled === b.is_filled ? 0 : a.is_filled ? 1 : -1));
-
-        if (countLbl) countLbl.textContent = `${list.length} CONTRACT${list.length !== 1 ? 'S' : ''}`;
-
-        if (list.length === 0) {
-            grid.innerHTML = '<div style="padding:60px; text-align:center; color:var(--ink-3); font-size:14px; grid-column:1/-1; background:var(--plate);">No contracts match your filters.</div>';
-            return;
-        }
-
-        list.forEach(c => {
-            const el = document.createElement('div');
-            el.innerHTML = renderCard(c);
-            grid.appendChild(el.firstElementChild);
-        });
-    }
-
-    function renderCard(c) {
-        const rawId = (c.id || '').toString();
-        const shortId = rawId.split('-')[0] || rawId || 'B1A6';
-        const tier = (c.tier || 'controlled').toLowerCase();
-        const min = c.min_stake || 250;
-        const max = c.max_stake || 3000;
-        const stakeDisplay = `$${min.toLocaleString()} – $${max.toLocaleString()}`;
-        const timeLabel = c.is_filled ? 'Ended' : `${c.days_left || 4}d left`;
-        const platform = (c.provider || 'x').toString();
-        const goal = c.title || 'Contract Goal';
-
-        const tierBadgeText = tier === 'maximum' ? 'ALL-IN' : tier === 'elevated' ? 'STAKE' : 'PLEDGE';
-        const badgeText = c.is_filled ? 'FILLED' : (c.badge || 'MOST STAKED');
-        const multiplier = c.multiplier ? c.multiplier.toFixed(1) : '2.5';
-
-        const committedCount = c.committed_count || 14;
-        const totalStakedStr = (c.total_staked || 18200).toLocaleString();
-        const positionText = `${committedCount} COMMITTED &middot; $${totalStakedStr} STAKED &middot; 4 SLOTS AT ${multiplier}&times;`;
-
-        const filledClass = c.is_filled ? 'is-filled' : '';
-        const filledBtnState = c.is_filled ? 'disabled' : '';
-        const filledBtnText = c.is_filled ? 'FILLED' : 'START COMMITMENT';
-        const filledStampClass = c.is_filled ? 'active filled-stamp' : '';
-
-        return `
-            <div class="eq-card ${filledClass}"
-                 data-id="${c.id}" 
-                 data-tier="${tier}" 
-                 data-stake-min="${min}"
-                 data-stake-max="${max}"
-                 data-goal="${goal}"
-                 data-provider="${platform}">
-                
-                <!-- Seal Stamp Overlay Element (Item 1 & Item 5) -->
-                <div class="cl-seal-stamp ${filledStampClass}" id="stamp-${c.id}">
-                    <span>${c.is_filled ? 'FILLED' : 'COMMITTED'}</span>
-                    <small class="mono" style="font-size: 8px; opacity:0.8; margin-top:2px;">RCPT-${shortId.slice(0, 4).toUpperCase()}</small>
-                </div>
-
-                <div class="eq-card-header-line1">
-                    <span class="mono-lbl" style="background: rgba(122, 28, 41, 0.08); color: ${c.is_filled ? 'var(--ink-3)' : '#7A1C29'}; padding: 3px 8px; border-radius: 2px; border: 1px solid ${c.is_filled ? 'var(--rule)' : 'rgba(122, 28, 41, 0.2)'}; font-weight: 700; white-space: nowrap;">${badgeText}</span>
-                </div>
-                
-                <div class="eq-card-header-line2">
-                    <span class="mono-lbl" style="white-space: nowrap;">RCPT-${shortId.slice(0, 4).toUpperCase()}</span>
-                    <span class="mono-lbl" style="white-space: nowrap; font-variant-numeric: tabular-nums;">○ ${timeLabel}</span>
-                </div>
-                
-                <h3 class="eq-card-title">${goal}</h3>
-                
-                <div class="eq-card-provider">
-                    <span class="eq-platform-dot"></span>
-                    <span class="mono-lbl" style="color: var(--ink-2, #4A5464);">${platform.toUpperCase()}</span>
-                    <span class="eq-tier-badge ${tier}">${tierBadgeText}</span>
-                </div>
-
-                <div class="eq-card-divider"></div>
-
-                <div class="eq-card-stake-info">
-                    <div>
-                        <div class="eq-stake-val">${stakeDisplay}</div>
-                        <div class="mono-lbl" style="font-size: 9px; margin-top: 2px;">STAKE RANGE</div>
-                    </div>
-                    <div class="eq-stake-separator"></div>
-                    <div style="text-align: right;">
-                        <div class="eq-stake-val" style="color: ${c.is_filled ? 'var(--ink-3)' : '#7A1C29'};">${multiplier}&times;</div>
-                        <div class="mono-lbl" style="font-size: 9px; margin-top: 2px;">YIELD MULTIPLIER</div>
-                    </div>
-                </div>
-
-                <!-- Item 4: Position Line on Hover -->
-                <div class="eq-position-info">
-                    ${positionText}
-                </div>
-
-                <!-- Item 1: Stamp Press Commit Button -->
-                <button class="eq-card-cta primary eq-lock-btn" ${filledBtnState}>${filledBtnText}</button>
-            </div>
-        `;
-    }
 
     // Tabs listener
     const tabsContainer = document.getElementById('eq-tabs');
@@ -1453,8 +1335,7 @@ export function initActiveContracts() {
             tabsContainer.querySelectorAll('.eq-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             activeSort = tab.dataset.sort;
-            renderGrid();
-    renderRivalries();
+            renderRivalries();
         });
     }
 
@@ -1467,67 +1348,10 @@ export function initActiveContracts() {
             filtersContainer.querySelectorAll('.eq-pill').forEach(p => p.classList.remove('active'));
             pill.classList.add('active');
             activeCategory = pill.dataset.category;
-            renderGrid();
-    renderRivalries();
             renderRivalries();
         });
     }
 
-    // Grid click listener — Item 1 Stamp-Press Commit Ceremony
-    grid.addEventListener('click', (e) => {
-        const btn = e.target.closest('.eq-lock-btn');
-        if (btn && !btn.disabled) {
-            e.stopPropagation();
-            e.preventDefault();
-            const card = btn.closest('.eq-card');
-            if (card) {
-                const id = card.dataset.id;
-                const shortId = id.split('-')[0] || id.slice(0, 4).toUpperCase();
-                
-                // Item 1 Ceremony Sequence:
-                // 1. Button depresses 2px and darkens to #54111B
-                btn.style.transform = 'translateY(2px)';
-                btn.style.backgroundColor = '#54111B';
-
-                // 2. Seal impression lands on card (clPress 460ms)
-                const stampEl = card.querySelector('.cl-seal-stamp');
-                if (stampEl) stampEl.classList.add('active');
-
-                // 3. Card border switches to 1.5px solid #7A1C29
-                card.classList.add('is-committed');
-
-                // 4. Button text becomes COMMITTED · RCPT-B1A6, disabled state
-                setTimeout(() => {
-                    btn.disabled = true;
-                    btn.textContent = `COMMITTED &middot; RCPT-${shortId.toUpperCase()}`;
-                }, 150);
-
-                // Trigger execution modal after ceremony completes
-                setTimeout(() => {
-                    openExecutionModal({
-                        id,
-                        title: card.dataset.goal,
-                        goal: card.dataset.goal,
-                        tier: card.dataset.tier,
-                        provider: card.dataset.provider,
-                        platform: card.dataset.provider,
-                        min_stake: parseFloat(card.dataset.stakeMin || '250'),
-                        max_stake: parseFloat(card.dataset.stakeMax || '3000'),
-                        multiplier: card.dataset.tier === 'maximum' ? 4.0 : 2.5
-                    });
-                }, 500);
-            }
-            return;
-        }
-
-        const card = e.target.closest('.eq-card');
-        if (card) {
-            e.preventDefault();
-            e.stopPropagation();
-            const id = card.dataset.id;
-            if (id) window.router.navigate('/contract/' + id);
-        }
-    });
 
     // Rules modal listener
     const rulesBtn = document.getElementById('btn-rules');
@@ -1539,7 +1363,57 @@ export function initActiveContracts() {
         });
     }
 
+    // ═══ SOLO SOURCE PICKER ═══
+    // Entrance motion only. The content is already in the DOM; this just animates
+    // it in. Three independent guarantees that it becomes visible:
+    //   1. threshold 0 + negative rootMargin — fires even for a section taller
+    //      than the viewport, which a high threshold can never satisfy
+    //   2. a 1200ms timeout that forces the reveal regardless of the observer
+    //   3. reduced-motion / no-IO environments are marked seen immediately
+    // We shipped a blank bordered box once because an observer threshold couldn't
+    // be met. Do not remove the timeout.
+    const ssRoot = document.getElementById('ss-root');
+    if (ssRoot) {
+        const reveal = () => ssRoot.setAttribute('data-seen', 'true');
+        // Hard fallback: paint the final state with no transition at all.
+        const forceVisible = () => ssRoot.classList.add('ss-forced');
+        const prefersReduced = window.matchMedia
+            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (prefersReduced || typeof IntersectionObserver === 'undefined') {
+            reveal();
+            forceVisible();
+        } else {
+            const io = new IntersectionObserver((entries) => {
+                if (entries.some(e => e.isIntersecting)) { reveal(); io.disconnect(); }
+            }, { threshold: 0, rootMargin: '0px 0px -8% 0px' });
+            io.observe(ssRoot);
+
+            setTimeout(() => {
+                reveal();
+                io.disconnect();
+                // Setting data-seen only starts a transition. If that transition
+                // never ticks (throttled tab, paused timeline), the cards would sit
+                // at opacity 0 forever — the blank bordered box we shipped once.
+                // Verify actual paint; force it if the animation did not deliver.
+                const first = ssRoot.querySelector('.ss-card');
+                if (!first || parseFloat(getComputedStyle(first).opacity) < 0.9) {
+                    forceVisible();
+                }
+            }, 1200);
+        }
+
+        // Route through the SPA router; one route, source as a param.
+        ssRoot.querySelectorAll('.ss-card').forEach((card) => {
+            card.addEventListener('click', (e) => {
+                const href = card.getAttribute('href');
+                if (!href || !window.router) return;
+                e.preventDefault();
+                window.router.navigate(href);
+            });
+        });
+    }
+
     // Initial render
-    renderGrid();
     renderRivalries();
 }

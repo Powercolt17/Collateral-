@@ -4,7 +4,6 @@ import { Router } from './router.js';
 import { renderHeader, initScrollEffects } from './components/Header.js';
 import { getAccount, watchAccount, disconnect, signMessage } from '@wagmi/core';
 import { modal, wagmiAdapter } from './web3.js';
-import { renderOverview, initOverview } from './views/Overview.js';
 import { renderRivalry, initRivalry } from './views/Rivalry.js';
 import { renderRivalryDetail, initRivalryDetail } from './views/RivalryDetail.js';
 import { renderLedger, initLedger } from './views/Ledger.js';

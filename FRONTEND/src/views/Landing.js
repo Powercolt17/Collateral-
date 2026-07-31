@@ -38,7 +38,7 @@ export function renderLanding() {
                             </span>
                         </h1>
                         <p class="hl-meta" aria-label="Sample contract telemetry">$1,000 &middot; 30 DAY WINDOW &middot; 11 DAYS LEFT</p>
-                        <p class="lede rise is-in" style="--d:620ms">Lock a deposit against a public goal. If your platform API confirms you hit it on time, your money comes back with matching yield. If you miss, your deposit funds someone who didn't.</p>
+                        <p class="lede rise is-in" style="--d:620ms">Lock a deposit against a public goal. If your platform API confirms you hit it on time, your money comes back with a matching payout. If you miss, your deposit funds someone who didn't.</p>
                         <div class="hero-actions rise is-in" style="--d:740ms">
                             <button class="btn btn-fill" type="button" onclick="if(window.app && window.app.openAccessModal){ window.app.openAccessModal('signup'); } else { window.router.navigate('/signin'); } return false;">Write a contract</button>
                             <a class="btn btn-ghost" href="#flow">Watch forfeiture flow &darr;</a>
@@ -323,7 +323,7 @@ export function renderLanding() {
                             </div>
                             <div class="perf" aria-hidden="true"></div>
                             <div class="r-bottom won">
-                                <div><p class="r-amt">+$2,240.00</p><p class="r-note">Principal + yield returned</p></div>
+                                <div><p class="r-amt">+$2,240.00</p><p class="r-note">Stake + payout returned</p></div>
                                 <span class="r-stamp won">Approved</span>
                             </div>
                         </article>
@@ -341,7 +341,7 @@ export function renderLanding() {
                             </div>
                             <div class="perf" aria-hidden="true"></div>
                             <div class="r-bottom won">
-                                <div><p class="r-amt">+$1,120.00</p><p class="r-note">Principal + yield returned</p></div>
+                                <div><p class="r-amt">+$1,120.00</p><p class="r-note">Stake + payout returned</p></div>
                                 <span class="r-stamp won">Approved</span>
                             </div>
                         </article>
@@ -599,7 +599,7 @@ export function renderLanding() {
                                 <div class="outcome">
                                     <span class="mono" style="color:var(--win)">If you hit target</span>
                                     <p class="outcome-val" id="o-win">$2,500</p>
-                                    <p class="outcome-note">Principal + matching yield</p>
+                                    <p class="outcome-note">Stake plus matching payout</p>
                                 </div>
                                 <div class="outcome">
                                     <span class="mono" style="color:var(--blood)">If you miss</span>
@@ -735,7 +735,7 @@ export function renderLanding() {
                             </button>
                             <div class="a" style="margin:0 !important; padding:0 !important; border:none !important; min-height:0 !important;" id="a11" role="region">
                                 <div>
-                                    <p style="margin:0 !important; padding:0 44px 20px 78px !important; line-height:1.72 !important; display:block !important; text-align:left !important;">It moves to a third-party custodian on Stripe Connect the moment the contract opens. Collateral never holds it. Hit your target and it returns to your card with the matched yield. Miss, and it settles to the forfeiture pool.</p>
+                                    <p style="margin:0 !important; padding:0 44px 20px 78px !important; line-height:1.72 !important; display:block !important; text-align:left !important;">It moves to a third-party custodian on Stripe Connect the moment the contract opens. Collateral never holds it. Hit your target and it returns to your card with the matched payout. Miss, and it settles to the forfeiture pool.</p>
                                 </div>
                             </div>
                         </div>
@@ -804,7 +804,7 @@ export function renderLanding() {
                             </button>
                             <div class="a" style="margin:0 !important; padding:0 !important; border:none !important; min-height:0 !important;" id="a31" role="region">
                                 <div>
-                                    <p style="margin:0 !important; padding:0 44px 20px 78px !important; line-height:1.72 !important; display:block !important; text-align:left !important;">Into the pool that funds matched yield for people who hit their targets in the same period. Your miss pays someone else's win. Collateral takes a fee on settled contracts, disclosed before you sign, and takes nothing from the pool itself.</p>
+                                    <p style="margin:0 !important; padding:0 44px 20px 78px !important; line-height:1.72 !important; display:block !important; text-align:left !important;">Into the pool that funds matched payouts for people who hit their targets in the same period. Your miss pays someone else's win. Collateral takes a fee on settled contracts, disclosed before you sign, and takes nothing from the pool itself.</p>
                                 </div>
                             </div>
                         </div>
@@ -859,7 +859,7 @@ export function renderLanding() {
             <footer class="site-footer" style="background:var(--bg, #FAF7F1); border-top:1px solid var(--rule, #D8D2C6); padding:64px 24px 72px; text-align:center; box-sizing:border-box; width:100%;">
                 <div class="footer-inner" style="max-width:720px; margin:0 auto;">
                     <p class="footer-disclaimer" style="margin:0 0 28px; color:#55534E; font-family:ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size:12px; line-height:1.75; letter-spacing:0.01em; text-align:center;">
-                        Deposits are held by a third-party custodian via Stripe Connect and are not held by Collateral. Outcomes are determined solely by read-only telemetry from the connected platform API named in the contract. Matching yield is funded from forfeited deposits and sponsor contributions, is not interest, and is not guaranteed. Collateral is not a broker, dealer, exchange, investment adviser, or deposit institution. Forfeited capital is not recoverable. The settlement feed shows recently settled contracts and may be delayed. Figures shown are book totals as of 25 July 2026.
+                        Deposits are held by a third-party custodian via Stripe Connect and are not held by Collateral. Outcomes are determined solely by read-only telemetry from the connected platform API named in the contract. Matching payouts are funded from forfeited deposits and sponsor contributions, is not interest, and is not guaranteed. Collateral is not a broker, dealer, exchange, investment adviser, or deposit institution. Forfeited capital is not recoverable. The settlement feed shows recently settled contracts and may be delayed. Figures shown are book totals as of 25 July 2026.
                     </p>
                     <div class="footer-meta mono" style="font-family:ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size:11px; letter-spacing:0.12em; color:#6B6862; text-transform:uppercase; display:flex; justify-content:center; align-items:center; gap:24px; flex-wrap:wrap;">
                         <span>&copy; 2026 COLLATERAL INC.</span>
