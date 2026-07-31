@@ -726,7 +726,7 @@ window.app = {
     },
     signInWithGoogle: async function () {
         try {
-            if (!window.Clerk) { showAlert('OAuth not available. Please use email/password or refresh.', { type: 'warning', title: 'OAuth Unavailable' }); return; }
+            if (!window.Clerk) { showAlert(window.__clerkUnavailableReason || 'OAuth not available. Please use email/password or refresh.', { type: 'warning', title: 'OAuth Unavailable' }); return; }
             console.log('[Auth] Starting Google OAuth via Clerk...');
             // Store referral code before redirect (if entered)
             const refInput = document.getElementById('auth-referral-code')?.value?.trim();
@@ -771,7 +771,7 @@ window.app = {
     },
     signInWithApple: async function () {
         try {
-            if (!window.Clerk) { showAlert('OAuth not available. Please use email/password or refresh.', { type: 'warning', title: 'OAuth Unavailable' }); return; }
+            if (!window.Clerk) { showAlert(window.__clerkUnavailableReason || 'OAuth not available. Please use email/password or refresh.', { type: 'warning', title: 'OAuth Unavailable' }); return; }
             console.log('[Auth] Starting Apple OAuth via Clerk...');
             window.app.closeAccessModal();
             const _goFlow = _isOnGoPage();
@@ -2072,7 +2072,13 @@ hydrateSession();
 (async function initClerk() {
     const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
     if (!clerkPubKey) {
-        console.log('[Clerk] No publishable key configured, OAuth sign-in disabled');
+        // Record WHY OAuth is unavailable. Without this the sign-in button shows a
+        // dead-end "OAuth not available" with nothing to act on, which reads like a
+        // Google/network fault when it is actually one missing env var.
+        window.__clerkUnavailableReason =
+            'VITE_CLERK_PUBLISHABLE_KEY is not set. Add it to FRONTEND/.env and restart the dev server ' +
+            '(Vite only reads .env at startup).';
+        console.warn('[Clerk] ' + window.__clerkUnavailableReason);
         return;
     }
     try {
@@ -2109,6 +2115,11 @@ hydrateSession();
             }
         }
     } catch (err) {
+        // Key was present but the SDK never came up — CDN blocked, offline, bad key.
+        // Distinguish this from "not configured" so the two aren't debugged as one.
+        window.__clerkUnavailableReason =
+            'Clerk SDK failed to load (' + (err && err.message ? err.message : String(err)) + '). ' +
+            'Check the network tab for cdn.jsdelivr.net and any blocking extension.';
         console.error('[Clerk] SDK init failed:', err);
     }
 })();
