@@ -239,7 +239,7 @@ export function renderActiveContracts() {
             .ss p, .ss h2, .ss ul { margin: 0; }
             .ss-eyebrow { display:flex; align-items:center; font-family:var(--mono,'JetBrains Mono',monospace); font-size:10px; letter-spacing:.2em; color:var(--ink-3,#8C877B); margin-bottom:18px; }
             .ss-mark { display:inline-block; width:26px; height:6px; margin-right:11px; border-top:2px solid var(--blood,#7A1C29); border-bottom:2px solid var(--blood,#7A1C29); }
-            .ss-title { font-family:var(--display,'Archivo',sans-serif); font-weight:700; font-size:clamp(28px,4.6vw,46px); letter-spacing:-.032em; line-height:1.02; margin-bottom:18px; max-width:16ch; color:var(--ink,#1A1A18); }
+            .ss-title { font-family:var(--display,'Archivo',sans-serif); font-weight:700; font-size:clamp(28px,4.6vw,46px); letter-spacing:-.032em; line-height:1.02; margin-bottom:18px; max-width:none; color:var(--ink,#1A1A18); }
             .ss-title em { font-style:normal; color:var(--blood,#7A1C29); }
             .ss-lede { font-family:var(--display,'Archivo',sans-serif); font-weight:500; font-size:15px; line-height:1.72; color:var(--ink-2,#4A463E); max-width:56ch; margin-bottom:38px; }
 
@@ -272,19 +272,21 @@ export function renderActiveContracts() {
             .ss-step-hd { display:flex; align-items:baseline; gap:12px; font-family:var(--display,'Archivo',sans-serif); font-weight:700; font-size:19px; letter-spacing:-.02em; color:var(--ink,#1A1A18); margin-bottom:10px; }
             .ss-step-n { font-family:var(--mono,'JetBrains Mono',monospace); font-size:10px; letter-spacing:.16em; color:var(--blood,#7A1C29); font-weight:400; }
             .ss-step-body { font-size:13.5px; line-height:1.7; color:var(--ink-2,#4A463E); max-width:62ch; margin-bottom:16px; }
-            .ss-primary { display:inline-flex; align-items:center; gap:10px; background:var(--blood,#7A1C29); color:#fff; border:none; cursor:pointer; font-family:var(--mono,'JetBrains Mono',monospace); font-size:12px; letter-spacing:.08em; text-transform:uppercase; padding:14px 22px; transition:background 200ms ease, transform 200ms ease; }
+            .ss-primary-wrap { padding:6px 0 2px; }
+            .ss-primary { display:inline-flex !important; width:max-content; max-width:100%; align-items:center; gap:10px; background:var(--blood,#7A1C29); color:#fff; border:none; cursor:pointer; font-family:var(--mono,'JetBrains Mono',monospace); font-size:12px; letter-spacing:.08em; text-transform:uppercase; padding:14px 22px; transition:background 200ms ease, transform 200ms ease; }
             .ss-primary:hover { background:#54111B; transform:translateY(-1px); }
             .ss-primary-sub { font-size:9.5px; letter-spacing:.1em; opacity:.72; text-transform:none; }
-            .ss-micro { margin-top:10px; font-family:var(--mono,'JetBrains Mono',monospace); font-size:10px; line-height:1.6; color:var(--ink-3,#8C877B); }
+            .ss .ss-micro { margin-top:18px; font-family:var(--display,'Archivo',sans-serif); font-size:12.5px; line-height:1.7; color:var(--ink-2,#4A463E); }
 
             /* Step 03 is unreachable until the bank is connected: no metric can be
                chosen before the source that settles it exists. Visual dimming AND a
                pointer-events block, so it cannot be clicked through. */
-            /* Dim with filter, not opacity: the forced-paint fallback sets
-               opacity:1 !important, so an opacity-based gate would be stomped by
-               the very failsafe that guarantees the section is visible. */
-            .ss-gated .ss-step-body { filter:opacity(.6); }
-            .ss-gated .ss-metrics { pointer-events:none; filter:saturate(.25) opacity(.55); }
+            /* Step 03 renders at full opacity. The NEEDS STRIPE / NEEDS SHOPIFY tags
+               already communicate locking per-card, and dimming the whole block hid
+               "Money received" — the one metric that is ready the moment they
+               connect. Only the pointer-events block remains, so a metric still
+               cannot be chosen before the bank that settles it exists. */
+            .ss-gated .ss-metrics { pointer-events:none; }
             .ss-gate-badge { font-family:var(--mono,'JetBrains Mono',monospace); font-size:8.5px; letter-spacing:.13em; color:var(--ink-3,#8C877B); border:1px solid var(--rule,#DCD5C6); padding:3px 6px; margin-left:10px; white-space:nowrap; }
             .ss[data-bank="connected"] .ss-gated { opacity:1; }
             .ss[data-bank="connected"] .ss-gated .ss-metrics { pointer-events:auto; filter:none; }
@@ -974,7 +976,7 @@ export function renderActiveContracts() {
 
                 <section class="ss" id="ss-root" data-seen="false" aria-labelledby="ss-title">
                     <p class="ss-eyebrow"><span class="ss-mark"></span>SOLO CONTRACTS</p>
-                    <h2 class="ss-title" id="ss-title">Connect your bank. Then choose <em>what you are measured on.</em></h2>
+                    <h2 class="ss-title" id="ss-title">Connect your bank.<br>Then choose <em>what you&rsquo;re measured on.</em></h2>
                     <p class="ss-lede">
                         Connect your bank and Collateral reads twelve months of your own history
                         before it offers you anything. Your target, your difficulty, and your
@@ -988,18 +990,21 @@ export function renderActiveContracts() {
                             which is why the bank &mdash; not a platform API &mdash; settles
                             anything measured in dollars.
                         </p>
-                        <button class="ss-primary" id="ss-connect-bank" data-source="bank">
+                        <div class="ss-primary-wrap">
+                            <button class="ss-primary" id="ss-connect-bank" data-source="bank">
                             Connect bank <span class="ss-primary-sub">Plaid &middot; read-only</span>
-                        </button>
+                            </button>
+                        </div>
                         <p class="ss-micro">Nothing here commits you to a contract. Access is revocable at any time.</p>
                     </div>
 
                     <div class="ss-step" data-step="02">
                         <div class="ss-step-hd"><span class="ss-step-n">02</span>The examination</div>
                         <p class="ss-step-body">
-                            Collateral reads twelve months of your own deposit history before it
-                            offers you anything. Your target, your difficulty, and your payout
-                            multiplier all come out of your numbers &mdash; not a menu.
+                            It reads your deposit history and reports what it finds &mdash; your
+                            median month, how much it swings, whether it moves with the season,
+                            and how many months actually cleared each target it could set. You
+                            see the line before you decide whether to stand behind it.
                         </p>
                     </div>
 
