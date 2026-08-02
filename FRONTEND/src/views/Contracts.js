@@ -585,7 +585,7 @@ export function renderContracts() {
                             <li><span class="ext-warn-dot"></span> Execution is irreversible.</li>
                             <li><span class="ext-warn-dot"></span> Capital is locked immediately upon confirmation.</li>
                             <li><span class="ext-warn-dot"></span> Settlement is enforced via deterministic provider verification.</li>
-                            <li><span class="ext-warn-dot"></span> No manual overrides. No appeals.</li>
+                            <li><span class="ext-warn-dot"></span> No overrides on the outcome. No appeals.</li>
                         </ul>
                     </div>
 

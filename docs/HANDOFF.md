@@ -173,22 +173,35 @@ Enum additions are one-way — Postgres has no `DROP VALUE`.
 
 ---
 
-## 7. Copy that needs revising
+## 7. Copy — DONE
 
-Manual payouts make these inaccurate about the **money**. The *outcome* is still
-automatic and unappealable; the disbursement is not. Final wording is the user's
-call — these are the strings and the proposed direction.
+Revised in `ceeb1c69`'s successor commit. The distinction now held everywhere:
+**the outcome is automatic and unappealable; the disbursement is reviewed.**
+Outcome language was deliberately not softened — it is the product's strongest
+claim and it is still true.
 
-| File | Current | Proposed |
-|---|---|---|
-| `FRONTEND/src/views/Landing.js:169` | "the oracle reports and settles itself. Neither party gets a vote." | Keep for the outcome; make clear the payout is reviewed before release. |
-| `FRONTEND/src/views/ContractTermSheet.js:342` | "Automatic settlement at window close." | "Automatic verification at window close. Payouts are reviewed before release." |
-| `FRONTEND/src/views/Contracts.js:588` and `TermSheet.js:527` | "No manual overrides. No appeals." | "No appeals — the outcome is final." Drop "no manual overrides": payouts are now a manual gate. |
-| `FRONTEND/src/views/ActiveContracts.js:1221` | "✓ No Appeals" | Accurate as-is. |
+| File | Now reads |
+|---|---|
+| `Landing.js:169` | "the oracle reports and the outcome is set. Neither party gets a vote." |
+| `ContractTermSheet.js:342` | "Settled automatically at window close. Funds released within one business day." |
+| `Contracts.js:588`, `TermSheet.js:527` | "No overrides on the outcome. No appeals." |
+| `ActiveContracts.js:1221` | "✓ No Appeals" — unchanged, still true |
 
-Still accurate, no change needed: `ActiveContracts.js:1198` ("Automated oracle
-verification at the deadline"), `ReceiptDetail.js:387`, `platform-policy.ts:31` —
-all describe verification and outcome, not disbursement.
+Payout timing added where a winner sees their own result, which previously said
+nothing about when money arrives: `ReceiptDetail.js:181` (settled-success status
+message) and `ContractDetail.js` `renderActionPanel()`, which gained a
+win branch — `SETTLED_SUCCESS`/`SETTLEMENT_COMPLETE` say funds are released
+within one business day, `PAYOUT_COMPLETE`/`COMPLETED` say they have been
+released. Previously both fell through to a generic "Final state reached."
+
+Still accurate, no change needed: `ActiveContracts.js:1198`, `ReceiptDetail.js:387`,
+`platform-policy.ts:31` — all describe verification and outcome, not disbursement.
+
+**Open question on the one-business-day claim.** It is a promise gated on a
+human approving in the admin queue, and there is no SLA or alert behind it. If
+approval slips past a day the copy is wrong in the same direction the rest of
+this section just fixed. Either treat one business day as an operational
+commitment, or soften to "after review, typically within one business day."
 
 ---
 

@@ -658,6 +658,22 @@ function renderActionPanel(state, daysLeft) {
             '<p>Contract requires funding to become active.</p>' +
             '</div>' +
             '</div>';
+    } else if (['SETTLED_SUCCESS', 'SETTLEMENT_COMPLETE'].includes(state)) {
+        act.innerHTML = '<div class="cd-action-status">' +
+            '<div class="cd-action-icon"><i data-lucide="check-check"></i></div>' +
+            '<div class="cd-action-text">' +
+            '<h4>Target Hit</h4>' +
+            '<p>Funds are released within one business day.</p>' +
+            '</div>' +
+            '</div>';
+    } else if (['PAYOUT_COMPLETE', 'COMPLETED'].includes(state)) {
+        act.innerHTML = '<div class="cd-action-status">' +
+            '<div class="cd-action-icon"><i data-lucide="check-check"></i></div>' +
+            '<div class="cd-action-text">' +
+            '<h4>Target Hit</h4>' +
+            '<p>Funds have been released.</p>' +
+            '</div>' +
+            '</div>';
     } else {
         act.innerHTML = '<div class="cd-action-status">' +
             '<div class="cd-action-icon"><i data-lucide="check-check"></i></div>' +

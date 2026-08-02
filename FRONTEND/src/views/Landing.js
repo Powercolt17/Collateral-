@@ -166,7 +166,7 @@ export function renderLanding() {
                                 <div class="cm-rise cm-step" style="--d: 1360ms">
                                     <div class="cm-step-n">03 &middot; SETTLE</div>
                                     <div class="cm-step-title">The date decides</div>
-                                    <p class="cm-step-body">On the closing date the oracle reports and settles itself. Neither gets a vote.</p>
+                                    <p class="cm-step-body">On the closing date the oracle reports and the outcome is set. Neither party gets a vote.</p>
                                 </div>
                             </div>
                         </div>
