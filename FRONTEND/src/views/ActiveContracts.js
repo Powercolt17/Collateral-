@@ -324,10 +324,11 @@ export function renderActiveContracts() {
                ("4 of 6 months — unlocks in March"), not the generic rule. */
             .ss-m-state { display:block; font-family:var(--mono,'JetBrains Mono',monospace); font-size:10px; line-height:1.6; color:var(--ink-3,#8C877B); margin-bottom:10px; }
             .ss-metric.ready .ss-m-state { color:var(--win,#186B4A); }
+            .ss-m-state:empty { display:none; margin:0; }
             /* Never a dead end: a locked metric states the door that is open. */
             .ss-m-alt { margin-top:10px; font-family:var(--mono,'JetBrains Mono',monospace); font-size:9.5px; line-height:1.6; color:var(--ink-3,#8C877B); border-left:2px solid var(--rule,#DCD5C6); padding-left:8px; }
 
-            @media (max-width:640px) {
+            @media (max-width:760px) {
                 .ss-step { grid-template-columns:1fr; gap:14px; padding:20px; }
                 .ss-metrics { grid-template-columns:1fr; }
             }
@@ -1003,12 +1004,8 @@ export function renderActiveContracts() {
                         </div>
                         <div class="ss-step-main">
                             <p class="ss-step-body">
-                                Read-only, through Plaid. Stripe and Shopify payouts land here too,
-                                which is why the bank &mdash; not a platform API &mdash; settles
-                                anything measured in dollars. It then reads your deposit history and
-                                reports what it finds: your median month, how much it swings, whether
-                                it moves with the season, and how many months actually cleared each
-                                target it could set.
+                                Read-only, through Plaid. Stripe and Shopify payouts land here too, so the
+                                bank settles anything measured in dollars.
                             </p>
                             <div class="ss-primary-wrap">
                                 <button class="ss-primary" id="ss-connect-bank" data-source="bank">
@@ -1023,13 +1020,10 @@ export function renderActiveContracts() {
                         <div class="ss-step-side">
                             <span class="ss-step-n">02</span>
                             <h3 class="ss-step-hd">Choose what you&rsquo;re measured on</h3>
-                            <span class="ss-gate-badge">AFTER YOUR BANK IS CONNECTED</span>
                         </div>
                         <div class="ss-step-main">
                             <p class="ss-step-body">
-                                Money is ready as soon as the bank is connected. The rest are counts,
-                                not money &mdash; no deposit says &ldquo;47 orders&rdquo; &mdash; so
-                                they need the platform that can see them.
+                                Money is ready as soon as your bank is connected. The rest are counts, not money.
                             </p>
 
                             <div class="ss-metrics" id="ss-metrics">
@@ -1049,15 +1043,11 @@ export function renderActiveContracts() {
                                         <span class="ss-m-name">MRR</span>
                                         <span class="ss-m-req">NEEDS STRIPE</span>
                                     </div>
-                                    <p class="ss-m-what">
-                                        A bank statement can&rsquo;t see recurring revenue &mdash; an annual
-                                        prepay lands as one lump that looks nothing like MRR.
-                                    </p>
+                                    <p class="ss-m-what">Recurring revenue. Your bank can&rsquo;t see it.</p>
                                     <div class="ss-m-foot">
-                                        <span class="ss-m-state">Connect now and MRR unlocks once you have 6 months of Stripe history.</span>
+                                        <span class="ss-m-state"></span>
                                         <span class="ss-go">Connect Stripe &rarr;</span>
                                     </div>
-                                    <p class="ss-m-alt">You can write a money contract today &mdash; this does not block it.</p>
                                 </div>
 
                                 <div class="ss-metric locked" data-metric="orders" data-source="orders" data-platform="Shopify">
@@ -1065,15 +1055,11 @@ export function renderActiveContracts() {
                                         <span class="ss-m-name">Orders</span>
                                         <span class="ss-m-req">NEEDS SHOPIFY</span>
                                     </div>
-                                    <p class="ss-m-what">
-                                        A bank statement can&rsquo;t see order counts &mdash; a deposit never
-                                        says how many orders produced it.
-                                    </p>
+                                    <p class="ss-m-what">Order counts. Not a dollar figure.</p>
                                     <div class="ss-m-foot">
                                         <span class="ss-m-state">Connect now and orders unlock once you have 6 months of Shopify history.</span>
                                         <span class="ss-go">Connect Shopify &rarr;</span>
                                     </div>
-                                    <p class="ss-m-alt">You can write a money contract today &mdash; this does not block it.</p>
                                 </div>
 
                                 <div class="ss-metric locked" data-metric="views" data-source="views" data-platform="YouTube">
@@ -1081,15 +1067,11 @@ export function renderActiveContracts() {
                                         <span class="ss-m-name">Views</span>
                                         <span class="ss-m-req">NEEDS YOUTUBE</span>
                                     </div>
-                                    <p class="ss-m-what">
-                                        A bank statement can&rsquo;t see views &mdash; they are never
-                                        denominated in dollars.
-                                    </p>
+                                    <p class="ss-m-what">Views. Never denominated in dollars.</p>
                                     <div class="ss-m-foot">
                                         <span class="ss-m-state">Connect now and views unlock once you have 6 months of YouTube history.</span>
                                         <span class="ss-go">Connect YouTube &rarr;</span>
                                     </div>
-                                    <p class="ss-m-alt">You can write a money contract today &mdash; this does not block it.</p>
                                 </div>
                             </div>
                         </div>
