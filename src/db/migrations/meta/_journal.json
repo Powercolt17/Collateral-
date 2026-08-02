@@ -190,6 +190,13 @@
       "when": 1783892498748,
       "tag": "0026_steady_madripoor",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1785651832199,
+      "tag": "0038_plaid_bank_income",
+      "breakpoints": true
     }
   ]
 }
