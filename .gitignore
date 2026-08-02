@@ -28,3 +28,9 @@ Thumbs.db
 *.swp
 *.swo
 .vercel
+
+# Ad-hoc debug scripts (one-off greps, throwaway db probes)
+/w-tmp*.cjs
+find_*.cjs
+find_*.js
+search_*.cjs
