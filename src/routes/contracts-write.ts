@@ -212,6 +212,31 @@ const contractWriteRoutes: FastifyPluginAsync = async (fastify) => {
             const tier = riskTier || 'STANDARD';
 
             // 1. Validate stake against tier caps
+            // ─────────────────────────────────────────────────────────────
+            // PAYOUT DESTINATION GATE
+            //
+            // A user must be payable BEFORE capital locks, not after they win.
+            // Discovering at settlement that there is nowhere to send the money
+            // is the worst version of this: the contract is already won, the
+            // outcome is already decided, and the user waits on onboarding they
+            // were never asked to do. Block here instead, while nothing is at
+            // stake yet.
+            // ─────────────────────────────────────────────────────────────
+            {
+                const { getPayoutAdapter, resolveUserRail } = await import('../services/payout-adapters.js');
+                const rail = await resolveUserRail(principalUserId);
+                const dest = await getPayoutAdapter(rail).resolveDestination(principalUserId);
+                if (dest.ok !== true) {
+                    reply.status(400);
+                    return {
+                        error: 'Set up how you get paid before locking capital. ' + dest.reason,
+                        code: 'PAYOUT_DESTINATION_REQUIRED',
+                        rail,
+                        reason: dest.code,
+                    };
+                }
+            }
+
             const stakeError = validateStake(lockAmountUsdCents, tier);
             if (stakeError) {
                 reply.status(400);

@@ -16,6 +16,7 @@
 
 import { runVerificationJob } from '../services/verification.js';
 import { runSettlementJob } from '../services/settlement.js';
+import { runPayoutJob } from '../services/payout-job.js';
 import { expireInstances, recomputeStats } from '../jobs/market-maintenance.js';
 import { runIndexerIteration } from '../services/indexer.js';
 
@@ -88,6 +89,26 @@ async function runJobIteration(): Promise<{
         durationMs: settlementDurationMs,
         ...settlementResult,
     });
+
+    // Run payout job — drains PAYOUT_QUEUED written by settlement above.
+    // Runs AFTER settlement so a contract settled this iteration pays in the
+    // same pass. Isolated in its own try/catch: a payout provider outage must
+    // never stop verification or settlement from running next iteration.
+    try {
+        const payoutStart = Date.now();
+        const payoutResult = await runPayoutJob();
+        log('INFO', 'Payout job complete', {
+            iterationId,
+            job: 'PAYOUT',
+            durationMs: Date.now() - payoutStart,
+            scanned: payoutResult.scanned,
+            sent: payoutResult.sent,
+            blocked: payoutResult.blocked,
+            failed: payoutResult.failed,
+        });
+    } catch (err) {
+        log('ERROR', 'Payout job failed', { error: err.message, iterationId });
+    }
 
     // Run market maintenance (Feed updates)
     // Runs every iteration (approx 15s) which satisfies the < 60s requirement
