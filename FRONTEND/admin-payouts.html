@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Payout Approvals · Collateral Admin</title>
+    <style>
+        :root {
+            --paper: #EFEBE1; --plate: #FBFAF6; --plate-alt: #F5F2EA;
+            --ink: #1A1A18; --ink-2: #4A463E; --ink-3: #8C877B;
+            --rule: #DCD5C6; --blood: #7A1C29; --win: #186B4A;
+            --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+            --display: "Archivo", -apple-system, "Helvetica Neue", Arial, sans-serif;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--display); }
+        .wrap { max-width: 1180px; margin: 0 auto; padding: 32px 20px 80px; }
+        h1 { font-size: 26px; letter-spacing: -.03em; margin: 0 0 6px; }
+        .sub { font-family: var(--mono); font-size: 11px; color: var(--ink-3); letter-spacing: .08em; margin-bottom: 24px; }
+
+        .keybar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+                  background: var(--plate); border: 1px solid var(--rule); padding: 14px 16px; margin-bottom: 20px; }
+        .keybar input { flex: 1 1 320px; font-family: var(--mono); font-size: 12px; padding: 9px 10px;
+                        border: 1px solid var(--rule); background: #fff; }
+        button { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+                 padding: 9px 14px; border: 1px solid var(--ink); background: var(--ink); color: #fff; cursor: pointer; }
+        button.ghost { background: transparent; color: var(--ink); }
+        button.approve { background: var(--win); border-color: var(--win); }
+        button.reject { background: transparent; color: var(--blood); border-color: var(--blood); }
+        button:disabled { opacity: .4; cursor: not-allowed; }
+
+        .totals { display: flex; gap: 22px; flex-wrap: wrap; font-family: var(--mono); font-size: 11px;
+                  color: var(--ink-2); margin-bottom: 16px; }
+        .totals b { font-size: 15px; color: var(--ink); display: block; font-family: var(--display); }
+
+        table { width: 100%; border-collapse: collapse; background: var(--plate); border: 1px solid var(--rule); }
+        th { font-family: var(--mono); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase;
+             color: var(--ink-3); text-align: left; padding: 10px; border-bottom: 1px solid var(--rule); }
+        td { padding: 12px 10px; border-bottom: 1px solid var(--rule); font-size: 13px; vertical-align: top; }
+        tr:last-child td { border-bottom: none; }
+        .amt { font-family: var(--mono); font-weight: 700; font-size: 15px; }
+        .muted { color: var(--ink-3); font-size: 11px; font-family: var(--mono); }
+        .flag { display: inline-block; font-family: var(--mono); font-size: 8.5px; letter-spacing: .12em;
+                padding: 3px 6px; border: 1px solid; white-space: nowrap; }
+        .flag.ok { color: var(--win); border-color: #9AC0AE; background: #E9F1ED; }
+        .flag.bad { color: var(--blood); border-color: #C4919B; background: #F7ECEE; }
+        .actions { display: flex; gap: 8px; }
+        .msg { padding: 12px 14px; border: 1px solid var(--rule); background: var(--plate-alt);
+               font-family: var(--mono); font-size: 11.5px; margin-bottom: 16px; white-space: pre-wrap; }
+        .empty { padding: 40px; text-align: center; color: var(--ink-3); font-family: var(--mono); font-size: 12px; }
+        .warn { border-left: 3px solid var(--blood); }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <h1>Payout approvals</h1>
+        <p class="sub">MANUAL DISBURSEMENT · NOTHING PAYS WITHOUT AN APPROVAL ON THIS PAGE</p>
+
+        <div class="keybar">
+            <input id="key" type="password" placeholder="ADMIN_API_KEY" autocomplete="off">
+            <button id="load">Load pending</button>
+            <button id="refresh" class="ghost">Refresh</button>
+        </div>
+
+        <div id="msg"></div>
+
+        <div class="totals" id="totals" style="display:none">
+            <div>PENDING<b id="t-count">0</b></div>
+            <div>TOTAL<b id="t-total">$0.00</b></div>
+            <div>UNPAYABLE<b id="t-unpayable">0</b></div>
+        </div>
+
+        <table id="tbl" style="display:none">
+            <thead>
+                <tr>
+                    <th>User</th><th>Amount</th><th>Rail / destination</th>
+                    <th>Contract</th><th>Settled</th><th>Decision</th>
+                </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+        </table>
+
+        <div class="empty" id="empty" style="display:none">Nothing awaiting approval.</div>
+    </div>
+
+    <script>
+        // Standalone admin page, same shape as the other root HTML tools.
+        // Auth is the ADMIN_API_KEY header, matching every other admin route —
+        // deliberately not a second auth pattern.
+        const API = localStorage.getItem('collateral_api_base') || 'https://collateral-production.up.railway.app';
+        const $ = (id) => document.getElementById(id);
+        const money = (c) => '$' + (c / 100).toFixed(2);
+
+        function say(text, warn) {
+            $('msg').innerHTML = text ? '<div class="msg' + (warn ? ' warn' : '') + '">' + text + '</div>' : '';
+        }
+        const key = () => $('key').value.trim();
+
+        async function api(path, opts) {
+            const res = await fetch(API + path, Object.assign({
+                headers: { 'Content-Type': 'application/json', 'x-admin-key': key() }
+            }, opts || {}));
+            const body = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(body.error || ('HTTP ' + res.status));
+            return body;
+        }
+
+        async function load() {
+            if (!key()) return say('Enter the admin key first.', true);
+            say('Loading…');
+            try {
+                const data = await api('/v1/admin/payouts/pending');
+                render(data);
+                say('');
+            } catch (e) { say('Failed to load: ' + e.message, true); }
+        }
+
+        function render(data) {
+            $('t-count').textContent = data.count;
+            $('t-total').textContent = money(data.totalCents);
+            $('t-unpayable').textContent = data.unpayable;
+            $('totals').style.display = 'flex';
+
+            const rows = $('rows');
+            rows.innerHTML = '';
+            $('tbl').style.display = data.count ? 'table' : 'none';
+            $('empty').style.display = data.count ? 'none' : 'block';
+
+            data.items.forEach((it) => {
+                const tr = document.createElement('tr');
+                const dest = it.hasDestination
+                    ? '<span class="flag ok">' + it.rail + '</span><div class="muted">' + it.destination + '</div>'
+                    : '<span class="flag bad">NO DESTINATION</span><div class="muted">' +
+                      (it.destinationIssue ? it.destinationIssue.reason : '') + '</div>';
+
+                tr.innerHTML =
+                    '<td>' + (it.username ? '@' + it.username : '<span class="muted">' + it.userId.slice(0, 8) + '…</span>') + '</td>' +
+                    '<td class="amt">' + it.amountDisplay + '</td>' +
+                    '<td>' + dest + '</td>' +
+                    '<td>' + (it.metricType || '—') +
+                        '<div class="muted">' + (it.operator || '') + ' ' + (it.target != null ? it.target : '') + '</div></td>' +
+                    '<td class="muted">' + (it.settledAt ? String(it.settledAt).slice(0, 10) : '—') + '</td>' +
+                    '<td><div class="actions">' +
+                        '<button class="approve" data-approve="' + it.eventId + '"' +
+                            (it.hasDestination ? '' : ' disabled title="No payout destination on file"') + '>Approve</button>' +
+                        '<button class="reject" data-reject="' + it.eventId + '">Reject</button>' +
+                    '</div></td>';
+                rows.appendChild(tr);
+            });
+        }
+
+        // One at a time, and each approval confirms its own amount. There is no
+        // bulk approve: a single click must never move every pending payout.
+        document.addEventListener('click', async (e) => {
+            const ap = e.target.closest('[data-approve]');
+            const rj = e.target.closest('[data-reject]');
+            if (!ap && !rj) return;
+
+            const btn = ap || rj;
+            const id = btn.getAttribute(ap ? 'data-approve' : 'data-reject');
+            const amount = btn.closest('tr').querySelector('.amt').textContent;
+
+            try {
+                if (ap) {
+                    if (!confirm('Approve and send ' + amount + '?\n\nThis moves real money and cannot be undone.')) return;
+                    btn.disabled = true;
+                    const r = await api('/v1/admin/payouts/' + id + '/approve', { method: 'POST' });
+                    say(r.ok ? ('Sent ' + amount + ' — ref ' + r.providerRef)
+                             : ('Not sent: ' + r.outcome + ' (' + (r.reason || '') + ')'), !r.ok);
+                } else {
+                    const reason = prompt('Reason for rejecting ' + amount + '? (required)');
+                    if (reason === null) return;
+                    if (!reason.trim()) return say('A reason is required to reject.', true);
+                    btn.disabled = true;
+                    await api('/v1/admin/payouts/' + id + '/reject', {
+                        method: 'POST', body: JSON.stringify({ reason: reason.trim() })
+                    });
+                    say('Rejected ' + amount + ' — ' + reason.trim());
+                }
+                await load();
+            } catch (err) {
+                btn.disabled = false;
+                say('Failed: ' + err.message, true);
+            }
+        });
+
+        $('load').addEventListener('click', load);
+        $('refresh').addEventListener('click', load);
+        $('key').addEventListener('keydown', (e) => { if (e.key === 'Enter') load(); });
+    </script>
+</body>
+
+</html>

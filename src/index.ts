@@ -38,6 +38,7 @@ import referralRoutes from './routes/referrals.js';
 import rivalryRoutes from './routes/rivalry.js';
 import notificationRoutes from './routes/notifications.js';
 import adminSnapshotRoutes from './routes/admin-snapshots.js';
+import adminPayoutRoutes from './routes/admin-payouts.js';
 import creatorReferralRoutes from './routes/creator-referrals.js';
 import tokenRoutes from './routes/token.js';
 import walletsRoutes from './routes/wallets.js';
@@ -326,6 +327,7 @@ async function bootFastify() {
         await safeRegister('rivalry', rivalryRoutes);
         await safeRegister('notifications', notificationRoutes);
         await safeRegister('admin-snapshots', adminSnapshotRoutes);
+        await safeRegister('admin-payouts', adminPayoutRoutes);
         await safeRegister('creator-referrals', creatorReferralRoutes);
         await safeRegister('token', tokenRoutes);
 

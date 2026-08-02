@@ -1,33 +1,38 @@
 /**
- * Payout Job — drains PAYOUT_QUEUED events.
+ * Payout operations — MANUAL APPROVAL ONLY.
  *
- * Runs in the worker loop. Before this existed, the only drain was an
- * admin-gated endpoint nothing called, so a won contract queued a payout that
- * never left.
+ * Settlement is automatic: verification, outcome and PAYOUT_QUEUED all run in
+ * the worker without a human. Money movement is not. Nothing in this file is
+ * ever called from the worker loop; the only path that disburses is
+ * POST /v1/admin/payouts/:eventId/approve.
  *
- * RULES ENFORCED HERE (each one exists because its absence loses or duplicates
- * someone's money):
+ * That is a deliberate policy, not an implementation gap. If you are wiring
+ * these functions into a scheduler, stop — tests/payout-manual-approval.test.ts
+ * asserts the worker never reaches a payout adapter.
  *
- * a) IDEMPOTENCY — the key is `payout_{originEventId}`, derived, never random.
- *    A worker killed mid-batch retries into a provider no-op, not a second
+ * RULES ENFORCED HERE (each exists because its absence loses or duplicates
+ * someone's money). They apply to the approve path exactly as before:
+ *
+ * a) IDEMPOTENCY — key is `payout_{originEventId}`, derived, never random.
+ *    A double-approve of the same event is a provider no-op, not a second
  *    transfer. Paying twice is worse than paying late.
  *
  * b) MISSING DESTINATION — parks as PAYOUT_BLOCKED with a reason and stops.
- *    It does not retry forever and never marks itself sent. Parked payouts pay
- *    once the user onboards, because BLOCKED is not treated as terminal.
+ *    Never retries forever, never marks itself sent. BLOCKED is not terminal,
+ *    so the payout can be approved again once the user onboards.
  *
- * c) PARTIAL BATCH — every payout is independent. One failure cannot roll back
- *    or block the rest; there is no batch transaction.
+ * c) ISOLATION — each payout is independent; one failure cannot affect another.
  *
- * d) RETRY POLICY — transient errors back off exponentially to MAX_ATTEMPTS,
- *    then park as PAYOUT_FAILED. Terminal errors park immediately.
+ * d) RETRY POLICY — transient errors back off to MAX_ATTEMPTS then park as
+ *    PAYOUT_FAILED; terminal errors park immediately.
  *
  * e) AMOUNT — read from the frozen PAYOUT_QUEUED event, never recomputed.
- *    Same principle as the frozen settlement deadline: what was agreed is what
- *    is paid, whatever the pricing code does later.
  *
- * f) LEDGER FIRST — PAYOUT_SENT is written only AFTER the provider confirms.
- *    A crash between transfer and ledger write is recovered by (a).
+ * f) LEDGER LAST — PAYOUT_SENT is written only AFTER the provider confirms.
+ *    A crash between the two is recovered by (a).
+ *
+ * AUDIT — approve and reject both record the acting admin and the timestamp.
+ * Money leaving on a human decision must show whose decision it was.
  */
 
 import { db } from '../db/client.js';
@@ -109,7 +114,7 @@ async function park(
  */
 export async function processOnePayout(row: {
     event_id: string; user_id: string; amount_cents: number | string; contract_id?: string;
-}, adapterOverride?: PayoutAdapter): Promise<{ outcome: 'SENT' | 'BLOCKED' | 'FAILED'; reason?: string; providerRef?: string }> {
+}, adapterOverride?: PayoutAdapter, approvedBy?: string): Promise<{ outcome: 'SENT' | 'BLOCKED' | 'FAILED'; reason?: string; providerRef?: string }> {
     const originEventId = String(row.event_id);
     const userId = String(row.user_id);
     // (e) amount comes from the frozen queued event, never recomputed
@@ -153,7 +158,12 @@ export async function processOnePayout(row: {
                 amountCents,
                 idempotencyKey: `payout_sent_${originEventId}`,
                 originEventId,
-                metadata: { providerRef, rail: adapter.rail, destination: dest.destination, attempts: attempt },
+                metadata: {
+                    providerRef, rail: adapter.rail, destination: dest.destination, attempts: attempt,
+                    // AUDIT: money left on a human decision — record whose.
+                    approvedBy: approvedBy ?? 'UNKNOWN',
+                    approvedAt: new Date().toISOString(),
+                },
             });
             console.log(`[Payouts] SENT ${amountCents}c event=${originEventId} rail=${adapter.rail} ref=${providerRef}`);
             return { outcome: 'SENT', providerRef };
@@ -174,30 +184,68 @@ export async function processOnePayout(row: {
     return { outcome: 'FAILED', reason: 'MAX_ATTEMPTS' };
 }
 
-/** Drain the queue. Each payout is isolated (rule c). */
-export async function runPayoutJob(limit = 50): Promise<PayoutJobResult> {
-    const rows = await fetchPending(limit);
-    const out: PayoutJobResult = { scanned: rows.length, sent: 0, blocked: 0, failed: 0, details: [] };
-    if (!rows.length) return out;
+/**
+ * Fetch one queued payout by event id, if it is still awaiting a decision.
+ * Returns null when it does not exist or already has a terminal outcome.
+ */
+export async function fetchQueuedPayout(eventId: string) {
+    const result: any = await db.execute(raw`
+        SELECT e.id AS event_id, e.user_id, e.amount_cents, e.contract_id, e.created_at
+        FROM account_ledger_events e
+        WHERE e.id = ${eventId}
+          AND e.event_type = 'PAYOUT_QUEUED'
+          AND NOT EXISTS (
+              SELECT 1 FROM account_ledger_events t
+              WHERE t.origin_event_id = e.id
+                AND t.event_type IN ('PAYOUT_SENT', 'PAYOUT_FAILED', 'PAYOUT_REJECTED')
+          )
+        LIMIT 1
+    `);
+    const rows = Array.isArray(result) ? result : (result?.rows ?? []);
+    return rows[0] ?? null;
+}
 
-    console.log(`[Payouts] ${rows.length} queued payout(s) to process`);
+/** Everything awaiting an approval decision. Powers the admin queue. */
+export async function listPendingPayouts(limit = 200) {
+    const result: any = await db.execute(raw`
+        SELECT e.id AS event_id, e.user_id, e.amount_cents, e.contract_id, e.created_at,
+               c.metric_type, c.condition_json, c.deadline_utc,
+               i.username
+        FROM account_ledger_events e
+        LEFT JOIN contracts c ON c.id = e.contract_id
+        LEFT JOIN identities i ON i.user_id = e.user_id
+        WHERE e.event_type = 'PAYOUT_QUEUED'
+          AND NOT EXISTS (
+              SELECT 1 FROM account_ledger_events t
+              WHERE t.origin_event_id = e.id
+                AND t.event_type IN ('PAYOUT_SENT', 'PAYOUT_FAILED', 'PAYOUT_REJECTED')
+          )
+        ORDER BY e.created_at ASC
+        LIMIT ${limit}
+    `);
+    return Array.isArray(result) ? result : (result?.rows ?? []);
+}
 
-    for (const row of rows) {
-        let r: { outcome: 'SENT' | 'BLOCKED' | 'FAILED'; reason?: string; providerRef?: string };
-        try {
-            r = await processOnePayout(row);
-        } catch (err: any) {
-            // Defence in depth: processOnePayout is not supposed to throw, but if
-            // it ever does, one payout must not abort the batch.
-            console.error(`[Payouts] unexpected error on event=${row.event_id}:`, err?.message);
-            r = { outcome: 'FAILED', reason: 'UNEXPECTED' };
-        }
-        if (r.outcome === 'SENT') out.sent++;
-        else if (r.outcome === 'BLOCKED') out.blocked++;
-        else out.failed++;
-        out.details.push({ eventId: String(row.event_id), ...r });
+/** Record an admin declining a payout. A reason is mandatory. */
+export async function rejectPayout(args: {
+    eventId: string; userId: string; contractId?: string; amountCents: number;
+    reason: string; rejectedBy: string;
+}) {
+    if (!args.reason || !args.reason.trim()) {
+        throw new Error('A reason is required to reject a payout');
     }
-
-    console.log(`[Payouts] done — sent=${out.sent} blocked=${out.blocked} failed=${out.failed}`);
-    return out;
+    await appendAccountEvent({
+        userId: args.userId,
+        contractId: args.contractId,
+        eventType: AccountEventType.PAYOUT_REJECTED as any,
+        amountCents: args.amountCents,
+        idempotencyKey: `payout_rejected_${args.eventId}`,
+        originEventId: args.eventId,
+        metadata: {
+            reason: args.reason.trim(),
+            rejectedBy: args.rejectedBy,
+            rejectedAt: new Date().toISOString(),
+        },
+    });
+    console.log(`[Payouts] REJECTED event=${args.eventId} by=${args.rejectedBy} — ${args.reason}`);
 }
