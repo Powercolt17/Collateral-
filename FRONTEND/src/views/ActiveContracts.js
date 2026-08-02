@@ -312,14 +312,14 @@ export function renderActiveContracts() {
 
             /* ── Metric choices ── */
             .ss-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1px; background:var(--rule,#DCD5C6); border:1px solid var(--rule,#DCD5C6); margin-top:4px; }
-            .ss-metric { background:var(--plate,#FBFAF6); padding:18px 18px 16px; display:flex; flex-direction:column; }
+            .ss-metric { background:var(--plate,#FBFAF6); padding:18px; display:block; align-self:start; }
             .ss-metric.ready { background:#F7ECEE; }
             .ss-m-top { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; min-height:20px; }
             .ss-m-name { font-family:var(--display,'Archivo',sans-serif); font-weight:700; font-size:17px; letter-spacing:-.02em; }
             .ss-metric.ready .ss-m-name { color:var(--blood,#7A1C29); }
             .ss-m-req { font-family:var(--mono,'JetBrains Mono',monospace); font-size:8.5px; letter-spacing:.13em; color:var(--ink-3,#8C877B); border:1px solid var(--rule,#DCD5C6); padding:3px 6px; white-space:nowrap; }
             .ss-m-what { font-size:12px; line-height:1.6; color:var(--ink-2,#4A463E); margin-bottom:14px; }
-            .ss-m-foot { margin-top:auto; border-top:1px dotted var(--rule,#DCD5C6); padding-top:12px; }
+            .ss-m-foot { margin-top:14px; border-top:1px dotted var(--rule,#DCD5C6); padding-top:12px; }
             /* State line carries the user's ACTUAL position once connected
                ("4 of 6 months — unlocks in March"), not the generic rule. */
             .ss-m-state { display:block; font-family:var(--mono,'JetBrains Mono',monospace); font-size:10px; line-height:1.6; color:var(--ink-3,#8C877B); margin-bottom:10px; }
