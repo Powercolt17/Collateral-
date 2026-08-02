@@ -1,2 +1,7 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# SQL migrations must be LF in the working tree, whatever the platform.
+# Drizzle hashes raw file bytes, so a CRLF checkout produces different hashes
+# than the Linux build box and reconciliation silently breaks.
+*.sql text eol=lf
