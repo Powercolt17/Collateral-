@@ -292,7 +292,7 @@ export function renderActiveContracts() {
                "Money received" — the one metric that is ready the moment they
                connect. Only the pointer-events block remains, so a metric still
                cannot be chosen before the bank that settles it exists. */
-            .ss-metrics { display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--rule,#DCD5C6); border:1px solid var(--rule,#DCD5C6); margin-top:4px; }
+            .ss-metrics { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:stretch; gap:1px; background:var(--rule,#DCD5C6); border:1px solid var(--rule,#DCD5C6); margin-top:4px; }
             /* The gate is behavioural only — no dimming, so "Money received" (ready
                the moment they connect) stays legible. */
             .ss-gated .ss-metrics { pointer-events:none; }
@@ -311,8 +311,7 @@ export function renderActiveContracts() {
             .ss-promise { margin-top:16px; font-family:var(--display,'Archivo',sans-serif); font-size:12.5px; line-height:1.7; color:var(--ink-2,#4A463E); max-width:64ch; }
 
             /* ── Metric choices ── */
-            .ss-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1px; background:var(--rule,#DCD5C6); border:1px solid var(--rule,#DCD5C6); margin-top:4px; }
-            .ss-metric { background:var(--plate,#FBFAF6); padding:18px; display:block; align-self:start; }
+            .ss-metric { background:var(--plate,#FBFAF6); padding:18px; display:block; align-self:stretch; }
             .ss-metric.ready { background:#F7ECEE; }
             .ss-m-top { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; min-height:20px; }
             .ss-m-name { font-family:var(--display,'Archivo',sans-serif); font-weight:700; font-size:17px; letter-spacing:-.02em; }
@@ -1057,7 +1056,7 @@ export function renderActiveContracts() {
                                     </div>
                                     <p class="ss-m-what">Order counts. Not a dollar figure.</p>
                                     <div class="ss-m-foot">
-                                        <span class="ss-m-state">Connect now and orders unlock once you have 6 months of Shopify history.</span>
+                                        <span class="ss-m-state"></span>
                                         <span class="ss-go">Connect Shopify &rarr;</span>
                                     </div>
                                 </div>
@@ -1069,7 +1068,7 @@ export function renderActiveContracts() {
                                     </div>
                                     <p class="ss-m-what">Views. Never denominated in dollars.</p>
                                     <div class="ss-m-foot">
-                                        <span class="ss-m-state">Connect now and views unlock once you have 6 months of YouTube history.</span>
+                                        <span class="ss-m-state"></span>
                                         <span class="ss-go">Connect YouTube &rarr;</span>
                                     </div>
                                 </div>
