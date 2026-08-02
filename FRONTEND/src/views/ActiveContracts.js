@@ -243,8 +243,7 @@ export function renderActiveContracts() {
             .ss-title em { font-style:normal; color:var(--blood,#7A1C29); }
             .ss-lede { font-family:var(--display,'Archivo',sans-serif); font-weight:500; font-size:15px; line-height:1.72; color:var(--ink-2,#4A463E); max-width:56ch; margin-bottom:38px; }
 
-            .ss-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(228px,1fr)); border:1px solid var(--ink,#1A1A18); }
-            .ss-card {
+            .ss-step, .ss-metric {
                 display:flex; flex-direction:column; text-decoration:none; color:inherit;
                 background:var(--plate,#FBFAF6); padding:22px 20px 20px;
                 border-left:1px solid var(--rule-soft,#E6E1D6);
@@ -254,49 +253,72 @@ export function renderActiveContracts() {
             /* Reveal ADDS motion to content that is already in the DOM; it is never
                what makes the content exist. The JS forces data-seen="true" on a
                timeout so a missed observer can't leave a blank bordered box. */
-            .ss[data-seen="true"] .ss-card { opacity:1; transform:none; }
+            .ss[data-seen="true"] .ss-step, .ss-metric { opacity:1; transform:none; }
             /* Last-resort paint. If the transition never actually ran — throttled
                tab, paused animation timeline, sleeping compositor — the cards must
                still be on screen. Skips the transition entirely rather than
                waiting on one that may never tick. */
-            .ss.ss-forced .ss-card { opacity:1 !important; transform:none !important; transition:none !important; }
-            .ss-card:first-child { border-left:none; }
-            .ss-card:hover { background:var(--plate-alt,#F5F2EA); }
-            .ss-card.flagship { background:#F7ECEE; }
-            .ss-card.flagship:hover { background:#F3E2E5; }
+            .ss.ss-forced .ss-step, .ss-metric { opacity:1 !important; transform:none !important; transition:none !important; }
 
-            .ss-top { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:16px; min-height:20px; }
-            .ss-kicker { font-family:var(--mono,'JetBrains Mono',monospace); font-size:9px; letter-spacing:.16em; color:var(--ink-3,#8C877B); }
-            .ss-card.flagship .ss-kicker { color:var(--blood,#7A1C29); }
-            .ss-tag { font-family:var(--mono,'JetBrains Mono',monospace); font-size:8.5px; letter-spacing:.13em; color:var(--win,#186B4A); border:1px solid #9AC0AE; background:#E9F1ED; padding:3px 6px; white-space:nowrap; }
 
-            .ss-name { font-family:var(--display,'Archivo',sans-serif); font-weight:700; font-size:26px; letter-spacing:-.03em; line-height:1; margin-bottom:8px; }
-            .ss-card.flagship .ss-name { color:var(--blood,#7A1C29); }
-            .ss-verb { font-family:var(--display,'Archivo',sans-serif); font-weight:500; font-size:13px; line-height:1.6; color:var(--ink-2,#4A463E); margin-bottom:18px; min-height:3.4em; }
-
-            .ss-measures { list-style:none; padding:12px 0 0; font-family:var(--mono,'JetBrains Mono',monospace); font-size:11px; line-height:1.5; color:var(--ink-3,#8C877B); border-top:1px dotted var(--rule,#DCD5C6); margin-bottom:20px; }
-            .ss-measures li { position:relative; padding:4px 0 4px 13px; }
-            .ss-measures li::before { content:"\\00B7"; position:absolute; left:2px; color:var(--blood,#7A1C29); }
 
             .ss-foot { margin-top:auto; border-top:1px solid var(--rule,#DCD5C6); padding-top:14px; }
             .ss-oracle { display:block; font-family:var(--mono,'JetBrains Mono',monospace); font-size:9.5px; letter-spacing:.11em; color:var(--ink-3,#8C877B); margin-bottom:10px; }
             .ss-go { display:inline-block; font-family:var(--mono,'JetBrains Mono',monospace); font-size:12px; color:var(--blood,#7A1C29); border-bottom:1px solid var(--blood,#7A1C29); padding-bottom:3px; transition:transform 260ms var(--ss-ease), opacity 200ms ease; }
-            .ss-card:hover .ss-go { transform:translateX(4px); opacity:.75; }
+            .ss-metric:hover .ss-go { transform:translateX(4px); opacity:.75; }
 
-            .ss-pair { display:flex; gap:16px; flex-wrap:wrap; margin-top:20px; padding:16px 20px; border:1px solid var(--rule,#DCD5C6); background:var(--plate-alt,#F5F2EA); }
-            .ss-pair-k { flex:0 0 auto; font-family:var(--mono,'JetBrains Mono',monospace); font-size:9.5px; letter-spacing:.15em; color:var(--blood,#7A1C29); padding-top:2px; }
-            .ss-pair-v { flex:1 1 320px; font-size:11.5px; line-height:1.7; color:var(--ink-2,#4A463E); }
-            .ss-note { margin-top:16px; font-family:var(--mono,'JetBrains Mono',monospace); font-size:11px; line-height:1.7; color:var(--ink-3,#8C877B); max-width:62ch; }
+            /* ── Bank-first steps ── */
+            .ss-step { border-top:1px solid var(--rule,#DCD5C6); padding:24px 0 4px; }
+            .ss-step-hd { display:flex; align-items:baseline; gap:12px; font-family:var(--display,'Archivo',sans-serif); font-weight:700; font-size:19px; letter-spacing:-.02em; color:var(--ink,#1A1A18); margin-bottom:10px; }
+            .ss-step-n { font-family:var(--mono,'JetBrains Mono',monospace); font-size:10px; letter-spacing:.16em; color:var(--blood,#7A1C29); font-weight:400; }
+            .ss-step-body { font-size:13.5px; line-height:1.7; color:var(--ink-2,#4A463E); max-width:62ch; margin-bottom:16px; }
+            .ss-primary { display:inline-flex; align-items:center; gap:10px; background:var(--blood,#7A1C29); color:#fff; border:none; cursor:pointer; font-family:var(--mono,'JetBrains Mono',monospace); font-size:12px; letter-spacing:.08em; text-transform:uppercase; padding:14px 22px; transition:background 200ms ease, transform 200ms ease; }
+            .ss-primary:hover { background:#54111B; transform:translateY(-1px); }
+            .ss-primary-sub { font-size:9.5px; letter-spacing:.1em; opacity:.72; text-transform:none; }
+            .ss-micro { margin-top:10px; font-family:var(--mono,'JetBrains Mono',monospace); font-size:10px; line-height:1.6; color:var(--ink-3,#8C877B); }
+
+            /* Step 03 is unreachable until the bank is connected: no metric can be
+               chosen before the source that settles it exists. Visual dimming AND a
+               pointer-events block, so it cannot be clicked through. */
+            /* Dim with filter, not opacity: the forced-paint fallback sets
+               opacity:1 !important, so an opacity-based gate would be stomped by
+               the very failsafe that guarantees the section is visible. */
+            .ss-gated .ss-step-body { filter:opacity(.6); }
+            .ss-gated .ss-metrics { pointer-events:none; filter:saturate(.25) opacity(.55); }
+            .ss-gate-badge { font-family:var(--mono,'JetBrains Mono',monospace); font-size:8.5px; letter-spacing:.13em; color:var(--ink-3,#8C877B); border:1px solid var(--rule,#DCD5C6); padding:3px 6px; margin-left:10px; white-space:nowrap; }
+            .ss[data-bank="connected"] .ss-gated { opacity:1; }
+            .ss[data-bank="connected"] .ss-gated .ss-metrics { pointer-events:auto; filter:none; }
+            .ss[data-bank="connected"] .ss-gate-badge { display:none; }
+
+            .ss-sources { display:flex; gap:16px; flex-wrap:wrap; margin-top:24px; padding:16px 20px; border:1px solid var(--rule,#DCD5C6); background:var(--plate-alt,#F5F2EA); }
+            .ss-sources-k { flex:0 0 auto; font-family:var(--mono,'JetBrains Mono',monospace); font-size:9.5px; letter-spacing:.15em; color:var(--blood,#7A1C29); padding-top:2px; }
+            .ss-sources-v { flex:1 1 320px; font-size:12px; line-height:1.7; color:var(--ink-2,#4A463E); }
+            /* The "nothing here commits you" promise. Display face, not mono fine
+               print — it was the least readable line on the page. */
+            .ss-promise { margin-top:16px; font-family:var(--display,'Archivo',sans-serif); font-size:12.5px; line-height:1.7; color:var(--ink-2,#4A463E); max-width:64ch; }
+
+            /* ── Metric choices ── */
+            .ss-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1px; background:var(--rule,#DCD5C6); border:1px solid var(--rule,#DCD5C6); margin-top:4px; }
+            .ss-metric { background:var(--plate,#FBFAF6); padding:18px 18px 16px; display:flex; flex-direction:column; }
+            .ss-metric.ready { background:#F7ECEE; }
+            .ss-m-top { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; min-height:20px; }
+            .ss-m-name { font-family:var(--display,'Archivo',sans-serif); font-weight:700; font-size:17px; letter-spacing:-.02em; }
+            .ss-metric.ready .ss-m-name { color:var(--blood,#7A1C29); }
+            .ss-m-req { font-family:var(--mono,'JetBrains Mono',monospace); font-size:8.5px; letter-spacing:.13em; color:var(--ink-3,#8C877B); border:1px solid var(--rule,#DCD5C6); padding:3px 6px; white-space:nowrap; }
+            .ss-m-what { font-size:12px; line-height:1.6; color:var(--ink-2,#4A463E); margin-bottom:14px; }
+            .ss-m-foot { margin-top:auto; border-top:1px dotted var(--rule,#DCD5C6); padding-top:12px; }
+            /* State line carries the user's ACTUAL position once connected
+               ("4 of 6 months — unlocks in March"), not the generic rule. */
+            .ss-m-state { display:block; font-family:var(--mono,'JetBrains Mono',monospace); font-size:10px; line-height:1.6; color:var(--ink-3,#8C877B); margin-bottom:10px; }
+            .ss-metric.ready .ss-m-state { color:var(--win,#186B4A); }
+            /* Never a dead end: a locked metric states the door that is open. */
+            .ss-m-alt { margin-top:10px; font-family:var(--mono,'JetBrains Mono',monospace); font-size:9.5px; line-height:1.6; color:var(--ink-3,#8C877B); border-left:2px solid var(--rule,#DCD5C6); padding-left:8px; }
 
             @media (max-width:640px) {
-                .ss-grid { grid-template-columns:1fr; }
-                .ss-card { border-left:none; border-top:1px solid var(--rule-soft,#E6E1D6); }
-                .ss-card:first-child { border-top:none; }
-                .ss-verb { min-height:0; }
             }
             @media (prefers-reduced-motion:reduce) {
-                .ss-card, .ss-go { transition:none !important; }
-                .ss-card { opacity:1; transform:none; }
+                .ss-step, .ss-metric, .ss-go { transition:none !important; }
+                .ss-step, .ss-metric { opacity:1; transform:none; }
             }
 
             .eq-search-wrap {
@@ -883,6 +905,19 @@ export function renderActiveContracts() {
                         <a href="#" onclick="event.preventDefault(); window.router.navigate('/market?type=rivalry');" class="eq-path-cta">Explore Rivalries →</a>
                     </div>
                 </div>
+
+                <div class="ss-sources">
+                    <span class="ss-sources-k">&sect; HOW SOURCES WORK</span>
+                    <span class="ss-sources-v">
+                        Your bank settles every contract. Stripe, Shopify and YouTube only
+                        unlock metrics a bank statement can&rsquo;t see.
+                    </span>
+                </div>
+
+                <p class="ss-promise">
+                    No terms exist until your bank is connected and examined. Nothing here
+                    commits you to a contract, and read access can be revoked at any time.
+                </p>
             </section>
 
             <!-- Section 3: Live Market Header & Mechanical Odometer Stats -->
@@ -939,77 +974,105 @@ export function renderActiveContracts() {
 
                 <section class="ss" id="ss-root" data-seen="false" aria-labelledby="ss-title">
                     <p class="ss-eyebrow"><span class="ss-mark"></span>SOLO CONTRACTS</p>
-                    <h2 class="ss-title" id="ss-title">What do you want to be <em>measured on?</em></h2>
+                    <h2 class="ss-title" id="ss-title">Connect your bank. Then choose <em>what you are measured on.</em></h2>
                     <p class="ss-lede">
-                        Connect a source and Collateral reads twelve months of your own
-                        history before it offers you anything. Your target, your
-                        difficulty, and your payout multiplier all come out of your
-                        numbers &mdash; not a menu.
+                        Connect your bank and Collateral reads twelve months of your own history
+                        before it offers you anything. Your target, your difficulty, and your
+                        payout multiplier all come out of your numbers &mdash; not a menu.
                     </p>
 
-                    <div class="ss-grid">
-                        <a class="ss-card flagship" style="--d:0ms" href="/solo/new?source=bank" data-source="bank">
-                            <div class="ss-top">
-                                <span class="ss-kicker">MONEY RECEIVED</span>
-                                <span class="ss-tag">BANK VERIFIED</span>
-                            </div>
-                            <div class="ss-name">Your bank</div>
-                            <div class="ss-verb">Cash that actually lands in your account</div>
-                            <ul class="ss-measures"><li>Net income received</li></ul>
-                            <div class="ss-foot">
-                                <span class="ss-oracle">Plaid &middot; read-only</span>
-                                <span class="ss-go">Examine my income &rarr;</span>
-                            </div>
-                        </a>
-
-                        <a class="ss-card" style="--d:70ms" href="/solo/new?source=mrr" data-source="mrr">
-                            <div class="ss-top"><span class="ss-kicker">RECURRING REVENUE</span></div>
-                            <div class="ss-name">Stripe</div>
-                            <div class="ss-verb">MRR &mdash; what a bank statement can't show you</div>
-                            <ul class="ss-measures"><li>MRR</li></ul>
-                            <div class="ss-foot">
-                                <span class="ss-oracle">Stripe &middot; every 6h</span>
-                                <span class="ss-go">Examine my MRR &rarr;</span>
-                            </div>
-                        </a>
-
-                        <a class="ss-card" style="--d:140ms" href="/solo/new?source=orders" data-source="orders">
-                            <div class="ss-top"><span class="ss-kicker">ORDERS</span></div>
-                            <div class="ss-name">Shopify</div>
-                            <div class="ss-verb">Units moved, not dollars banked</div>
-                            <ul class="ss-measures"><li>Order count</li></ul>
-                            <div class="ss-foot">
-                                <span class="ss-oracle">Shopify &middot; every 6h</span>
-                                <span class="ss-go">Examine my orders &rarr;</span>
-                            </div>
-                        </a>
-
-                        <a class="ss-card" style="--d:210ms" href="/solo/new?source=views" data-source="views">
-                            <div class="ss-top"><span class="ss-kicker">AUDIENCE</span></div>
-                            <div class="ss-name">YouTube</div>
-                            <div class="ss-verb">Audience you earned</div>
-                            <ul class="ss-measures"><li>Views</li></ul>
-                            <div class="ss-foot">
-                                <span class="ss-oracle">YouTube &middot; every 12h</span>
-                                <span class="ss-go">Examine my channel &rarr;</span>
-                            </div>
-                        </a>
+                    <div class="ss-step" data-step="01">
+                        <div class="ss-step-hd"><span class="ss-step-n">01</span>Connect your bank</div>
+                        <p class="ss-step-body">
+                            Read-only, through Plaid. Stripe and Shopify payouts land here too,
+                            which is why the bank &mdash; not a platform API &mdash; settles
+                            anything measured in dollars.
+                        </p>
+                        <button class="ss-primary" id="ss-connect-bank" data-source="bank">
+                            Connect bank <span class="ss-primary-sub">Plaid &middot; read-only</span>
+                        </button>
+                        <p class="ss-micro">Nothing here commits you to a contract. Access is revocable at any time.</p>
                     </div>
 
-                    <div class="ss-pair">
-                        <span class="ss-pair-k">&sect; CONNECT BOTH</span>
-                        <span class="ss-pair-v">
-                            Bank settles the contract. Stripe fills in the timing a payout
-                            delay hides &mdash; a sale on the 28th of a window closing the
-                            30th reaches your account in March. Together they beat either
-                            alone.
-                        </span>
+                    <div class="ss-step" data-step="02">
+                        <div class="ss-step-hd"><span class="ss-step-n">02</span>The examination</div>
+                        <p class="ss-step-body">
+                            Collateral reads twelve months of your own deposit history before it
+                            offers you anything. Your target, your difficulty, and your payout
+                            multiplier all come out of your numbers &mdash; not a menu.
+                        </p>
                     </div>
 
-                    <p class="ss-note">
-                        No terms exist until a source is connected. Nothing here commits you
-                        to a contract, and read access can be revoked at any time.
-                    </p>
+                    <div class="ss-step ss-gated" data-step="03" id="ss-step-metrics">
+                        <div class="ss-step-hd"><span class="ss-step-n">03</span>Choose what you are measured on
+                            <span class="ss-gate-badge">AFTER YOUR BANK IS CONNECTED</span>
+                        </div>
+                        <p class="ss-step-body">
+                            Money is ready as soon as the bank is connected. The rest are counts,
+                            not money &mdash; no deposit says &ldquo;47 orders&rdquo; &mdash; so
+                            they need the platform that can see them.
+                        </p>
+
+                        <div class="ss-metrics" id="ss-metrics">
+                            <div class="ss-metric ready" data-metric="money" data-source="bank">
+                                <div class="ss-m-top">
+                                    <span class="ss-m-name">Money received</span>
+                                    <span class="ss-tag">BANK VERIFIED</span>
+                                </div>
+                                <p class="ss-m-what">Income that landed in your account, net of fees.</p>
+                                <div class="ss-m-foot">
+                                    <span class="ss-m-state">Ready once your bank is connected</span>
+                                    <span class="ss-go">Write this contract &rarr;</span>
+                                </div>
+                            </div>
+
+                            <div class="ss-metric locked" data-metric="mrr" data-source="mrr" data-platform="Stripe">
+                                <div class="ss-m-top">
+                                    <span class="ss-m-name">MRR</span>
+                                    <span class="ss-m-req">NEEDS STRIPE</span>
+                                </div>
+                                <p class="ss-m-what">
+                                    A bank statement can&rsquo;t see recurring revenue &mdash; an annual prepay lands
+                                    as one lump that looks nothing like MRR. Connect Stripe to unlock this.
+                                </p>
+                                <div class="ss-m-foot">
+                                    <span class="ss-m-state">Connect now and MRR unlocks once you have 6 months of Stripe history.</span>
+                                    <span class="ss-go">Connect Stripe &rarr;</span>
+                                </div>
+                                <p class="ss-m-alt">You can write a money contract today &mdash; this does not block it.</p>
+                            </div>
+
+                            <div class="ss-metric locked" data-metric="orders" data-source="orders" data-platform="Shopify">
+                                <div class="ss-m-top">
+                                    <span class="ss-m-name">Orders</span>
+                                    <span class="ss-m-req">NEEDS SHOPIFY</span>
+                                </div>
+                                <p class="ss-m-what">
+                                    A bank statement can&rsquo;t see order counts &mdash; a deposit never says how many
+                                    orders produced it. Connect Shopify to unlock this.
+                                </p>
+                                <div class="ss-m-foot">
+                                    <span class="ss-m-state">Connect now and orders unlock once you have 6 months of Shopify history.</span>
+                                    <span class="ss-go">Connect Shopify &rarr;</span>
+                                </div>
+                                <p class="ss-m-alt">You can write a money contract today &mdash; this does not block it.</p>
+                            </div>
+
+                            <div class="ss-metric locked" data-metric="views" data-source="views" data-platform="YouTube">
+                                <div class="ss-m-top">
+                                    <span class="ss-m-name">Views</span>
+                                    <span class="ss-m-req">NEEDS YOUTUBE</span>
+                                </div>
+                                <p class="ss-m-what">A bank statement can&rsquo;t see views &mdash; they are never denominated in dollars.
+                                    Connect YouTube to unlock this.</p>
+                                <div class="ss-m-foot">
+                                    <span class="ss-m-state">Connect now and views unlock once you have 6 months of YouTube history.</span>
+                                    <span class="ss-go">Connect YouTube &rarr;</span>
+                                </div>
+                                <p class="ss-m-alt">You can write a money contract today &mdash; this does not block it.</p>
+                            </div>
+                        </div>
+                    </div>
                 </section>
             </div>
 
@@ -1393,25 +1456,71 @@ export function initActiveContracts() {
                 reveal();
                 io.disconnect();
                 // Setting data-seen only starts a transition. If that transition
-                // never ticks (throttled tab, paused timeline), the cards would sit
-                // at opacity 0 forever — the blank bordered box we shipped once.
-                // Verify actual paint; force it if the animation did not deliver.
-                const first = ssRoot.querySelector('.ss-card');
-                if (!first || parseFloat(getComputedStyle(first).opacity) < 0.9) {
-                    forceVisible();
-                }
+                // never ticks (throttled tab, paused timeline), elements sit at
+                // opacity 0 forever — the blank bordered box we shipped once.
+                //
+                // Probe EVERY revealed element, not a representative one. A child
+                // can report opacity 1 while its parent sits at 0, so sampling a
+                // nested .ss-metric reports "visible" for a picker nobody can see.
+                const revealed = ssRoot.querySelectorAll('.ss-step, .ss-metric');
+                const anyUnpainted = revealed.length === 0 || [...revealed].some(
+                    el => parseFloat(getComputedStyle(el).opacity) < 0.9
+                );
+                if (anyUnpainted) forceVisible();
             }, 1200);
         }
 
-        // Route through the SPA router; one route, source as a param.
-        ssRoot.querySelectorAll('.ss-card').forEach((card) => {
-            card.addEventListener('click', (e) => {
-                const href = card.getAttribute('href');
-                if (!href || !window.router) return;
+        // One route, source as a param. The bank button and every metric tile
+        // funnel through the same destination — platform connects are progressive
+        // disclosure, not separate flows.
+        ssRoot.querySelectorAll('[data-source]').forEach((el) => {
+            el.addEventListener('click', (e) => {
+                const source = el.getAttribute('data-source');
+                if (!source || !window.router) return;
                 e.preventDefault();
-                window.router.navigate(href);
+                // Metric selection requires the bank. Without it there is no
+                // baseline and no settlement rail, so the click cannot proceed —
+                // this is the bait-and-switch guard, not decoration.
+                const gated = el.closest('.ss-gated');
+                if (gated && ssRoot.getAttribute('data-bank') !== 'connected') {
+                    document.getElementById('ss-connect-bank')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+                window.router.navigate('/solo/new?source=' + encodeURIComponent(source));
             });
         });
+
+        // Flip once the bank connection is confirmed.
+        window.app = window.app || {};
+        window.app.setBankConnected = function (connected) {
+            ssRoot.setAttribute('data-bank', connected ? 'connected' : 'none');
+        };
+
+        // Once a platform is attached we know exactly how much history exists, so
+        // replace the generic rule with the user's ACTUAL position — "4 of 6
+        // months, unlocks in March" beats repeating the requirement back at them.
+        // Falls back to the up-front wording when we have nothing specific.
+        window.app = window.app || {};
+        window.app.setMetricHistoryState = function (metric, monthsHave, monthsNeed, unlocksLabel) {
+            const tile = ssRoot.querySelector('.ss-metric[data-metric="' + metric + '"]');
+            if (!tile) return;
+            const state = tile.querySelector('.ss-m-state');
+            const go = tile.querySelector('.ss-go');
+            if (!state) return;
+            if (monthsHave >= monthsNeed) {
+                tile.classList.remove('locked');
+                tile.classList.add('ready');
+                state.textContent = 'Ready — ' + monthsHave + ' months of history';
+                if (go) go.textContent = 'Write this contract →';
+                const req = tile.querySelector('.ss-m-req');
+                if (req) req.remove();
+                const alt = tile.querySelector('.ss-m-alt');
+                if (alt) alt.remove();
+            } else {
+                state.textContent = monthsHave + ' of ' + monthsNeed + ' months'
+                    + (unlocksLabel ? ' — unlocks ' + unlocksLabel : '');
+            }
+        };
     }
 
     // Initial render
