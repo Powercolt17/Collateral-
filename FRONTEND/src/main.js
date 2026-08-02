@@ -1033,6 +1033,89 @@ window.app = {
             }
         } catch (err) { showAlert('Failed to fund rivalry: ' + err.message, { type: 'error' }); }
     },
+    /**
+     * Connect a bank via Plaid Link.
+     *
+     * Deliberately NOT the popup-plus-poll pattern used for Stripe/Shopify/
+     * YouTube. Those are OAuth redirects, so the browser leaves and completion
+     * has to be detected by polling status after the popup closes. Plaid Link is
+     * an embedded modal with its own lifecycle — onSuccess / onExit / onEvent —
+     * so the page is never left and there is nothing to poll. Forcing it through
+     * the popup abstraction would fight the library.
+     *
+     * @param {Function} onConnected called with the status payload on success,
+     *   so a caller (e.g. the /market matrix) can re-render one card in place
+     *   rather than reloading the page.
+     */
+    connectBank: async function (onConnected) {
+        try {
+            if (!window.Plaid) {
+                await window.app._loadPlaidScript();
+            }
+            if (!window.Plaid) {
+                showAlert('Bank connection is unavailable right now. Please try again shortly.', { type: 'warning', title: 'Plaid Unavailable' });
+                return;
+            }
+
+            const { linkToken } = await window.api.createPlaidLinkToken();
+            if (!linkToken) {
+                showAlert('Could not start bank connection.', { type: 'warning', title: 'Plaid Unavailable' });
+                return;
+            }
+
+            const linkHandler = window.Plaid.create({
+                token: linkToken,
+                onSuccess: async (publicToken, metadata) => {
+                    try {
+                        // The public_token is short-lived and useless on its own;
+                        // only the server can exchange it for an access_token.
+                        const accountId = metadata && metadata.accounts && metadata.accounts[0]
+                            ? metadata.accounts[0].id : undefined;
+                        await window.api.exchangePlaidPublicToken(publicToken, accountId);
+                        const status = await window.api.getPlaidStatus();
+                        if (typeof onConnected === 'function') onConnected(status);
+                        else window.router.navigate('/market');
+                    } catch (err) {
+                        console.error('[Plaid] exchange failed:', err);
+                        showAlert('Your bank connected but we could not finish setup. Please try again.', { type: 'warning', title: 'Connection Incomplete' });
+                    }
+                },
+                onExit: (err) => {
+                    // A user closing Link is normal, not an error. Only surface a
+                    // real failure.
+                    if (err) {
+                        console.warn('[Plaid] Link exited with error:', err);
+                        showAlert('Bank connection was not completed.', { type: 'warning', title: 'Not Connected' });
+                    }
+                },
+                onEvent: (eventName) => {
+                    console.log('[Plaid] event:', eventName);
+                },
+            });
+
+            linkHandler.open();
+        } catch (err) {
+            console.error('[Plaid] connectBank failed:', err);
+            showAlert('Could not start bank connection. Please try again.', { type: 'warning', title: 'Plaid Error' });
+        }
+    },
+
+    /** Load the Plaid Link SDK on demand, once. */
+    _loadPlaidScript: function () {
+        if (window.__plaidScriptPromise) return window.__plaidScriptPromise;
+        window.__plaidScriptPromise = new Promise((resolve) => {
+            const existing = document.querySelector('script[src*="link-initialize.js"]');
+            if (existing) { existing.addEventListener('load', () => resolve()); return; }
+            const el = document.createElement('script');
+            el.src = 'https://cdn.plaid.com/link/v2/stable/link-initialize.js';
+            el.async = true;
+            el.onload = () => resolve();
+            el.onerror = () => { console.error('[Plaid] SDK failed to load'); resolve(); };
+            document.head.appendChild(el);
+        });
+        return window.__plaidScriptPromise;
+    },
+
     connectSource: async function (source) {
         const btn = document.getElementById(source + '-btn');
         if (!btn) return;

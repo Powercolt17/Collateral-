@@ -196,6 +196,16 @@ export interface PlaidConnectionValidation {
 // =============================================================================
 
 export interface PlaidClient {
+    /**
+     * Create a short-lived link_token for Plaid Link.
+     *
+     * Link is an EMBEDDED modal with its own lifecycle (onSuccess/onExit), not an
+     * OAuth redirect — so there is no popup and no polling. The browser never
+     * leaves the page; Link hands back a public_token which is exchanged here.
+     */
+    createLinkToken(userId: string): Promise<{ linkToken: string; expiration: string }>;
+    /** Exchange Link's public_token for the durable access_token. Server-side only. */
+    exchangePublicToken(publicToken: string): Promise<{ accessToken: string; itemId: string }>;
     healthCheck(credentials: PlaidCredentials): Promise<{ ok: boolean; institution: string }>;
     validateConnection(credentials: PlaidCredentials): Promise<PlaidConnectionValidation>;
     /** Returns INFLOWS only, sign-normalised to positive cents. */
@@ -216,6 +226,17 @@ export class MockPlaidClient implements PlaidClient {
         private payerLabel: string = 'ACME CORP PAYROLL',
         private fixedTransactions: PlaidIncomeTransaction[] | null = null
     ) { }
+
+    async createLinkToken(_userId: string): Promise<{ linkToken: string; expiration: string }> {
+        return {
+            linkToken: 'link-sandbox-mock-token',
+            expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+        };
+    }
+
+    async exchangePublicToken(_publicToken: string): Promise<{ accessToken: string; itemId: string }> {
+        return { accessToken: 'access-sandbox-mock', itemId: 'mock-item-id-12345' };
+    }
 
     async healthCheck(_credentials: PlaidCredentials): Promise<{ ok: boolean; institution: string }> {
         return { ok: true, institution: 'Mock Bank' };
@@ -359,6 +380,25 @@ export class RealPlaidClient implements PlaidClient {
         } finally {
             clearTimeout(timeout);
         }
+    }
+
+    async createLinkToken(userId: string): Promise<{ linkToken: string; expiration: string }> {
+        const res = await this.post<{ link_token: string; expiration: string }>('/link/token/create', {
+            user: { client_user_id: userId },
+            client_name: 'Collateral',
+            products: PLAID_REQUIRED_PRODUCTS,
+            country_codes: ['US'],
+            language: 'en',
+        });
+        return { linkToken: res.link_token, expiration: res.expiration };
+    }
+
+    async exchangePublicToken(publicToken: string): Promise<{ accessToken: string; itemId: string }> {
+        const res = await this.post<{ access_token: string; item_id: string }>(
+            '/item/public_token/exchange',
+            { public_token: publicToken }
+        );
+        return { accessToken: res.access_token, itemId: res.item_id };
     }
 
     async healthCheck(credentials: PlaidCredentials): Promise<{ ok: boolean; institution: string }> {

@@ -1491,8 +1491,21 @@ export function initActiveContracts() {
         ssRoot.querySelectorAll('[data-source]').forEach((el) => {
             el.addEventListener('click', (e) => {
                 const source = el.getAttribute('data-source');
-                if (!source || !window.router) return;
+                if (!source) return;
                 e.preventDefault();
+
+                // Bank connect happens in an embedded Plaid Link modal — the user
+                // keeps their place on /market and the card re-renders on success.
+                if (el.id === 'ss-connect-bank') {
+                    if (window.app && typeof window.app.connectBank === 'function') {
+                        window.app.connectBank(() => {
+                            if (window.app.setBankConnected) window.app.setBankConnected(true);
+                        });
+                    }
+                    return;
+                }
+
+                if (!window.router) return;
                 // Metric selection requires the bank. Without it there is no
                 // baseline and no settlement rail, so the click cannot proceed —
                 // this is the bait-and-switch guard, not decoration.

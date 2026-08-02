@@ -397,6 +397,36 @@ export async function disconnectShopify() {
     return post('/v1/connect/shopify/disconnect');
 }
 
+
+// --- PLAID BANK CONNECT ---
+// Plaid Link is an embedded modal, not an OAuth redirect: there is no popup and
+// nothing to poll. Link returns a public_token to onSuccess, which is exchanged
+// server-side. The access_token never reaches the browser.
+
+export async function createPlaidLinkToken() {
+    return post('/v1/connect/plaid/link-token');
+}
+
+export async function exchangePlaidPublicToken(publicToken, accountId) {
+    return post('/v1/connect/plaid/exchange', { publicToken, accountId });
+}
+
+export async function getPlaidStatus() {
+    return get('/v1/connect/plaid/status');
+}
+
+export async function getPlaidStreams() {
+    return get('/v1/connect/plaid/streams');
+}
+
+export async function selectPlaidStream(streamId) {
+    return post('/v1/connect/plaid/select-stream', { streamId });
+}
+
+export async function disconnectPlaid() {
+    return post('/v1/connect/plaid/disconnect');
+}
+
 // --- AMAZON CONNECT ---
 
 export async function startAmazonConnect() {
@@ -773,6 +803,12 @@ export default {
     // Shopify Connect
     startShopifyConnect,
     getShopifyStatus,
+    createPlaidLinkToken,
+    exchangePlaidPublicToken,
+    getPlaidStatus,
+    getPlaidStreams,
+    selectPlaidStream,
+    disconnectPlaid,
     disconnectShopify,
 
     // Amazon Connect

@@ -21,6 +21,7 @@ import connectRoutes from './routes/connect.js';
 import xOAuthRoutes from './routes/x-oauth.js';  // X OAuth (replaces bio challenge)
 import stripeConnectRoutes from './routes/stripe-connect.js';
 import shopifyConnectRoutes from './routes/shopify-connect.js';
+import plaidConnectRoutes from './routes/plaid-connect.js';
 import amazonConnectRoutes from './routes/amazon-connect.js';
 import youtubeConnectRoutes from './routes/youtube-connect.js';
 import quoteRoutes from './routes/quote.js';
@@ -299,6 +300,7 @@ async function bootFastify() {
         await safeRegister('x-oauth', xOAuthRoutes);
         await safeRegister('stripe-connect', stripeConnectRoutes);
         await safeRegister('shopify-connect', shopifyConnectRoutes);
+        await safeRegister('plaid-connect', plaidConnectRoutes);
         await safeRegister('amazon-connect', amazonConnectRoutes);
         await safeRegister('youtube-connect', youtubeConnectRoutes);
         await safeRegister('quote', quoteRoutes);
