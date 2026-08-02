@@ -28,9 +28,11 @@ import { eq, and } from 'drizzle-orm';
 import {
     getPlaidClient,
     listIncomeStreams,
+    getSelectedStreamDeposits,
     PLAID_HISTORY_DAYS,
     PLAID_MIN_HISTORY_DAYS,
 } from '../adapters/plaid-income.js';
+import { toMonthlyIncome, MIN_MONTHS_FOR_TIER_1 } from '../services/income-terms.js';
 
 const requireAuth = async (request: FastifyRequest, reply: FastifyReply) => {
     if (!request.userId) {
@@ -261,7 +263,84 @@ async function plaidConnectRoutes(fastify: FastifyInstance) {
     );
 
     // =========================================================================
-    // 6. DISCONNECT
+    // 6. HISTORY DEPTH — what the /market matrix needs for "4 of 6 months"
+    //
+    // The six-month rule is a BANK rule, not a per-platform one: tier
+    // availability gates on monthsAnalyzed, which comes from bank deposit
+    // history, because the bank produces the baseline whichever metric is
+    // chosen. So one number gates every metric, and it is this one.
+    //
+    // Without this the matrix is honest about connection and silent about
+    // readiness: a user with four months sees "ready", clicks through, and is
+    // rejected at the examination after already granting access.
+    // =========================================================================
+    fastify.get(
+        '/v1/connect/plaid/history',
+        { preHandler: requireAuth },
+        async (request, reply) => {
+            const userId = request.userId!;
+
+            const [account] = await db
+                .select()
+                .from(connectedAccounts)
+                .where(and(
+                    eq(connectedAccounts.userId, userId),
+                    eq(connectedAccounts.platform, 'PLAID')
+                ))
+                .limit(1);
+
+            if (!account || account.status !== 'ACTIVE') {
+                return reply.status(200).send({
+                    connected: false,
+                    monthsAvailable: 0,
+                    monthsRequired: MIN_MONTHS_FOR_TIER_1,
+                    ready: false,
+                    unlocksAt: null,
+                });
+            }
+
+            try {
+                const { deposits } = await getSelectedStreamDeposits(userId);
+                const monthly = toMonthlyIncome(deposits);
+                const monthsAvailable = monthly.length;
+                const ready = monthsAvailable >= MIN_MONTHS_FOR_TIER_1;
+
+                // Project the unlock from the LAST month observed, not from today:
+                // a stream that stopped three months ago does not accrue history.
+                let unlocksAt: string | null = null;
+                if (!ready && monthly.length > 0) {
+                    const last = monthly[monthly.length - 1].month; // YYYY-MM
+                    const [y, m] = last.split('-').map(Number);
+                    const needed = MIN_MONTHS_FOR_TIER_1 - monthsAvailable;
+                    const d = new Date(Date.UTC(y, (m - 1) + needed, 1));
+                    unlocksAt = d.toISOString().slice(0, 7);
+                }
+
+                return reply.status(200).send({
+                    connected: true,
+                    monthsAvailable,
+                    monthsRequired: MIN_MONTHS_FOR_TIER_1,
+                    ready,
+                    unlocksAt,
+                    streamSelected: !!(account.metadataJson as any)?.selectedStreamId,
+                });
+            } catch (err: any) {
+                // No stream selected yet, or too few deposits to read. Report it as
+                // not-ready rather than guessing a number.
+                return reply.status(200).send({
+                    connected: true,
+                    monthsAvailable: 0,
+                    monthsRequired: MIN_MONTHS_FOR_TIER_1,
+                    ready: false,
+                    unlocksAt: null,
+                    reason: err?.message || 'History unavailable',
+                });
+            }
+        }
+    );
+
+    // =========================================================================
+    // 7. DISCONNECT
     // =========================================================================
     fastify.post(
         '/v1/connect/plaid/disconnect',

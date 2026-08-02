@@ -415,6 +415,10 @@ export async function getPlaidStatus() {
     return get('/v1/connect/plaid/status');
 }
 
+export async function getPlaidHistory() {
+    return get('/v1/connect/plaid/history');
+}
+
 export async function getPlaidStreams() {
     return get('/v1/connect/plaid/streams');
 }
@@ -806,6 +810,7 @@ export default {
     createPlaidLinkToken,
     exchangePlaidPublicToken,
     getPlaidStatus,
+    getPlaidHistory,
     getPlaidStreams,
     selectPlaidStream,
     disconnectPlaid,

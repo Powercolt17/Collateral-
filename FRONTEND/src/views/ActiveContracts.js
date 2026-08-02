@@ -1033,6 +1033,7 @@ export function renderActiveContracts() {
                                     </div>
                                     <p class="ss-m-what">Income that landed in your account, net of fees.</p>
                                     <div class="ss-m-foot">
+                                        <span class="ss-m-state"></span>
                                         <span class="ss-go">Write this contract &rarr;</span>
                                     </div>
                                 </div>
@@ -1539,8 +1540,9 @@ export function initActiveContracts() {
                 try { return await fn(); } catch { return { connected: false }; }
             };
 
-            const [bank, stripe, shopify, youtube] = await Promise.all([
+            const [bank, history, stripe, shopify, youtube] = await Promise.all([
                 read(() => window.api.getPlaidStatus()),
+                read(() => window.api.getPlaidHistory()),
                 read(() => window.api.getStripeStatus()),
                 read(() => window.api.getShopifyStatus()),
                 read(() => window.api.getYouTubeStatus()),
@@ -1554,10 +1556,55 @@ export function initActiveContracts() {
             // dollars. A platform connection alone is not enough — marking MRR
             // "ready" with no bank would send the user to a builder that cannot
             // price anything.
+            // STATE 3 — connected, but the bank does not yet have six months.
+            // Tier availability gates on bank history, so a short history blocks
+            // every metric. Say the real position rather than showing "ready" and
+            // letting the examination reject them after they have granted access.
+            const shortHistory = bankConnected && history
+                && history.connected && history.ready === false
+                && typeof history.monthsAvailable === 'number';
+
+            if (shortHistory) {
+                const label = formatUnlock(history.unlocksAt);
+                ['money', 'mrr', 'orders', 'views'].forEach(m => {
+                    applyCardState(m, false, m === 'money' ? 'bank' : null);
+                    setCardState(m,
+                        history.monthsAvailable + ' of ' + history.monthsRequired + ' months'
+                        + (label ? ' — unlocks ' + label : ''));
+                    const tile = ssRoot.querySelector('.ss-metric[data-metric="' + m + '"]');
+                    const badge = tile && (tile.querySelector('.ss-m-req') || tile.querySelector('.ss-tag'));
+                    if (badge) {
+                        badge.textContent = history.monthsAvailable + ' OF ' + history.monthsRequired + ' MONTHS';
+                        badge.classList.remove('ss-tag');
+                        badge.classList.add('ss-m-req');
+                    }
+                    const go = tile && tile.querySelector('.ss-go');
+                    // Not a link: there is nothing to click, only time to pass.
+                    if (go) go.textContent = label ? 'Unlocks ' + label : 'Not enough history yet';
+                });
+                return;
+            }
+
             applyCardState('money', bankConnected, 'bank');
             applyCardState('mrr', bankConnected && !!(stripe && stripe.connected), 'Stripe');
             applyCardState('orders', bankConnected && !!(shopify && shopify.connected), 'Shopify');
             applyCardState('views', bankConnected && !!(youtube && youtube.connected), 'YouTube');
+        }
+
+        function setCardState(metric, text) {
+            const tile = ssRoot.querySelector('.ss-metric[data-metric="' + metric + '"]');
+            const state = tile && tile.querySelector('.ss-m-state');
+            if (state) state.textContent = text || '';
+        }
+
+        /** "2026-03" -> "in March" */
+        function formatUnlock(ym) {
+            if (!ym || typeof ym !== 'string') return '';
+            const [y, m] = ym.split('-').map(Number);
+            if (!y || !m) return '';
+            const names = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+            return 'in ' + names[m - 1];
         }
 
         function applyCardState(metric, connected, platform) {
