@@ -268,10 +268,16 @@ export function renderActiveContracts() {
             .ss-metric:hover .ss-go { transform:translateX(4px); opacity:.75; }
 
             /* ── Bank-first steps ── */
-            .ss-step { border-top:1px solid var(--rule,#DCD5C6); padding:24px 0 4px; }
-            .ss-step-hd { display:flex; align-items:baseline; gap:12px; font-family:var(--display,'Archivo',sans-serif); font-weight:700; font-size:19px; letter-spacing:-.02em; color:var(--ink,#1A1A18); margin-bottom:10px; }
-            .ss-step-n { font-family:var(--mono,'JetBrains Mono',monospace); font-size:10px; letter-spacing:.16em; color:var(--blood,#7A1C29); font-weight:400; }
-            .ss-step-body { font-size:13.5px; line-height:1.7; color:var(--ink-2,#4A463E); max-width:62ch; margin-bottom:16px; }
+            .ss-step {
+                display:grid; grid-template-columns:240px 1fr; gap:28px;
+                border:1px solid var(--rule,#DCD5C6); background:var(--plate,#FBFAF6);
+                padding:28px; margin-top:16px;
+            }
+            .ss-step-side { display:flex; flex-direction:column; align-items:flex-start; gap:8px; }
+            .ss-step-main { min-width:0; }
+            .ss-step-hd { font-family:var(--display,'Archivo',sans-serif); font-weight:700; font-size:20px; letter-spacing:-.025em; line-height:1.15; color:var(--ink,#1A1A18); margin:0; }
+            .ss-step-n { font-family:var(--mono,'JetBrains Mono',monospace); font-size:10px; letter-spacing:.16em; color:var(--blood,#7A1C29); }
+            .ss-step-body { font-size:13.5px; line-height:1.7; color:var(--ink-2,#4A463E); max-width:74ch; margin:0 0 18px; }
             .ss-primary-wrap { padding:6px 0 2px; }
             .ss-primary { display:inline-flex !important; width:max-content; max-width:100%; align-items:center; gap:10px; background:var(--blood,#7A1C29); color:#fff; border:none; cursor:pointer; font-family:var(--mono,'JetBrains Mono',monospace); font-size:12px; letter-spacing:.08em; text-transform:uppercase; padding:14px 22px; transition:background 200ms ease, transform 200ms ease; }
             .ss-primary:hover { background:#54111B; transform:translateY(-1px); }
@@ -286,8 +292,13 @@ export function renderActiveContracts() {
                "Money received" — the one metric that is ready the moment they
                connect. Only the pointer-events block remains, so a metric still
                cannot be chosen before the bank that settles it exists. */
+            .ss-metrics { display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--rule,#DCD5C6); border:1px solid var(--rule,#DCD5C6); margin-top:4px; }
+            /* The gate is behavioural only — no dimming, so "Money received" (ready
+               the moment they connect) stays legible. */
             .ss-gated .ss-metrics { pointer-events:none; }
-            .ss-gate-badge { font-family:var(--mono,'JetBrains Mono',monospace); font-size:8.5px; letter-spacing:.13em; color:var(--ink-3,#8C877B); border:1px solid var(--rule,#DCD5C6); padding:3px 6px; margin-left:10px; white-space:nowrap; }
+            /* BANK VERIFIED is a tag, not a second title: 9px, letterspaced, green. */
+            .ss-tag { font-family:var(--mono,'JetBrains Mono',monospace); font-size:9px; letter-spacing:.13em; color:var(--win,#186B4A); border:1px solid #9AC0AE; background:#E9F1ED; padding:3px 6px; white-space:nowrap; }
+            .ss-gate-badge { font-family:var(--mono,'JetBrains Mono',monospace); font-size:8.5px; letter-spacing:.13em; color:var(--ink-3,#8C877B); border:1px solid var(--rule,#DCD5C6); padding:3px 6px; white-space:nowrap; }
             .ss[data-bank="connected"] .ss-gated { opacity:1; }
             .ss[data-bank="connected"] .ss-gated .ss-metrics { pointer-events:auto; filter:none; }
             .ss[data-bank="connected"] .ss-gate-badge { display:none; }
@@ -317,6 +328,8 @@ export function renderActiveContracts() {
             .ss-m-alt { margin-top:10px; font-family:var(--mono,'JetBrains Mono',monospace); font-size:9.5px; line-height:1.6; color:var(--ink-3,#8C877B); border-left:2px solid var(--rule,#DCD5C6); padding-left:8px; }
 
             @media (max-width:640px) {
+                .ss-step { grid-template-columns:1fr; gap:14px; padding:20px; }
+                .ss-metrics { grid-template-columns:1fr; }
             }
             @media (prefers-reduced-motion:reduce) {
                 .ss-step, .ss-metric, .ss-go { transition:none !important; }
@@ -984,100 +997,116 @@ export function renderActiveContracts() {
                     </p>
 
                     <div class="ss-step" data-step="01">
-                        <div class="ss-step-hd"><span class="ss-step-n">01</span>Connect your bank</div>
-                        <p class="ss-step-body">
-                            Read-only, through Plaid. Stripe and Shopify payouts land here too,
-                            which is why the bank &mdash; not a platform API &mdash; settles
-                            anything measured in dollars.
-                        </p>
-                        <div class="ss-primary-wrap">
-                            <button class="ss-primary" id="ss-connect-bank" data-source="bank">
-                            Connect bank <span class="ss-primary-sub">Plaid &middot; read-only</span>
-                            </button>
+                        <div class="ss-step-side">
+                            <span class="ss-step-n">01</span>
+                            <h3 class="ss-step-hd">Connect your bank</h3>
                         </div>
-                        <p class="ss-micro">Nothing here commits you to a contract. Access is revocable at any time.</p>
+                        <div class="ss-step-main">
+                            <p class="ss-step-body">
+                                Read-only, through Plaid. Stripe and Shopify payouts land here too,
+                                which is why the bank &mdash; not a platform API &mdash; settles
+                                anything measured in dollars. It then reads your deposit history and
+                                reports what it finds: your median month, how much it swings, whether
+                                it moves with the season, and how many months actually cleared each
+                                target it could set.
+                            </p>
+                            <div class="ss-primary-wrap">
+                                <button class="ss-primary" id="ss-connect-bank" data-source="bank">
+                                    Connect bank <span class="ss-primary-sub">Plaid &middot; read-only</span>
+                                </button>
+                            </div>
+                            <p class="ss-micro">Nothing here commits you to a contract. Access is revocable at any time.</p>
+                        </div>
                     </div>
 
-                    <div class="ss-step" data-step="02">
-                        <div class="ss-step-hd"><span class="ss-step-n">02</span>The examination</div>
-                        <p class="ss-step-body">
-                            It reads your deposit history and reports what it finds &mdash; your
-                            median month, how much it swings, whether it moves with the season,
-                            and how many months actually cleared each target it could set. You
-                            see the line before you decide whether to stand behind it.
-                        </p>
-                    </div>
-
-                    <div class="ss-step ss-gated" data-step="03" id="ss-step-metrics">
-                        <div class="ss-step-hd"><span class="ss-step-n">03</span>Choose what you are measured on
+                    <div class="ss-step ss-gated" data-step="02" id="ss-step-metrics">
+                        <div class="ss-step-side">
+                            <span class="ss-step-n">02</span>
+                            <h3 class="ss-step-hd">Choose what you&rsquo;re measured on</h3>
                             <span class="ss-gate-badge">AFTER YOUR BANK IS CONNECTED</span>
                         </div>
-                        <p class="ss-step-body">
-                            Money is ready as soon as the bank is connected. The rest are counts,
-                            not money &mdash; no deposit says &ldquo;47 orders&rdquo; &mdash; so
-                            they need the platform that can see them.
-                        </p>
+                        <div class="ss-step-main">
+                            <p class="ss-step-body">
+                                Money is ready as soon as the bank is connected. The rest are counts,
+                                not money &mdash; no deposit says &ldquo;47 orders&rdquo; &mdash; so
+                                they need the platform that can see them.
+                            </p>
 
-                        <div class="ss-metrics" id="ss-metrics">
-                            <div class="ss-metric ready" data-metric="money" data-source="bank">
-                                <div class="ss-m-top">
-                                    <span class="ss-m-name">Money received</span>
-                                    <span class="ss-tag">BANK VERIFIED</span>
+                            <div class="ss-metrics" id="ss-metrics">
+                                <div class="ss-metric ready" data-metric="money" data-source="bank">
+                                    <div class="ss-m-top">
+                                        <span class="ss-m-name">Money received</span>
+                                        <span class="ss-tag">BANK VERIFIED</span>
+                                    </div>
+                                    <p class="ss-m-what">Income that landed in your account, net of fees.</p>
+                                    <div class="ss-m-foot">
+                                        <span class="ss-go">Write this contract &rarr;</span>
+                                    </div>
                                 </div>
-                                <p class="ss-m-what">Income that landed in your account, net of fees.</p>
-                                <div class="ss-m-foot">
-                                    <span class="ss-m-state">Ready once your bank is connected</span>
-                                    <span class="ss-go">Write this contract &rarr;</span>
-                                </div>
-                            </div>
 
-                            <div class="ss-metric locked" data-metric="mrr" data-source="mrr" data-platform="Stripe">
-                                <div class="ss-m-top">
-                                    <span class="ss-m-name">MRR</span>
-                                    <span class="ss-m-req">NEEDS STRIPE</span>
+                                <div class="ss-metric locked" data-metric="mrr" data-source="mrr" data-platform="Stripe">
+                                    <div class="ss-m-top">
+                                        <span class="ss-m-name">MRR</span>
+                                        <span class="ss-m-req">NEEDS STRIPE</span>
+                                    </div>
+                                    <p class="ss-m-what">
+                                        A bank statement can&rsquo;t see recurring revenue &mdash; an annual
+                                        prepay lands as one lump that looks nothing like MRR.
+                                    </p>
+                                    <div class="ss-m-foot">
+                                        <span class="ss-m-state">Connect now and MRR unlocks once you have 6 months of Stripe history.</span>
+                                        <span class="ss-go">Connect Stripe &rarr;</span>
+                                    </div>
+                                    <p class="ss-m-alt">You can write a money contract today &mdash; this does not block it.</p>
                                 </div>
-                                <p class="ss-m-what">
-                                    A bank statement can&rsquo;t see recurring revenue &mdash; an annual prepay lands
-                                    as one lump that looks nothing like MRR. Connect Stripe to unlock this.
-                                </p>
-                                <div class="ss-m-foot">
-                                    <span class="ss-m-state">Connect now and MRR unlocks once you have 6 months of Stripe history.</span>
-                                    <span class="ss-go">Connect Stripe &rarr;</span>
-                                </div>
-                                <p class="ss-m-alt">You can write a money contract today &mdash; this does not block it.</p>
-                            </div>
 
-                            <div class="ss-metric locked" data-metric="orders" data-source="orders" data-platform="Shopify">
-                                <div class="ss-m-top">
-                                    <span class="ss-m-name">Orders</span>
-                                    <span class="ss-m-req">NEEDS SHOPIFY</span>
+                                <div class="ss-metric locked" data-metric="orders" data-source="orders" data-platform="Shopify">
+                                    <div class="ss-m-top">
+                                        <span class="ss-m-name">Orders</span>
+                                        <span class="ss-m-req">NEEDS SHOPIFY</span>
+                                    </div>
+                                    <p class="ss-m-what">
+                                        A bank statement can&rsquo;t see order counts &mdash; a deposit never
+                                        says how many orders produced it.
+                                    </p>
+                                    <div class="ss-m-foot">
+                                        <span class="ss-m-state">Connect now and orders unlock once you have 6 months of Shopify history.</span>
+                                        <span class="ss-go">Connect Shopify &rarr;</span>
+                                    </div>
+                                    <p class="ss-m-alt">You can write a money contract today &mdash; this does not block it.</p>
                                 </div>
-                                <p class="ss-m-what">
-                                    A bank statement can&rsquo;t see order counts &mdash; a deposit never says how many
-                                    orders produced it. Connect Shopify to unlock this.
-                                </p>
-                                <div class="ss-m-foot">
-                                    <span class="ss-m-state">Connect now and orders unlock once you have 6 months of Shopify history.</span>
-                                    <span class="ss-go">Connect Shopify &rarr;</span>
-                                </div>
-                                <p class="ss-m-alt">You can write a money contract today &mdash; this does not block it.</p>
-                            </div>
 
-                            <div class="ss-metric locked" data-metric="views" data-source="views" data-platform="YouTube">
-                                <div class="ss-m-top">
-                                    <span class="ss-m-name">Views</span>
-                                    <span class="ss-m-req">NEEDS YOUTUBE</span>
+                                <div class="ss-metric locked" data-metric="views" data-source="views" data-platform="YouTube">
+                                    <div class="ss-m-top">
+                                        <span class="ss-m-name">Views</span>
+                                        <span class="ss-m-req">NEEDS YOUTUBE</span>
+                                    </div>
+                                    <p class="ss-m-what">
+                                        A bank statement can&rsquo;t see views &mdash; they are never
+                                        denominated in dollars.
+                                    </p>
+                                    <div class="ss-m-foot">
+                                        <span class="ss-m-state">Connect now and views unlock once you have 6 months of YouTube history.</span>
+                                        <span class="ss-go">Connect YouTube &rarr;</span>
+                                    </div>
+                                    <p class="ss-m-alt">You can write a money contract today &mdash; this does not block it.</p>
                                 </div>
-                                <p class="ss-m-what">A bank statement can&rsquo;t see views &mdash; they are never denominated in dollars.
-                                    Connect YouTube to unlock this.</p>
-                                <div class="ss-m-foot">
-                                    <span class="ss-m-state">Connect now and views unlock once you have 6 months of YouTube history.</span>
-                                    <span class="ss-go">Connect YouTube &rarr;</span>
-                                </div>
-                                <p class="ss-m-alt">You can write a money contract today &mdash; this does not block it.</p>
                             </div>
                         </div>
                     </div>
+
+                    <div class="ss-sources">
+                        <span class="ss-sources-k">&sect; HOW SOURCES WORK</span>
+                        <span class="ss-sources-v">
+                            Your bank settles every contract. Stripe, Shopify and YouTube only
+                            unlock metrics a bank statement can&rsquo;t see.
+                        </span>
+                    </div>
+
+                    <p class="ss-promise">
+                        No terms exist until your bank is connected and examined. Nothing here
+                        commits you to a contract, and read access can be revoked at any time.
+                    </p>
                 </section>
             </div>
 
