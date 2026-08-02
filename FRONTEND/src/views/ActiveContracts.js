@@ -1498,9 +1498,7 @@ export function initActiveContracts() {
                 // keeps their place on /market and the card re-renders on success.
                 if (el.id === 'ss-connect-bank') {
                     if (window.app && typeof window.app.connectBank === 'function') {
-                        window.app.connectBank(() => {
-                            if (window.app.setBankConnected) window.app.setBankConnected(true);
-                        });
+                        window.app.connectBank(() => { loadSourceState(); });
                     }
                     return;
                 }
@@ -1523,6 +1521,72 @@ export function initActiveContracts() {
         window.app.setBankConnected = function (connected) {
             ssRoot.setAttribute('data-bank', connected ? 'connected' : 'none');
         };
+
+        /**
+         * Read REAL connection state and render each card accordingly.
+         *
+         * Two states are supported today: ready (source connected) and not
+         * connected (show connect). The third — connected but short on history —
+         * needs a history-depth endpoint that does not exist yet, so a connected
+         * source falls back to "ready" and the examination catches insufficient
+         * history. Honest, because the examination genuinely does check, and far
+         * better than showing "Connect Stripe" to someone who connected last week.
+         */
+        async function loadSourceState() {
+            if (!window.api) return;
+
+            const read = async (fn) => {
+                try { return await fn(); } catch { return { connected: false }; }
+            };
+
+            const [bank, stripe, shopify, youtube] = await Promise.all([
+                read(() => window.api.getPlaidStatus()),
+                read(() => window.api.getStripeStatus()),
+                read(() => window.api.getShopifyStatus()),
+                read(() => window.api.getYouTubeStatus()),
+            ]);
+
+            const bankConnected = !!(bank && bank.connected);
+            ssRoot.setAttribute('data-bank', bankConnected ? 'connected' : 'none');
+
+            // EVERY metric needs the bank: it produces the underwriting baseline
+            // whichever metric is chosen, and settles anything denominated in
+            // dollars. A platform connection alone is not enough — marking MRR
+            // "ready" with no bank would send the user to a builder that cannot
+            // price anything.
+            applyCardState('money', bankConnected, 'bank');
+            applyCardState('mrr', bankConnected && !!(stripe && stripe.connected), 'Stripe');
+            applyCardState('orders', bankConnected && !!(shopify && shopify.connected), 'Shopify');
+            applyCardState('views', bankConnected && !!(youtube && youtube.connected), 'YouTube');
+        }
+
+        function applyCardState(metric, connected, platform) {
+            const tile = ssRoot.querySelector('.ss-metric[data-metric="' + metric + '"]');
+            if (!tile) return;
+            const go = tile.querySelector('.ss-go');
+            const req = tile.querySelector('.ss-m-req');
+
+            if (connected) {
+                tile.classList.remove('locked');
+                tile.classList.add('ready');
+                if (go) go.textContent = 'Write this contract →';
+                if (req) req.remove();
+            } else {
+                tile.classList.add('locked');
+                tile.classList.remove('ready');
+                // Name the action that actually unblocks this card. Without a bank
+                // that is always the bank, whatever the platform.
+                if (go) {
+                    const bankMissing = ssRoot.getAttribute('data-bank') !== 'connected';
+                    go.textContent = (bankMissing || platform === 'bank')
+                        ? 'Connect bank →'
+                        : 'Connect ' + platform + ' →';
+                }
+            }
+        }
+
+        loadSourceState();
+
 
         // Once a platform is attached we know exactly how much history exists, so
         // replace the generic rule with the user's ACTUAL position — "4 of 6
