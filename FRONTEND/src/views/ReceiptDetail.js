@@ -178,7 +178,7 @@ export async function initReceiptDetail(params) {
         const statusMessages = {
             'ACTIVE': 'Capital is locked. Outcome will be verified at deadline.',
             'AWAITING EXECUTION': 'Contract created. Awaiting capital lock.',
-            'SETTLED — SUCCESS': 'Target achieved. Capital is released to the beneficiary within one business day of settlement.',
+            'SETTLED — SUCCESS': 'Target achieved. Capital is released to the beneficiary after review, typically within one business day.',
             'SETTLED — FORFEITED': 'Target not achieved. Capital forfeited.',
         };
         const statusMessage = statusMessages[statusDisplay] || 'Status pending.';

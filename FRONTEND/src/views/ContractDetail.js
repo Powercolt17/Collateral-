@@ -663,7 +663,7 @@ function renderActionPanel(state, daysLeft) {
             '<div class="cd-action-icon"><i data-lucide="check-check"></i></div>' +
             '<div class="cd-action-text">' +
             '<h4>Target Hit</h4>' +
-            '<p>Funds are released within one business day.</p>' +
+            '<p>Funds are released after review, typically within one business day.</p>' +
             '</div>' +
             '</div>';
     } else if (['PAYOUT_COMPLETE', 'COMPLETED'].includes(state)) {

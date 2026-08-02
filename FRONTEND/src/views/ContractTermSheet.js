@@ -339,7 +339,7 @@ function showContent(c) {
             </div>
             <div class="cts-block">
                 <div class="cts-block-title">Settlement Logic</div>
-                <div class="cts-block-text">Settled automatically at window close. Funds released within one business day.</div>
+                <div class="cts-block-text">Settled automatically at window close. Funds released after review, typically within one business day.</div>
             </div>
             <div class="cts-block">
                 <div class="cts-block-title">Fail-Closed Policy</div>

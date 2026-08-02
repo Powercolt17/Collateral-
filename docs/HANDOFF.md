@@ -146,6 +146,18 @@ require a payout destination at creation, not payout.
 - **The onboarding gate blocks contract creation today.** `connect_accounts` is
   empty, so with the gate live *no user can create a contract* until they
   onboard. Correct by design, but it will look like a bug.
+- **`node_modules` is tracked in git — 24,489 files, 201 packages, on a public
+  repo.** Backend only; `FRONTEND/node_modules` is clean. `.gitignore` lists
+  `node_modules/`, which does nothing for files already tracked, so it has been
+  silently committing since before the ignore rule existed. **Audit before
+  untracking.** A first pass found no tracked `.env`, `.pem`, `.key`, `.p12` or
+  `.pfx` — the hits on "credential"/"secret" are library source (grpc's
+  credentials modules, Stripe's `Apps/Secrets` resource), not secrets. That pass
+  was filename-only. Given the secrets already public since 2026-01-07, assume
+  nothing and check contents, including history, before deciding this is clean.
+  Note that `git rm -r --cached node_modules` removes it going forward but does
+  **not** remove it from history — same distinction as the exposed keys, where
+  removal does not un-expose.
 
 ---
 
@@ -183,7 +195,7 @@ claim and it is still true.
 | File | Now reads |
 |---|---|
 | `Landing.js:169` | "the oracle reports and the outcome is set. Neither party gets a vote." |
-| `ContractTermSheet.js:342` | "Settled automatically at window close. Funds released within one business day." |
+| `ContractTermSheet.js:342` | "Settled automatically at window close. Funds released after review, typically within one business day." |
 | `Contracts.js:588`, `TermSheet.js:527` | "No overrides on the outcome. No appeals." |
 | `ActiveContracts.js:1221` | "✓ No Appeals" — unchanged, still true |
 
@@ -191,17 +203,18 @@ Payout timing added where a winner sees their own result, which previously said
 nothing about when money arrives: `ReceiptDetail.js:181` (settled-success status
 message) and `ContractDetail.js` `renderActionPanel()`, which gained a
 win branch — `SETTLED_SUCCESS`/`SETTLEMENT_COMPLETE` say funds are released
-within one business day, `PAYOUT_COMPLETE`/`COMPLETED` say they have been
-released. Previously both fell through to a generic "Final state reached."
+after review, `PAYOUT_COMPLETE`/`COMPLETED` say they have been released.
+Previously both fell through to a generic "Final state reached."
+
+The wording is **"after review, typically within one business day"** — settled
+deliberately, not by default. A hard one-day promise is gated on a human
+clicking approve in the admin queue with no SLA and no alerting behind it, which
+is the same overstatement this section exists to fix, moved from settlement to
+timing. "Typically" is honest about a manual gate. If overnight alerting on the
+pending queue ever lands, a hard number becomes defensible; until then it is not.
 
 Still accurate, no change needed: `ActiveContracts.js:1198`, `ReceiptDetail.js:387`,
 `platform-policy.ts:31` — all describe verification and outcome, not disbursement.
-
-**Open question on the one-business-day claim.** It is a promise gated on a
-human approving in the admin queue, and there is no SLA or alert behind it. If
-approval slips past a day the copy is wrong in the same direction the rest of
-this section just fixed. Either treat one business day as an operational
-commitment, or soften to "after review, typically within one business day."
 
 ---
 
