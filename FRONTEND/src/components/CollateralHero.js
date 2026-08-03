@@ -104,7 +104,7 @@ function escapeHtml(value) {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-plate-v3.jpg',
+        plateSrc = '/assets/images/collateral-plate-v4.jpg',
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
