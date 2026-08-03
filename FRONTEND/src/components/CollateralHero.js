@@ -143,18 +143,6 @@ export function renderCollateralHero(options = {}) {
              the mobile crop is a different composition and would otherwise
              drift. */
           --plate-grade:saturate(.50) sepia(.06) brightness(1.06) contrast(1.05);
-
-          /* PLATE EDGE FADE — how far the engraving dissolves into the paper at
-             each edge, as a share of the hero's width/height. Raise for more
-             dissolve, set all three to 0 to go back to a hard full-bleed crop.
-
-             Top and bottom are separate because mobile needs them to differ:
-             the portrait plate exists precisely to drop the scene's base onto
-             the bottom edge, so a bottom fade there would dissolve the ground
-             the figures stand on. See the mobile block. */
-          --plate-fade-x:9%;
-          --plate-fade-t:6%;
-          --plate-fade-b:6%;
           background:var(--paper); color:var(--ink);
           font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
           -webkit-font-smoothing:antialiased;
@@ -271,61 +259,6 @@ export function renderCollateralHero(options = {}) {
           background-size:cover;
           background-repeat:no-repeat;
           filter:var(--plate-grade);
-        }
-        /* ---- edge fade ----
-           The plate used to be a hard-edged rectangle: the cypresses that frame
-           the composition were guillotined by the viewport on both sides and
-           the statue's raised wreath was sliced off square at the top. Read as
-           a photo cropped to the window rather than a plate printed on a page.
-           This dissolves all four edges into the paper instead.
-
-           PAINTED, not masked. The honest way to do this is mask-image, but
-           combining a horizontal and a vertical fade in one mask needs
-           mask-composite:intersect, whose support is patchier than plain
-           stacked backgrounds. Because the colour being faded TO is exactly
-           --paper, and .clt-hero already sits on --paper, painting paper over
-           the edges is pixel-identical to masking to transparent — with no
-           compositing flags and no vendor prefixes.
-
-           Its own layer rather than extra background-images on ::before,
-           because ::before carries --plate-grade and the grade must not touch
-           the fade: running paper through saturate(.5) would tint it.
-
-           Sits between the plate and the type — ::after paints after ::before
-           at the same z-index, and the lockup is z-index 1 above both.
-
-           The transparent stops are rgba(241,238,232,0), which is --paper with
-           zero alpha spelled out. It has to be the literal: fading to the
-           CSS-wide "transparent" keyword interpolates through transparent BLACK
-           in some engines and leaves a grey bloom. Keep the rgba in
-           step with --paper if that token ever changes.
-
-           Three stops a side, not two. The middle stop at 38% of the fade
-           distance approximates an ease-out, so the ramp does not show a hard
-           start edge against the flat sky.
-
-           The middle of the frame is untouched by construction: the horizontal
-           fade is fully transparent from 9% to 91% and the vertical from 6% to
-           94%, while the lockup occupies roughly 34-66% across and 14-49% down.
-           The headline never sits on a faded pixel, so the 7.81:1 contrast
-           measured for the grade is unaffected. */
-        .clt-hero::after{
-          content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
-          background:
-            linear-gradient(to right,
-              var(--paper) 0%,
-              rgba(241,238,232,.62) calc(var(--plate-fade-x) * .38),
-              rgba(241,238,232,0) var(--plate-fade-x),
-              rgba(241,238,232,0) calc(100% - var(--plate-fade-x)),
-              rgba(241,238,232,.62) calc(100% - var(--plate-fade-x) * .38),
-              var(--paper) 100%),
-            linear-gradient(to bottom,
-              var(--paper) 0%,
-              rgba(241,238,232,.58) calc(var(--plate-fade-t) * .38),
-              rgba(241,238,232,0) var(--plate-fade-t),
-              rgba(241,238,232,0) calc(100% - var(--plate-fade-b)),
-              rgba(241,238,232,.58) calc(100% - var(--plate-fade-b) * .38),
-              var(--paper) 100%);
         }
         /* ONE unit drives the whole lockup. Tune --u to resize everything at
            once; the multipliers below are the authored proportions.
@@ -539,13 +472,6 @@ export function renderCollateralHero(options = {}) {
             background-size:100% 100%;
             background-position:center top;
           }
-          /* Edge fade, retuned for the portrait plate. The bottom goes to ZERO:
-             the whole reason this crop exists is that the desktop scene drops
-             into the bottom of a taller canvas with its ground line ON the
-             bottom edge, so any bottom fade dissolves the ground the figures
-             stand on. Sides come in from 9% to 6% because a phone is narrow and
-             9% a side is a much bigger share of the composition there. */
-          .clt-hero{--plate-fade-x:6%;--plate-fade-t:4%;--plate-fade-b:0%}
           .clt-lockup{position:absolute;inset:0 0 auto 0;padding:96px 22px 0;z-index:1}
           .clt-eyebrow{font-size:9px;gap:8px;letter-spacing:.18em}
           .clt-eyebrow::before,.clt-eyebrow::after{width:20px;height:2px}
