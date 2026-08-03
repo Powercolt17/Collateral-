@@ -191,20 +191,22 @@ export function renderCollateralHero(options = {}) {
         .clt-cta{margin-top:calc(1.95 * var(--u));display:flex;align-items:center;gap:calc(1.43 * var(--u))}
         /* The px FLOOR on the two CTA labels stops them collapsing to ~8px on a
            1024 laptop. It does not engage on a full-size screen. */
-        /* Oxblood fill with an ox-deep offset shadow, per the new colourway.
-           The old rule against this — "oxblood on the red plate has
-           insufficient contrast" — was about oxblood sitting on the ENGRAVING.
-           It does not: the lockup sits in the plate's clear sky, which is paper,
-           and oxblood on paper measures well clear of AA. Verified after the
-           change, not assumed. */
+        /* ox-deep FILL with an ox shadow — the inverse of the first attempt.
+           Straight ox fill matched the headline exactly, so the button stopped
+           reading as the action and became more headline. ox-deep is the darkest
+           value in the section, which puts the button back at the top of the
+           value hierarchy the way ink navy did, without leaving the maroon
+           family the new colourway is built on. The shadow is the lighter ox, so
+           the offset still separates from the fill instead of disappearing into
+           it. Contrast measured, not assumed. */
         .clt-btn{
-          background:var(--ox);color:var(--paper-hi);border:0;cursor:pointer;
+          background:var(--ox-deep);color:var(--paper-hi);border:0;cursor:pointer;
           padding:calc(.86 * var(--u)) calc(1.87 * var(--u));
           font:700 clamp(11px,calc(.615 * var(--u)),20px)/1 ui-monospace,Menlo,monospace;letter-spacing:.17em;
-          box-shadow:calc(.315 * var(--u)) calc(.315 * var(--u)) 0 var(--ox-deep);
+          box-shadow:calc(.315 * var(--u)) calc(.315 * var(--u)) 0 var(--ox);
           transition:box-shadow .16s ease,transform .16s ease;
         }
-        .clt-btn:hover{box-shadow:calc(.09 * var(--u)) calc(.09 * var(--u)) 0 var(--ox-deep);transform:translate(calc(.225 * var(--u)),calc(.225 * var(--u)))}
+        .clt-btn:hover{box-shadow:calc(.09 * var(--u)) calc(.09 * var(--u)) 0 var(--ox);transform:translate(calc(.225 * var(--u)),calc(.225 * var(--u)))}
         .clt-link{
           background:none;border:0;cursor:pointer;color:var(--ox);
           font:700 clamp(11px,calc(.615 * var(--u)),20px)/1 ui-monospace,Menlo,monospace;letter-spacing:.15em;

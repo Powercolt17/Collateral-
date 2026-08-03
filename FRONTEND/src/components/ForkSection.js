@@ -142,7 +142,16 @@ export function renderForkSection(options = {}) {
         .fk-kicker{display:flex;align-items:center;gap:10px;
           font-size:10px;letter-spacing:.22em;font-weight:700;color:var(--ox);margin-bottom:16px}
         .fk-kicker::after{content:"";flex:1;height:1px;background:var(--rule)}
-        .fk h2{font-size:38px;font-weight:800;letter-spacing:-.025em;line-height:1.02;color:var(--ink)}
+        /* Matches the hero headline: oxblood, uppercase.
+           NOT switched to var(--display), deliberately. --display resolves to
+           Archivo in the landing subtree, but the hero h1 renders Helvetica Neue
+           because .clt sets its own font-family — as does .lg and .fk. All three
+           headlines therefore already share a typeface. Applying --display here
+           would make this one Archivo and the hero Helvetica Neue, i.e. it would
+           CREATE the font mismatch it was meant to remove. Moving all three onto
+           --display together is the coherent alternative and is a separate call. */
+        .fk h2{font-size:38px;font-weight:800;letter-spacing:-.025em;line-height:1.02;
+          color:var(--ox);text-transform:uppercase}
         .fk-head p{margin-top:14px;font-size:15px;line-height:1.6;color:#3B4254;max-width:52ch}
 
         /* the spine: one hairline, steps sit on it as nodes */

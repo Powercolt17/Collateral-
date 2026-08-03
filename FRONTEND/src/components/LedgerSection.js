@@ -123,7 +123,10 @@ export function renderLedgerSection(options = {}) {
           70%{box-shadow:0 0 0 7px rgba(46,143,94,0)}
           100%{box-shadow:0 0 0 0 rgba(46,143,94,0)}
         }
-        .lg h2{font-size:38px;font-weight:800;letter-spacing:-.025em;line-height:1.02;color:var(--ink)}
+        /* Matches the hero headline: oxblood, uppercase. Font is deliberately
+           NOT switched to var(--display) — see the note in ForkSection.js. */
+        .lg h2{font-size:38px;font-weight:800;letter-spacing:-.025em;line-height:1.02;
+          color:var(--ox);text-transform:uppercase}
         .lg-head p{margin-top:14px;font-size:15px;line-height:1.6;color:#3B4254;max-width:54ch}
         /* Sample-data marker. Deliberately not styled down into a whisper. */
         .lg-demo{display:inline-block;margin-top:14px;padding:4px 9px;
