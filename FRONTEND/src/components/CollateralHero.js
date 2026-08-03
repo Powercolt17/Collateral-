@@ -329,9 +329,71 @@ export function renderCollateralHero(options = {}) {
           outline:2px solid var(--ink);outline-offset:3px;
         }
 
-        /* ---- proof strip at the fold ---- */
+        /* ---- entrance ----
+           The hero was the only section on the page with no motion: 0 animated
+           elements against 41 everywhere else. The site's motion framework was
+           rolled out before this component existed and the component never
+           picked it up.
+
+           These are @keyframes, NOT the shared .rise / .clip-wipe classes, and
+           that is deliberate. Those are TRANSITIONS that only fire once
+           initEntranceObservers() adds .is-in. For a section below the fold
+           that is fine. For this one it is not: the base state is opacity:0, so
+           the hero would paint blank and stay blank for as long as JS takes —
+           and forever if the bundle fails. That is the exact bug 122b9e75 had
+           to fix, and the fix then was to hardcode .is-in into the markup,
+           which bought visibility by giving up the animation entirely.
+
+           An animation with fill-mode:both cannot fail that way: it starts on
+           its own and always ends on the visible frame. Nothing here depends on
+           the observer, and .clt-in / .clt-line are deliberately NOT names the
+           observer looks for, so the two systems cannot interact.
+
+           The values are the house language, matched to LandingStyles: rise is
+           10px / 620ms, the wipe is 720ms with the same 6px lift as hl-strike,
+           both on cubic-bezier(.22,1,.36,1), staggered with --d. */
+        @keyframes clt-rise{
+          from{opacity:0;transform:translateY(10px)}
+          to{opacity:1;transform:none}
+        }
+        @keyframes clt-wipe{
+          from{opacity:0;clip-path:inset(0 0 100% 0);transform:translateY(6px)}
+          to{opacity:1;clip-path:inset(0 0 0 0);transform:none}
+        }
+        .clt-in{animation:clt-rise 620ms cubic-bezier(.22,1,.36,1) var(--d,0ms) both}
+        /* inline-block so clip-path has a box to clip. The BR tags are kept and
+           the lines are not display:block, so the three-line rag and the
+           line-height:.855 metrics are byte-identical to before. */
+        .clt-line{display:inline-block;animation:clt-wipe 720ms cubic-bezier(.22,1,.36,1) var(--d,0ms) both}
+
+        /* ---- proof strip at the fold ----
+           Pulled UP over the bottom of the plate so ~44px of its 70px shows
+           above the fold. The hero is exactly 100vh, so with the strip flowing
+           normally it began at exactly the fold line and none of it was ever
+           on screen: the escrow figure and the settled count — the only social
+           proof on the page — were invisible at scroll-top, and nothing
+           signalled there was more page below.
+
+           A negative margin rather than a shorter hero, and the difference is
+           not cosmetic. Shrinking the hero to 94vh was measured first and
+           rejected: a shorter frame means MORE vertical overflow for cover to
+           place, which walks the plate back up into the lockup. It took the
+           clearance at 1551x760 from +21px down to +6px, and at 1351x768 it
+           created overflow where the ratio previously had none, turning +7px
+           into -11px. It would have undone the fix directly above.
+
+           This way the hero's geometry is untouched — same height, same cover
+           scale, same overflow, same clearance — and the peek is a constant
+           44px at every viewport instead of a percentage that collapses on
+           short windows.
+
+           It is opaque, so it covers the bottom 44px of the engraving. That
+           band is the carved table front, which the 35% anchor is already
+           cropping into, and the strip's own 1px top rule reads as the plate's
+           bottom edge. */
         .clt-strip{
           position:relative;z-index:3;
+          margin-top:-44px;
           display:flex;justify-content:center;align-items:baseline;gap:10px 40px;flex-wrap:wrap;
           padding:22px 24px;font-size:10px;letter-spacing:.16em;color:var(--ink-soft);
           background:var(--paper);
@@ -430,15 +492,25 @@ export function renderCollateralHero(options = {}) {
            the old scaled band; the aspect-lock makes both meaningless. */
         @media (prefers-reduced-motion:reduce){
           .clt *{transition:none !important}
+          /* The transition kill above does nothing to an animation, and the
+             entrance is animation-driven. Without this the hero would still
+             wipe and lift for someone who asked it not to. Land every element
+             on its final frame instead. */
+          .clt-in,.clt-line{
+            animation:none !important;
+            opacity:1 !important;
+            clip-path:none !important;
+            transform:none !important;
+          }
         }
         </style>
 
         <div class="clt">
             <section class="clt-hero" style="--clt-plate:url(${plateSrc});" data-plate="${PLATE_W}x${PLATE_H}">
                 <div class="clt-lockup">
-                    <div class="clt-eyebrow clt-mono">SELF-ENFORCING PERFORMANCE CONTRACTS</div>
-                    <h1>Put money<br />on your own<br /><span class="clt-accent">deadline</span></h1>
-                    <div class="clt-cta">
+                    <div class="clt-eyebrow clt-mono clt-in" style="--d:60ms">SELF-ENFORCING PERFORMANCE CONTRACTS</div>
+                    <h1><span class="clt-line" style="--d:150ms">Put money</span><br /><span class="clt-line" style="--d:240ms">on your own</span><br /><span class="clt-line" style="--d:330ms"><span class="clt-accent">deadline</span></span></h1>
+                    <div class="clt-cta clt-in" style="--d:470ms">
                         <button type="button" class="clt-btn"${onWriteContract ? ` onclick="${onWriteContract}"` : ''}>WRITE A CONTRACT</button>
                         <button type="button" class="clt-link"${onWatchFlow ? ` onclick="${onWatchFlow}"` : ''}>WATCH FORFEITURE FLOW ↓</button>
                     </div>
