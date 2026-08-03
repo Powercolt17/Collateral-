@@ -228,19 +228,20 @@ export function renderHeader(currentRoute = '') {
                which shrink. At 320px it measured 359px wide, pushing MENU off
                screen and dropping SIGN IN onto the wordmark.
 
-               SIGN IN is SHRUNK, not hidden. Hiding it and relying on the
-               drawer's own sign-in (#btn-auth-mobile) is the tidier answer and
-               was tried first — but the drawer currently never slides into
-               view, so that button cannot be tapped. Hiding this one would
-               leave no reachable way to sign in on a phone. Revisit once the
-               drawer is fixed. */
-            @media (max-width: 767px) {
-                .ch-logo-wordmark { font-size: 18px !important; letter-spacing: 0.14em !important; }
-                .ch-connect-btn { padding: 7px 12px; font-size: 10px; }
-            }
-            @media (max-width: 360px) {
-                .ch-logo-wordmark { font-size: 15px !important; letter-spacing: 0.12em !important; }
-                .ch-right { gap: 10px; }
+               SIGN IN is HIDDEN below 820, not shrunk, and the drawer's own
+               sign-in (#btn-auth-mobile, in .pnl-connect-section) is the mobile
+               path. !important because the auth JS sets this button's display
+               inline.
+
+               The avatar and its divider go too. They are the signed-in
+               equivalent of the same problem: with the wordmark left at full
+               size, 21px, the signed-in row measured 350px against a 320px
+               screen. The drawer already shows the profile card, so nothing is
+               lost. Wordmark stays 21px at every width. */
+            @media (max-width: 820px) {
+                .ch-connect-btn { display: none !important; }
+                .ch-trigger-avatar-indicator { display: none !important; }
+                .ch-avatar-divider { display: none !important; }
             }
 
             /* Separated Avatar Status Indicator */

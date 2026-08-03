@@ -257,33 +257,34 @@ export function renderCollateralHero(options = {}) {
            means a longer translation or a larger font grows the hero instead of
            spilling type over the artwork. ---- */
         @media (max-width:820px){
+          /* Mobile gets its OWN portrait plate, aspect-locked. This replaces the
+             band-under-the-type approach entirely: the landscape plate used to
+             be scaled and anchored to the bottom with the lockup flowing above
+             it, which is why the lockup was position:static and why there was a
+             padding-bottom reserving the band. A portrait crop needs none of
+             that — the hero is simply the plate, and the type sits on it, the
+             same way desktop works.
+
+             background-size:100% 100% is safe here precisely BECAUSE of the
+             aspect-lock: the box always matches 900/1614, so the image is never
+             actually stretched.
+
+             width:100vw + margin-left:calc(50% - 50vw) is kept, and is not in
+             the supplied rules. .lp puts a 16px gutter on the landing page at
+             this width; without this the hero sits inset with paper down both
+             sides, which is the "it needs to be full screen" problem from
+             earlier. */
           .clt-hero{
-            aspect-ratio:auto !important;
+            aspect-ratio:900 / 1614 !important;
             height:auto !important;
+            padding:0;
             width:100vw;
             margin-left:calc(50% - 50vw);
-            background-size:100% auto;
-            background-position:center bottom;
+            background-image:url(/assets/images/collateral-plate-mobile.jpg) !important;
+            background-size:100% 100%;
+            background-position:center top;
           }
-          /* padding-bottom reserves exactly the band: the plate is at 100%
-             width, so its rendered height is width * 915/1600 = 57.2vw. The
-             lockup flows above it, so the engraving begins immediately after
-             the CTA.
-
-             The hero is NOT stretched to 100vh here and the lockup is NOT
-             centred. Both were tried and both produce the dead band under the
-             CTA: on a 390x844 phone the type is ~230px and the plate ~223px,
-             so forcing a full viewport leaves ~390px of slack that centring
-             then splits above and below the type. Letting the hero take its
-             natural height removes the slack entirely rather than relocating
-             it, and brings the next section into view sooner.
-
-             No explicit gap above the plate: the engraving carries its own.
-             The top 24.6% of the plate is clear sky (first inked row is 191 of
-             778), which at this band size is ~14vw of paper before the tree
-             line — the breathing room is in the image. */
-          .clt-hero{padding:70px 0 57.2vw}
-          .clt-lockup{position:static;padding:0 22px}
+          .clt-lockup{position:absolute;inset:0 0 auto 0;padding:100px 22px 0}
           .clt-eyebrow{font-size:9px;gap:8px;letter-spacing:.18em}
           .clt-eyebrow::before,.clt-eyebrow::after{width:20px;height:2px}
           /* src/mobile.css:521 forces h1 to clamp(24px,7vw,36px) !important for
@@ -299,11 +300,8 @@ export function renderCollateralHero(options = {}) {
 
           .clt-strip{gap:10px;flex-direction:column;align-items:center;font-size:9px;padding:16px}
         }
-        @media (max-width:420px){
-          /* No zoom override — same reasoning as above. Slightly tighter header
-             guard so the centred lockup has more room on the smallest screens. */
-          .clt-hero{padding-top:70px}
-        }
+        /* No max-width:420px block. It existed to re-tune the zoom and padding of
+           the old scaled band; the aspect-lock makes both meaningless. */
         @media (prefers-reduced-motion:reduce){
           .clt *{transition:none !important}
         }
