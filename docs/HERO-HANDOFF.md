@@ -59,7 +59,18 @@ too or it silently loses.
 **The three cloud values are one set.** `opacity` on the cloud layer, the
 `brightness` in `--plate-grade`, and the reduced-motion flat `background-color`.
 Brightness exists only to compensate for the cloud layer's mean shade
-(`opacity x 0.5`). Move one alone and the plate gets darker or washes out.
+(`opacity x 0.5`, which is why the fallback is `rgba(0,0,0,.08)` at `.16`). Move
+one alone and the plate gets darker or washes out, and reduced-motion users get
+a differently lit hero.
+
+**Comments in this file have gone stale before.** Three stacked `--plate-grade`
+comment blocks — 95 lines — described a crimson plate and a `sepia()` step that
+had not been in the chain for a long time. Anything quoting a measurement should
+be re-measured before it is trusted. The current block is verified against
+`collateral-crop5.jpg`: graded mean `242,225,201`, no clipping, headline
+contrast **12.30:1** in full sun to **10.39:1** under deepest cloud against
+`--ink-warm`. Note the headline is `--ink-warm`, **not** `--ox` — oxblood is
+button-only, and measuring the wrong colour understates the margin badly.
 
 **The cloud layer translates**, so a mask applied to it travels with it. The
 left-side texture vignette lives on a `.clt-sky` wrapper that never moves, with
@@ -111,8 +122,10 @@ through `Add-Type -AssemblyName System.Drawing`.
 
 18 orphaned plate JPEGs in `FRONTEND/public/assets/images`, roughly 7MB, none
 referenced. Only `collateral-crop5.jpg` and `collateral-group2.jpg` are live.
-`collateral-plate.jpg` is still referenced somewhere in `src` — worth finding,
-it may be a stale reference in another view.
+
+`collateral-plate.jpg` was flagged as a possible live reference — **it is not.**
+The single hit in `src` is inside a CSS *comment*, leftover measurement notes.
+All 18 orphans are confirmed safe to delete, no broken-image risk.
 
 Trajan Pro is **commercial Adobe**; a desktop licence does not cover serving it
 from your domain. Both faces are unsubsetted, ~585KB for seven glyphs in the

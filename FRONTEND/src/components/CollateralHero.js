@@ -135,100 +135,59 @@ export function renderCollateralHero(options = {}) {
           --roman:"Trajan Pro","Cinzel",Georgia,serif;
           --text-serif:"Newsreader",Georgia,"Times New Roman",serif;
 
-          /* PLATE GRADE — the one value to tune if the engraving reads too hot.
-             Both plate JPEGs ship as a saturated crimson duotone on a PINK
-             ground, so the red was in the artwork, not in any overlay. That put
-             the entire viewport in one red and left the oxblood headline,
-             button and link with nothing to sit against.
+          /* PLATE GRADE. The artwork is natively sepia ink on cream, so this is
+             a small correction, not a colour conversion. Three parts, each
+             load-bearing:
 
-             saturate() does the work; the small sepia() is a corrective, not a
-             look. Desaturating alone walks the paper ground toward a dead grey-
-             pink, and sepia .12 puts the warmth back without tinting it. It is
-             deliberately small: measured on the actual plate, sepia at .18-.20
-             starts tinting the open sky YELLOW (sky saturation climbs back to
-             .096 from .077), which trades a red cast for a yellow one.
+             saturate(.62) — the supplied plate reads warmer than the palette.
+             Behind the headline it means 239,213,174, saturation .272 (HSV,
+             the metric every number in this file uses) against --paper
+             #F1EEE8 at .037. The grade lands it at .169 and pulls the RGB
+             distance to --paper from 63 down to 34. It is a nudge toward the
+             token, not a neutralising pass — this plate is warmer than --paper
+             and always will be. If the join at the proof strip reads wrong,
+             warm --paper rather than desaturating further: below about .55 the
+             engraving goes grey and loses the reason sepia was chosen, and
+             above .75 it reads orange against the page.
 
-             Do NOT reach for grayscale(1) sepia(x) — the usual duotone recipe.
-             It was measured here and rejected twice: it flattens the engraved
-             ink to a near-neutral .17-.19 saturation, which kills the plate, and
-             it blows the sky to #FFEFCF with the red channel clipped.
+             contrast(.92) — the plate stepping BACK. It is cross-hatched edge
+             to edge and carries far more visual noise per square inch than a
+             flat illustration, so it was winning the page against the type.
+             This narrows its range about 8%. Deliberately small: the darkest
+             ink is near-black so there is range to give up, but an earlier
+             pass overshot and read as faded.
 
-             Measured on /assets/images/collateral-plate.jpg, this chain:
-               whole-image saturation  .416 -> .314   (-25%)
-               open sky behind the h1  #DEC8C8 -> #EADCD8, vs --paper #F1EEE8
-               engraved ink            #661D24 -> #492325, saturation .579
-               ink HUE                 354.1 -> 355.5 deg  (--ox is 353.9)
-               highlight clipping      0% (brightness 1.06 is under the knee)
-             and it IMPROVES type contrast on the sky, because the ground
-             lightens while the oxblood does not:
-               headline --ox      6.50:1 -> 7.75:1  (AA -> AAA)
-               button --ox-deep   8.68:1 -> 10.34:1
+             brightness(1.09) — compensation for the cloud layer, NOT taste.
+             The cloud only ever darkens, at a mean of opacity x 0.5. This puts
+             the composited average back where it belongs. IT IS COUPLED: move
+             the cloud opacity and this must move with it, along with the
+             reduced-motion flat colour further down, which is that same mean
+             (.16 x 0.5 = the rgba(0,0,0,.08) fallback — if those two ever
+             disagree, reduced-motion users get a differently lit hero).
 
-             Ink hue is the number that matters when tuning. It is what keeps
-             this oxblood rather than sepia: saturate() scales the existing
-             crimson, so the hue barely moves, while sepia() drags it toward
-             40 deg brown. A first pass at saturate(.30) sepia(.12) landed the
-             ink at .42 saturation and read GREY, which is the failure mode in
-             the other direction from the original crimson. .50/.06 was picked
-             off a measured sweep: it carries the most ink saturation while
-             still holding the LOWEST sky saturation (.076) of any candidate
-             tried, including the greyer .30/.12.
+             Note the cloud is NOT uniform across the plate. The .clt-sky mask
+             runs .45 at the left edge to 1 past 66%, so the headline column
+             sees roughly .48 of nominal — 3.8% mean and 7.7% deepest, against
+             8% and 16% on the right. That asymmetry is deliberate and is why
+             the type stays legible while the artwork still visibly weathers.
 
-             Lower saturate() for a cooler, more pencil-grey plate; raise it to
-             bring the red back. Leave sepia alone unless saturate moves a long
-             way. The red is corrected HERE rather than re-exported so the
-             artwork stays the single source and both plates grade identically —
-             the mobile crop is a different composition and would otherwise
-             drift. */
-          /* REGRADED FOR THE SEPIA PLATE. Everything the old chain did is now
-             obsolete: saturate(.50) sepia(.06) existed to pull a saturated
-             CRIMSON duotone off its red, and the artwork is natively sepia ink
-             on cream. Run over this plate it does the wrong job twice — greys
-             ink that is already neutral, and lifts a sky that is already light.
+             Do NOT reach for grayscale(1) sepia(x), the usual duotone recipe.
+             Measured and rejected twice on the earlier crimson artwork: it
+             flattens engraved ink to .17-.19 saturation, which kills the
+             plate, and clips the sky. It is wrong here for a further reason —
+             this plate is already sepia, so it would do the job twice.
 
-             It was measurably unshippable, not merely redundant. This plate's
-             open sky measures #E9D7C5, far lighter than the crimson plate's
-             #DEC8C8, so the old brightness(1.165) drives the red channel to 262
-             and CLIPS — highlights would flatten to blank paper across the
-             whole upper half of the hero.
-
-             saturate(.88) brightness(1.04), measured on the actual file:
-               plate sky         #E9D7C5, saturation .155
-               plate ink         #180D07 — the darkest 5% is near-black, so
-                                 this artwork has full range and does NOT want
-                                 a contrast bump; it only looked flat because
-                                 the cloud layer was veiling it
-               graded sky        240,224,207 — no clipping
-               mean with cloud   230,214,198, against the file's own 233,215,197
-               sky-to-ink spread 207 levels
-               contrast on ox    8.02:1 full sun, 6.58:1 under deepest cloud
-
-             1.08 -> 1.04 alongside the cloud drop. Halving the cloud removes
-             half the darkening it was compensating for, so leaving brightness
-             where it was would have lifted the mean sky to 238 and made the
-             plate look MORE washed, which was the complaint. 1.04 puts the
-             composited mean back within a couple of levels of the file's own
-             tone. The two numbers are coupled and always move together.
-
-             The .88 is a nudge toward --paper (#F1EEE8, saturation .037), not a
-             neutralising pass — this plate is warmer than the token and always
-             will be. If the join at the proof strip reads wrong, warm --paper
-             rather than desaturating further; below about .80 the engraving
-             goes grey and loses the reason sepia was chosen.
-
-             brightness still carries the cloud layer's 9% mean shade. It is a
-             smaller number than before only because the plate starts lighter;
-             the relationship is unchanged and the two still move together. */
-          /* .88 -> .62 because the v3 plate is WARMER than the one before it:
-             its open sky measures #EDD5B9 at saturation .219, against the
-             previous #E9D7C5 at .155. Grading both with the same factor would
-             have left this one visibly more orange than the tone already
-             approved. .62 lands it at .141 — the same perceived warmth as the
-             plate it replaces — and pulls the distance to --paper from 39.3
-             down to 23.5. Below about .55 it starts going grey.
-             brightness 1.07 still carries the cloud layer's 4.5% mean shade;
-             it is higher only because the extra desaturation costs a little
-             lightness. Contrast on the oxblood: 8.40:1 sun, 6.89:1 cloud. */
+             Measured on collateral-crop5.jpg at these exact values, over the
+             region the headline actually occupies:
+               plate mean        239,213,174
+               graded mean       242,225,201
+               brightest pixel   254,237,214 — no clipping, but that is the
+                                 headroom the whole chain has left
+               headline contrast 12.30:1 full sun, 11.32:1 mean cloud,
+                                 10.39:1 deepest cloud, against --ink-warm
+                                 #2B2118. AAA throughout.
+             The headline is --ink-warm, not --ox; the oxblood is button-only.
+             Grading it any brighter starts clipping the paper. */
           --plate-grade:saturate(.62) contrast(.92) brightness(1.09);
           background:var(--paper); color:var(--ink);
           font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
