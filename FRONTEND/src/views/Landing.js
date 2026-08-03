@@ -2,6 +2,7 @@
 import api from '../api.js';
 import { landingCSS } from './LandingStyles.js';
 import { motionController, animateValue, initEntranceObservers, revealStyles } from './LandingMotion.js';
+import { renderCollateralHero } from '../components/CollateralHero.js';
 
 // Inject LandingCSS once into document head
 if (!document.getElementById('lp-injected-styles')) {
@@ -18,65 +19,11 @@ export function renderLanding() {
 
             
 
-            <!-- ═════ 1 · HERO + LIVE TAPE ═════ -->
-            <section class="hero section reveal is-in">
-                <div class="shell hero-grid">
-                    <div>
-                        <p class="eyebrow rise is-in" style="--d:40ms">Self-enforcing performance contracts</p>
-                        <h1 class="h1 hl-headline">
-                            <span class="hl-w" style="--d:100ms">Put </span>
-                            <span class="hl-w" style="--d:170ms">money </span>
-                            <span class="hl-w" style="--d:240ms">on </span>
-                            <span class="hl-w" style="--d:310ms">your </span>
-                            <span class="hl-w" style="--d:380ms">own </span>
-                            <span class="hl-w hl-anchor" style="--d:470ms">
-                                deadline
-                                <span class="hl-rule" aria-hidden="true">
-                                    <span class="hl-fill" style="--fill:66%;"></span>
-                                    <span class="hl-tick"></span>
-                                </span>
-                            </span>
-                        </h1>
-                        <p class="hl-meta" aria-label="Sample contract telemetry">$1,000 &middot; 30 DAY WINDOW &middot; 11 DAYS LEFT</p>
-                        <p class="lede rise is-in" style="--d:620ms">Lock a deposit against a public goal. If your platform API confirms you hit it on time, your money comes back with a matching payout. If you miss, your deposit funds someone who didn't.</p>
-                        <div class="hero-actions rise is-in" style="--d:740ms">
-                            <button class="btn btn-fill" type="button" onclick="if(window.app && window.app.openAccessModal){ window.app.openAccessModal('signup'); } else { window.router.navigate('/signin'); } return false;">Write a contract</button>
-                            <a class="btn btn-ghost" href="#flow">Watch forfeiture flow &darr;</a>
-                        </div>
-                        <div class="oracles-strip rise is-in" style="--d:860ms">
-                            <span class="mono" style="opacity:.45">ORACLES</span>
-                            <a class="mono rise is-in" style="--d:920ms" href="#oracles">Stripe</a>
-                            <a class="mono rise is-in" style="--d:950ms" href="#oracles">X</a>
-                            <a class="mono rise is-in" style="--d:980ms" href="#oracles">YouTube</a>
-                            <a class="mono rise is-in" style="--d:1010ms" href="#oracles">Shopify</a>
-                        </div>
-                    </div>
-
-                    <div class="tape seat ticks" style="--d:260ms">
-                        <div class="tape-head">
-                            <span class="dot pulse"></span>
-                            <span class="mono">Settlement queue &middot; DEMO FEED</span>
-                            <span class="mono" style="margin-left:auto" id="clock">--:--:--</span>
-                        </div>
-                        <div class="tape-meters">
-                            <div class="meter">
-                                <span class="mono">Held in escrow</span>
-                                <span class="meter-val blood" id="m-escrow">$8,700,000</span>
-                            </div>
-                            <div class="meter-div"></div>
-                            <div class="meter">
-                                <span class="mono">Settled today</span>
-                                <span class="meter-val win" id="m-settled">$34,200</span>
-                            </div>
-                        </div>
-                        <div class="tape-rows" id="rows"></div>
-                        <div class="tape-foot">
-                            <span class="mono">Custody &middot; Stripe Connect</span>
-                            <span class="mono" id="m-count">48 settled</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <!-- ═════ 1 · HERO (engraved plate) ═════ -->
+            ${renderCollateralHero({
+        onWriteContract: "if(window.app &amp;&amp; window.app.openAccessModal){ window.app.openAccessModal('signup'); } else { window.router.navigate('/signin'); } return false;",
+        onWatchFlow: "document.getElementById('flow') &amp;&amp; document.getElementById('flow').scrollIntoView({behavior:'smooth'}); return false;",
+    })}
 
             <!-- ═════ 2 · MODES ═════ -->
             <section class="section alt reveal cm-root" id="modes-section" aria-labelledby="cm-title">
