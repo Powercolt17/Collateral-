@@ -309,21 +309,29 @@ export function renderCollateralHero(options = {}) {
           .clt-hero{
             aspect-ratio:auto !important;
             height:auto !important;
-            min-height:100vh;
-            padding:0;
             width:100vw;
             margin-left:calc(50% - 50vw);
-            display:flex;align-items:center;justify-content:center;
             background-size:100% auto;
             background-position:center bottom;
           }
-          /* padding-bottom reserves exactly the band: the plate is shown at
-             100% width, so its rendered height is width * 778/1363 = 57.1vw.
-             The lockup then centres in what is left, instead of hanging off the
-             top and leaving a 169px pool of dead paper above the engraving.
-             padding-top is the header guard — centring alone would let the
-             eyebrow drift under the 64px bar on a short screen. */
-          .clt-hero{padding:76px 0 57.1vw}
+          /* padding-bottom reserves exactly the band: the plate is at 100%
+             width, so its rendered height is width * 778/1363 = 57.1vw. The
+             lockup flows above it, so the engraving begins immediately after
+             the CTA.
+
+             The hero is NOT stretched to 100vh here and the lockup is NOT
+             centred. Both were tried and both produce the dead band under the
+             CTA: on a 390x844 phone the type is ~230px and the plate ~223px,
+             so forcing a full viewport leaves ~390px of slack that centring
+             then splits above and below the type. Letting the hero take its
+             natural height removes the slack entirely rather than relocating
+             it, and brings the next section into view sooner.
+
+             No explicit gap above the plate: the engraving carries its own.
+             The top 24.6% of the plate is clear sky (first inked row is 191 of
+             778), which at this band size is ~14vw of paper before the tree
+             line — the breathing room is in the image. */
+          .clt-hero{padding:70px 0 57.1vw}
           .clt-lockup{position:static;padding:0 22px}
           .clt-eyebrow{font-size:9px;gap:8px;letter-spacing:.18em}
           .clt-eyebrow::before,.clt-eyebrow::after{width:20px;height:2px}
@@ -331,7 +339,7 @@ export function renderCollateralHero(options = {}) {
              every view at max-width 768px, which beats a scoped rule. The extra
              .clt and the !important below exist only to win that cascade — the
              VALUE is exactly as authored, unconverted. */
-          .clt .clt-hero h1{margin-top:18px;font-size:clamp(40px,12.4vw,68px) !important;line-height:.9;letter-spacing:-.03em}
+          .clt .clt-hero h1{margin-top:16px;font-size:clamp(32px,9.4vw,52px) !important;line-height:.9;letter-spacing:-.03em}
           .clt-cta{margin-top:26px;gap:18px;flex-direction:column}
           /* min-height is the 44px touch target; the padding alone gave 43px. */
           .clt-btn{padding:16px 30px;min-height:44px;font-size:11px;box-shadow:5px 5px 0 var(--ox)}

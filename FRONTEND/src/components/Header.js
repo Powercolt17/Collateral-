@@ -223,6 +223,26 @@ export function renderHeader(currentRoute = '') {
                 outline-offset: 2px;
             }
 
+            /* ── Narrow-screen overflow guard ──
+               The header row is wordmark + SIGN IN (or avatar) + MENU, none of
+               which shrink. At 320px it measured 359px wide, pushing MENU off
+               screen and dropping SIGN IN onto the wordmark.
+
+               SIGN IN is SHRUNK, not hidden. Hiding it and relying on the
+               drawer's own sign-in (#btn-auth-mobile) is the tidier answer and
+               was tried first — but the drawer currently never slides into
+               view, so that button cannot be tapped. Hiding this one would
+               leave no reachable way to sign in on a phone. Revisit once the
+               drawer is fixed. */
+            @media (max-width: 767px) {
+                .ch-logo-wordmark { font-size: 18px !important; letter-spacing: 0.14em !important; }
+                .ch-connect-btn { padding: 7px 12px; font-size: 10px; }
+            }
+            @media (max-width: 360px) {
+                .ch-logo-wordmark { font-size: 15px !important; letter-spacing: 0.12em !important; }
+                .ch-right { gap: 10px; }
+            }
+
             /* Separated Avatar Status Indicator */
             .ch-trigger-avatar-indicator {
                 width: 22px;
