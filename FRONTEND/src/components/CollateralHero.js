@@ -716,21 +716,34 @@ export function renderCollateralHero(options = {}) {
             transform:none !important;
           }
           /* The sweep is continuous and never stops, which is exactly what a
-             reduced-motion request is about. Remove the light layer outright
-             and leave the plate in its neutral state: --plate-grade and
-             nothing else.
+             reduced-motion request is about, so the MOTION goes. The layer
+             does not: it is replaced with a flat, unanimated 8% black.
 
-             SUPERSEDED: this used to freeze the layer at opacity .78 with the
-             animation cancelled, on the theory that holding a mid-cycle frame
-             kept the tone consistent with everyone else's. That was wrong, and
-             more wrong now that the profile is one smooth wave per tile:
-             cancelling the animation pins the wave at its start offset, so the
-             trough sits over the plate permanently and the reduced-motion
-             visitor gets a fixed dark band across the engraving — the exact
-             artefact this pass exists to remove, made permanent. Neutral means
-             no layer. */
+             8% is not a taste value, it is the mean of the wave. The profile
+             is .08*(1+cos(2*pi*x)), whose average over a period is exactly
+             .08, and --plate-grade carries brightness 1.152 purely to
+             compensate for that average. So a flat 8% composites to
+             1.152 * 0.92 = 1.06 — the precise tone every measurement in this
+             file is quoted at.
+
+             SUPERSEDED, and this was a real bug: the rule was display:none.
+             Removing the layer removes the darkening but NOT the 1.152 that
+             exists to offset it, so a reduced-motion visitor got the plate
+             8.7% brighter than everyone else — a washed-out engraving, as a
+             direct consequence of asking for less motion. Two values that only
+             make sense together, and one of them was being switched off alone.
+
+             SUPERSEDED EARLIER: opacity .78 with the animation cancelled.
+             Cancelling an animation pins the element at its first frame, and
+             the first frame of this wave is its trough, so that parked a fixed
+             dark band across the engraving permanently.
+
+             Flat colour, no gradient, so there is no band at any position. */
           .clt-hero::after{
-            display:none !important;
+            animation:none !important;
+            transform:none !important;
+            background-image:none !important;
+            background-color:rgba(0,0,0,.08) !important;
           }
         }
         </style>
