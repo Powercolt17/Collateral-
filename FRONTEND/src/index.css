@@ -85,8 +85,10 @@
 
 .logo-wordmark {
     font-family: 'Trajan Pro', 'Nevera', 'Aquire', 'Cinzel', sans-serif !important;
-    font-size: 21px !important;
-    letter-spacing: 0.165em !important;
+    /* Matches the header mark: +17% size, tracking tightened 6.7%, so the
+       footer and landing marks stay identical to the one in the bar. */
+    font-size: 24.5px !important;
+    letter-spacing: 0.154em !important;
     /* 700 is a real drawn cut, not a synthesised one. font-synthesis stays off
        so a failed load falls back to real Regular rather than a fake bold. */
     font-weight: 700 !important;

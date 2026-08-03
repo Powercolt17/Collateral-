@@ -102,14 +102,22 @@ export function renderHeader(currentRoute = '') {
                    is fatal on a face whose quality is chisel stroke
                    modulation. */
                 font-family: 'Trajan Pro', 'Nevera', 'Aquire', 'Cinzel', sans-serif !important;
-                font-size: 21px !important;
+                /* 24.5px, up from 21. Trajan's cap height sits low in its em
+                   box compared with the grotesques this was sized against, so
+                   the mark measured smaller than the number suggested. Clamped
+                   back to 21px below 820 — see the overflow guard further down,
+                   where 21px was measured against a 320px screen. */
+                font-size: 24.5px !important;
                 font-weight: 700 !important;
                 font-synthesis: none;
-                /* Tuned for Nevera, kept unchanged so this commit changes the
-                   typeface and nothing else. Trajan is a naturally wide face
-                   with generous sidebearings, so this may now read as too airy —
-                   it is the first thing to adjust if the lockup looks loose. */
-                letter-spacing: 0.165em !important;
+                /* 0.154em, tightened from 0.165. The old value was tuned for
+                   Nevera, a face with tight sidebearings that needed the help.
+                   Trajan is drawn from chiselled inscription and already
+                   carries generous space in the glyphs themselves, so the same
+                   tracking read as ten separate letters rather than one cut
+                   word. This is the tightest setting that still leaves the mark
+                   inscriptional rather than typeset. */
+                letter-spacing: 0.154em !important;
                 color: #0E1420 !important;
                 text-decoration: none;
                 display: inline-flex;
@@ -123,23 +131,39 @@ export function renderHeader(currentRoute = '') {
                 outline-offset: 4px;
             }
 
-            /* Current-Section Divider Rule & Sub-label (Desktop only) */
+            /* Current-Section Divider Rule & Sub-label (Desktop only)
+               NOT a brand suffix. This is the wayfinding indicator and it reads
+               MARKET, ACTIVE, LEDGER, SOURCES, CUSTODY, PROTOCOL, PROFILE,
+               REFERRALS, ACCOUNT or DOCUMENTS depending on route. Deleting it
+               to simplify the lockup would strip location from every view in
+               the app, so it stays and recedes instead.
+
+               Recedes by: 10.5 -> 9.2px, weight 600 -> 500, colour lifted from
+               #8C877B to #A8A296, tracking 0.18 -> 0.2em. Each of those lowers
+               weight on the page; together the label reads as a caption to the
+               mark rather than the second half of a two-word logo. */
             .ch-section-divider {
                 width: 1px;
-                height: 13px;
-                background: #C8C2B4;
-                margin: 0 12px;
+                /* Shorter and paler. A 1px rule cannot get physically thinner,
+                   so apparent weight comes off the height and the value —
+                   #D5CFC2 against #C8C2B4 is roughly a third less contrast
+                   against the paper. */
+                height: 11px;
+                background: #D5CFC2;
+                /* 12 -> 15px. The mark grew; the gap has to grow with it or the
+                   label crowds the final L. */
+                margin: 0 15px;
                 display: none;
                 align-self: center;
                 transform: translateY(1px);
             }
             .ch-section-label {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 10.5px;
-                font-weight: 600;
-                letter-spacing: 0.18em;
+                font-size: 9.2px;
+                font-weight: 500;
+                letter-spacing: 0.2em;
                 text-transform: uppercase;
-                color: #8C877B !important;
+                color: #A8A296 !important;
                 user-select: none;
                 display: none;
                 align-self: center;
@@ -154,7 +178,11 @@ export function renderHeader(currentRoute = '') {
             .ch-right {
                 display: flex;
                 align-items: center;
-                gap: 16px;
+                /* 16 -> 22px. The right cluster was the tightest part of the
+                   bar and read as a toolbar. Institutional headers space their
+                   controls apart and let the rules do the separating. Height is
+                   untouched, so the bar itself does not move. */
+                gap: 22px;
                 height: 100%;
             }
 
@@ -260,6 +288,11 @@ export function renderHeader(currentRoute = '') {
                 .ch-connect-btn { display: none !important; }
                 .ch-trigger-avatar-indicator { display: none !important; }
                 .ch-avatar-divider { display: none !important; }
+                /* Back to the measured-safe 21px. The desktop mark is 24.5px,
+                   and that extra 3.5px is about 35px of added width across ten
+                   tracked capitals — enough to reintroduce the 320px overflow
+                   this whole block exists to prevent. */
+                .ch-logo-wordmark { font-size: 21px !important; }
             }
 
             /* Separated Avatar Status Indicator */

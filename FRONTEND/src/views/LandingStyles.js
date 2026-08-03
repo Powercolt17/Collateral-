@@ -367,7 +367,9 @@ html, body {
      a failed load falls back to real Regular rather than a fake bold. */
   font-weight: 700 !important;
   font-synthesis: none;
-  letter-spacing: .14em !important;
+  /* Tightened 6.4% in step with the header mark. Different starting value
+     because this instance was already set tighter than the bar's. */
+  letter-spacing: .131em !important;
   text-transform: uppercase !important;
 }
 

@@ -274,10 +274,36 @@ export function renderCollateralHero(options = {}) {
            from markup to ::before. */
         .clt-hero::before{
           content:"";position:absolute;inset:0;z-index:0;
-          background-image:var(--clt-plate);
-          background-position:center 35%;
-          background-size:cover;
-          background-repeat:no-repeat;
+          /* Two layers. First is a paper veil down the right edge, which is
+             where Nike stands; second is the plate.
+
+             She was pulling focus off the operator and the table. The veil
+             lifts the darks in that band, which lowers LOCAL CONTRAST without
+             blurring, desaturating or removing a single line of engraving —
+             she keeps every stroke, she just stops competing. Peak 10% at the
+             very edge, gone by 24% in, so the falloff lands past the statue
+             and leaves the magistrates untouched.
+
+             Deliberately NOT a filter on a separate element: it rides in the
+             same background stack as the plate so it is graded by
+             --plate-grade with it and cannot drift to a different white.
+
+             Every longhand is per-layer. Getting background-position or -size
+             wrong here silently moves the ARTWORK, which is approved and must
+             not shift — the plate stays cover / center 35% exactly as it was.
+             The mobile block overrides background-image wholesale, so the veil
+             is desktop-only, which is correct: the portrait crop is a different
+             composition and Nike does not dominate it. */
+          background-image:
+            linear-gradient(to left,
+              rgba(241,238,232,.10) 0%,
+              rgba(241,238,232,.058) 9%,
+              rgba(241,238,232,.020) 17%,
+              rgba(241,238,232,0) 24%),
+            var(--clt-plate);
+          background-position:center center, center 35%;
+          background-size:cover, cover;
+          background-repeat:no-repeat, no-repeat;
           filter:var(--plate-grade);
         }
 
@@ -534,8 +560,31 @@ export function renderCollateralHero(options = {}) {
         }
         .clt-eyebrow::before,.clt-eyebrow::after{content:"";width:calc(1.8 * var(--u));height:calc(.1 * var(--u));background:var(--ox)}
         .clt-hero h1{
-          margin-top:calc(1.05 * var(--u));
-          font-size:calc(4.8 * var(--u));line-height:.855;letter-spacing:-.038em;font-weight:800;
+          /* 1.05 -> 1.70 var(--u), about +10px at desktop. Part of the
+             deliberate-pacing pass: eyebrow, headline and CTA all gained
+             separation so the lockup reads as composed rather than stacked. */
+          margin-top:calc(1.70 * var(--u));
+          /* Institutional, not startup. Three changes, each small:
+
+             800 -> 700. An 800 grotesque at display size is a product-launch
+             weight. 700 still carries the frame but stops shouting, and it
+             lets the counters open up, which is what makes large type look
+             expensive rather than loud.
+
+             -.038 -> -.046em. Tighter tracking binds the line into a single
+             mass instead of a row of words. This is the opposite of what the
+             WORDMARK needed, and deliberately so: Trajan is inscriptional and
+             wants air between letters, while a display grotesque set this
+             large wants none.
+
+             4.8 -> 4.62 var(--u), a 3.75% reduction in cap height. Small
+             enough that impact is intact, enough that the headline stops
+             crowding the sky channel now that the block sits lower.
+
+             .855 -> .875 line-height. The old setting jammed the three lines
+             into a slab; a little air between them reads as considered
+             typesetting instead of a compressed logo. */
+          font-size:calc(4.62 * var(--u));line-height:.875;letter-spacing:-.046em;font-weight:700;
           text-transform:uppercase;
           /* Oxblood, per the new colourway. The !important is still doing work:
              a global h1{color:var(--text-primary)} wins over an unweighted rule
@@ -547,7 +596,11 @@ export function renderCollateralHero(options = {}) {
            because the markup still carries the span, which makes restoring a
            two-tone headline a one-value change rather than a markup edit. */
         .clt-accent{color:var(--ox)}
-        .clt-cta{margin-top:calc(1.95 * var(--u));display:flex;align-items:center;gap:calc(1.43 * var(--u))}
+        /* 1.95 -> 2.60 var(--u), about +10px, matching the gain above the
+           headline. The gap between the two CTAs opens too, 1.43 -> 1.70, so
+           the primary and secondary read as two separate decisions rather than
+           a button pair. */
+        .clt-cta{margin-top:calc(2.60 * var(--u));display:flex;align-items:center;gap:calc(1.70 * var(--u))}
         /* The px FLOOR on the two CTA labels stops them collapsing to ~8px on a
            1024 laptop. It does not engage on a full-size screen. */
         /* ox-deep FILL with an ox shadow — the inverse of the first attempt.
@@ -558,14 +611,53 @@ export function renderCollateralHero(options = {}) {
            family the new colourway is built on. The shadow is the lighter ox, so
            the offset still separates from the fill instead of disappearing into
            it. Contrast measured, not assumed. */
+        /* ---- the plate ----
+           Rebuilt to read as an engraved brass plate rather than a web button.
+           Palette is untouched: ox-deep fill, ox cast, paper-hi type, all
+           already in the tokens. No gradient, no glow, no gloss anywhere —
+           every bit of depth comes from a border, a hard-edged shadow, or the
+           typography.
+
+           FOUR LAYERS OF SHADOW, all zero-blur so the edges stay crisp:
+
+           1. inset paper hairline, 20% — the bright bevel where a struck plate
+              catches light along its inner edge. This is the single detail
+              that stops it reading flat.
+           2. inset ink hairline at the bottom, 22% — the opposite face of the
+              same bevel, so the plate has a lit edge and a shaded one.
+           3. a 1px ink ring, drawn as spread rather than a border so it does
+              not add to the box and shift the CTA row.
+           4. the hard cast, tightened from .315 to .26 var(--u). A shorter
+              throw sits the plate closer to the paper; the old distance read
+              as a floating card.
+
+           Typography does the rest: tracking .17 -> .215em opens the mono into
+           something closer to engraved capitals, and the extra padding gives
+           the type a margin to sit in, the way an inscription is inset from the
+           edge of the metal. */
         .clt-btn{
           background:var(--ox-deep);color:var(--paper-hi);border:0;cursor:pointer;
-          padding:calc(.86 * var(--u)) calc(1.87 * var(--u));
-          font:700 clamp(11px,calc(.615 * var(--u)),20px)/1 ui-monospace,Menlo,monospace;letter-spacing:.17em;
-          box-shadow:calc(.315 * var(--u)) calc(.315 * var(--u)) 0 var(--ox);
+          padding:calc(1.02 * var(--u)) calc(2.30 * var(--u));
+          font:700 clamp(11px,calc(.60 * var(--u)),20px)/1 ui-monospace,Menlo,monospace;
+          letter-spacing:.215em;
+          box-shadow:
+            inset 0 1px 0 0 rgba(247,245,240,.20),
+            inset 0 -1px 0 0 rgba(19,26,42,.22),
+            0 0 0 1px rgba(19,26,42,.30),
+            calc(.26 * var(--u)) calc(.26 * var(--u)) 0 0 var(--ox);
           transition:box-shadow .16s ease,transform .16s ease;
         }
-        .clt-btn:hover{box-shadow:calc(.09 * var(--u)) calc(.09 * var(--u)) 0 var(--ox);transform:translate(calc(.225 * var(--u)),calc(.225 * var(--u)))}
+        /* Pressed, not lifted. The cast collapses to almost nothing and the
+           plate travels the same distance it loses, so it reads as being
+           struck into the paper rather than sliding across it. */
+        .clt-btn:hover{
+          box-shadow:
+            inset 0 1px 0 0 rgba(247,245,240,.14),
+            inset 0 -1px 0 0 rgba(19,26,42,.26),
+            0 0 0 1px rgba(19,26,42,.34),
+            calc(.07 * var(--u)) calc(.07 * var(--u)) 0 0 var(--ox);
+          transform:translate(calc(.19 * var(--u)),calc(.19 * var(--u)));
+        }
         .clt-link{
           background:none;border:0;cursor:pointer;color:var(--ox);
           font:700 clamp(11px,calc(.615 * var(--u)),20px)/1 ui-monospace,Menlo,monospace;letter-spacing:.15em;
