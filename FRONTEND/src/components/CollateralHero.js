@@ -142,7 +142,13 @@ export function renderCollateralHero(options = {}) {
              artwork stays the single source and both plates grade identically —
              the mobile crop is a different composition and would otherwise
              drift. */
-          --plate-grade:saturate(.50) sepia(.06) brightness(1.06) contrast(1.05);
+          /* brightness is 1.09 rather than the 1.06 every measurement in this
+             comment was taken at, and that is NOT a regrade. The ambient sun
+             layer below can only darken, so it runs at a mean of 2.7% down
+             across its cycle; 1.06 / (1 - .027) = 1.09 puts the COMPOSITED
+             average back on the 1.06 the numbers above describe. Change one
+             and the other has to move with it. */
+          --plate-grade:saturate(.50) sepia(.06) brightness(1.09) contrast(1.05);
           background:var(--paper); color:var(--ink);
           font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
           -webkit-font-smoothing:antialiased;
@@ -279,13 +285,34 @@ export function renderCollateralHero(options = {}) {
            them in that order on its own. The sequencing in the brief comes out
            of the composition, not out of per-figure targeting.
 
-           WHY SOFT-LIGHT AND NOT NORMAL. A normal-blended white veil adds a
-           flat constant to every pixel — haze, not light. soft-light's result
-           depends on the backdrop, so the engraved grooves take a different
-           delta from the flat paper around them. That is the achievable half
-           of using the engraving as its own displacement source: the response
-           is modulated by the artwork's own luminance. It is NOT a normal map,
-           and the file's note at the top on what this cannot do still stands.
+           WHY MULTIPLY. multiply with a neutral black at alpha a resolves to
+           out = b * (1 - a): a pure MULTIPLICATIVE gain. Every tone changes by
+           the same PERCENTAGE, which is what more or less light actually does
+           to a surface. Contrast ratios are preserved exactly, so the paper
+           carries the light without the ink washing out, and because all three
+           channels scale together it cannot shift the palette.
+
+           SUPERSEDED, and this was a real mistake worth recording. This layer
+           used soft-light, chosen so engraved grooves would take a different
+           delta from the flat paper — the achievable shadow of using the
+           artwork as its own displacement source. But soft-light PRESERVES
+           HIGHLIGHTS by definition, and this plate is mostly light paper. The
+           result measured +3.43% on the midtones and only +0.51% on the open
+           sky, so the largest region of the image, the whole upper half where a
+           sun would read most, varied 0.86% across the entire frame. That is
+           below contrast-sensitivity threshold at this spatial frequency, and
+           adaptation removes what is left over a 15s ramp. The effect was
+           real, correct, and completely invisible. Reporting the midtone figure
+           without separating out the sky hid it.
+
+           A normal-blended veil is the other wrong answer: it ADDS a constant,
+           so at the alpha needed to move the paper 3% the ink would jump from
+           .152 to .319 and the engraving would wash out entirely.
+
+           The cost of multiply is that it only darkens, so light here is the
+           absence of shadow and --plate-grade carries a compensating
+           brightness. That trade is worth it: it is the only one of the three
+           that moves the paper at all.
 
            WHY TRANSFORM AND OPACITY ONLY. Both are compositor properties, so
            this runs on the GPU without re-rasterising a full-viewport image
@@ -311,7 +338,7 @@ export function renderCollateralHero(options = {}) {
           content:"";
           position:absolute;top:0;bottom:0;left:-150%;width:400%;
           z-index:0;pointer-events:none;
-          mix-blend-mode:soft-light;
+          mix-blend-mode:multiply;
           /* Alphas are set by measurement, not by eye. soft-light lifts dark
              backdrops far more in RELATIVE terms than light ones, so the
              constraint that binds is the engraved ink, not the paper. At .13
@@ -332,66 +359,54 @@ export function renderCollateralHero(options = {}) {
              brightness is far below threshold. Four corners meant a leading
              edge, a trailing edge and a ridge down the middle.
 
-             These 21 stops sample two half-sine lobes whose widths are chosen
-             so the SLOPES MATCH where they meet. That detail is the whole
-             refinement, and the obvious version gets it wrong.
+             THE PROFILE IS A RAISED COSINE IN A SINGLE COLOUR, which under
+             multiply is the simplest smooth wave there is. alpha runs
+             .03*(1+cos(2*pi*x)), so it peaks at .06 at the tile edges and
+             reaches exactly 0 at the centre. Light is the ABSENCE of
+             darkening, not an added highlight.
 
-             The obvious version splits the tile evenly, light over one half and
-             shadow over the other. Measured, that still leaves a 57%-of-peak
-             kink in the slope, and it sits exactly at the zero crossings —
-             the steepest part of the wave, the worst place to put one. The
-             cause is the deliberate asymmetry: light peaks at .070 and shadow
-             at .030, and a half-sine's slope at its foot is amplitude over
-             width, so two lobes of equal width but unequal height cannot meet
-             smoothly. The ratio there was 2.33x.
-
-             Widening the lobes in proportion to their heights fixes it. Light
-             runs 15% to 85% and shadow 85% to 15% across the wrap, a 70/30
-             split matching the .070/.030 amplitude split, so amplitude over
-             width is .070/.70 = .030/.30 on both sides and the derivative is
-             continuous through the crossing. No corner anywhere in the cycle,
-             at any amplitude, which leaves the eye nothing to edge-detect.
+             That collapses a problem the previous version had to engineer
+             around. When light and shadow were two different colours, they met
+             at a crossover where the slope had to be matched by hand — a
+             half-sine's slope at its foot is amplitude over width, so unequal
+             peaks needed unequal lobe widths, a 70/30 split, to avoid a 2.33x
+             kink at the steepest part of the wave. One colour has no crossover
+             to match. The curve is C1 everywhere including the wrap, where the
+             derivative is zero on both sides because the tile edge sits on the
+             trough.
 
              The remaining slope changes are pure sampling error from the 5%
-             stop spacing, and they land where they do no harm: interpolation
-             is worst near the crest and trough, where the curve bends most and
-             the slope is near zero, and near-exact at the crossings, where the
-             slope is steepest and banding would actually show.
+             stop spacing, and they land where they do least harm: linear
+             interpolation is worst where the curve bends most, which on a
+             raised cosine is the crest and trough, and those are exactly where
+             the slope is near zero and the eye is least sensitive.
 
              ONE FULL PERIOD PER TILE IS THE BROADEST POSSIBLE. The tile is
              locked to the hero width by the seamless-loop geometry and the wave
              has to close over exactly one tile, so a single period is the
-             widest feathering available without touching that geometry. Peaks
-             are unchanged, so intensity holds. Both ends are -.0300, so the
-             wrap is continuous in value as well as slope. */
+             widest feathering available without touching that geometry. */
           background-image:linear-gradient(90deg,
-            rgba(19,26,42,.0300) 0%,
-            rgba(19,26,42,.0290) 2.5%,
-            rgba(19,26,42,.0260) 5%,
-            rgba(19,26,42,.0212) 7.5%,
-            rgba(19,26,42,.0150) 10%,
-            rgba(19,26,42,.0078) 12.5%,
-            rgba(19,26,42,0) 15%,
-            rgba(255,252,246,.0156) 20%,
-            rgba(255,252,246,.0304) 25%,
-            rgba(255,252,246,.0436) 30%,
-            rgba(255,252,246,.0547) 35%,
-            rgba(255,252,246,.0631) 40%,
-            rgba(255,252,246,.0682) 45%,
-            rgba(255,252,246,.0700) 50%,
-            rgba(255,252,246,.0682) 55%,
-            rgba(255,252,246,.0631) 60%,
-            rgba(255,252,246,.0547) 65%,
-            rgba(255,252,246,.0436) 70%,
-            rgba(255,252,246,.0304) 75%,
-            rgba(255,252,246,.0156) 80%,
-            rgba(255,252,246,0) 85%,
-            rgba(19,26,42,.0078) 87.5%,
-            rgba(19,26,42,.0150) 90%,
-            rgba(19,26,42,.0212) 92.5%,
-            rgba(19,26,42,.0260) 95%,
-            rgba(19,26,42,.0290) 97.5%,
-            rgba(19,26,42,.0300) 100%);
+            rgba(0,0,0,.0600) 0%,
+            rgba(0,0,0,.0585) 5%,
+            rgba(0,0,0,.0543) 10%,
+            rgba(0,0,0,.0476) 15%,
+            rgba(0,0,0,.0393) 20%,
+            rgba(0,0,0,.0300) 25%,
+            rgba(0,0,0,.0207) 30%,
+            rgba(0,0,0,.0124) 35%,
+            rgba(0,0,0,.0057) 40%,
+            rgba(0,0,0,.0015) 45%,
+            rgba(0,0,0,0) 50%,
+            rgba(0,0,0,.0015) 55%,
+            rgba(0,0,0,.0057) 60%,
+            rgba(0,0,0,.0124) 65%,
+            rgba(0,0,0,.0207) 70%,
+            rgba(0,0,0,.0300) 75%,
+            rgba(0,0,0,.0393) 80%,
+            rgba(0,0,0,.0476) 85%,
+            rgba(0,0,0,.0543) 90%,
+            rgba(0,0,0,.0585) 95%,
+            rgba(0,0,0,.0600) 100%);
           background-size:25% 100%;
           background-repeat:repeat;
           will-change:transform,opacity;
@@ -404,8 +419,14 @@ export function renderCollateralHero(options = {}) {
           from{transform:translate3d(0,0,0)}
           to{transform:translate3d(25%,0,0)}
         }
+        /* Narrow, .82 to 1 rather than .55 to 1. Opacity scales the whole
+           darkening, so a wide breath spends most of the cycle well under the
+           6% the sweep is tuned for — which is how the previous version ended
+           up invisible. This keeps a second, slower rhythm beating against the
+           30s sweep without eating the amplitude. Mean opacity .91 is what the
+           1.09 brightness compensation is calculated against. */
         @keyframes clt-breathe{
-          from{opacity:.55}
+          from{opacity:.82}
           to{opacity:1}
         }
         /* ONE unit drives the whole lockup. Tune --u to resize everything at
