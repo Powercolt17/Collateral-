@@ -104,6 +104,34 @@ export function renderCollateralHero(options = {}) {
            (161px at 1920), which is why the eyebrow never slides under it. */
         .clt{margin-top:-96px}
 
+        /* Header loses its opaque paper fill over the hero so the plate runs
+           under it. Scoped by lifetime, not by selector: this <style> lives
+           inside the landing view's markup, so the router replaces it on
+           navigation and no other route is affected. .ch-header sets its
+           background with !important, hence the !important here.
+
+           A gradient scrim, NOT background:transparent. Fully transparent was
+           measured and fails: because the hero crops from the top, a short
+           window lifts the left-hand cypresses into the header band, putting
+           12.1% ink at luma 29 directly under the #0E1420 wordmark — dark on
+           dark. The menu side stays clean (luma 226), so it is the wordmark
+           alone that breaks. The scrim fades to nothing by the bottom edge, so
+           the plate still reads through it.
+
+           NOT backdrop-filter — over an aspect-broken hero it renders a partial
+           pane with a hard visible edge.
+
+           Only at the top of the page. Once .nav-scrolled lands the header
+           takes back its opaque paper fill, which it needs to stay readable
+           over the sections below. */
+        .ch-header:not(.nav-scrolled){
+          background:linear-gradient(to bottom,
+            rgba(241,238,232,.92) 0%,
+            rgba(241,238,232,.70) 55%,
+            rgba(241,238,232,0) 100%) !important;
+          border-bottom-color:transparent !important;
+        }
+
         /* ---- hero ----
            The lockup is sized in cqw (1cqw = 1% of .clt-hero's width), NOT vw.
            That is a strict improvement on the original vw units, not a
@@ -115,48 +143,63 @@ export function renderCollateralHero(options = {}) {
            The plate ALWAYS full-bleeds. A max-width cap that fit the whole
            engraving above the fold was tried and rejected on sight: it
            letterboxes the plate with dead paper gutters either side, which
-           looks terrible. The engraving runs edge to edge; the bottom of it
-           falling below the fold on a short window is the accepted trade. ---- */
+           looks terrible.
+
+           The hero is exactly ONE viewport tall so the whole thing sits in a
+           single frame at scroll-top, with nothing cut off the bottom. cover +
+           bottom anchor is what makes that safe: the plate is 1600x915 and the
+           frame is usually taller in ratio, so something has to give, and what
+           gives is the TOP BAND OF EMPTY SKY. The temple, the figures at the
+           desk and the ground line are pinned to the bottom edge and never
+           crop. That is also what "push the background up" means here. ---- */
         .clt-hero{
           position:relative;width:100%;
+          height:100vh;
           container-type:inline-size;
-          background-position:center top;
-          background-size:100% 100%;
+          background-position:center bottom;
+          background-size:cover;
           background-repeat:no-repeat;
           background-color:var(--paper);
         }
+        /* ONE unit drives the whole lockup. Tune --u to resize everything at
+           once; the multipliers below are the authored proportions.
+
+           min() is the point: 1cqw tracks the plate horizontally, but the frame
+           is now height-bound, and on a short window cover crops away the sky
+           the type sits in. The 1.75vh companion makes the lockup shrink with
+           the frame instead of walking down onto the foliage. On a normal
+           desktop the cqw side wins and nothing changes. */
+        .clt-hero{--u:min(1cqw,1.75vh)}
         .clt-lockup{
           position:absolute;inset:0 0 auto 0;
-          padding-top:8.4cqw;
+          padding-top:calc(6.3 * var(--u));
           display:flex;flex-direction:column;align-items:center;text-align:center;
         }
         .clt-eyebrow{
-          display:flex;align-items:center;gap:.85cqw;
-          font-size:clamp(9px,.78cqw,20px);letter-spacing:.24em;font-weight:700;color:var(--ox);
+          display:flex;align-items:center;gap:calc(.64 * var(--u));
+          font-size:clamp(9px,calc(.585 * var(--u)),20px);letter-spacing:.24em;font-weight:700;color:var(--ox);
         }
-        .clt-eyebrow::before,.clt-eyebrow::after{content:"";width:2.4cqw;height:.13cqw;background:var(--ox)}
+        .clt-eyebrow::before,.clt-eyebrow::after{content:"";width:calc(1.8 * var(--u));height:calc(.1 * var(--u));background:var(--ox)}
         .clt-hero h1{
-          margin-top:1.4cqw;
-          font-size:6.4cqw;line-height:.855;letter-spacing:-.038em;font-weight:800;
+          margin-top:calc(1.05 * var(--u));
+          font-size:calc(4.8 * var(--u));line-height:.855;letter-spacing:-.038em;font-weight:800;
           text-transform:uppercase;
         }
-        .clt-cta{margin-top:2.6cqw;display:flex;align-items:center;gap:1.9cqw}
-        /* Scale is the authored one. The only addition is a px FLOOR on the two
-           CTA labels: pure .82cqw falls to 8.4px at 1024 and keeps dropping,
-           which is unreadable. The floor never engages above ~1340px, so it does
-           not change how this renders on a full-size screen. */
+        .clt-cta{margin-top:calc(1.95 * var(--u));display:flex;align-items:center;gap:calc(1.43 * var(--u))}
+        /* The px FLOOR on the two CTA labels stops them collapsing to ~8px on a
+           1024 laptop. It does not engage on a full-size screen. */
         .clt-btn{
           background:var(--ink);color:var(--paper-hi);border:0;cursor:pointer;
-          padding:1.15cqw 2.5cqw;
-          font:700 clamp(11px,.82cqw,20px)/1 ui-monospace,Menlo,monospace;letter-spacing:.17em;
-          box-shadow:.42cqw .42cqw 0 var(--ox);
+          padding:calc(.86 * var(--u)) calc(1.87 * var(--u));
+          font:700 clamp(11px,calc(.615 * var(--u)),20px)/1 ui-monospace,Menlo,monospace;letter-spacing:.17em;
+          box-shadow:calc(.315 * var(--u)) calc(.315 * var(--u)) 0 var(--ox);
           transition:box-shadow .16s ease,transform .16s ease;
         }
-        .clt-btn:hover{box-shadow:.12cqw .12cqw 0 var(--ox);transform:translate(.3cqw,.3cqw)}
+        .clt-btn:hover{box-shadow:calc(.09 * var(--u)) calc(.09 * var(--u)) 0 var(--ox);transform:translate(calc(.225 * var(--u)),calc(.225 * var(--u)))}
         .clt-link{
           background:none;border:0;cursor:pointer;color:var(--ink);
-          font:700 clamp(11px,.82cqw,20px)/1 ui-monospace,Menlo,monospace;letter-spacing:.15em;
-          padding-bottom:.3cqw;border-bottom:.13cqw solid var(--ox);
+          font:700 clamp(11px,calc(.615 * var(--u)),20px)/1 ui-monospace,Menlo,monospace;letter-spacing:.15em;
+          padding-bottom:calc(.225 * var(--u));border-bottom:calc(.1 * var(--u)) solid var(--ox);
         }
         .clt-link:hover{color:var(--ox)}
         .clt-btn:focus-visible,.clt-link:focus-visible{
@@ -225,6 +268,7 @@ export function renderCollateralHero(options = {}) {
         @media (max-width:820px){
           .clt-hero{
             aspect-ratio:auto !important;
+            height:auto !important;
             padding:0 0 76vw;
             background-size:138% auto;
             background-position:center bottom;
@@ -260,7 +304,7 @@ export function renderCollateralHero(options = {}) {
         </style>
 
         <div class="clt">
-            <section class="clt-hero" style="aspect-ratio:${PLATE_W} / ${PLATE_H};background-image:url(${plateSrc});">
+            <section class="clt-hero" style="background-image:url(${plateSrc});" data-plate="${PLATE_W}x${PLATE_H}">
                 <div class="clt-lockup">
                     <div class="clt-eyebrow clt-mono">SELF-ENFORCING PERFORMANCE CONTRACTS</div>
                     <h1>Put money<br />on your own<br />deadline</h1>
