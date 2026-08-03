@@ -50,7 +50,31 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-// Desktop plate: 1600x894 JPEG, 433KB. Mobile: 900x1500 JPEG, 142KB.
+// Desktop plate: 2018x961 JPEG, 514KB. Mobile: 918x1650 JPEG, 401KB.
+//
+// WHY THE DESKTOP PLATE IS WIDER THAN THE ARTWORK AS DRAWN. The supplied sepia
+// engraving is 1632x901, ratio 1.811, against hero frames that run 2.04 to 2.22.
+// cover therefore threw away 96-192px of HEIGHT on every desktop window, and
+// that loss lands on the bottom of the picture, where the table, the coins, the
+// scroll and the seal are — the transaction the whole image is about. Anchoring
+// could not fix it: anchor trades table against headline clearance one for one,
+// and anything past 45% put the CTA into the artwork.
+//
+// So the canvas was extended rather than the crop rationed: +60px of sky on top
+// and +193px per side, giving 2018x961 at ratio 2.100. At that ratio cover
+// crops horizontally instead of vertically on most desktop windows, so the full
+// depth of the picture survives.
+//
+// The side margins are MIRROR-TILED from the outermost 70px of the original,
+// which is pure cypress and oak. The slice has to stay that narrow: a first
+// attempt mirrored 193px wholesale and reproduced the Nike statue and a fragment
+// of the temple, which was unusable. The top strip is a vertical mirror of the
+// band below it and is invisible because that band is flat sky.
+//
+// This is a stopgap. The mirrored margins read as foliage but carry visible
+// bilateral symmetry on close inspection at the lower left. A regenerated plate
+// drawn at 2.1 natively would be cleaner; nothing else about the layout would
+// need to change, only PLATE_W/PLATE_H and the file.
 //
 // The mobile crop is built from the DESKTOP artwork, not from a portrait
 // render. A portrait render put the scene between 28% and 100% of its height,
@@ -58,8 +82,8 @@
 // it without cutting figures. The desktop scene is wide and short, so it drops
 // into the bottom third of a shorter canvas and leaves the top clear. Hero on a
 // 390 phone goes 822px -> 650px, inside one screen instead of overflowing it.
-const PLATE_W = 1632;
-const PLATE_H = 901;
+const PLATE_W = 2018;
+const PLATE_H = 961;
 
 function escapeHtml(value) {
     return String(value)
@@ -80,7 +104,7 @@ function escapeHtml(value) {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-plate-sepia.jpg',
+        plateSrc = '/assets/images/collateral-plate-wide.jpg',
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
