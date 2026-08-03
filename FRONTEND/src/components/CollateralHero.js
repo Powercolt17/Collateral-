@@ -142,21 +142,23 @@ export function renderCollateralHero(options = {}) {
              artwork stays the single source and both plates grade identically —
              the mobile crop is a different composition and would otherwise
              drift. */
-          /* brightness is 1.124 rather than the 1.06 every measurement in this
+          /* brightness is 1.152 rather than the 1.06 every measurement in this
              comment was taken at, and that is NOT a regrade. The ambient sun
-             layer below can only darken, so it runs at a mean of 4.55% down
-             across its cycle and this lifts the plate to compensate. Change
-             the sweep amplitude and this MUST move with it or the whole plate
-             gets darker.
+             layer below can only darken, so at 16% peak it runs a mean of 8%
+             down across its cycle and this lifts the plate to compensate:
+             1.06 / (1 - .08) = 1.152 puts the COMPOSITED average back on 1.06.
+             Change the sweep amplitude and this MUST move with it, or the
+             whole plate gets darker.
 
-             Two candidate values, and the choice was contrast, not tone.
-             1.111 puts the composited average exactly back on 1.06, but it
-             leaves the sky at 6.82:1 under the oxblood at the deepest point of
-             the cycle — fine for the display headline, which is large text,
-             but under the 7:1 that the eyebrow and the forfeiture-flow link
-             need as small text. 1.124 holds exactly 7.00:1 at that worst frame
-             and costs 1.2% of average lift instead. Contrast won. */
-          --plate-grade:saturate(.50) sepia(.06) brightness(1.124) contrast(1.05);
+             ACCEPTED COST: at 16% the sky drops to 6.35:1 under the oxblood at
+             the deepest point of the cycle, from 9.39:1 at the brightest. The
+             display headline is large text and is far clear of any threshold
+             either way, but the eyebrow and the forfeiture-flow link are small
+             mono on that same sky, so they now sit at AA rather than the AAA
+             they held at 10%. That is a real trade made deliberately, to get
+             an effect that can actually be seen. If AAA matters more than
+             visibility, drop the peak back to .10 and this to 1.124. */
+          --plate-grade:saturate(.50) sepia(.06) brightness(1.152) contrast(1.05);
           background:var(--paper); color:var(--ink);
           font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
           -webkit-font-smoothing:antialiased;
@@ -419,50 +421,58 @@ export function renderCollateralHero(options = {}) {
              has to close over exactly one tile, so a single period is the
              widest feathering available without touching that geometry. */
           background-image:linear-gradient(90deg,
-            rgba(0,0,0,.1000) 0%,
-            rgba(0,0,0,.0976) 5%,
-            rgba(0,0,0,.0905) 10%,
-            rgba(0,0,0,.0794) 15%,
-            rgba(0,0,0,.0655) 20%,
-            rgba(0,0,0,.0500) 25%,
-            rgba(0,0,0,.0346) 30%,
-            rgba(0,0,0,.0206) 35%,
-            rgba(0,0,0,.0096) 40%,
-            rgba(0,0,0,.0025) 45%,
+            rgba(0,0,0,.1600) 0%,
+            rgba(0,0,0,.1561) 5%,
+            rgba(0,0,0,.1447) 10%,
+            rgba(0,0,0,.1270) 15%,
+            rgba(0,0,0,.1047) 20%,
+            rgba(0,0,0,.0800) 25%,
+            rgba(0,0,0,.0553) 30%,
+            rgba(0,0,0,.0330) 35%,
+            rgba(0,0,0,.0153) 40%,
+            rgba(0,0,0,.0039) 45%,
             rgba(0,0,0,0) 50%,
-            rgba(0,0,0,.0025) 55%,
-            rgba(0,0,0,.0096) 60%,
-            rgba(0,0,0,.0206) 65%,
-            rgba(0,0,0,.0346) 70%,
-            rgba(0,0,0,.0500) 75%,
-            rgba(0,0,0,.0655) 80%,
-            rgba(0,0,0,.0794) 85%,
-            rgba(0,0,0,.0905) 90%,
-            rgba(0,0,0,.0976) 95%,
-            rgba(0,0,0,.1000) 100%);
+            rgba(0,0,0,.0039) 55%,
+            rgba(0,0,0,.0153) 60%,
+            rgba(0,0,0,.0330) 65%,
+            rgba(0,0,0,.0553) 70%,
+            rgba(0,0,0,.0800) 75%,
+            rgba(0,0,0,.1047) 80%,
+            rgba(0,0,0,.1270) 85%,
+            rgba(0,0,0,.1447) 90%,
+            rgba(0,0,0,.1561) 95%,
+            rgba(0,0,0,.1600) 100%);
           background-size:25% 100%;
           background-repeat:repeat;
           will-change:transform,opacity;
-          animation:
-            clt-sun 30s linear infinite,
-            clt-breathe 30s ease-in-out infinite alternate;
+          /* 14s, not 30s, and that is the change that matters most here.
+             Amplitude was raised twice with no effect reported, because
+             amplitude was the wrong knob. Vision detects CHANGE far more
+             readily than it detects a static gradient, and at 30s the
+             luminance at any point moves about 0.7% per second — under the
+             threshold for noticing. The spatial side is no better: one cycle
+             across the frame is roughly 0.02 cycles per degree, near the floor
+             of the contrast sensitivity function, and all the engraved
+             hatching masks it further. 30s x low amplitude was a specification
+             that guaranteed invisibility. 14s roughly doubles the rate of
+             change, and the amplitude increase compounds with it.
+
+             clt-breathe is GONE. It scaled the whole darkening down to as
+             little as 82%, which spent much of the cycle under the tuned
+             amplitude for no visible benefit, and it made the mean darkening
+             harder to compensate for. One animation, one job. */
+          animation:clt-sun 14s linear infinite;
         }
         /* One whole tile. Any other value shows a seam at the wrap. */
         @keyframes clt-sun{
           from{transform:translate3d(0,0,0)}
           to{transform:translate3d(25%,0,0)}
         }
-        /* Narrow, .82 to 1 rather than .55 to 1. Opacity scales the whole
-           darkening, so a wide breath spends most of the cycle well under the
-           amplitude the sweep is tuned for — which is part of how earlier
-           versions ended up invisible. This keeps a second, slower rhythm
-           beating against the 30s sweep without eating the amplitude. Mean
-           opacity .91 is what the 1.124 brightness compensation is calculated
-           against. */
-        @keyframes clt-breathe{
-          from{opacity:.82}
-          to{opacity:1}
-        }
+        /* clt-breathe removed. It modulated the layer's opacity as a second,
+           slower rhythm, but opacity scales the entire darkening, so it spent
+           most of the cycle under the amplitude the sweep was tuned for and
+           made the brightness compensation depend on a mean opacity. It cost
+           visibility and bought a rhythm nobody could see. */
         /* ONE unit drives the whole lockup. Tune --u to resize everything at
            once; the multipliers below are the authored proportions.
 
