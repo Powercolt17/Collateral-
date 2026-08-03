@@ -420,28 +420,43 @@ export function renderCollateralHero(options = {}) {
              locked to the hero width by the seamless-loop geometry and the wave
              has to close over exactly one tile, so a single period is the
              widest feathering available without touching that geometry. */
-          background-image:linear-gradient(90deg,
-            rgba(0,0,0,.1800) 0%,
-            rgba(0,0,0,.1756) 5%,
-            rgba(0,0,0,.1628) 10%,
-            rgba(0,0,0,.1429) 15%,
-            rgba(0,0,0,.1178) 20%,
-            rgba(0,0,0,.0900) 25%,
-            rgba(0,0,0,.0622) 30%,
-            rgba(0,0,0,.0371) 35%,
-            rgba(0,0,0,.0172) 40%,
-            rgba(0,0,0,.0044) 45%,
-            rgba(0,0,0,0) 50%,
-            rgba(0,0,0,.0044) 55%,
-            rgba(0,0,0,.0172) 60%,
-            rgba(0,0,0,.0371) 65%,
-            rgba(0,0,0,.0622) 70%,
-            rgba(0,0,0,.0900) 75%,
-            rgba(0,0,0,.1178) 80%,
-            rgba(0,0,0,.1429) 85%,
-            rgba(0,0,0,.1628) 90%,
-            rgba(0,0,0,.1756) 95%,
-            rgba(0,0,0,.1800) 100%);
+          /* CLOUD COVER, not a gradient. feTurbulence fractalNoise is the
+             standard generator for this: octaves of Perlin noise summed at
+             halving amplitude, which is what gives real cloud its structure at
+             several sizes at once — big masses with smaller broken edges.
+
+             That structure is the entire reason this is visible when the
+             smooth wave was not. Detectability tracks spatial frequency
+             CONTENT, and a single broad sinusoid has energy at exactly one
+             very low frequency, the band the eye is worst at. Fractal noise
+             spreads energy across four octaves, so some of it always lands
+             where vision is sensitive. Same peak darkening as the wave it
+             replaces; incomparably easier to see.
+
+             baseFrequency is anisotropic, .005 across against .009 down, so
+             the masses are stretched horizontally the way wind-driven cloud
+             is. numOctaves 4 is the detail; seed fixes the pattern so it does
+             not change between builds. stitchTiles makes the noise tileable so
+             background-repeat has no seam.
+
+             feColorMatrix zeroes RGB and drives ALPHA from the noise's red
+             channel, 1.6 gain and -0.3 offset: black at varying transparency,
+             which is shadow. The gain is contrast between sunlit and shaded
+             ground — without it the noise is mush. Mean alpha stays near .5
+             because the clamping is symmetric about it, which is what makes
+             the brightness compensation predictable.
+
+             This RASTERISES ONCE, when the background image decodes. It is a
+             static bitmap thereafter and the animation only translates it, so
+             there is no per-frame filter cost — unlike animating an SVG filter
+             directly, which re-rasterises every frame and is why the top of
+             this file rules that approach out. */
+          background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.005 0.009' numOctaves='4' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.6 0 0 0 -0.3'/%3E%3C/filter%3E%3Crect width='600' height='400' filter='url(%23c)'/%3E%3C/svg%3E");
+          /* Peak shade. The noise carries alpha 0-1, so this is the darkest a
+             cloud shadow gets; mean cover is about half that, .09, which is
+             what --plate-grade brightness 1.165 compensates for. This is the
+             ONE number to tune for strength. */
+          opacity:.18;
           /* 12.5% of a 400% layer = HALF the hero width, so two cycles cross
              the frame instead of one. This is the change that matters and it
              is the one thing the brief ruled out.
@@ -463,7 +478,7 @@ export function renderCollateralHero(options = {}) {
              had to be the breadth. */
           background-size:12.5% 100%;
           background-repeat:repeat;
-          will-change:transform,opacity;
+          will-change:transform;
           /* 14s, not 30s, and that is the change that matters most here.
              Amplitude was raised twice with no effect reported, because
              amplitude was the wrong knob. Vision detects CHANGE far more
@@ -480,7 +495,7 @@ export function renderCollateralHero(options = {}) {
              little as 82%, which spent much of the cycle under the tuned
              amplitude for no visible benefit, and it made the mean darkening
              harder to compensate for. One animation, one job. */
-          animation:clt-sun 10s linear infinite;
+          animation:clt-sun 12s linear infinite;
         }
         /* One whole tile. Any other value shows a seam at the wrap. */
         @keyframes clt-sun{
@@ -738,12 +753,12 @@ export function renderCollateralHero(options = {}) {
              reduced-motion request is about, so the MOTION goes. The layer
              does not: it is replaced with a flat, unanimated 8% black.
 
-             8% is not a taste value, it is the mean of the wave. The profile
-             is .08*(1+cos(2*pi*x)), whose average over a period is exactly
-             .08, and --plate-grade carries brightness 1.152 purely to
-             compensate for that average. So a flat 8% composites to
-             1.152 * 0.92 = 1.06 — the precise tone every measurement in this
-             file is quoted at.
+             9% is not a taste value, it is the mean cloud cover. The noise
+             carries alpha 0-1 with a mean near .5, scaled by the layer's .18
+             opacity, so average shade is .09 — and --plate-grade carries
+             brightness 1.165 purely to compensate for that average. A flat 9%
+             composites to 1.165 * 0.91 = 1.06, the precise tone every
+             measurement in this file is quoted at.
 
              SUPERSEDED, and this was a real bug: the rule was display:none.
              Removing the layer removes the darkening but NOT the 1.152 that
@@ -762,7 +777,8 @@ export function renderCollateralHero(options = {}) {
             animation:none !important;
             transform:none !important;
             background-image:none !important;
-            background-color:rgba(0,0,0,.08) !important;
+            background-color:rgba(0,0,0,.09) !important;
+            opacity:1 !important;
           }
         }
         </style>
