@@ -82,7 +82,7 @@
 // it without cutting figures. The desktop scene is wide and short, so it drops
 // into the bottom third of a shorter canvas and leaves the top clear. Hero on a
 // 390 phone goes 822px -> 650px, inside one screen instead of overflowing it.
-const PLATE_W = 2007;
+const PLATE_W = 2087;
 const PLATE_H = 866;
 
 function escapeHtml(value) {
@@ -104,7 +104,7 @@ function escapeHtml(value) {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-crop6.jpg',
+        plateSrc = '/assets/images/collateral-crop7.jpg',
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
@@ -118,7 +118,7 @@ export function renderCollateralHero(options = {}) {
         .clt{
           --paper:#F1EEE8; --paper-hi:#F7F5F0;
           --ink:#131A2A; --ink-soft:#5A6172;
-          --ox:#7C1A24; --ox-deep:#5A1018;
+          --ox:#781C22; --ox-deep:#57131A;
           --rule:#D8D3C8; --green:#1F6B45;
 
           /* --ink-warm is a WARM near-black, not the palette's --ink. --ink is
@@ -446,10 +446,34 @@ export function renderCollateralHero(options = {}) {
            Angle is a flat 90deg on purpose. A raking angle looks better but
            makes the gradient a function of x AND y, which no longer tiles
            horizontally without a visible diagonal seam at every repeat. */
-        .clt-hero::after{
-          content:"";
+        /* ---- sky: a MASKED WRAPPER around the drifting cloud layer ----
+           The texture was competing with the headline. It needed to be quieter
+           on the left, where the type sits, and left alone over the artwork —
+           a vignette made of texture rather than colour.
+
+           That cannot be done by masking the cloud layer itself. The clouds
+           are a 400%-wide element that TRANSLATES; a mask on it would travel
+           with it, so the quiet band would slide across the page instead of
+           staying under the headline. The mask has to live on a wrapper that
+           never moves, with the animation on a child inside it.
+
+           Left 40% runs at 45% strength, ramping to full by 66% — the type
+           channel is calm, the artwork keeps its weather, and the transition
+           is wide enough that no edge is visible. */
+        .clt-sky{
+          position:absolute;inset:0;z-index:0;pointer-events:none;
+          overflow:hidden;
+          -webkit-mask-image:linear-gradient(to right,
+            rgba(0,0,0,.45) 0%, rgba(0,0,0,.48) 34%,
+            rgba(0,0,0,.80) 54%, rgba(0,0,0,1) 66%, rgba(0,0,0,1) 100%);
+          mask-image:linear-gradient(to right,
+            rgba(0,0,0,.45) 0%, rgba(0,0,0,.48) 34%,
+            rgba(0,0,0,.80) 54%, rgba(0,0,0,1) 66%, rgba(0,0,0,1) 100%);
+        }
+        .clt-sky i{
+          display:block;
           position:absolute;top:0;bottom:0;left:-150%;width:400%;
-          z-index:0;pointer-events:none;
+          pointer-events:none;
           /* NO mix-blend-mode, deliberately. See the note above. */
           /* Alphas are set by measurement, not by eye. soft-light lifts dark
              backdrops far more in RELATIVE terms than light ones, so the
@@ -814,18 +838,26 @@ export function renderCollateralHero(options = {}) {
            A rule above rather than a box around it: the column already has
            enough shapes, and a hairline reads as a ledger entry, which is the
            right register for a figure like this. */
+        /* The figures lead, the labels recede. They read as an afterthought
+           when both sat at the same weight — the numeral is the fact, the
+           label is only telling you what it counts, so the label drops to a
+           lighter warm grey and the numeral takes the size and the ink. More
+           air above and between, so it is a third block rather than a line
+           tacked under the buttons. */
         .clt-proof{
-          margin-top:calc(2.20 * var(--u));
-          padding-top:calc(1.10 * var(--u));
-          border-top:1px solid rgba(19,26,42,.20);
-          display:flex;align-items:baseline;flex-wrap:wrap;
-          gap:calc(.4 * var(--u)) calc(1.6 * var(--u));
-          font:600 clamp(9px,calc(.50 * var(--u)),13px)/1.5 ui-monospace,Menlo,monospace;
-          letter-spacing:.14em;color:var(--ink-soft);
+          margin-top:calc(2.90 * var(--u));
+          padding-top:calc(1.45 * var(--u));
+          border-top:1px solid rgba(43,33,24,.18);
+          display:flex;align-items:flex-start;flex-wrap:wrap;
+          gap:calc(.7 * var(--u)) calc(3.0 * var(--u));
+          font:400 clamp(8.5px,calc(.46 * var(--u)),12px)/1.5 ui-monospace,Menlo,monospace;
+          letter-spacing:.16em;color:rgba(43,33,24,.52);
         }
         .clt-proof b{
-          display:block;font-weight:700;color:var(--ink);
-          font-size:1.6em;letter-spacing:.01em;margin-bottom:2px;
+          display:block;font-weight:400;color:var(--ink-warm);
+          font-family:var(--roman);font-synthesis:none;
+          font-size:2.35em;letter-spacing:.01em;line-height:1.05;
+          margin-bottom:calc(.28 * var(--u));
           font-variant-numeric:tabular-nums;
         }
 
@@ -1091,7 +1123,7 @@ export function renderCollateralHero(options = {}) {
              dark band across the engraving permanently.
 
              Flat colour, no gradient, so there is no band at any position. */
-          .clt-hero::after{
+          .clt-sky i{
             animation:none !important;
             transform:none !important;
             background-image:none !important;
@@ -1103,6 +1135,7 @@ export function renderCollateralHero(options = {}) {
 
         <div class="clt">
             <section class="clt-hero" style="--clt-plate:url(${plateSrc});" data-plate="${PLATE_W}x${PLATE_H}">
+                <div class="clt-sky" aria-hidden="true"><i></i></div>
                 <div class="clt-lockup">
                     <div class="clt-eyebrow clt-mono clt-in" style="--d:60ms">SELF-ENFORCING PERFORMANCE CONTRACTS</div>
                     <h1><span class="clt-line" style="--d:150ms">Put money</span><br /><span class="clt-line" style="--d:240ms">on your own</span><br /><span class="clt-line" style="--d:330ms"><span class="clt-accent">deadline</span></span></h1>
