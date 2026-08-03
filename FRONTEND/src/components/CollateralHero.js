@@ -82,8 +82,8 @@
 // it without cutting figures. The desktop scene is wide and short, so it drops
 // into the bottom third of a shorter canvas and leaves the top clear. Hero on a
 // 390 phone goes 822px -> 650px, inside one screen instead of overflowing it.
-const PLATE_W = 1976;
-const PLATE_H = 941;
+const PLATE_W = 1917;
+const PLATE_H = 866;
 
 function escapeHtml(value) {
     return String(value)
@@ -104,7 +104,7 @@ function escapeHtml(value) {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-crop3.jpg',
+        plateSrc = '/assets/images/collateral-crop5.jpg',
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
@@ -633,7 +633,7 @@ export function renderCollateralHero(options = {}) {
           display:flex;flex-direction:column;justify-content:center;
           align-items:flex-start;text-align:left;
           padding:0 0 0 5cqw;
-          max-width:36cqw;
+          max-width:41cqw;
         }
         .clt-eyebrow{
           display:flex;align-items:center;gap:calc(.64 * var(--u));
@@ -677,7 +677,7 @@ export function renderCollateralHero(options = {}) {
              36.5cqw inside a 37cqw column. Anything above 4.55 overflows into
              the operator at 1905, where the clear zone is proportionally
              narrowest. */
-          font-size:3.7cqw;line-height:.92;letter-spacing:-.038em;font-weight:700;
+          font-size:4.4cqw;line-height:.92;letter-spacing:-.038em;font-weight:700;
           text-transform:uppercase;
           /* Oxblood, per the new colourway. The !important is still doing work:
              a global h1{color:var(--text-primary)} wins over an unweighted rule
@@ -926,7 +926,7 @@ export function renderCollateralHero(options = {}) {
              would already win. Kept because the inline-style form is the
              obvious thing to revert to. */
           .clt-hero::before{
-            background-image:url(/assets/images/collateral-group.jpg) !important;
+            background-image:url(/assets/images/collateral-group2.jpg) !important;
             /* 100% auto, NOT cover and NOT 100% 100%. The crop keeps its own
                1.324 ratio, so it is never stretched and never cropped — the
                full group is always visible, at every phone width. */
@@ -937,7 +937,7 @@ export function renderCollateralHero(options = {}) {
                identically and the panel above the figures cannot drift to a
                different tone than the figures' own ground. That match is the
                only thing standing in for the sky that used to be painted in. */
-            background-color:#EBD2AE;
+            background-color:#F0D6AF;
           }
           /* 96 -> 76px top padding. The extra sky in the portrait plate does
              most of the work, but the mobile lockup is fixed px while the hero
