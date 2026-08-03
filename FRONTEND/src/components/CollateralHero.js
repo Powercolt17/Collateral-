@@ -82,7 +82,7 @@
 // it without cutting figures. The desktop scene is wide and short, so it drops
 // into the bottom third of a shorter canvas and leaves the top clear. Hero on a
 // 390 phone goes 822px -> 650px, inside one screen instead of overflowing it.
-const PLATE_W = 2087;
+const PLATE_W = 1917;
 const PLATE_H = 866;
 
 function escapeHtml(value) {
@@ -104,7 +104,7 @@ function escapeHtml(value) {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-crop7.jpg',
+        plateSrc = '/assets/images/collateral-crop5.jpg',
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
@@ -671,7 +671,7 @@ export function renderCollateralHero(options = {}) {
           display:flex;flex-direction:column;justify-content:center;
           align-items:flex-start;text-align:left;
           padding:0 0 0 5cqw;
-          max-width:45cqw;
+          max-width:40cqw;
         }
         /* Roman caps, not mono. The mono eyebrow belonged to the terminal
            register the hero used to run in; against a serif headline it read
@@ -732,7 +732,7 @@ export function renderCollateralHero(options = {}) {
              the operator at 1905, where the clear zone is proportionally
              narrowest. */
           font-family:var(--roman);font-weight:400;font-synthesis:none;
-          font-size:4.4cqw;line-height:1.02;letter-spacing:.02em;
+          font-size:3.95cqw;line-height:1.02;letter-spacing:.02em;
           color:var(--ink-warm) !important;
           text-transform:uppercase;
           /* Oxblood, per the new colourway. The !important is still doing work:
