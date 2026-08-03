@@ -58,8 +58,8 @@
 // it without cutting figures. The desktop scene is wide and short, so it drops
 // into the bottom third of a shorter canvas and leaves the top clear. Hero on a
 // 390 phone goes 822px -> 650px, inside one screen instead of overflowing it.
-const PLATE_W = 1600;
-const PLATE_H = 894;
+const PLATE_W = 1632;
+const PLATE_H = 901;
 
 function escapeHtml(value) {
     return String(value)
@@ -80,7 +80,7 @@ function escapeHtml(value) {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-plate.jpg',
+        plateSrc = '/assets/images/collateral-plate-sepia.jpg',
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
@@ -142,23 +142,36 @@ export function renderCollateralHero(options = {}) {
              artwork stays the single source and both plates grade identically —
              the mobile crop is a different composition and would otherwise
              drift. */
-          /* brightness is 1.152 rather than the 1.06 every measurement in this
-             comment was taken at, and that is NOT a regrade. The ambient sun
-             layer below can only darken, so at 16% peak it runs a mean of 8%
-             down across its cycle and this lifts the plate to compensate:
-             1.06 / (1 - .08) = 1.152 puts the COMPOSITED average back on 1.06.
-             Change the sweep amplitude and this MUST move with it, or the
-             whole plate gets darker.
+          /* REGRADED FOR THE SEPIA PLATE. Everything the old chain did is now
+             obsolete: saturate(.50) sepia(.06) existed to pull a saturated
+             CRIMSON duotone off its red, and the artwork is natively sepia ink
+             on cream. Run over this plate it does the wrong job twice — greys
+             ink that is already neutral, and lifts a sky that is already light.
 
-             ACCEPTED COST: at 16% the sky drops to 6.35:1 under the oxblood at
-             the deepest point of the cycle, from 9.39:1 at the brightest. The
-             display headline is large text and is far clear of any threshold
-             either way, but the eyebrow and the forfeiture-flow link are small
-             mono on that same sky, so they now sit at AA rather than the AAA
-             they held at 10%. That is a real trade made deliberately, to get
-             an effect that can actually be seen. If AAA matters more than
-             visibility, drop the peak back to .10 and this to 1.124. */
-          --plate-grade:saturate(.50) sepia(.06) brightness(1.165) contrast(1.05);
+             It was measurably unshippable, not merely redundant. This plate's
+             open sky measures #E9D7C5, far lighter than the crimson plate's
+             #DEC8C8, so the old brightness(1.165) drives the red channel to 262
+             and CLIPS — highlights would flatten to blank paper across the
+             whole upper half of the hero.
+
+             saturate(.88) brightness(1.08), measured on the actual file:
+               plate sky         #E9D7C5, saturation .155
+               graded sky        250,233,215 — peak 250, no clipping
+               saturation        .137, so it stays sepia instead of going grey
+               distance to       19.5, against the old chain's 27.3, so the
+                 --paper           hero sits closer to the page around it
+               contrast on ox    8.69:1 in full sun, 5.74:1 under deepest cloud
+
+             The .88 is a nudge toward --paper (#F1EEE8, saturation .037), not a
+             neutralising pass — this plate is warmer than the token and always
+             will be. If the join at the proof strip reads wrong, warm --paper
+             rather than desaturating further; below about .80 the engraving
+             goes grey and loses the reason sepia was chosen.
+
+             brightness still carries the cloud layer's 9% mean shade. It is a
+             smaller number than before only because the plate starts lighter;
+             the relationship is unchanged and the two still move together. */
+          --plate-grade:saturate(.88) brightness(1.08);
           background:var(--paper); color:var(--ink);
           font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
           -webkit-font-smoothing:antialiased;
@@ -274,36 +287,15 @@ export function renderCollateralHero(options = {}) {
            from markup to ::before. */
         .clt-hero::before{
           content:"";position:absolute;inset:0;z-index:0;
-          /* Two layers. First is a paper veil down the right edge, which is
-             where Nike stands; second is the plate.
-
-             She was pulling focus off the operator and the table. The veil
-             lifts the darks in that band, which lowers LOCAL CONTRAST without
-             blurring, desaturating or removing a single line of engraving —
-             she keeps every stroke, she just stops competing. Peak 10% at the
-             very edge, gone by 24% in, so the falloff lands past the statue
-             and leaves the magistrates untouched.
-
-             Deliberately NOT a filter on a separate element: it rides in the
-             same background stack as the plate so it is graded by
-             --plate-grade with it and cannot drift to a different white.
-
-             Every longhand is per-layer. Getting background-position or -size
-             wrong here silently moves the ARTWORK, which is approved and must
-             not shift — the plate stays cover / center 35% exactly as it was.
-             The mobile block overrides background-image wholesale, so the veil
-             is desktop-only, which is correct: the portrait crop is a different
-             composition and Nike does not dominate it. */
-          background-image:
-            linear-gradient(to left,
-              rgba(241,238,232,.10) 0%,
-              rgba(241,238,232,.058) 9%,
-              rgba(241,238,232,.020) 17%,
-              rgba(241,238,232,0) 24%),
-            var(--clt-plate);
-          background-position:center center, center 35%;
-          background-size:cover, cover;
-          background-repeat:no-repeat, no-repeat;
+          /* Single layer again. This carried a paper veil down the right edge
+             to stop Nike pulling focus off the operator and the table. The
+             sepia plate redrew her smaller, lighter and further back, so the
+             artwork solves it at source and the veil was double-counting —
+             it came out with the artwork swap. */
+          background-image:var(--clt-plate);
+          background-position:center 35%;
+          background-size:cover;
+          background-repeat:no-repeat;
           filter:var(--plate-grade);
         }
 
@@ -788,7 +780,12 @@ export function renderCollateralHero(options = {}) {
              sides, which is the "it needs to be full screen" problem from
              earlier. */
           .clt-hero{
-            aspect-ratio:900 / 1500 !important;
+            /* 918/1650, the portrait plate's true pixel ratio. This MUST track
+               the file: background-size below is 100% 100%, which stretches,
+               and the only thing that makes that safe is the box matching the
+               image exactly. The old 900/1500 against this 0.5564 file would
+               squash it about 7% horizontally. */
+            aspect-ratio:918 / 1650 !important;
             height:auto !important;
             padding:0;
             width:100vw;
@@ -807,7 +804,7 @@ export function renderCollateralHero(options = {}) {
              would already win. Kept because the inline-style form is the
              obvious thing to revert to. */
           .clt-hero::before{
-            background-image:url(/assets/images/collateral-plate-mobile.jpg) !important;
+            background-image:url(/assets/images/collateral-plate-sepia-mobile.jpg) !important;
             background-size:100% 100%;
             background-position:center top;
           }
