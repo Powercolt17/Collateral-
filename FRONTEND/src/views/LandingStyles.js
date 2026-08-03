@@ -361,9 +361,12 @@ html, body {
 }
 
 .logo-wordmark {
-  font-family: 'Nevera', 'Aquire', 'Cinzel', sans-serif !important;
+  font-family: 'Trajan Pro', 'Nevera', 'Aquire', 'Cinzel', sans-serif !important;
   color: #0E1420 !important;
-  font-weight: 700 !important;
+  /* 400 and no synthesis: Trajan Pro ships one weight, and a 700 request makes
+     the browser fake a bold by smearing the outlines. */
+  font-weight: 400 !important;
+  font-synthesis: none;
   letter-spacing: .14em !important;
   text-transform: uppercase !important;
 }

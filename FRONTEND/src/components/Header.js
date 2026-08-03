@@ -88,9 +88,25 @@ export function renderHeader(currentRoute = '') {
 
             /* Signature Wordmark */
             .ch-logo-wordmark {
-                font-family: 'Nevera', 'Aquire', 'Cinzel', sans-serif !important;
+                /* Trajan Pro, cut from the inscription on Trajan's Column, which
+                   is the same Roman lettering tradition the hero engraving is
+                   drawn from. Stack behind it is unchanged, so if the file fails
+                   to load the wordmark falls back to exactly what it was before.
+
+                   400, NOT 700. Trajan Pro Regular is a single-weight face, so a
+                   700 request makes the browser fake a bold by smearing the
+                   outlines — fatal on a face whose whole quality is the stroke
+                   modulation of a chisel. font-synthesis: none refuses that
+                   substitution outright rather than relying on the weight
+                   matching, and also blocks synthetic obliquing. */
+                font-family: 'Trajan Pro', 'Nevera', 'Aquire', 'Cinzel', sans-serif !important;
                 font-size: 21px !important;
-                font-weight: 700 !important;
+                font-weight: 400 !important;
+                font-synthesis: none;
+                /* Tuned for Nevera, kept unchanged so this commit changes the
+                   typeface and nothing else. Trajan is a naturally wide face
+                   with generous sidebearings, so this may now read as too airy —
+                   it is the first thing to adjust if the lockup looks loose. */
                 letter-spacing: 0.165em !important;
                 color: #0E1420 !important;
                 text-decoration: none;
