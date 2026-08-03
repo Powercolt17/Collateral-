@@ -176,7 +176,11 @@ export function renderCollateralHero(options = {}) {
         .clt-hero{--u:min(1cqw,1.75vh)}
         .clt-lockup{
           position:absolute;inset:0 0 auto 0;
-          padding-top:calc(6.3 * var(--u));
+          /* 8.1, up from 6.3, to seat the block lower in the open sky — there was
+             too much slack between the CTA row and the temple steps. This is the
+             authored 8.4 -> 10.8 move (x1.286) carried onto the 0.75 scale the
+             lockup now runs at. */
+          padding-top:calc(8.1 * var(--u));
           display:flex;flex-direction:column;align-items:center;text-align:center;
         }
         .clt-eyebrow{
@@ -188,7 +192,15 @@ export function renderCollateralHero(options = {}) {
           margin-top:calc(1.05 * var(--u));
           font-size:calc(4.8 * var(--u));line-height:.855;letter-spacing:-.038em;font-weight:800;
           text-transform:uppercase;
+          /* Real fix, not a no-op: a global h1{color:var(--text-primary)} was
+             winning here and rendering the headline rgb(17,17,17). #131A2A is
+             warmer and is the token the rest of this component already uses. */
+          color:var(--ink);
         }
+        /* The headline was one flat block of near-black against the only red on
+           the page, so type and engraving read as unrelated layers. Oxblood on
+           the last word ties them together, at the point the sentence turns. */
+        .clt-accent{color:var(--ox)}
         .clt-cta{margin-top:calc(1.95 * var(--u));display:flex;align-items:center;gap:calc(1.43 * var(--u))}
         /* The px FLOOR on the two CTA labels stops them collapsing to ~8px on a
            1024 laptop. It does not engage on a full-size screen. */
@@ -348,7 +360,7 @@ export function renderCollateralHero(options = {}) {
             <section class="clt-hero" style="background-image:url(${plateSrc});" data-plate="${PLATE_W}x${PLATE_H}">
                 <div class="clt-lockup">
                     <div class="clt-eyebrow clt-mono">SELF-ENFORCING PERFORMANCE CONTRACTS</div>
-                    <h1>Put money<br />on your own<br />deadline</h1>
+                    <h1>Put money<br />on your own<br /><span class="clt-accent">deadline</span></h1>
                     <div class="clt-cta">
                         <button type="button" class="clt-btn"${onWriteContract ? ` onclick="${onWriteContract}"` : ''}>WRITE A CONTRACT</button>
                         <button type="button" class="clt-link"${onWatchFlow ? ` onclick="${onWatchFlow}"` : ''}>WATCH FORFEITURE FLOW ↓</button>
