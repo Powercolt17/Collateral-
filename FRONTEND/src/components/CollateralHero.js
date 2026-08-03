@@ -154,13 +154,23 @@ export function renderCollateralHero(options = {}) {
              and CLIPS — highlights would flatten to blank paper across the
              whole upper half of the hero.
 
-             saturate(.88) brightness(1.08), measured on the actual file:
+             saturate(.88) brightness(1.04), measured on the actual file:
                plate sky         #E9D7C5, saturation .155
-               graded sky        250,233,215 — peak 250, no clipping
-               saturation        .137, so it stays sepia instead of going grey
-               distance to       19.5, against the old chain's 27.3, so the
-                 --paper           hero sits closer to the page around it
-               contrast on ox    8.69:1 in full sun, 5.74:1 under deepest cloud
+               plate ink         #180D07 — the darkest 5% is near-black, so
+                                 this artwork has full range and does NOT want
+                                 a contrast bump; it only looked flat because
+                                 the cloud layer was veiling it
+               graded sky        240,224,207 — no clipping
+               mean with cloud   230,214,198, against the file's own 233,215,197
+               sky-to-ink spread 207 levels
+               contrast on ox    8.02:1 full sun, 6.58:1 under deepest cloud
+
+             1.08 -> 1.04 alongside the cloud drop. Halving the cloud removes
+             half the darkening it was compensating for, so leaving brightness
+             where it was would have lifted the mean sky to 238 and made the
+             plate look MORE washed, which was the complaint. 1.04 puts the
+             composited mean back within a couple of levels of the file's own
+             tone. The two numbers are coupled and always move together.
 
              The .88 is a nudge toward --paper (#F1EEE8, saturation .037), not a
              neutralising pass — this plate is warmer than the token and always
@@ -171,7 +181,7 @@ export function renderCollateralHero(options = {}) {
              brightness still carries the cloud layer's 9% mean shade. It is a
              smaller number than before only because the plate starts lighter;
              the relationship is unchanged and the two still move together. */
-          --plate-grade:saturate(.88) brightness(1.08);
+          --plate-grade:saturate(.88) brightness(1.04);
           background:var(--paper); color:var(--ink);
           font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
           -webkit-font-smoothing:antialiased;
@@ -471,10 +481,19 @@ export function renderCollateralHero(options = {}) {
              this file rules that approach out. */
           background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.005 0.009' numOctaves='4' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.6 0 0 0 -0.3'/%3E%3C/filter%3E%3Crect width='600' height='400' filter='url(%23c)'/%3E%3C/svg%3E");
           /* Peak shade. The noise carries alpha 0-1, so this is the darkest a
-             cloud shadow gets; mean cover is about half that, .09, which is
-             what --plate-grade brightness 1.165 compensates for. This is the
-             ONE number to tune for strength. */
-          opacity:.18;
+             cloud shadow gets; mean cover is half that, .045, which is what
+             --plate-grade brightness compensates for. The ONE number to tune
+             for strength — and the reduced-motion flat value and the grade
+             brightness both have to move with it.
+
+             .18 -> .09 for the sepia plate. .18 was tuned against the crimson
+             artwork, which was dark and busy enough to absorb it. This plate's
+             sky is pale and FLAT — measured #E9D7C5 with nothing in it — so a
+             smooth 18% modulation had nothing to hide behind and read as
+             staining on the paper rather than light crossing a scene. The
+             failure mode inverted completely: invisible on the old plate at
+             this setting, too loud on the new one. */
+          opacity:.09;
           /* 12.5% of a 400% layer = HALF the hero width, so two cycles cross
              the frame instead of one. This is the change that matters and it
              is the one thing the brief ruled out.
@@ -856,12 +875,13 @@ export function renderCollateralHero(options = {}) {
              reduced-motion request is about, so the MOTION goes. The layer
              does not: it is replaced with a flat, unanimated 8% black.
 
-             9% is not a taste value, it is the mean cloud cover. The noise
-             carries alpha 0-1 with a mean near .5, scaled by the layer's .18
-             opacity, so average shade is .09 — and --plate-grade carries
-             brightness 1.165 purely to compensate for that average. A flat 9%
-             composites to 1.165 * 0.91 = 1.06, the precise tone every
-             measurement in this file is quoted at.
+             4.5% is not a taste value, it is the mean cloud cover. The noise
+             carries alpha 0-1 with a mean near .5, scaled by the layer's .09
+             opacity, so average shade is .045 — and --plate-grade carries its
+             brightness purely to compensate for that average. A flat 4.5% puts
+             a reduced-motion viewer on the same composited tone everyone else
+             averages. It halved when the cloud opacity halved; these two and
+             the grade brightness are one set of three and never move alone.
 
              SUPERSEDED, and this was a real bug: the rule was display:none.
              Removing the layer removes the darkening but NOT the 1.152 that
@@ -880,7 +900,7 @@ export function renderCollateralHero(options = {}) {
             animation:none !important;
             transform:none !important;
             background-image:none !important;
-            background-color:rgba(0,0,0,.09) !important;
+            background-color:rgba(0,0,0,.045) !important;
             opacity:1 !important;
           }
         }
