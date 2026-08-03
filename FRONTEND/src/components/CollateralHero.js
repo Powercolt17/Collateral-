@@ -293,12 +293,26 @@ export function renderCollateralHero(options = {}) {
            them in that order on its own. The sequencing in the brief comes out
            of the composition, not out of per-figure targeting.
 
-           WHY MULTIPLY. multiply with a neutral black at alpha a resolves to
-           out = b * (1 - a): a pure MULTIPLICATIVE gain. Every tone changes by
+           PLAIN ALPHA OVER NEUTRAL BLACK, NO BLEND MODE. Compositing black at
+           alpha a with ordinary source-over gives out = 0*a + b*(1-a), which
+           is b * (1 - a): a pure MULTIPLICATIVE gain. Every tone changes by
            the same PERCENTAGE, which is what more or less light actually does
            to a surface. Contrast ratios are preserved exactly, so the paper
            carries the light without the ink washing out, and because all three
            channels scale together it cannot shift the palette.
+
+           SUPERSEDED: this carried mix-blend-mode:multiply. That was redundant
+           and it was a liability. Redundant because multiply against black is
+           Cs*Cb = 0, which then composites to b*(1-a) — the identical result
+           to the line above, so the blend mode changed nothing about the
+           output. A liability because it made the layer depend on the
+           compositor resolving ::before as its backdrop, and ::before carries
+           a filter while both layers are GPU-promoted by will-change; blend
+           modes are flattened or mis-backdropped in exactly that arrangement.
+           A silent no-op is the worst kind of dependency, so it is gone. If
+           the effect ever needs a mode that is NOT equivalent to plain alpha —
+           screen, overlay, anything that lightens — that dependency comes back
+           and has to be verified on a real screen, not in arithmetic.
 
            SUPERSEDED, and this was a real mistake worth recording. This layer
            used soft-light, chosen so engraved grooves would take a different
@@ -346,7 +360,7 @@ export function renderCollateralHero(options = {}) {
           content:"";
           position:absolute;top:0;bottom:0;left:-150%;width:400%;
           z-index:0;pointer-events:none;
-          mix-blend-mode:multiply;
+          /* NO mix-blend-mode, deliberately. See the note above. */
           /* Alphas are set by measurement, not by eye. soft-light lifts dark
              backdrops far more in RELATIVE terms than light ones, so the
              constraint that binds is the engraved ink, not the paper. At .13
