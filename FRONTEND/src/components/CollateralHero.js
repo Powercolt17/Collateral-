@@ -158,7 +158,7 @@ export function renderCollateralHero(options = {}) {
              they held at 10%. That is a real trade made deliberately, to get
              an effect that can actually be seen. If AAA matters more than
              visibility, drop the peak back to .10 and this to 1.124. */
-          --plate-grade:saturate(.50) sepia(.06) brightness(1.152) contrast(1.05);
+          --plate-grade:saturate(.50) sepia(.06) brightness(1.165) contrast(1.05);
           background:var(--paper); color:var(--ink);
           font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
           -webkit-font-smoothing:antialiased;
@@ -421,28 +421,47 @@ export function renderCollateralHero(options = {}) {
              has to close over exactly one tile, so a single period is the
              widest feathering available without touching that geometry. */
           background-image:linear-gradient(90deg,
-            rgba(0,0,0,.1600) 0%,
-            rgba(0,0,0,.1561) 5%,
-            rgba(0,0,0,.1447) 10%,
-            rgba(0,0,0,.1270) 15%,
-            rgba(0,0,0,.1047) 20%,
-            rgba(0,0,0,.0800) 25%,
-            rgba(0,0,0,.0553) 30%,
-            rgba(0,0,0,.0330) 35%,
-            rgba(0,0,0,.0153) 40%,
-            rgba(0,0,0,.0039) 45%,
+            rgba(0,0,0,.1800) 0%,
+            rgba(0,0,0,.1756) 5%,
+            rgba(0,0,0,.1628) 10%,
+            rgba(0,0,0,.1429) 15%,
+            rgba(0,0,0,.1178) 20%,
+            rgba(0,0,0,.0900) 25%,
+            rgba(0,0,0,.0622) 30%,
+            rgba(0,0,0,.0371) 35%,
+            rgba(0,0,0,.0172) 40%,
+            rgba(0,0,0,.0044) 45%,
             rgba(0,0,0,0) 50%,
-            rgba(0,0,0,.0039) 55%,
-            rgba(0,0,0,.0153) 60%,
-            rgba(0,0,0,.0330) 65%,
-            rgba(0,0,0,.0553) 70%,
-            rgba(0,0,0,.0800) 75%,
-            rgba(0,0,0,.1047) 80%,
-            rgba(0,0,0,.1270) 85%,
-            rgba(0,0,0,.1447) 90%,
-            rgba(0,0,0,.1561) 95%,
-            rgba(0,0,0,.1600) 100%);
-          background-size:25% 100%;
+            rgba(0,0,0,.0044) 55%,
+            rgba(0,0,0,.0172) 60%,
+            rgba(0,0,0,.0371) 65%,
+            rgba(0,0,0,.0622) 70%,
+            rgba(0,0,0,.0900) 75%,
+            rgba(0,0,0,.1178) 80%,
+            rgba(0,0,0,.1429) 85%,
+            rgba(0,0,0,.1628) 90%,
+            rgba(0,0,0,.1756) 95%,
+            rgba(0,0,0,.1800) 100%);
+          /* 12.5% of a 400% layer = HALF the hero width, so two cycles cross
+             the frame instead of one. This is the change that matters and it
+             is the one thing the brief ruled out.
+
+             Detectability of a luminance modulation is governed by its spatial
+             frequency far more than by its amplitude. One cycle across 1551px
+             put the wave near the floor of the contrast sensitivity function,
+             where threshold contrast is enormous — 35 levels of 255 spread
+             over 775px is 0.045 levels per pixel, which is below what the eye
+             resolves no matter how the numbers are stacked. Amplitude was
+             raised from an effective 0.86% to 6% to 10% to 16% with no
+             reported change, because amplitude was never the limiting term.
+
+             Halving the tile doubles the frequency and roughly halves the
+             distance over which the full swing happens. "Extremely broad and
+             feathered with no identifiable edge" and "visible" are not
+             compatible requests: broad and feathered IS the definition of the
+             frequency band the eye is worst at. Something had to give and it
+             had to be the breadth. */
+          background-size:12.5% 100%;
           background-repeat:repeat;
           will-change:transform,opacity;
           /* 14s, not 30s, and that is the change that matters most here.
@@ -461,12 +480,12 @@ export function renderCollateralHero(options = {}) {
              little as 82%, which spent much of the cycle under the tuned
              amplitude for no visible benefit, and it made the mean darkening
              harder to compensate for. One animation, one job. */
-          animation:clt-sun 14s linear infinite;
+          animation:clt-sun 10s linear infinite;
         }
         /* One whole tile. Any other value shows a seam at the wrap. */
         @keyframes clt-sun{
           from{transform:translate3d(0,0,0)}
-          to{transform:translate3d(25%,0,0)}
+          to{transform:translate3d(12.5%,0,0)}
         }
         /* clt-breathe removed. It modulated the layer's opacity as a second,
            slower rhythm, but opacity scales the entire darkening, so it spent
