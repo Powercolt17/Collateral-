@@ -102,6 +102,25 @@ describe('the worker never disburses', () => {
     it('records why, so the next person does not "fix" it', () => {
         expect(workerSrc).toMatch(/MANUAL|manual-approval|NO PAYOUT JOB HERE/i);
     });
+
+    // The worker now runs the scheduler's periodic jobs, so the guard above is
+    // no longer sufficient on its own: a payout job added to scheduler.ts would
+    // be executed by the worker without runner.ts ever mentioning it.
+    const schedulerSrc = readFileSync(resolve(process.cwd(), 'src/services/scheduler.ts'), 'utf8');
+
+    it('does not reach a payout module through the scheduler it runs', () => {
+        expect(schedulerSrc).not.toMatch(/from\s+['"]\.\.\/services\/payout-job\.js['"]/);
+        expect(schedulerSrc).not.toMatch(/from\s+['"]\.\.\/services\/payout-adapters\.js['"]/);
+        expect(schedulerSrc).not.toMatch(/payout-job\.js|payout-adapters\.js/);
+        expect(schedulerSrc).not.toMatch(/runPayoutJob\s*\(/);
+        expect(schedulerSrc).not.toMatch(/processOnePayout\s*\(/);
+    });
+
+    it('runs the scheduler without re-running verification and settlement', () => {
+        // Both already run on the worker's own loop. Two runners against one
+        // database is the thing this consolidation removed.
+        expect(workerSrc).toMatch(/includeVerificationAndSettlement:\s*false/);
+    });
 });
 
 describe('approve is the only disbursing path', () => {

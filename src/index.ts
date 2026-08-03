@@ -339,37 +339,31 @@ async function bootFastify() {
         console.log(`[startup] ✅ Phase 2: Fastify ready — full API available on 0.0.0.0:${PORT}`);
 
         // =========================================================
-        // Phase 3: Auto-Scheduler — Oracle Metric Polling
-        // Runs all jobs every 5 minutes (oracle refresh, rivalry
-        // tracker, rivalry cron, verification, settlement, reconciliation)
+        // Phase 3: NO SCHEDULER HERE — the worker service owns it.
+        //
+        // This process used to run every job on a 5-minute setInterval:
+        // verification, settlement, reconciliation, oracle refresh, rivalry
+        // tracker, rivalry cron, sim progress, drip emails.
+        //
+        // Once the worker service was deployed, verification and settlement ran
+        // in BOTH processes against the same database. The jobs take advisory
+        // locks per contract, but those are a backstop, not the design — two
+        // runners would have double-processed the first real contract.
+        //
+        // The scheduler now runs in exactly one place: src/worker/runner.ts,
+        // which calls runScheduledJobs({ includeVerificationAndSettlement:
+        // false }) every PERIODIC_JOB_INTERVAL_MS (default 5 min) because it
+        // already runs verification and settlement on its own 15s loop.
+        //
+        // If the worker is ever undeployed, nothing settles and no rivalry or
+        // oracle metric refreshes. Re-adding an interval here is not the fix —
+        // running two is the bug.
+        //
+        // POST /v1/ops/run-jobs still triggers a full manual pass on this
+        // service. That is deliberate and human-initiated; do not call it while
+        // the worker is mid-iteration.
         // =========================================================
-        const SCHEDULER_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
-        const SCHEDULER_INITIAL_DELAY_MS = 30 * 1000; // 30 second warmup
-
-        setTimeout(() => {
-            console.log(`[scheduler] ⏰ Auto-scheduler starting (every ${SCHEDULER_INTERVAL_MS / 60000} min)...`);
-
-            // Run immediately on first tick
-            import('./services/scheduler.js').then(async ({ runScheduledJobs }) => {
-                try {
-                    const result = await runScheduledJobs();
-                    console.log(`[scheduler] ✅ Initial run complete in ${result.totalDurationMs}ms`);
-                } catch (err: any) {
-                    console.error('[scheduler] ❌ Initial run failed:', err.message);
-                }
-            });
-
-            // Then every 5 minutes
-            setInterval(async () => {
-                try {
-                    const { runScheduledJobs } = await import('./services/scheduler.js');
-                    const result = await runScheduledJobs();
-                    console.log(`[scheduler] ✅ Scheduled run complete in ${result.totalDurationMs}ms`);
-                } catch (err: any) {
-                    console.error('[scheduler] ❌ Scheduled run failed:', err.message);
-                }
-            }, SCHEDULER_INTERVAL_MS);
-        }, SCHEDULER_INITIAL_DELAY_MS);
+        console.log('[startup] ⏭️  Scheduler not started — owned by the worker service (src/worker/runner.ts)');
 
     } catch (err) {
         console.error('[startup] ❌ Fastify boot failed:', err);

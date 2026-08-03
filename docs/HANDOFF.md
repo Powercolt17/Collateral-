@@ -36,10 +36,11 @@ All pass.
 **Nothing in this section has processed a real contract.** It is unit-proven
 only. Treat every item as unverified until it runs once end to end.
 
-- **The worker is not deployed.** It holds verification, settlement, market
-  maintenance and the indexer. Until a second Railway service exists, a
-  contract's deadline passes and *nothing happens*. This blocks everything else
-  in this section.
+- ~~**The worker is not deployed.**~~ **Deployed and looping** as of August 2026
+  — 15s iterations, all jobs processing 0 rows. It now also owns the periodic
+  jobs that used to run on the web service's 5-minute interval; see
+  "One scheduler" below. Still nothing has *settled* — a clean loop over an
+  empty queue proves the loop, not the settlement.
 - **Settlement has never been proven** for a win or a miss. No test contract has
   ever been created, settled, or verified against a real oracle.
 - **The payout approve path has never disbursed.** `POST /v1/admin/payouts/:id/approve`
@@ -61,7 +62,7 @@ All owned by the user; none can be done from the agent side.
 
 | Blocker | Why it is blocking | Owner |
 |---|---|---|
-| **Railway worker service** | No CLI, no token — service creation is dashboard-only. Nothing settles until this exists. Config is ready: point the new service's config-as-code path at `railway.worker.json`. See `docs/worker-deploy.md`. | User |
+| ~~**Railway worker service**~~ | **DONE** — deployed August 2026, looping cleanly on 15s iterations. | — |
 | **Neon test branch / local Postgres** | Docker is not running and `DATABASE_URL_TEST` points at localhost, so settlement cannot be proven without writing to production. | User |
 | **Exposed secrets** | `DEPLOYER_PRIVATE_KEY`, `STRIPE_SECRET_KEY`, `CLERK_SECRET_KEY`, production `DATABASE_URL` have been public in git since **2026-01-07**. Repo is public; 0 forks. Rotation at each provider is the only fix — removal does not un-expose. Also audit for persistence (new keys, roles, webhooks, collaborators). | User |
 | **LLC name** | Required before Plaid/Stripe production applications. | User |
@@ -110,6 +111,19 @@ with its own lifecycle (`onSuccess`/`onExit`/`onEvent`), so the browser never
 leaves the page and there is nothing to poll — unlike the OAuth popup-and-poll
 pattern the other connectors use. The access token never reaches the browser.
 
+**One scheduler, in the worker.** The web service used to run every job on a
+5-minute `setInterval` in `src/index.ts`. Once the worker was deployed, both
+processes ran verification and settlement against the same database. The jobs
+take advisory locks per contract, but those are a backstop, not the design —
+two runners would have double-processed the first real contract. The interval is
+gone from `index.ts`; the worker calls
+`runScheduledJobs({ includeVerificationAndSettlement: false })` every
+`PERIODIC_JOB_INTERVAL_MS` (default 5 min), because it already runs verification
+and settlement on its own 15s loop. The periodic jobs deliberately do not run at
+15s: several make one provider API call per participant and one sends email.
+`POST /v1/ops/run-jobs` still triggers a full manual pass on the web service —
+human-initiated, and not to be used while the worker is mid-iteration.
+
 **Fail where it is cheap.** Recurring principle: reject a bad bank item at
 connect time, not settlement; freeze the deadline at lock, not settlement;
 require a payout destination at creation, not payout.
@@ -129,6 +143,20 @@ require a payout destination at creation, not payout.
   `account_ledger_events.event_type` is **VARCHAR** — migration `0016` converted
   it. So `PAYOUT_BLOCKED` and `PAYOUT_REJECTED` needed no migration. Check the
   database before writing an enum migration.
+- **There is no rivalry verification job. Rivalries cannot settle at all.**
+  `settleRivalry()` requires state `VERIFIED` (or `SETTLING`) and non-null
+  `participants.final_value`. A rivalry reaches `VERIFIED` via
+  `ACTIVE → VERIFYING → VERIFIED`, and **nothing in production performs that
+  transition** — `RIVALRY_VERIFICATION_STARTED` / `RIVALRY_VERIFIED` are written
+  only by `seed-activity.ts`, `seed-rivalries-fix.ts` and the sim job, and
+  nothing sets `final_value`. `rivalry-cron.ts` used to call `settleRivalry()`
+  from `ACTIVE` anyway, throwing `Invalid rivalry transition: ACTIVE → UNKNOWN`
+  every 5 minutes forever (the `→ UNKNOWN` is a placeholder in the validator,
+  not a real state). That now reports as `awaitingVerification` instead of an
+  error — **the error is fixed, the missing feature is not.** Rivalry 34d63ca3
+  is past deadline and parked there. Writing this job means the first real
+  rivalry settlement, moving real capital and queueing a real payout: prove it
+  on a test database first. There are no rivalry tests of any kind.
 - **`resolveUserRail()` is hardcoded to USD.** There is no stored per-user rail
   preference. Defaulting to crypto would park every payout since that rail is
   unimplemented.
@@ -220,8 +248,13 @@ Still accurate, no change needed: `ActiveContracts.js:1198`, `ReceiptDetail.js:3
 
 ## Next three things
 
-1. **Create the Railway worker service** (`docs/worker-deploy.md`) — unblocks
-   settlement, which unblocks everything else.
-2. **Rotate the exposed secrets.** Six months public. Independent of all the above.
-3. **Prove settlement** for a win and a miss on a test database, then approve one
-   payout in Stripe sandbox. Only then is the pipeline real.
+1. **Get a test database.** Docker is down and `DATABASE_URL_TEST` points at
+   localhost, so the suite cannot run at all — `tests/global-setup.ts` refuses to
+   start without it. Everything below is gated on this, and so is any claim that
+   a change was tested.
+2. **Rotate the exposed secrets.** Seven months public. Independent of everything
+   else. Pair it with the `node_modules` audit — same question about what has
+   been readable in that repo since January.
+3. **Prove settlement** for a win and a miss on that test database, then approve
+   one payout in Stripe sandbox. Only then is the pipeline real. Rivalries need
+   a verification job built before they can settle at all (see landmines).

@@ -18,14 +18,32 @@ import { runVerificationJob } from '../services/verification.js';
 import { runSettlementJob } from '../services/settlement.js';
 import { expireInstances, recomputeStats } from '../jobs/market-maintenance.js';
 import { runIndexerIteration } from '../services/indexer.js';
+import { runScheduledJobs } from '../services/scheduler.js';
 
 // Configuration from environment
 const WORKER_CONCURRENCY = parseInt(process.env.WORKER_CONCURRENCY || '1', 10);
 const WORKER_SLEEP_MS = parseInt(process.env.WORKER_SLEEP_MS || '15000', 10);
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
+/**
+ * Cadence for the slower periodic jobs — reconciliation, oracle refresh,
+ * rivalry tracker, rivalry cron, sim progress, drip emails.
+ *
+ * These used to run on the web service's 5-minute setInterval. That made two
+ * processes run verification and settlement against the same database, which
+ * the jobs are not built for. The scheduler now lives here only.
+ *
+ * They deliberately do NOT run on the 15s loop: several call provider APIs
+ * (Stripe, Shopify, X) per participant and one sends email. At 15s that is a
+ * 20x increase in outbound calls for no benefit.
+ */
+const PERIODIC_JOB_INTERVAL_MS = parseInt(process.env.PERIODIC_JOB_INTERVAL_MS || '300000', 10);
+
 // Shutdown flag
 let shuttingDown = false;
+
+// Timestamp of the last periodic pass; 0 means "run on first iteration"
+let lastPeriodicRunAt = 0;
 
 /**
  * Sleep for specified milliseconds
@@ -118,6 +136,31 @@ async function runJobIteration(): Promise<{
         log('ERROR', 'Blockchain indexer iteration failed', { error: err.message, iterationId });
     }
 
+    // Periodic jobs, every PERIODIC_JOB_INTERVAL_MS rather than every iteration.
+    //
+    // includeVerificationAndSettlement: false is load-bearing — both already ran
+    // above in this same iteration. Passing true would double-process every
+    // contract twice over.
+    const sincePeriodic = Date.now() - lastPeriodicRunAt;
+    if (sincePeriodic >= PERIODIC_JOB_INTERVAL_MS) {
+        lastPeriodicRunAt = Date.now();
+        try {
+            const result = await runScheduledJobs({ includeVerificationAndSettlement: false });
+            log('INFO', 'Periodic jobs complete', {
+                iterationId,
+                durationMs: result.totalDurationMs,
+                rivalryTracker: result.rivalryTracker
+                    ? { succeeded: result.rivalryTracker.succeeded, skipped: result.rivalryTracker.skipped, failed: result.rivalryTracker.failed }
+                    : null,
+                rivalryCron: result.rivalryCron
+                    ? { succeeded: result.rivalryCron.succeeded, awaitingVerification: result.rivalryCron.skipped, failed: result.rivalryCron.failed }
+                    : null,
+            });
+        } catch (err: any) {
+            log('ERROR', 'Periodic jobs failed', { error: err.message, iterationId });
+        }
+    }
+
     return {
         verification: verificationResult,
         settlement: settlementResult,
@@ -131,6 +174,7 @@ async function runWorkerLoop(): Promise<void> {
     log('INFO', 'Worker starting', {
         concurrency: WORKER_CONCURRENCY,
         sleepMs: WORKER_SLEEP_MS,
+        periodicJobIntervalMs: PERIODIC_JOB_INTERVAL_MS,
         env: NODE_ENV,
     });
 
@@ -201,6 +245,9 @@ async function main(): Promise<void> {
 ║  Jobs:                                                    ║
 ║    - runVerificationJob() → LOCKED → VERIFIED             ║
 ║    - runSettlementJob()   → VERIFIED → SETTLED/FORFEITED  ║
+║    - market maintenance, blockchain indexer               ║
+║    - periodic (5 min): reconciliation, oracle refresh,    ║
+║      rivalry tracker, rivalry cron, sim, drip emails      ║
 ╚═══════════════════════════════════════════════════════════╝
     `);
 
