@@ -1,5 +1,8 @@
 /**
- * Collateral — engraved hero + settlement queue.
+ * Collateral — engraved hero + proof strip.
+ *
+ * The settlement queue that used to live at the bottom of this component moved
+ * out to LedgerSection.js. Its markup, CSS and QUEUE data went with it.
  *
  * Ported from a supplied React component (CollateralHero.jsx) to this project's
  * view convention: a render function returning an HTML string with a scoped
@@ -37,13 +40,6 @@
 const PLATE_W = 1363;
 const PLATE_H = 778;
 
-const QUEUE = [
-    { id: '369', goal: '10,000 email leads in 30 days', who: '@growthlead', src: 'Shopify API', amount: '$1,200' },
-    { id: '370', goal: '100k views on launch video', who: '@indiehacker', src: 'YouTube API', amount: '$800' },
-    { id: '371', goal: '+20% revenue in 30 days', who: '@revpilot', src: 'Stripe API', amount: '$2,000' },
-    { id: '372', goal: '50,000 subscribers in 60 days', who: '@deltacreator', src: 'YouTube API', amount: '$1,000' },
-];
-
 function escapeHtml(value) {
     return String(value)
         .replace(/&/g, '&amp;')
@@ -71,18 +67,6 @@ export function renderCollateralHero(options = {}) {
         onWatchFlow = '',
     } = options;
 
-    const rows = QUEUE.map((row) => `
-                <div class="clt-row">
-                    <div>
-                        <span class="clt-no clt-mono">№ ${escapeHtml(row.id)}</span>
-                        <span class="clt-goal">${escapeHtml(row.goal)}</span>
-                        <div class="clt-who clt-mono">${escapeHtml(row.who)} · via ${escapeHtml(row.src)}</div>
-                    </div>
-                    <div>
-                        <div class="clt-amt">${escapeHtml(row.amount)}</div>
-                        <div class="clt-status clt-mono">● PENDING</div>
-                    </div>
-                </div>`).join('');
 
     return `
         <style>
@@ -236,50 +220,6 @@ export function renderCollateralHero(options = {}) {
         .clt-gr{color:var(--green)}
 
         /* ---- settlement queue ---- */
-        .clt-queue-wrap{padding:76px 24px 96px}
-        .clt-sec-head{max-width:680px;margin:0 auto 26px;text-align:center}
-        .clt-kicker{
-          display:flex;align-items:center;justify-content:center;gap:10px;
-          font-size:10px;letter-spacing:.22em;font-weight:700;color:var(--ox);margin-bottom:14px;
-        }
-        .clt-kicker::before,.clt-kicker::after{content:"";width:26px;height:2px;background:var(--ox)}
-        .clt-sec-head h2{font-size:30px;font-weight:800;letter-spacing:-.02em;text-transform:uppercase}
-        .clt-sec-head p{margin-top:12px;font-size:14px;line-height:1.55;color:#3B4254}
-
-        .clt-queue{
-          max-width:680px;margin:0 auto;background:var(--paper-hi);
-          border:1px solid var(--ink);box-shadow:7px 7px 0 rgba(19,26,42,.08);
-        }
-        .clt-q-head{
-          display:flex;justify-content:space-between;padding:13px 18px;
-          border-bottom:1px solid var(--rule);font-size:10px;letter-spacing:.14em;color:var(--ink-soft);
-        }
-        .clt-dot{
-          display:inline-block;width:7px;height:7px;border-radius:50%;
-          background:var(--green);margin-right:9px;vertical-align:1px;
-        }
-        .clt-q-totals{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--rule)}
-        .clt-q-totals>div{padding:17px 18px}
-        .clt-q-totals>div:first-child{border-right:1px solid var(--rule)}
-        .clt-q-totals span{display:block;font-size:9.5px;letter-spacing:.16em;color:var(--ink-soft);margin-bottom:8px}
-        .clt-q-totals b{font-size:25px;font-weight:500;letter-spacing:-.02em}
-        .clt-held b{color:var(--ox)}
-        .clt-settled b{color:var(--green)}
-        .clt-row{
-          display:flex;justify-content:space-between;align-items:center;gap:16px;
-          padding:14px 18px;border-bottom:1px dotted var(--rule);
-        }
-        .clt-row:last-of-type{border-bottom:1px solid var(--rule)}
-        .clt-no{font-size:9.5px;color:var(--ink-soft);margin-right:9px}
-        .clt-goal{font-size:14px;font-weight:600}
-        .clt-who{font-size:10.5px;color:var(--ink-soft);margin-top:4px}
-        .clt-amt{font-size:15px;text-align:right;white-space:nowrap}
-        .clt-status{font-size:9.5px;letter-spacing:.14em;color:var(--ink-soft);margin-top:5px;text-align:right}
-        .clt-q-foot{
-          display:flex;justify-content:space-between;padding:13px 18px;
-          font-size:9.5px;letter-spacing:.14em;color:var(--ink-soft);
-        }
-
         /* ---- mobile: unlock the ratio, plate becomes a band under the type ----
            A landscape plate on a portrait screen cannot both bleed and stay
            whole, so the deal here is: type on open paper up top, engraving as a
@@ -347,12 +287,6 @@ export function renderCollateralHero(options = {}) {
           .clt-link{font-size:11px;border-bottom-width:2px;padding-bottom:5px}
 
           .clt-strip{gap:10px;flex-direction:column;align-items:center;font-size:9px;padding:16px}
-          .clt-queue-wrap{padding:44px 14px 56px}
-          .clt-sec-head h2{font-size:23px}
-          .clt-sec-head p{font-size:13px}
-          .clt-q-totals b{font-size:21px}
-          .clt-goal{font-size:13px}
-          .clt-row{padding:12px 14px}
         }
         @media (max-width:420px){
           /* No zoom override — same reasoning as above. Slightly tighter header
@@ -382,37 +316,6 @@ export function renderCollateralHero(options = {}) {
                 <span>ORACLES <b>STRIPE · YOUTUBE · SHOPIFY</b></span>
             </div>
 
-            <section class="clt-queue-wrap">
-                <div class="clt-sec-head">
-                    <div class="clt-kicker clt-mono">LIVE</div>
-                    <h2>Every contract, settling in public</h2>
-                    <p>Deposits sit in custody until an API calls it. Nothing here is decided by us.</p>
-                </div>
-
-                <div class="clt-queue">
-                    <div class="clt-q-head clt-mono">
-                        <span><i class="clt-dot"></i>SETTLEMENT QUEUE · DEMO FEED</span>
-                        <span>21:36:59</span>
-                    </div>
-
-                    <div class="clt-q-totals">
-                        <div class="clt-held">
-                            <span class="clt-mono">HELD IN ESCROW</span>
-                            <b>${escapeHtml(heldInEscrow)}</b>
-                        </div>
-                        <div class="clt-settled">
-                            <span class="clt-mono">SETTLED TODAY</span>
-                            <b>${escapeHtml(settledToday)}</b>
-                        </div>
-                    </div>
-${rows}
-
-                    <div class="clt-q-foot clt-mono">
-                        <span>CUSTODY · STRIPE CONNECT</span>
-                        <span>${escapeHtml(String(settledCount))} SETTLED TODAY</span>
-                    </div>
-                </div>
-            </section>
         </div>
     `;
 }

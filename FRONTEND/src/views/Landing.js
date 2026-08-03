@@ -4,6 +4,7 @@ import { landingCSS } from './LandingStyles.js';
 import { motionController, animateValue, initEntranceObservers, revealStyles } from './LandingMotion.js';
 import { renderCollateralHero } from '../components/CollateralHero.js';
 import { renderForkSection } from '../components/ForkSection.js';
+import { renderLedgerSection } from '../components/LedgerSection.js';
 
 // Inject LandingCSS once into document head
 if (!document.getElementById('lp-injected-styles')) {
@@ -24,6 +25,11 @@ export function renderLanding() {
             ${renderCollateralHero({
         onWriteContract: "if(window.app &amp;&amp; window.app.openAccessModal){ window.app.openAccessModal('signup'); } else { window.router.navigate('/signin'); } return false;",
         onWatchFlow: "document.getElementById('flow') &amp;&amp; document.getElementById('flow').scrollIntoView({behavior:'smooth'}); return false;",
+    })}
+
+            <!-- ═════ 1b · LEDGER (settled in public) ═════ -->
+            ${renderLedgerSection({
+        onSeeFullLedger: "window.router.navigate('/ledger'); return false;",
     })}
 
             <!-- ═════ 2 · FORK (how it settles) ═════ -->
