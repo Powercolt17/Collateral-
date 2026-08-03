@@ -30,8 +30,12 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-const PLATE_W = 1456;
-const PLATE_H = 816;
+// Cropped from the 1456x816 source: the engraving ships with a paper margin
+// baked in (46px left, 47px right, 38px bottom), so cover bled the FILE to the
+// viewport edges while the artwork still floated inside it. Margins removed; the
+// top band is untouched because that sky is where the headline sits.
+const PLATE_W = 1363;
+const PLATE_H = 778;
 
 const QUEUE = [
     { id: '369', goal: '10,000 email leads in 30 days', who: '@growthlead', src: 'Shopify API', amount: '$1,200' },
@@ -147,7 +151,7 @@ export function renderCollateralHero(options = {}) {
 
            The hero is exactly ONE viewport tall so the whole thing sits in a
            single frame at scroll-top, with nothing cut off the bottom. cover +
-           bottom anchor is what makes that safe: the plate is 1456x816 and the
+           bottom anchor is what makes that safe: the plate is 1363x778 and the
            frame is usually taller in ratio, so something has to give, and what
            gives is the TOP BAND OF EMPTY SKY. The temple, the figures at the
            desk and the ground line are pinned to the bottom edge and never
