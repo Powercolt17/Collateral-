@@ -16,6 +16,12 @@
  * state, and .ch-header has its own scroll behaviour in main.js.
  *
  * ── DO NOT "FIX" THESE ───────────────────────────────────────────────────────
+ * The entire <style> block below sits inside a TEMPLATE LITERAL. Never put a
+ * backtick in those CSS comments, not even a balanced pair around a property
+ * name — a backtick closes the literal wherever it appears, and the landing
+ * page dies with a syntax error. Use "double quotes" or caps for emphasis.
+ * (This comment block is above the literal, so backticks are safe up here.)
+ *
  * Every size in .clt-lockup, .clt-eyebrow, .clt-hero h1, .clt-cta, .clt-btn and
  * .clt-link is in `vw`. The plate has a clear channel of open sky and the vw
  * units keep the headline inside it at every viewport width. Converting them to
@@ -110,14 +116,25 @@ export function renderCollateralHero(options = {}) {
              it blows the sky to #FFEFCF with the red channel clipped.
 
              Measured on /assets/images/collateral-plate.jpg, this chain:
-               whole-image saturation  .416 -> .238   (-43%)
-               open sky behind the h1  #DEC8C8 -> #EEE3DC, vs --paper #F1EEE8
-               engraved ink            #661D24 -> #3F2829, saturation .42
-               highlight clipping      0% (brightness 1.07 is under the knee)
+               whole-image saturation  .416 -> .314   (-25%)
+               open sky behind the h1  #DEC8C8 -> #EADCD8, vs --paper #F1EEE8
+               engraved ink            #661D24 -> #492325, saturation .579
+               ink HUE                 354.1 -> 355.5 deg  (--ox is 353.9)
+               highlight clipping      0% (brightness 1.06 is under the knee)
              and it IMPROVES type contrast on the sky, because the ground
              lightens while the oxblood does not:
-               headline --ox      6.50:1 -> 8.18:1  (AA -> AAA)
-               button --ox-deep   8.68:1 -> 10.91:1
+               headline --ox      6.50:1 -> 7.75:1  (AA -> AAA)
+               button --ox-deep   8.68:1 -> 10.34:1
+
+             Ink hue is the number that matters when tuning. It is what keeps
+             this oxblood rather than sepia: saturate() scales the existing
+             crimson, so the hue barely moves, while sepia() drags it toward
+             40 deg brown. A first pass at saturate(.30) sepia(.12) landed the
+             ink at .42 saturation and read GREY, which is the failure mode in
+             the other direction from the original crimson. .50/.06 was picked
+             off a measured sweep: it carries the most ink saturation while
+             still holding the LOWEST sky saturation (.076) of any candidate
+             tried, including the greyer .30/.12.
 
              Lower saturate() for a cooler, more pencil-grey plate; raise it to
              bring the red back. Leave sepia alone unless saturate moves a long
@@ -125,7 +142,7 @@ export function renderCollateralHero(options = {}) {
              artwork stays the single source and both plates grade identically —
              the mobile crop is a different composition and would otherwise
              drift. */
-          --plate-grade:saturate(.30) sepia(.12) brightness(1.07) contrast(1.05);
+          --plate-grade:saturate(.50) sepia(.06) brightness(1.06) contrast(1.05);
           background:var(--paper); color:var(--ink);
           font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
           -webkit-font-smoothing:antialiased;
@@ -185,12 +202,35 @@ export function renderCollateralHero(options = {}) {
            looks terrible.
 
            The hero is exactly ONE viewport tall so the whole thing sits in a
-           single frame at scroll-top, with nothing cut off the bottom. cover +
-           bottom anchor is what makes that safe: the plate is 1600x894 and the
-           frame is usually taller in ratio, so something has to give, and what
-           gives is the TOP BAND OF EMPTY SKY. The temple, the figures at the
-           desk and the ground line are pinned to the bottom edge and never
-           crop. That is also what "push the background up" means here. ---- */
+           single frame at scroll-top. The plate is 1600x894, and on a window
+           WIDER in ratio than that, cover scales the plate to the width and
+           the extra height has to go somewhere.
+
+           SUPERSEDED: that overflow used to come off the top, via a "bottom"
+           anchor, on the rule that the temple, the figures and the ground line
+           must never crop. Measured, that rule was buying an intact ground line
+           by running the lockup into the scene: at 1551x756 the sky channel
+           ends at y=307 while the CTA row ends at y=358, so the button sat 51px
+           INTO the artwork; at 1905x860 the overlap was 95px. It got worse the
+           wider the window, because a wider window means more overflow.
+
+           The anchor is now 35%, so ~2/3 of the overflow comes off the bottom
+           and ~1/3 off the top. Same measurement after the change: +21px of
+           clearance at 1551x756, +29px at 1585x700, +38px at 1905x860. A
+           PERCENTAGE is what makes that hold — the shift is a fraction of the
+           overflow, so it grows exactly as fast as the problem does. A fixed px
+           offset would not.
+
+           The cost is real and is accepted: the bottom of the plate — the
+           carved table front — crops by ~72px at 1551x756 and ~133px at
+           1905x860. The figures, the desk and the coin bag are all well above
+           that line and still land whole.
+
+           Costs NOTHING on a window taller in ratio than 1600x894, e.g.
+           1351x768 or 1440x900: cover fits by height there, vertical overflow
+           is 0, and a background-position percentage of 0 is the same as a
+           percentage of 100. The crop is only ever spent where the overlap
+           exists. ---- */
         .clt-hero{
           position:relative;width:100%;
           height:100vh;
@@ -215,7 +255,7 @@ export function renderCollateralHero(options = {}) {
         .clt-hero::before{
           content:"";position:absolute;inset:0;z-index:0;
           background-image:var(--clt-plate);
-          background-position:center bottom;
+          background-position:center 35%;
           background-size:cover;
           background-repeat:no-repeat;
           filter:var(--plate-grade);
