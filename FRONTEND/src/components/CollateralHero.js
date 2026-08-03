@@ -26,7 +26,15 @@
  *
  * Never add backdrop-filter to anything layered over the hero. The aspect-locked
  * hero breaks the backdrop root, so it renders a partial pane — a visible box
- * with a hard edge. Use a gradient scrim.
+ * with a hard edge. Use a gradient scrim. (The --plate-grade filter on
+ * .clt-hero::before is a plain filter on an element that owns its own
+ * background, so it is not subject to this and is not an exception to it.)
+ *
+ * The plate paints on .clt-hero::before, NOT on .clt-hero, and the section's
+ * inline style hands over --clt-plate rather than background-image. That split
+ * exists so --plate-grade can regrade the artwork without dragging the headline,
+ * button and link through the same filter. Putting the background back on the
+ * section collapses the two and re-reds the hero.
  *
  * SUPERSEDED: the primary button was ink navy with an oxblood shadow, on the
  * rule that oxblood lacks contrast on the red plate. The August colourway makes
@@ -82,6 +90,42 @@ export function renderCollateralHero(options = {}) {
           --ink:#131A2A; --ink-soft:#5A6172;
           --ox:#7C1A24; --ox-deep:#5A1018;
           --rule:#D8D3C8; --green:#1F6B45;
+
+          /* PLATE GRADE — the one value to tune if the engraving reads too hot.
+             Both plate JPEGs ship as a saturated crimson duotone on a PINK
+             ground, so the red was in the artwork, not in any overlay. That put
+             the entire viewport in one red and left the oxblood headline,
+             button and link with nothing to sit against.
+
+             saturate() does the work; the small sepia() is a corrective, not a
+             look. Desaturating alone walks the paper ground toward a dead grey-
+             pink, and sepia .12 puts the warmth back without tinting it. It is
+             deliberately small: measured on the actual plate, sepia at .18-.20
+             starts tinting the open sky YELLOW (sky saturation climbs back to
+             .096 from .077), which trades a red cast for a yellow one.
+
+             Do NOT reach for grayscale(1) sepia(x) — the usual duotone recipe.
+             It was measured here and rejected twice: it flattens the engraved
+             ink to a near-neutral .17-.19 saturation, which kills the plate, and
+             it blows the sky to #FFEFCF with the red channel clipped.
+
+             Measured on /assets/images/collateral-plate.jpg, this chain:
+               whole-image saturation  .416 -> .238   (-43%)
+               open sky behind the h1  #DEC8C8 -> #EEE3DC, vs --paper #F1EEE8
+               engraved ink            #661D24 -> #3F2829, saturation .42
+               highlight clipping      0% (brightness 1.07 is under the knee)
+             and it IMPROVES type contrast on the sky, because the ground
+             lightens while the oxblood does not:
+               headline --ox      6.50:1 -> 8.18:1  (AA -> AAA)
+               button --ox-deep   8.68:1 -> 10.91:1
+
+             Lower saturate() for a cooler, more pencil-grey plate; raise it to
+             bring the red back. Leave sepia alone unless saturate moves a long
+             way. The red is corrected HERE rather than re-exported so the
+             artwork stays the single source and both plates grade identically —
+             the mobile crop is a different composition and would otherwise
+             drift. */
+          --plate-grade:saturate(.30) sepia(.12) brightness(1.07) contrast(1.05);
           background:var(--paper); color:var(--ink);
           font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
           -webkit-font-smoothing:antialiased;
@@ -151,10 +195,30 @@ export function renderCollateralHero(options = {}) {
           position:relative;width:100%;
           height:100vh;
           container-type:inline-size;
+          background-color:var(--paper);
+        }
+        /* The plate paints on a LAYER, not on the section, so --plate-grade can
+           be applied to the artwork alone. filter on .clt-hero itself would drag
+           the headline, button and link through the same grade and knock the
+           oxblood off its measured contrast.
+
+           This is filter, NOT backdrop-filter — the note at the top of this
+           file rules out backdrop-filter over the hero because the aspect-locked
+           frame breaks the backdrop root and renders a partial pane. A plain
+           filter on an element that owns its own background has no such
+           dependency.
+
+           The URL arrives as --clt-plate from the inline style on the section
+           rather than as background-image, because the image now belongs to the
+           pseudo-element and a custom property is the only way to hand a value
+           from markup to ::before. */
+        .clt-hero::before{
+          content:"";position:absolute;inset:0;z-index:0;
+          background-image:var(--clt-plate);
           background-position:center bottom;
           background-size:cover;
           background-repeat:no-repeat;
-          background-color:var(--paper);
+          filter:var(--plate-grade);
         }
         /* ONE unit drives the whole lockup. Tune --u to resize everything at
            once; the multipliers below are the authored proportions.
@@ -167,6 +231,9 @@ export function renderCollateralHero(options = {}) {
         .clt-hero{--u:min(1cqw,1.75vh)}
         .clt-lockup{
           position:absolute;inset:0 0 auto 0;
+          /* Above the plate layer. Both are positioned children of .clt-hero, so
+             without this the ::before would paint over the type. */
+          z-index:1;
           /* 8.1, up from 6.3, to seat the block lower in the open sky — there was
              too much slack between the CTA row and the temple steps. This is the
              authored 8.4 -> 10.8 move (x1.286) carried onto the 0.75 scale the
@@ -285,11 +352,25 @@ export function renderCollateralHero(options = {}) {
             padding:0;
             width:100vw;
             margin-left:calc(50% - 50vw);
+          }
+          /* The portrait plate swaps on the LAYER now, not on the section.
+             --plate-grade is not repeated here on purpose: the desktop
+             ::before rule already carries it and this block only overrides the
+             three background properties, so mobile and desktop cannot drift to
+             different colourways.
+
+             The !important is now belt-and-braces rather than load-bearing. It
+             was required when the section carried an inline background-image,
+             which no stylesheet rule can beat; the inline style now sets
+             --clt-plate instead, so equal specificity plus later source order
+             would already win. Kept because the inline-style form is the
+             obvious thing to revert to. */
+          .clt-hero::before{
             background-image:url(/assets/images/collateral-plate-mobile.jpg) !important;
             background-size:100% 100%;
             background-position:center top;
           }
-          .clt-lockup{position:absolute;inset:0 0 auto 0;padding:96px 22px 0}
+          .clt-lockup{position:absolute;inset:0 0 auto 0;padding:96px 22px 0;z-index:1}
           .clt-eyebrow{font-size:9px;gap:8px;letter-spacing:.18em}
           .clt-eyebrow::before,.clt-eyebrow::after{width:20px;height:2px}
           /* src/mobile.css:521 forces h1 to clamp(24px,7vw,36px) !important for
@@ -313,7 +394,7 @@ export function renderCollateralHero(options = {}) {
         </style>
 
         <div class="clt">
-            <section class="clt-hero" style="background-image:url(${plateSrc});" data-plate="${PLATE_W}x${PLATE_H}">
+            <section class="clt-hero" style="--clt-plate:url(${plateSrc});" data-plate="${PLATE_W}x${PLATE_H}">
                 <div class="clt-lockup">
                     <div class="clt-eyebrow clt-mono">SELF-ENFORCING PERFORMANCE CONTRACTS</div>
                     <h1>Put money<br />on your own<br /><span class="clt-accent">deadline</span></h1>
