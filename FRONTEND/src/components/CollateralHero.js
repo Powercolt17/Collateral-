@@ -142,13 +142,21 @@ export function renderCollateralHero(options = {}) {
              artwork stays the single source and both plates grade identically —
              the mobile crop is a different composition and would otherwise
              drift. */
-          /* brightness is 1.09 rather than the 1.06 every measurement in this
+          /* brightness is 1.124 rather than the 1.06 every measurement in this
              comment was taken at, and that is NOT a regrade. The ambient sun
-             layer below can only darken, so it runs at a mean of 2.7% down
-             across its cycle; 1.06 / (1 - .027) = 1.09 puts the COMPOSITED
-             average back on the 1.06 the numbers above describe. Change one
-             and the other has to move with it. */
-          --plate-grade:saturate(.50) sepia(.06) brightness(1.09) contrast(1.05);
+             layer below can only darken, so it runs at a mean of 4.55% down
+             across its cycle and this lifts the plate to compensate. Change
+             the sweep amplitude and this MUST move with it or the whole plate
+             gets darker.
+
+             Two candidate values, and the choice was contrast, not tone.
+             1.111 puts the composited average exactly back on 1.06, but it
+             leaves the sky at 6.82:1 under the oxblood at the deepest point of
+             the cycle — fine for the display headline, which is large text,
+             but under the 7:1 that the eyebrow and the forfeiture-flow link
+             need as small text. 1.124 holds exactly 7.00:1 at that worst frame
+             and costs 1.2% of average lift instead. Contrast won. */
+          --plate-grade:saturate(.50) sepia(.06) brightness(1.124) contrast(1.05);
           background:var(--paper); color:var(--ink);
           font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
           -webkit-font-smoothing:antialiased;
@@ -361,9 +369,20 @@ export function renderCollateralHero(options = {}) {
 
              THE PROFILE IS A RAISED COSINE IN A SINGLE COLOUR, which under
              multiply is the simplest smooth wave there is. alpha runs
-             .03*(1+cos(2*pi*x)), so it peaks at .06 at the tile edges and
+             .05*(1+cos(2*pi*x)), so it peaks at .10 at the tile edges and
              reaches exactly 0 at the centre. Light is the ABSENCE of
              darkening, not an added highlight.
+
+             .10 is the second time this amplitude has been raised. It started
+             at an amount derived from a brief asking for +/-4% brightness,
+             which measured 0.86% on the open sky and was invisible; the blend
+             mode was fixed and it went to .06, which was still reported as
+             invisible on a real screen. The lesson is that "felt, not seen"
+             has a floor, and on a low spatial frequency wave crossing over 15
+             seconds that floor is a lot higher than a specification derived
+             from single-pixel percentages suggests. .10 should be near the
+             ceiling: past this it starts announcing itself as an animation.
+             If it needs to move again, --plate-grade brightness moves with it.
 
              That collapses a problem the previous version had to engineer
              around. When light and shadow were two different colours, they met
@@ -386,27 +405,27 @@ export function renderCollateralHero(options = {}) {
              has to close over exactly one tile, so a single period is the
              widest feathering available without touching that geometry. */
           background-image:linear-gradient(90deg,
-            rgba(0,0,0,.0600) 0%,
-            rgba(0,0,0,.0585) 5%,
-            rgba(0,0,0,.0543) 10%,
-            rgba(0,0,0,.0476) 15%,
-            rgba(0,0,0,.0393) 20%,
-            rgba(0,0,0,.0300) 25%,
-            rgba(0,0,0,.0207) 30%,
-            rgba(0,0,0,.0124) 35%,
-            rgba(0,0,0,.0057) 40%,
-            rgba(0,0,0,.0015) 45%,
+            rgba(0,0,0,.1000) 0%,
+            rgba(0,0,0,.0976) 5%,
+            rgba(0,0,0,.0905) 10%,
+            rgba(0,0,0,.0794) 15%,
+            rgba(0,0,0,.0655) 20%,
+            rgba(0,0,0,.0500) 25%,
+            rgba(0,0,0,.0346) 30%,
+            rgba(0,0,0,.0206) 35%,
+            rgba(0,0,0,.0096) 40%,
+            rgba(0,0,0,.0025) 45%,
             rgba(0,0,0,0) 50%,
-            rgba(0,0,0,.0015) 55%,
-            rgba(0,0,0,.0057) 60%,
-            rgba(0,0,0,.0124) 65%,
-            rgba(0,0,0,.0207) 70%,
-            rgba(0,0,0,.0300) 75%,
-            rgba(0,0,0,.0393) 80%,
-            rgba(0,0,0,.0476) 85%,
-            rgba(0,0,0,.0543) 90%,
-            rgba(0,0,0,.0585) 95%,
-            rgba(0,0,0,.0600) 100%);
+            rgba(0,0,0,.0025) 55%,
+            rgba(0,0,0,.0096) 60%,
+            rgba(0,0,0,.0206) 65%,
+            rgba(0,0,0,.0346) 70%,
+            rgba(0,0,0,.0500) 75%,
+            rgba(0,0,0,.0655) 80%,
+            rgba(0,0,0,.0794) 85%,
+            rgba(0,0,0,.0905) 90%,
+            rgba(0,0,0,.0976) 95%,
+            rgba(0,0,0,.1000) 100%);
           background-size:25% 100%;
           background-repeat:repeat;
           will-change:transform,opacity;
@@ -421,10 +440,11 @@ export function renderCollateralHero(options = {}) {
         }
         /* Narrow, .82 to 1 rather than .55 to 1. Opacity scales the whole
            darkening, so a wide breath spends most of the cycle well under the
-           6% the sweep is tuned for — which is how the previous version ended
-           up invisible. This keeps a second, slower rhythm beating against the
-           30s sweep without eating the amplitude. Mean opacity .91 is what the
-           1.09 brightness compensation is calculated against. */
+           amplitude the sweep is tuned for — which is part of how earlier
+           versions ended up invisible. This keeps a second, slower rhythm
+           beating against the 30s sweep without eating the amplitude. Mean
+           opacity .91 is what the 1.124 brightness compensation is calculated
+           against. */
         @keyframes clt-breathe{
           from{opacity:.82}
           to{opacity:1}
