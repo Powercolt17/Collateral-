@@ -735,10 +735,6 @@ export function renderCollateralHero(options = {}) {
           font-size:3.95cqw;line-height:1.02;letter-spacing:.02em;
           color:var(--ink-warm) !important;
           text-transform:uppercase;
-          /* Oxblood, per the new colourway. The !important is still doing work:
-             a global h1{color:var(--text-primary)} wins over an unweighted rule
-             here and was rendering the headline rgb(17,17,17). */
-          color:var(--ox) !important;
         }
         /* The accent span is now the same colour as the rest of the headline —
            the whole line went oxblood, so this no longer differentiates. Kept
@@ -1009,6 +1005,7 @@ export function renderCollateralHero(options = {}) {
              meets the section's background-color, and those are matched. */
           .clt-hero{
             height:100vh;
+            height:100svh;
             padding:0;
             width:100vw;
             margin-left:calc(50% - 50vw);
@@ -1065,17 +1062,13 @@ export function renderCollateralHero(options = {}) {
           /* The eyebrow's flanking rules are a centred device. Drop the leading
              one so the label starts flush with the headline's left edge. */
           .clt-eyebrow::before{display:none}
-          /* Back to var(--u): on the portrait plate the limit is the depth of
-             the sky band, not a horizontal clear zone, so height belongs in the
-             unit again. */
-          .clt .clt-hero h1{font-size:clamp(30px,9vw,40px) !important;line-height:1.04}
           .clt-eyebrow{font-size:9px;gap:8px;letter-spacing:.18em}
           .clt-eyebrow::before,.clt-eyebrow::after{width:20px;height:2px}
           /* src/mobile.css:521 forces h1 to clamp(24px,7vw,36px) !important for
              every view at max-width 768px, which beats a scoped rule. The extra
              .clt and the !important below exist only to win that cascade — the
              VALUE is exactly as authored, unconverted. */
-          .clt .clt-hero h1{margin-top:16px;font-size:clamp(38px,12vw,48px) !important;line-height:.9;letter-spacing:-.03em}
+          .clt .clt-hero h1{margin-top:14px;font-size:clamp(26px,7.2vw,34px) !important;line-height:1.06 !important;letter-spacing:.02em !important}
           .clt-cta{margin-top:26px;gap:18px;flex-direction:column}
           /* min-height is the 44px touch target; the padding alone gave 43px. */
           .clt-btn{padding:16px 30px;min-height:44px;font-size:11px;box-shadow:5px 5px 0 var(--ox)}
