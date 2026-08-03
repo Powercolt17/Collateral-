@@ -83,7 +83,7 @@
 // into the bottom third of a shorter canvas and leaves the top clear. Hero on a
 // 390 phone goes 822px -> 650px, inside one screen instead of overflowing it.
 const PLATE_W = 1815;
-const PLATE_H = 866;
+const PLATE_H = 976;
 
 function escapeHtml(value) {
     return String(value)
@@ -104,7 +104,7 @@ function escapeHtml(value) {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-plate-v4.jpg',
+        plateSrc = '/assets/images/collateral-plate-v5.jpg',
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
