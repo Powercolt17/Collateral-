@@ -363,9 +363,9 @@ html, body {
 .logo-wordmark {
   font-family: 'Trajan Pro', 'Nevera', 'Aquire', 'Cinzel', sans-serif !important;
   color: #0E1420 !important;
-  /* 400 and no synthesis: Trajan Pro ships one weight, and a 700 request makes
-     the browser fake a bold by smearing the outlines. */
-  font-weight: 400 !important;
+  /* 700 is a real drawn cut, not a synthesised one. font-synthesis stays off so
+     a failed load falls back to real Regular rather than a fake bold. */
+  font-weight: 700 !important;
   font-synthesis: none;
   letter-spacing: .14em !important;
   text-transform: uppercase !important;

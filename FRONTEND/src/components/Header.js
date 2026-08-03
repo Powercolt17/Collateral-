@@ -93,15 +93,17 @@ export function renderHeader(currentRoute = '') {
                    drawn from. Stack behind it is unchanged, so if the file fails
                    to load the wordmark falls back to exactly what it was before.
 
-                   400, NOT 700. Trajan Pro Regular is a single-weight face, so a
-                   700 request makes the browser fake a bold by smearing the
-                   outlines — fatal on a face whose whole quality is the stroke
-                   modulation of a chisel. font-synthesis: none refuses that
-                   substitution outright rather than relying on the weight
-                   matching, and also blocks synthetic obliquing. */
+                   700 is a REAL cut here, not a synthesised one — the family
+                   declares both a 400 TTF and a 700 OTF, so font-weight picks
+                   between drawn faces. font-synthesis: none stays anyway: with
+                   a genuine bold present it is belt-and-braces, but it also
+                   means that if the bold file ever fails the mark falls back to
+                   real Regular rather than a browser-smeared fake bold, which
+                   is fatal on a face whose quality is chisel stroke
+                   modulation. */
                 font-family: 'Trajan Pro', 'Nevera', 'Aquire', 'Cinzel', sans-serif !important;
                 font-size: 21px !important;
-                font-weight: 400 !important;
+                font-weight: 700 !important;
                 font-synthesis: none;
                 /* Tuned for Nevera, kept unchanged so this commit changes the
                    typeface and nothing else. Trajan is a naturally wide face

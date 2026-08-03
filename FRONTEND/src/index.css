@@ -46,17 +46,31 @@
     font-weight: normal;
 }
 
-/* Trajan Pro — the COLLATERAL wordmark.
-   Declared at 400 because that is the only weight shipped. If a rule asks for
-   700, the browser synthesises a fake bold by smearing the outlines, which
-   wrecks an inscriptional face; .ch-logo-wordmark sets 400 and
-   font-synthesis: none so that cannot happen.
+/* Trajan Pro — the COLLATERAL wordmark. Two real cuts, 400 and 700, under one
+   family name, so font-weight selects between drawn faces rather than the
+   browser faking anything. The wordmark rules ask for 700 and keep
+   font-synthesis: none: with a genuine bold present that is belt-and-braces,
+   but it also guarantees that if the bold file ever fails to load the mark
+   falls back to real Regular instead of a smeared fake bold.
+
    Caps only by design — Trajan has no lowercase at all, so anything set in it
-   needs text-transform: uppercase, which the wordmark already carries. */
+   needs text-transform: uppercase, which the wordmark already carries.
+
+   The Bold is a 66KB OTF against the Regular's 519KB TTF. That is the CFF
+   outlines rather than a smaller character set, and it is why the mark loads
+   off the Bold. Both are unsubsetted; the wordmark needs seven glyphs. */
 @font-face {
     font-family: 'Trajan Pro';
     src: url('/trajan-pro-regular.ttf') format('truetype');
     font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Trajan Pro';
+    src: url('/trajan-pro-bold.otf') format('opentype');
+    font-weight: 700;
     font-style: normal;
     font-display: swap;
 }
@@ -73,9 +87,9 @@
     font-family: 'Trajan Pro', 'Nevera', 'Aquire', 'Cinzel', sans-serif !important;
     font-size: 21px !important;
     letter-spacing: 0.165em !important;
-    /* 400 and no synthesis: Trajan Pro ships one weight, and a 700 request
-       makes the browser fake a bold by smearing the outlines. */
-    font-weight: 400 !important;
+    /* 700 is a real drawn cut, not a synthesised one. font-synthesis stays off
+       so a failed load falls back to real Regular rather than a fake bold. */
+    font-weight: 700 !important;
     font-synthesis: none;
     text-transform: uppercase !important;
     color: #0E1420 !important;
