@@ -82,8 +82,8 @@
 // it without cutting figures. The desktop scene is wide and short, so it drops
 // into the bottom third of a shorter canvas and leaves the top clear. Hero on a
 // 390 phone goes 822px -> 650px, inside one screen instead of overflowing it.
-const PLATE_W = 2018;
-const PLATE_H = 961;
+const PLATE_W = 1815;
+const PLATE_H = 866;
 
 function escapeHtml(value) {
     return String(value)
@@ -104,7 +104,7 @@ function escapeHtml(value) {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-plate-wide.jpg',
+        plateSrc = '/assets/images/collateral-plate-v3.jpg',
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
@@ -205,7 +205,17 @@ export function renderCollateralHero(options = {}) {
              brightness still carries the cloud layer's 9% mean shade. It is a
              smaller number than before only because the plate starts lighter;
              the relationship is unchanged and the two still move together. */
-          --plate-grade:saturate(.88) brightness(1.04);
+          /* .88 -> .62 because the v3 plate is WARMER than the one before it:
+             its open sky measures #EDD5B9 at saturation .219, against the
+             previous #E9D7C5 at .155. Grading both with the same factor would
+             have left this one visibly more orange than the tone already
+             approved. .62 lands it at .141 — the same perceived warmth as the
+             plate it replaces — and pulls the distance to --paper from 39.3
+             down to 23.5. Below about .55 it starts going grey.
+             brightness 1.07 still carries the cloud layer's 4.5% mean shade;
+             it is higher only because the extra desaturation costs a little
+             lightness. Contrast on the oxblood: 8.40:1 sun, 6.89:1 cloud. */
+          --plate-grade:saturate(.62) brightness(1.07);
           background:var(--paper); color:var(--ink);
           font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
           -webkit-font-smoothing:antialiased;
@@ -327,7 +337,15 @@ export function renderCollateralHero(options = {}) {
              artwork solves it at source and the veil was double-counting —
              it came out with the artwork swap. */
           background-image:var(--clt-plate);
-          background-position:center 35%;
+          /* BOTTOM, not 35%. The native wide plate carries 61.3% sky, which is
+             enough that every pixel cover discards can come off the TOP and
+             none off the picture. Anchoring low was impossible on every earlier
+             plate — anchor traded table against headline clearance one for one,
+             and bottom put the CTA 51px into the artwork. With this much sky
+             the trade is gone: bottom gives 100% of the table at EVERY viewport
+             measured, 1551x760 through 2560x1440, and still clears the lockup
+             by 67px at worst. Raising this number only throws away table. */
+          background-position:center bottom;
           background-size:cover;
           background-repeat:no-repeat;
           filter:var(--plate-grade);
