@@ -36,11 +36,14 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-// 1600x915 JPEG, 194KB. Replaced a 1363x778 PNG that was 1.8MB on the LCP
-// element — an 89% reduction. This source already bleeds to its own edges, so
-// unlike the previous plate it needs no margin crop.
-const PLATE_W = 1600;
-const PLATE_H = 915;
+// Desktop plate: 1672x941 JPEG, 452KB. Mobile has its own portrait crop,
+// 864x1821 JPEG at 453KB, wired in the max-width:820px block.
+//
+// Both were supplied as ~3.2MB PNGs and re-encoded to JPEG q86 via Windows
+// System.Drawing — an 86% reduction. There is still no sharp or ImageMagick
+// here; System.Drawing is the encoder that does exist on this machine.
+const PLATE_W = 1672;
+const PLATE_H = 941;
 
 function escapeHtml(value) {
     return String(value)
@@ -137,7 +140,7 @@ export function renderCollateralHero(options = {}) {
 
            The hero is exactly ONE viewport tall so the whole thing sits in a
            single frame at scroll-top, with nothing cut off the bottom. cover +
-           bottom anchor is what makes that safe: the plate is 1600x915 and the
+           bottom anchor is what makes that safe: the plate is 1672x941 and the
            frame is usually taller in ratio, so something has to give, and what
            gives is the TOP BAND OF EMPTY SKY. The temple, the figures at the
            desk and the ground line are pinned to the bottom edge and never
@@ -275,7 +278,7 @@ export function renderCollateralHero(options = {}) {
              sides, which is the "it needs to be full screen" problem from
              earlier. */
           .clt-hero{
-            aspect-ratio:900 / 1614 !important;
+            aspect-ratio:864 / 1821 !important;
             height:auto !important;
             padding:0;
             width:100vw;
