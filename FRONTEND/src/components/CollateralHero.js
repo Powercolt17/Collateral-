@@ -121,6 +121,20 @@ export function renderCollateralHero(options = {}) {
           --ox:#7C1A24; --ox-deep:#5A1018;
           --rule:#D8D3C8; --green:#1F6B45;
 
+          /* --ink-warm is a WARM near-black, not the palette's --ink. --ink is
+             #131A2A, a cool navy, which was chosen against a crimson plate. On
+             sepia it reads blue and sits apart from the artwork. This is the
+             same value the engraving's own darkest ink resolves to, so the
+             headline belongs to the same picture. */
+          --ink-warm:#2B2118;
+          /* Trajan for display caps. It is already loaded for the wordmark, in
+             400 and 700, so this costs no new asset. Caps-only, which is why
+             every rule using it also carries text-transform:uppercase.
+             Newsreader is the text serif for anything with lowercase — Trajan
+             has none, so a subhead cannot use it. */
+          --roman:"Trajan Pro","Cinzel",Georgia,serif;
+          --text-serif:"Newsreader",Georgia,"Times New Roman",serif;
+
           /* PLATE GRADE — the one value to tune if the engraving reads too hot.
              Both plate JPEGs ship as a saturated crimson duotone on a PINK
              ground, so the red was in the artwork, not in any overlay. That put
@@ -635,11 +649,27 @@ export function renderCollateralHero(options = {}) {
           padding:0 0 0 5cqw;
           max-width:45cqw;
         }
+        /* Roman caps, not mono. The mono eyebrow belonged to the terminal
+           register the hero used to run in; against a serif headline it read
+           as a different document. */
         .clt-eyebrow{
-          display:flex;align-items:center;gap:calc(.64 * var(--u));
-          font-size:clamp(9px,calc(.585 * var(--u)),20px);letter-spacing:.24em;font-weight:700;color:var(--ox);
+          display:flex;align-items:center;gap:calc(.7 * var(--u));
+          font-family:var(--roman);font-weight:400;font-synthesis:none;
+          text-transform:uppercase;
+          font-size:clamp(9px,calc(.60 * var(--u)),18px);letter-spacing:.22em;
+          color:var(--ink-warm);
         }
-        .clt-eyebrow::before,.clt-eyebrow::after{content:"";width:calc(1.8 * var(--u));height:calc(.1 * var(--u));background:var(--ox)}
+        .clt-eyebrow::before,.clt-eyebrow::after{content:"";width:calc(1.8 * var(--u));height:1px;background:rgba(43,33,24,.45)}
+
+        /* Subhead. Newsreader because it needs LOWERCASE and Trajan has none —
+           setting this in the display face would force it to caps and turn a
+           sentence into a second headline. */
+        .clt-sub{
+          font-family:var(--text-serif);
+          margin-top:calc(1.55 * var(--u));
+          font-size:clamp(14px,calc(1.02 * var(--u)),21px);
+          line-height:1.5;color:#4A4035;max-width:30ch;
+        }
         .clt-hero h1{
           /* 1.05 -> 1.70 var(--u), about +10px at desktop. Part of the
              deliberate-pacing pass: eyebrow, headline and CTA all gained
@@ -677,7 +707,9 @@ export function renderCollateralHero(options = {}) {
              36.5cqw inside a 37cqw column. Anything above 4.55 overflows into
              the operator at 1905, where the clear zone is proportionally
              narrowest. */
-          font-size:4.85cqw;line-height:.90;letter-spacing:-.038em;font-weight:700;
+          font-family:var(--roman);font-weight:400;font-synthesis:none;
+          font-size:4.4cqw;line-height:1.02;letter-spacing:.02em;
+          color:var(--ink-warm) !important;
           text-transform:uppercase;
           /* Oxblood, per the new colourway. The !important is still doing work:
              a global h1{color:var(--text-primary)} wins over an unweighted rule
@@ -728,33 +760,43 @@ export function renderCollateralHero(options = {}) {
            something closer to engraved capitals, and the extra padding gives
            the type a margin to sit in, the way an inscription is inset from the
            edge of the metal. */
+        /* Serif caps and a RULED plate, not the offset-cast block it was. The
+           cast shadow read as a UI button; a border with an inset rule reads as
+           something struck. The outer edge is ox-deep and the inner hairline is
+           paper at low alpha, which is the bevel a stamped plate catches. */
         .clt-btn{
-          background:var(--ox-deep);color:var(--paper-hi);border:0;cursor:pointer;
-          padding:calc(1.02 * var(--u)) calc(2.30 * var(--u));
-          font:700 clamp(11px,calc(.60 * var(--u)),20px)/1 ui-monospace,Menlo,monospace;
-          letter-spacing:.215em;
+          background:var(--ox);color:#F6EAD6;cursor:pointer;
+          border:1px solid var(--ox-deep);
+          padding:calc(1.05 * var(--u)) calc(2.40 * var(--u));
+          font-family:var(--roman);font-weight:400;font-synthesis:none;
+          font-size:clamp(12px,calc(.68 * var(--u)),21px);line-height:1;
+          text-transform:uppercase;letter-spacing:.17em;
+          display:inline-flex;align-items:center;gap:calc(1.6 * var(--u));
           box-shadow:
-            inset 0 1px 0 0 rgba(247,245,240,.20),
-            inset 0 -1px 0 0 rgba(19,26,42,.22),
-            0 0 0 1px rgba(19,26,42,.30),
-            calc(.26 * var(--u)) calc(.26 * var(--u)) 0 0 var(--ox);
-          transition:box-shadow .16s ease,transform .16s ease;
+            inset 0 0 0 1px rgba(246,234,214,.30),
+            inset 0 1px 0 0 rgba(246,234,214,.16);
+          transition:background .16s ease,box-shadow .16s ease;
         }
-        /* Pressed, not lifted. The cast collapses to almost nothing and the
-           plate travels the same distance it loses, so it reads as being
-           struck into the paper rather than sliding across it. */
+        .clt-btn .clt-arrow{font-size:1.05em;line-height:1;transform:translateY(-.02em)}
+        /* Darkens rather than moves. With the cast gone there is nothing to
+           collapse, so the plate deepens a shade and the inner rule brightens
+           — the same gesture as ink taking under pressure. */
         .clt-btn:hover{
+          background:var(--ox-deep);
           box-shadow:
-            inset 0 1px 0 0 rgba(247,245,240,.14),
-            inset 0 -1px 0 0 rgba(19,26,42,.26),
-            0 0 0 1px rgba(19,26,42,.34),
-            calc(.07 * var(--u)) calc(.07 * var(--u)) 0 0 var(--ox);
-          transform:translate(calc(.19 * var(--u)),calc(.19 * var(--u)));
+            inset 0 0 0 1px rgba(246,234,214,.40),
+            inset 0 1px 0 0 rgba(246,234,214,.20);
         }
+        /* Serif caps on a hairline, matching the plate. Oxblood is now reserved
+           for the button alone, so the secondary action cannot be mistaken for
+           a second primary. */
         .clt-link{
-          background:none;border:0;cursor:pointer;color:var(--ox);
-          font:700 clamp(11px,calc(.615 * var(--u)),20px)/1 ui-monospace,Menlo,monospace;letter-spacing:.15em;
-          padding-bottom:calc(.225 * var(--u));border-bottom:calc(.1 * var(--u)) solid var(--ox);
+          background:none;border:0;cursor:pointer;color:var(--ink-warm);
+          font-family:var(--roman);font-weight:400;font-synthesis:none;
+          font-size:clamp(11px,calc(.62 * var(--u)),19px);line-height:1;
+          text-transform:uppercase;letter-spacing:.17em;
+          padding-bottom:calc(.55 * var(--u));
+          border-bottom:1px solid rgba(43,33,24,.42);
         }
         .clt-link:hover{color:var(--ox)}
         .clt-btn:focus-visible,.clt-link:focus-visible{
@@ -994,7 +1036,7 @@ export function renderCollateralHero(options = {}) {
           /* Back to var(--u): on the portrait plate the limit is the depth of
              the sky band, not a horizontal clear zone, so height belongs in the
              unit again. */
-          .clt .clt-hero h1{font-size:clamp(38px,12vw,48px) !important}
+          .clt .clt-hero h1{font-size:clamp(30px,9vw,40px) !important;line-height:1.04}
           .clt-eyebrow{font-size:9px;gap:8px;letter-spacing:.18em}
           .clt-eyebrow::before,.clt-eyebrow::after{width:20px;height:2px}
           /* src/mobile.css:521 forces h1 to clamp(24px,7vw,36px) !important for
@@ -1064,9 +1106,10 @@ export function renderCollateralHero(options = {}) {
                 <div class="clt-lockup">
                     <div class="clt-eyebrow clt-mono clt-in" style="--d:60ms">SELF-ENFORCING PERFORMANCE CONTRACTS</div>
                     <h1><span class="clt-line" style="--d:150ms">Put money</span><br /><span class="clt-line" style="--d:240ms">on your own</span><br /><span class="clt-line" style="--d:330ms"><span class="clt-accent">deadline</span></span></h1>
-                    <div class="clt-cta clt-in" style="--d:470ms">
-                        <button type="button" class="clt-btn"${onWriteContract ? ` onclick="${onWriteContract}"` : ''}>WRITE A CONTRACT</button>
-                        <button type="button" class="clt-link"${onWatchFlow ? ` onclick="${onWatchFlow}"` : ''}>WATCH FORFEITURE FLOW ↓</button>
+                    <p class="clt-sub clt-in" style="--d:400ms">Self-enforcing contracts for your goals. Backed by your capital.</p>
+                    <div class="clt-cta clt-in" style="--d:520ms">
+                        <button type="button" class="clt-btn"${onWriteContract ? ` onclick="${onWriteContract}"` : ''}>Create a contract <span class="clt-arrow">&rarr;</span></button>
+                        <button type="button" class="clt-link"${onWatchFlow ? ` onclick="${onWatchFlow}"` : ''}>Watch forfeiture flow &darr;</button>
                     </div>
                     <div class="clt-proof clt-mono clt-in" style="--d:600ms">
                         <span><b>${escapeHtml(heldInEscrow)}</b>HELD IN ESCROW</span>
