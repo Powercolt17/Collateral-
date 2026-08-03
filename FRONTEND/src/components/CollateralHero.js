@@ -315,20 +315,83 @@ export function renderCollateralHero(options = {}) {
           /* Alphas are set by measurement, not by eye. soft-light lifts dark
              backdrops far more in RELATIVE terms than light ones, so the
              constraint that binds is the engraved ink, not the paper. At .13
-             the ink lifted 20% and visibly washed. These values put the
+             the ink lifted 20% and visibly washed. These peaks put the
              midtones — the stone, the fabric, the bulk of the image — at a
-             3.4% swing, inside the +/-4% the brief asks for, and hold the ink
-             to 1.6 luminance points out of 255, which is nothing. The paper
-             barely moves at 0.5%, which is correct: sunlight should not blow
-             out the sky the headline sits on. */
+             3.4% swing, and hold the ink to about 5 luminance points out of
+             255. The paper barely moves at 0.5%, which is correct: sunlight
+             should not blow out the sky the headline sits on.
+
+             THE PROFILE IS A SAMPLED SINUSOID, and that is the whole point of
+             this shape. The previous version was four straight ramps with
+             corners at 30%, 50% and 70%. Amplitude was never the reason it
+             read as a band travelling over the picture — the corners were. A
+             corner is a discontinuity in the FIRST DERIVATIVE of luminance,
+             which is exactly what triggers Mach banding: human vision
+             edge-detects on the second derivative, so it manufactures a
+             visible line at every slope change even when the step in
+             brightness is far below threshold. Four corners meant a leading
+             edge, a trailing edge and a ridge down the middle.
+
+             These 21 stops sample two half-sine lobes whose widths are chosen
+             so the SLOPES MATCH where they meet. That detail is the whole
+             refinement, and the obvious version gets it wrong.
+
+             The obvious version splits the tile evenly, light over one half and
+             shadow over the other. Measured, that still leaves a 57%-of-peak
+             kink in the slope, and it sits exactly at the zero crossings —
+             the steepest part of the wave, the worst place to put one. The
+             cause is the deliberate asymmetry: light peaks at .070 and shadow
+             at .030, and a half-sine's slope at its foot is amplitude over
+             width, so two lobes of equal width but unequal height cannot meet
+             smoothly. The ratio there was 2.33x.
+
+             Widening the lobes in proportion to their heights fixes it. Light
+             runs 15% to 85% and shadow 85% to 15% across the wrap, a 70/30
+             split matching the .070/.030 amplitude split, so amplitude over
+             width is .070/.70 = .030/.30 on both sides and the derivative is
+             continuous through the crossing. No corner anywhere in the cycle,
+             at any amplitude, which leaves the eye nothing to edge-detect.
+
+             The remaining slope changes are pure sampling error from the 5%
+             stop spacing, and they land where they do no harm: interpolation
+             is worst near the crest and trough, where the curve bends most and
+             the slope is near zero, and near-exact at the crossings, where the
+             slope is steepest and banding would actually show.
+
+             ONE FULL PERIOD PER TILE IS THE BROADEST POSSIBLE. The tile is
+             locked to the hero width by the seamless-loop geometry and the wave
+             has to close over exactly one tile, so a single period is the
+             widest feathering available without touching that geometry. Peaks
+             are unchanged, so intensity holds. Both ends are -.0300, so the
+             wrap is continuous in value as well as slope. */
           background-image:linear-gradient(90deg,
-            rgba(19,26,42,.030) 0%,
-            rgba(19,26,42,.010) 14%,
-            rgba(255,252,246,0) 30%,
-            rgba(255,252,246,.070) 50%,
-            rgba(255,252,246,0) 70%,
-            rgba(19,26,42,.010) 86%,
-            rgba(19,26,42,.030) 100%);
+            rgba(19,26,42,.0300) 0%,
+            rgba(19,26,42,.0290) 2.5%,
+            rgba(19,26,42,.0260) 5%,
+            rgba(19,26,42,.0212) 7.5%,
+            rgba(19,26,42,.0150) 10%,
+            rgba(19,26,42,.0078) 12.5%,
+            rgba(19,26,42,0) 15%,
+            rgba(255,252,246,.0156) 20%,
+            rgba(255,252,246,.0304) 25%,
+            rgba(255,252,246,.0436) 30%,
+            rgba(255,252,246,.0547) 35%,
+            rgba(255,252,246,.0631) 40%,
+            rgba(255,252,246,.0682) 45%,
+            rgba(255,252,246,.0700) 50%,
+            rgba(255,252,246,.0682) 55%,
+            rgba(255,252,246,.0631) 60%,
+            rgba(255,252,246,.0547) 65%,
+            rgba(255,252,246,.0436) 70%,
+            rgba(255,252,246,.0304) 75%,
+            rgba(255,252,246,.0156) 80%,
+            rgba(255,252,246,0) 85%,
+            rgba(19,26,42,.0078) 87.5%,
+            rgba(19,26,42,.0150) 90%,
+            rgba(19,26,42,.0212) 92.5%,
+            rgba(19,26,42,.0260) 95%,
+            rgba(19,26,42,.0290) 97.5%,
+            rgba(19,26,42,.0300) 100%);
           background-size:25% 100%;
           background-repeat:repeat;
           will-change:transform,opacity;
@@ -587,13 +650,22 @@ export function renderCollateralHero(options = {}) {
             clip-path:none !important;
             transform:none !important;
           }
-          /* The ambient sun is continuous and never stops, which is exactly
-             what a reduced-motion request is about. Hold it on a fixed frame
-             rather than removing the layer, so the plate's tone is the same as
-             everyone else's mid-cycle rather than jumping brighter. */
+          /* The sweep is continuous and never stops, which is exactly what a
+             reduced-motion request is about. Remove the light layer outright
+             and leave the plate in its neutral state: --plate-grade and
+             nothing else.
+
+             SUPERSEDED: this used to freeze the layer at opacity .78 with the
+             animation cancelled, on the theory that holding a mid-cycle frame
+             kept the tone consistent with everyone else's. That was wrong, and
+             more wrong now that the profile is one smooth wave per tile:
+             cancelling the animation pins the wave at its start offset, so the
+             trough sits over the plate permanently and the reduced-motion
+             visitor gets a fixed dark band across the engraving — the exact
+             artefact this pass exists to remove, made permanent. Neutral means
+             no layer. */
           .clt-hero::after{
-            animation:none !important;
-            opacity:.78 !important;
+            display:none !important;
           }
         }
         </style>
