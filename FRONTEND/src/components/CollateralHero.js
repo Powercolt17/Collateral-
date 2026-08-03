@@ -82,7 +82,7 @@
 // it without cutting figures. The desktop scene is wide and short, so it drops
 // into the bottom third of a shorter canvas and leaves the top clear. Hero on a
 // 390 phone goes 822px -> 650px, inside one screen instead of overflowing it.
-const PLATE_W = 1917;
+const PLATE_W = 2007;
 const PLATE_H = 866;
 
 function escapeHtml(value) {
@@ -104,7 +104,7 @@ function escapeHtml(value) {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-crop5.jpg',
+        plateSrc = '/assets/images/collateral-crop6.jpg',
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
@@ -215,7 +215,7 @@ export function renderCollateralHero(options = {}) {
              brightness 1.07 still carries the cloud layer's 4.5% mean shade;
              it is higher only because the extra desaturation costs a little
              lightness. Contrast on the oxblood: 8.40:1 sun, 6.89:1 cloud. */
-          --plate-grade:saturate(.62) brightness(1.09);
+          --plate-grade:saturate(.62) contrast(.92) brightness(1.09);
           background:var(--paper); color:var(--ink);
           font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
           -webkit-font-smoothing:antialiased;
@@ -633,7 +633,7 @@ export function renderCollateralHero(options = {}) {
           display:flex;flex-direction:column;justify-content:center;
           align-items:flex-start;text-align:left;
           padding:0 0 0 5cqw;
-          max-width:41cqw;
+          max-width:45cqw;
         }
         .clt-eyebrow{
           display:flex;align-items:center;gap:calc(.64 * var(--u));
@@ -677,7 +677,7 @@ export function renderCollateralHero(options = {}) {
              36.5cqw inside a 37cqw column. Anything above 4.55 overflows into
              the operator at 1905, where the clear zone is proportionally
              narrowest. */
-          font-size:4.4cqw;line-height:.92;letter-spacing:-.038em;font-weight:700;
+          font-size:4.85cqw;line-height:.90;letter-spacing:-.038em;font-weight:700;
           text-transform:uppercase;
           /* Oxblood, per the new colourway. The !important is still doing work:
              a global h1{color:var(--text-primary)} wins over an unweighted rule
@@ -759,6 +759,32 @@ export function renderCollateralHero(options = {}) {
         .clt-link:hover{color:var(--ox)}
         .clt-btn:focus-visible,.clt-link:focus-visible{
           outline:2px solid var(--ink);outline-offset:3px;
+        }
+
+        /* ---- proof, moved into the column ----
+           These figures used to live only in the strip below the fold, so at
+           scroll-top the one piece of social proof on the page was invisible.
+           They also give the column a fourth element and some mass, which is
+           what stops a headline and two buttons floating against an engraving
+           this dense. Removed from the strip in the same change — the same
+           numbers printed twice on one screen reads as a mistake.
+
+           A rule above rather than a box around it: the column already has
+           enough shapes, and a hairline reads as a ledger entry, which is the
+           right register for a figure like this. */
+        .clt-proof{
+          margin-top:calc(2.20 * var(--u));
+          padding-top:calc(1.10 * var(--u));
+          border-top:1px solid rgba(19,26,42,.20);
+          display:flex;align-items:baseline;flex-wrap:wrap;
+          gap:calc(.4 * var(--u)) calc(1.6 * var(--u));
+          font:600 clamp(9px,calc(.50 * var(--u)),13px)/1.5 ui-monospace,Menlo,monospace;
+          letter-spacing:.14em;color:var(--ink-soft);
+        }
+        .clt-proof b{
+          display:block;font-weight:700;color:var(--ink);
+          font-size:1.6em;letter-spacing:.01em;margin-bottom:2px;
+          font-variant-numeric:tabular-nums;
         }
 
         /* ---- entrance ----
@@ -1042,13 +1068,16 @@ export function renderCollateralHero(options = {}) {
                         <button type="button" class="clt-btn"${onWriteContract ? ` onclick="${onWriteContract}"` : ''}>WRITE A CONTRACT</button>
                         <button type="button" class="clt-link"${onWatchFlow ? ` onclick="${onWatchFlow}"` : ''}>WATCH FORFEITURE FLOW ↓</button>
                     </div>
+                    <div class="clt-proof clt-mono clt-in" style="--d:600ms">
+                        <span><b>${escapeHtml(heldInEscrow)}</b>HELD IN ESCROW</span>
+                        <span><b>${escapeHtml(String(settledCount))}</b>SETTLED TODAY</span>
+                    </div>
                 </div>
             </section>
 
             <div class="clt-strip clt-mono">
-                <span><span class="clt-fig clt-ox">${escapeHtml(heldInEscrow)}</span> HELD IN ESCROW</span>
-                <span><span class="clt-fig clt-gr">${escapeHtml(String(settledCount))}</span> CONTRACTS SETTLED TODAY</span>
                 <span>ORACLES <b>STRIPE · YOUTUBE · SHOPIFY</b></span>
+                <span>SETTLEMENT IS AUTOMATIC · <b>NO APPEALS</b> · <b>NO EXTENSIONS</b></span>
             </div>
 
         </div>
