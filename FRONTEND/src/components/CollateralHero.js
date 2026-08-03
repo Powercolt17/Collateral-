@@ -268,16 +268,51 @@ export function renderCollateralHero(options = {}) {
           font-size:9.5px;letter-spacing:.14em;color:var(--ink-soft);
         }
 
-        /* ---- mobile: unlock the ratio, plate becomes a band under the type ---- */
+        /* ---- mobile: unlock the ratio, plate becomes a band under the type ----
+           A landscape plate on a portrait screen cannot both bleed and stay
+           whole, so the deal here is: type on open paper up top, engraving as a
+           band pinned to the bottom edge.
+
+           width:100vw + margin-left:calc(50% - 50vw) is the full-bleed escape.
+           .lp gives the landing page a 16px gutter at this width, which was
+           insetting the hero and leaving paper down both sides while desktop
+           bled edge to edge. The 100vw form is used rather than -16px margins so
+           it does not silently break if that gutter ever changes.
+
+           background-size is 100% — the plate is shown WHOLE, not zoomed. It was
+           152%, which overhung the screen by ~18% a side. Measuring the plate's
+           horizontal ink profile shows why that was wrong: the densest ink is at
+           the outer edges (51-64% coverage in the first 10% of the width, 53-65%
+           in the last 10%) because the cypresses and foliage are the frame, and
+           the sparse middle is sky. So zooming crops precisely the strongest
+           graphic element. 152% discarded 55% of all ink, 140% discarded 48%,
+           and all that buying was ~11 points of band height. Whole plate at
+           100%: 223px of band, 26% of a 390x844 screen, composition intact.
+
+           min-height rather than height: the lockup measures ~340px at 390x844
+           against a 289px band, so it fits one frame comfortably, but min-height
+           means a longer translation or a larger font grows the hero instead of
+           spilling type over the artwork. ---- */
         @media (max-width:820px){
           .clt-hero{
             aspect-ratio:auto !important;
             height:auto !important;
-            padding:0 0 76vw;
-            background-size:138% auto;
+            min-height:100vh;
+            padding:0;
+            width:100vw;
+            margin-left:calc(50% - 50vw);
+            display:flex;align-items:center;justify-content:center;
+            background-size:100% auto;
             background-position:center bottom;
           }
-          .clt-lockup{position:static;padding:104px 22px 0}
+          /* padding-bottom reserves exactly the band: the plate is shown at
+             100% width, so its rendered height is width * 778/1363 = 57.1vw.
+             The lockup then centres in what is left, instead of hanging off the
+             top and leaving a 169px pool of dead paper above the engraving.
+             padding-top is the header guard — centring alone would let the
+             eyebrow drift under the 64px bar on a short screen. */
+          .clt-hero{padding:76px 0 57.1vw}
+          .clt-lockup{position:static;padding:0 22px}
           .clt-eyebrow{font-size:9px;gap:8px;letter-spacing:.18em}
           .clt-eyebrow::before,.clt-eyebrow::after{width:20px;height:2px}
           /* src/mobile.css:521 forces h1 to clamp(24px,7vw,36px) !important for
@@ -286,7 +321,8 @@ export function renderCollateralHero(options = {}) {
              VALUE is exactly as authored, unconverted. */
           .clt .clt-hero h1{margin-top:18px;font-size:clamp(40px,12.4vw,68px) !important;line-height:.9;letter-spacing:-.03em}
           .clt-cta{margin-top:26px;gap:18px;flex-direction:column}
-          .clt-btn{padding:16px 30px;font-size:11px;box-shadow:5px 5px 0 var(--ox)}
+          /* min-height is the 44px touch target; the padding alone gave 43px. */
+          .clt-btn{padding:16px 30px;min-height:44px;font-size:11px;box-shadow:5px 5px 0 var(--ox)}
           .clt-btn:hover{box-shadow:2px 2px 0 var(--ox);transform:translate(3px,3px)}
           .clt-link{font-size:11px;border-bottom-width:2px;padding-bottom:5px}
 
@@ -299,8 +335,9 @@ export function renderCollateralHero(options = {}) {
           .clt-row{padding:12px 14px}
         }
         @media (max-width:420px){
-          .clt-hero{padding-bottom:82vw;background-size:152% auto}
-          .clt-lockup{padding-top:92px}
+          /* No zoom override — same reasoning as above. Slightly tighter header
+             guard so the centred lockup has more room on the smallest screens. */
+          .clt-hero{padding-top:70px}
         }
         @media (prefers-reduced-motion:reduce){
           .clt *{transition:none !important}
