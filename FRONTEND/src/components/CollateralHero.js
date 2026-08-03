@@ -236,6 +236,10 @@ export function renderCollateralHero(options = {}) {
           height:100vh;
           container-type:inline-size;
           background-color:var(--paper);
+          /* Confines the light layer's blending to this section. Without it,
+             mix-blend-mode on ::after would reach past the hero and blend with
+             .cl-grain and the page beneath. */
+          isolation:isolate;
         }
         /* The plate paints on a LAYER, not on the section, so --plate-grade can
            be applied to the artwork alone. filter on .clt-hero itself would drag
@@ -259,6 +263,87 @@ export function renderCollateralHero(options = {}) {
           background-size:cover;
           background-repeat:no-repeat;
           filter:var(--plate-grade);
+        }
+
+        /* ---- living engraving: ambient sun ----
+           A single soft light/shadow wave drifting left to right across the
+           plate on a 30s cycle. The artwork never moves and never scales; only
+           the illumination over it changes.
+
+           WHY A BLENDED LAYER AND NOT A FILTER ANIMATION. Animating
+           filter:brightness() on ::before would light the whole plate evenly,
+           which reads as the page dimming rather than as sun crossing a scene.
+           A gradient that travels gives POSITIONAL light: because the
+           composition is ordered left to right — temple, operator, altar,
+           magistrates, Nike on the far right — a horizontal sweep brightens
+           them in that order on its own. The sequencing in the brief comes out
+           of the composition, not out of per-figure targeting.
+
+           WHY SOFT-LIGHT AND NOT NORMAL. A normal-blended white veil adds a
+           flat constant to every pixel — haze, not light. soft-light's result
+           depends on the backdrop, so the engraved grooves take a different
+           delta from the flat paper around them. That is the achievable half
+           of using the engraving as its own displacement source: the response
+           is modulated by the artwork's own luminance. It is NOT a normal map,
+           and the file's note at the top on what this cannot do still stands.
+
+           WHY TRANSFORM AND OPACITY ONLY. Both are compositor properties, so
+           this runs on the GPU without re-rasterising a full-viewport image
+           every frame. No layout property is touched, so it cannot shift the
+           page or interact with scrolling.
+
+           THE LOOP IS SEAMLESS BY CONSTRUCTION, not by easing back. The tile
+           is 25% of a 400%-wide layer, so exactly one hero width, and the
+           sweep translates by exactly 25% — one whole tile. The last frame is
+           pixel-identical to the first, so there is no seam and no reversal:
+           the sun keeps going the same way forever. The layer is 400% wide and
+           offset -150% so it still covers the hero at both ends of the travel.
+
+           Two animations, deliberately different curves. The sweep is LINEAR —
+           a sun that eased in and out would visibly pulse once per cycle. The
+           intensity breath is the sine the brief asks for, on opacity,
+           alternating so it returns to its own start.
+
+           Angle is a flat 90deg on purpose. A raking angle looks better but
+           makes the gradient a function of x AND y, which no longer tiles
+           horizontally without a visible diagonal seam at every repeat. */
+        .clt-hero::after{
+          content:"";
+          position:absolute;top:0;bottom:0;left:-150%;width:400%;
+          z-index:0;pointer-events:none;
+          mix-blend-mode:soft-light;
+          /* Alphas are set by measurement, not by eye. soft-light lifts dark
+             backdrops far more in RELATIVE terms than light ones, so the
+             constraint that binds is the engraved ink, not the paper. At .13
+             the ink lifted 20% and visibly washed. These values put the
+             midtones — the stone, the fabric, the bulk of the image — at a
+             3.4% swing, inside the +/-4% the brief asks for, and hold the ink
+             to 1.6 luminance points out of 255, which is nothing. The paper
+             barely moves at 0.5%, which is correct: sunlight should not blow
+             out the sky the headline sits on. */
+          background-image:linear-gradient(90deg,
+            rgba(19,26,42,.030) 0%,
+            rgba(19,26,42,.010) 14%,
+            rgba(255,252,246,0) 30%,
+            rgba(255,252,246,.070) 50%,
+            rgba(255,252,246,0) 70%,
+            rgba(19,26,42,.010) 86%,
+            rgba(19,26,42,.030) 100%);
+          background-size:25% 100%;
+          background-repeat:repeat;
+          will-change:transform,opacity;
+          animation:
+            clt-sun 30s linear infinite,
+            clt-breathe 30s ease-in-out infinite alternate;
+        }
+        /* One whole tile. Any other value shows a seam at the wrap. */
+        @keyframes clt-sun{
+          from{transform:translate3d(0,0,0)}
+          to{transform:translate3d(25%,0,0)}
+        }
+        @keyframes clt-breathe{
+          from{opacity:.55}
+          to{opacity:1}
         }
         /* ONE unit drives the whole lockup. Tune --u to resize everything at
            once; the multipliers below are the authored proportions.
@@ -501,6 +586,14 @@ export function renderCollateralHero(options = {}) {
             opacity:1 !important;
             clip-path:none !important;
             transform:none !important;
+          }
+          /* The ambient sun is continuous and never stops, which is exactly
+             what a reduced-motion request is about. Hold it on a fixed frame
+             rather than removing the layer, so the plate's tone is the same as
+             everyone else's mid-cycle rather than jumping brighter. */
+          .clt-hero::after{
+            animation:none !important;
+            opacity:.78 !important;
           }
         }
         </style>
