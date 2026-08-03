@@ -43,13 +43,31 @@ export interface SchedulerResult {
     totalDurationMs: number;
 }
 
+export interface RunScheduledJobsOptions {
+    /**
+     * Run verification and settlement as part of this pass.
+     *
+     * Defaults to true so direct callers (tests, the ops manual-trigger route)
+     * keep their existing behaviour. The worker passes false: it already runs
+     * both on its own 15s loop, and running them here as well would mean two
+     * processes racing the same contracts. The jobs take per-contract advisory
+     * locks, but those are a backstop — one runner is the actual defence.
+     */
+    includeVerificationAndSettlement?: boolean;
+}
+
 /**
  * Run all scheduled jobs
  * Safe to call every minute
  * Respects kill switches and locks
  */
-export async function runScheduledJobs(): Promise<SchedulerResult> {
-    console.log('⏰ Starting scheduled job run...');
+export async function runScheduledJobs(
+    options: RunScheduledJobsOptions = {},
+): Promise<SchedulerResult> {
+    const { includeVerificationAndSettlement = true } = options;
+    console.log(
+        `⏰ Starting scheduled job run${includeVerificationAndSettlement ? '' : ' (periodic jobs only — worker owns verification/settlement)'}...`
+    );
     const startTime = Date.now();
 
     let verificationResult: JobResult | null = null;
@@ -57,7 +75,9 @@ export async function runScheduledJobs(): Promise<SchedulerResult> {
     let reconciliationResult: JobResult | null = null;
 
     // 1. Verification Job
-    if (isVerificationEnabled()) {
+    if (!includeVerificationAndSettlement) {
+        console.log('⏭️ Verification job SKIPPED (owned by the worker loop)');
+    } else if (isVerificationEnabled()) {
         const jobStart = Date.now();
         try {
             const result = await runVerificationJob();
@@ -86,7 +106,9 @@ export async function runScheduledJobs(): Promise<SchedulerResult> {
     }
 
     // 2. Settlement Job
-    if (isSettlementEnabled()) {
+    if (!includeVerificationAndSettlement) {
+        console.log('⏭️ Settlement job SKIPPED (owned by the worker loop)');
+    } else if (isSettlementEnabled()) {
         const jobStart = Date.now();
         try {
             const result = await runSettlementJob();
@@ -204,12 +226,14 @@ export async function runScheduledJobs(): Promise<SchedulerResult> {
 
             rivalryCronResult = {
                 jobType: 'RIVALRY_CRON',
-                processed: result.settled + result.expired + result.cancelled,
+                processed: result.settled + result.expired + result.cancelled + result.awaitingVerification,
                 succeeded: result.settled + result.expired + result.cancelled,
                 failed: result.errors,
-                skipped: 0,
+                // Past-deadline rivalries with no verification path are blocked,
+                // not failed — they must not read as errors.
+                skipped: result.awaitingVerification,
                 durationMs,
-                skipReasons: { locked: 0, retryScheduled: 0, terminal: 0 },
+                skipReasons: { locked: 0, retryScheduled: 0, terminal: result.awaitingVerification },
             };
             logJobResult(rivalryCronResult);
         } catch (err: any) {

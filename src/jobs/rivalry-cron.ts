@@ -24,6 +24,8 @@ interface RivalryCronResult {
     settled: number;
     expired: number;
     cancelled: number;
+    /** Past deadline but not yet VERIFIED — cannot settle, and is not an error. */
+    awaitingVerification: number;
     errors: number;
 }
 
@@ -33,14 +35,39 @@ interface RivalryCronResult {
 
 /**
  * Find active rivalries past their deadline and trigger settlement.
- * 
+ *
  * Settlement flow:
  * 1. Find rivalries where deadline_utc <= NOW() and settled_at IS NULL
- * 2. For each, check state is ACTIVE/BOTH_FUNDED/VERIFYING/VERIFIED
+ * 2. For each, check state is VERIFIED (or SETTLING, when retrying)
  * 3. Trigger settleRivalry() which compares growth and determines winner
+ *
+ * SETTLEABLE_STATES must match what settleRivalry() actually accepts — see
+ * validateRivalryFromState() in rivalry-settlement.ts. This list previously
+ * included ACTIVE, BOTH_FUNDED and VERIFYING, so the cron called settleRivalry()
+ * for rivalries it would always reject, throwing
+ * "Invalid rivalry transition: ACTIVE → UNKNOWN" on every single run. (The
+ * "→ UNKNOWN" is a placeholder in the validator, not a real target state.)
+ *
+ * A rivalry reaches VERIFIED via ACTIVE → VERIFYING → VERIFIED. **Nothing in
+ * production performs that transition.** RIVALRY_VERIFICATION_STARTED and
+ * RIVALRY_VERIFIED are written only by the seed scripts and the sim job, and
+ * nothing sets participants.final_value, which settleRivalry() also requires.
+ * Until a rivalry verification job exists, every past-deadline rivalry parks in
+ * awaitingVerification. That is a missing feature, not a fault of this job —
+ * so it is reported, not counted as an error and not retried into the log.
  */
-async function autoSettleExpiredRivalries(): Promise<{ settled: number; errors: number }> {
+const SETTLEABLE_STATES = ['VERIFIED', 'SETTLING'];
+
+/** Past deadline, alive, but not yet verified — blocked, not broken. */
+const AWAITING_VERIFICATION_STATES = ['ACTIVE', 'BOTH_FUNDED', 'VERIFYING'];
+
+async function autoSettleExpiredRivalries(): Promise<{
+    settled: number;
+    awaitingVerification: number;
+    errors: number;
+}> {
     let settled = 0;
+    let awaitingVerification = 0;
     let errors = 0;
 
     const now = new Date();
@@ -76,8 +103,7 @@ async function autoSettleExpiredRivalries(): Promise<{ settled: number; errors: 
 
             const state = await getRivalryState(rivalry.id);
 
-            // Only settle if in an active/verified state
-            if (['ACTIVE', 'BOTH_FUNDED', 'VERIFYING', 'VERIFIED'].includes(state)) {
+            if (SETTLEABLE_STATES.includes(state)) {
                 console.log(`[RivalryCron] Auto-settling rivalry ${rivalry.id} (state: ${state})...`);
                 const result = await settleRivalry(rivalry.id);
 
@@ -88,6 +114,13 @@ async function autoSettleExpiredRivalries(): Promise<{ settled: number; errors: 
                     errors++;
                     console.error(`[RivalryCron] Settlement failed for ${rivalry.id}: ${result.error}`);
                 }
+            } else if (AWAITING_VERIFICATION_STATES.includes(state)) {
+                awaitingVerification++;
+                console.warn(
+                    `[RivalryCron] Rivalry ${rivalry.id} is past deadline in state ${state} and cannot settle — ` +
+                    `settlement requires VERIFIED, and no rivalry verification job exists to produce it. ` +
+                    `Blocked, not failed.`
+                );
             } else {
                 console.log(`[RivalryCron] Skipping ${rivalry.id} — state ${state} not settleable`);
             }
@@ -97,7 +130,7 @@ async function autoSettleExpiredRivalries(): Promise<{ settled: number; errors: 
         }
     }
 
-    return { settled, errors };
+    return { settled, awaitingVerification, errors };
 }
 
 // =============================================================================
@@ -117,12 +150,14 @@ export async function runRivalryCronJobs(): Promise<RivalryCronResult> {
     let settled = 0;
     let expired = 0;
     let cancelled = 0;
+    let awaitingVerification = 0;
     let errorCount = 0;
 
     // 1. Auto-settle past-deadline rivalries
     try {
         const settlement = await autoSettleExpiredRivalries();
         settled = settlement.settled;
+        awaitingVerification = settlement.awaitingVerification;
         errorCount += settlement.errors;
     } catch (err: any) {
         console.error('[RivalryCron] Auto-settlement error:', err.message);
@@ -152,7 +187,10 @@ export async function runRivalryCronJobs(): Promise<RivalryCronResult> {
     }
 
     const duration = Date.now() - startTime;
-    console.log(`[RivalryCron] Complete in ${duration}ms — settled: ${settled}, expired: ${expired}, cancelled: ${cancelled}, errors: ${errorCount}`);
+    console.log(
+        `[RivalryCron] Complete in ${duration}ms — settled: ${settled}, expired: ${expired}, ` +
+        `cancelled: ${cancelled}, awaitingVerification: ${awaitingVerification}, errors: ${errorCount}`
+    );
 
-    return { settled, expired, cancelled, errors: errorCount };
+    return { settled, expired, cancelled, awaitingVerification, errors: errorCount };
 }
