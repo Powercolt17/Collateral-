@@ -36,14 +36,16 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-// Desktop plate: 1672x941 JPEG, 452KB. Mobile has its own portrait crop,
-// 864x1821 JPEG at 453KB, wired in the max-width:820px block.
+// Desktop plate: 1600x894 JPEG, 433KB. Mobile: 900x1500 JPEG, 142KB.
 //
-// Both were supplied as ~3.2MB PNGs and re-encoded to JPEG q86 via Windows
-// System.Drawing — an 86% reduction. There is still no sharp or ImageMagick
-// here; System.Drawing is the encoder that does exist on this machine.
-const PLATE_W = 1672;
-const PLATE_H = 941;
+// The mobile crop is built from the DESKTOP artwork, not from a portrait
+// render. A portrait render put the scene between 28% and 100% of its height,
+// so the scene alone was ~1365px tall on a 390 phone and no crop could shorten
+// it without cutting figures. The desktop scene is wide and short, so it drops
+// into the bottom third of a shorter canvas and leaves the top clear. Hero on a
+// 390 phone goes 822px -> 650px, inside one screen instead of overflowing it.
+const PLATE_W = 1600;
+const PLATE_H = 894;
 
 function escapeHtml(value) {
     return String(value)
@@ -140,7 +142,7 @@ export function renderCollateralHero(options = {}) {
 
            The hero is exactly ONE viewport tall so the whole thing sits in a
            single frame at scroll-top, with nothing cut off the bottom. cover +
-           bottom anchor is what makes that safe: the plate is 1672x941 and the
+           bottom anchor is what makes that safe: the plate is 1600x894 and the
            frame is usually taller in ratio, so something has to give, and what
            gives is the TOP BAND OF EMPTY SKY. The temple, the figures at the
            desk and the ground line are pinned to the bottom edge and never
@@ -278,7 +280,7 @@ export function renderCollateralHero(options = {}) {
              sides, which is the "it needs to be full screen" problem from
              earlier. */
           .clt-hero{
-            aspect-ratio:864 / 1821 !important;
+            aspect-ratio:900 / 1500 !important;
             height:auto !important;
             padding:0;
             width:100vw;
@@ -287,14 +289,14 @@ export function renderCollateralHero(options = {}) {
             background-size:100% 100%;
             background-position:center top;
           }
-          .clt-lockup{position:absolute;inset:0 0 auto 0;padding:100px 22px 0}
+          .clt-lockup{position:absolute;inset:0 0 auto 0;padding:96px 22px 0}
           .clt-eyebrow{font-size:9px;gap:8px;letter-spacing:.18em}
           .clt-eyebrow::before,.clt-eyebrow::after{width:20px;height:2px}
           /* src/mobile.css:521 forces h1 to clamp(24px,7vw,36px) !important for
              every view at max-width 768px, which beats a scoped rule. The extra
              .clt and the !important below exist only to win that cascade — the
              VALUE is exactly as authored, unconverted. */
-          .clt .clt-hero h1{margin-top:16px;font-size:clamp(32px,9.4vw,52px) !important;line-height:.9;letter-spacing:-.03em}
+          .clt .clt-hero h1{margin-top:16px;font-size:clamp(38px,12vw,48px) !important;line-height:.9;letter-spacing:-.03em}
           .clt-cta{margin-top:26px;gap:18px;flex-direction:column}
           /* min-height is the 44px touch target; the padding alone gave 43px. */
           .clt-btn{padding:16px 30px;min-height:44px;font-size:11px;box-shadow:5px 5px 0 var(--ox)}
