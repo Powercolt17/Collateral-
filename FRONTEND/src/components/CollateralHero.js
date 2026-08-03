@@ -724,7 +724,21 @@ export function renderCollateralHero(options = {}) {
            bottom edge. */
         .clt-strip{
           position:relative;z-index:3;
-          margin-top:-44px;
+          /* SUPERSEDED: this pulled up -44px so the strip peeked above the fold
+             and the escrow figure was visible at scroll-top. The sepia plate
+             makes that unaffordable. Its table and everything on it — coins,
+             scroll, seal, the actual subject of the picture — sit in the bottom
+             20% of the file, and the strip was parked directly over them.
+
+             Measured at 1562x741: the table had 50px visible with the overlap
+             and 94px without. The anchor cannot buy that back, because anchor
+             is zero-sum — moving it from .35 to .55 gains 24px of table and
+             costs 25px of headline clearance, which goes negative. Dropping
+             the overlap gains 44px for nothing.
+
+             So the proof numbers move below the fold again. The artwork's
+             subject beats the social proof; the strip is one scroll away. */
+          margin-top:0;
           display:flex;justify-content:center;align-items:baseline;gap:10px 40px;flex-wrap:wrap;
           padding:22px 24px;font-size:10px;letter-spacing:.16em;color:var(--ink-soft);
           background:var(--paper);
