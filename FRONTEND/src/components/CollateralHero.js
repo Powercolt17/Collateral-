@@ -28,17 +28,19 @@
  * hero breaks the backdrop root, so it renders a partial pane — a visible box
  * with a hard edge. Use a gradient scrim.
  *
- * The primary button is ink navy (#131A2A) with an oxblood offset shadow, not an
- * oxblood fill. Oxblood on the red plate has insufficient contrast.
+ * SUPERSEDED: the primary button was ink navy with an oxblood shadow, on the
+ * rule that oxblood lacks contrast on the red plate. The August colourway makes
+ * the headline, button and link all oxblood. That rule was about oxblood on the
+ * ENGRAVING; the lockup sits in the plate's clear sky, which is paper, where
+ * oxblood measures well clear of AA. Checked, not assumed.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-// Cropped from the 1456x816 source: the engraving ships with a paper margin
-// baked in (46px left, 47px right, 38px bottom), so cover bled the FILE to the
-// viewport edges while the artwork still floated inside it. Margins removed; the
-// top band is untouched because that sky is where the headline sits.
-const PLATE_W = 1363;
-const PLATE_H = 778;
+// 1600x915 JPEG, 194KB. Replaced a 1363x778 PNG that was 1.8MB on the LCP
+// element — an 89% reduction. This source already bleeds to its own edges, so
+// unlike the previous plate it needs no margin crop.
+const PLATE_W = 1600;
+const PLATE_H = 915;
 
 function escapeHtml(value) {
     return String(value)
@@ -59,7 +61,7 @@ function escapeHtml(value) {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-plate.png',
+        plateSrc = '/assets/images/collateral-plate.jpg',
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
@@ -135,7 +137,7 @@ export function renderCollateralHero(options = {}) {
 
            The hero is exactly ONE viewport tall so the whole thing sits in a
            single frame at scroll-top, with nothing cut off the bottom. cover +
-           bottom anchor is what makes that safe: the plate is 1363x778 and the
+           bottom anchor is what makes that safe: the plate is 1600x915 and the
            frame is usually taller in ratio, so something has to give, and what
            gives is the TOP BAND OF EMPTY SKY. The temple, the figures at the
            desk and the ground line are pinned to the bottom edge and never
@@ -176,28 +178,35 @@ export function renderCollateralHero(options = {}) {
           margin-top:calc(1.05 * var(--u));
           font-size:calc(4.8 * var(--u));line-height:.855;letter-spacing:-.038em;font-weight:800;
           text-transform:uppercase;
-          /* Real fix, not a no-op: a global h1{color:var(--text-primary)} was
-             winning here and rendering the headline rgb(17,17,17). #131A2A is
-             warmer and is the token the rest of this component already uses. */
-          color:var(--ink);
+          /* Oxblood, per the new colourway. The !important is still doing work:
+             a global h1{color:var(--text-primary)} wins over an unweighted rule
+             here and was rendering the headline rgb(17,17,17). */
+          color:var(--ox) !important;
         }
-        /* The headline was one flat block of near-black against the only red on
-           the page, so type and engraving read as unrelated layers. Oxblood on
-           the last word ties them together, at the point the sentence turns. */
+        /* The accent span is now the same colour as the rest of the headline —
+           the whole line went oxblood, so this no longer differentiates. Kept
+           because the markup still carries the span, which makes restoring a
+           two-tone headline a one-value change rather than a markup edit. */
         .clt-accent{color:var(--ox)}
         .clt-cta{margin-top:calc(1.95 * var(--u));display:flex;align-items:center;gap:calc(1.43 * var(--u))}
         /* The px FLOOR on the two CTA labels stops them collapsing to ~8px on a
            1024 laptop. It does not engage on a full-size screen. */
+        /* Oxblood fill with an ox-deep offset shadow, per the new colourway.
+           The old rule against this — "oxblood on the red plate has
+           insufficient contrast" — was about oxblood sitting on the ENGRAVING.
+           It does not: the lockup sits in the plate's clear sky, which is paper,
+           and oxblood on paper measures well clear of AA. Verified after the
+           change, not assumed. */
         .clt-btn{
-          background:var(--ink);color:var(--paper-hi);border:0;cursor:pointer;
+          background:var(--ox);color:var(--paper-hi);border:0;cursor:pointer;
           padding:calc(.86 * var(--u)) calc(1.87 * var(--u));
           font:700 clamp(11px,calc(.615 * var(--u)),20px)/1 ui-monospace,Menlo,monospace;letter-spacing:.17em;
-          box-shadow:calc(.315 * var(--u)) calc(.315 * var(--u)) 0 var(--ox);
+          box-shadow:calc(.315 * var(--u)) calc(.315 * var(--u)) 0 var(--ox-deep);
           transition:box-shadow .16s ease,transform .16s ease;
         }
-        .clt-btn:hover{box-shadow:calc(.09 * var(--u)) calc(.09 * var(--u)) 0 var(--ox);transform:translate(calc(.225 * var(--u)),calc(.225 * var(--u)))}
+        .clt-btn:hover{box-shadow:calc(.09 * var(--u)) calc(.09 * var(--u)) 0 var(--ox-deep);transform:translate(calc(.225 * var(--u)),calc(.225 * var(--u)))}
         .clt-link{
-          background:none;border:0;cursor:pointer;color:var(--ink);
+          background:none;border:0;cursor:pointer;color:var(--ox);
           font:700 clamp(11px,calc(.615 * var(--u)),20px)/1 ui-monospace,Menlo,monospace;letter-spacing:.15em;
           padding-bottom:calc(.225 * var(--u));border-bottom:calc(.1 * var(--u)) solid var(--ox);
         }
@@ -255,7 +264,7 @@ export function renderCollateralHero(options = {}) {
             background-position:center bottom;
           }
           /* padding-bottom reserves exactly the band: the plate is at 100%
-             width, so its rendered height is width * 778/1363 = 57.1vw. The
+             width, so its rendered height is width * 915/1600 = 57.2vw. The
              lockup flows above it, so the engraving begins immediately after
              the CTA.
 
@@ -271,7 +280,7 @@ export function renderCollateralHero(options = {}) {
              The top 24.6% of the plate is clear sky (first inked row is 191 of
              778), which at this band size is ~14vw of paper before the tree
              line — the breathing room is in the image. */
-          .clt-hero{padding:70px 0 57.1vw}
+          .clt-hero{padding:70px 0 57.2vw}
           .clt-lockup{position:static;padding:0 22px}
           .clt-eyebrow{font-size:9px;gap:8px;letter-spacing:.18em}
           .clt-eyebrow::before,.clt-eyebrow::after{width:20px;height:2px}
