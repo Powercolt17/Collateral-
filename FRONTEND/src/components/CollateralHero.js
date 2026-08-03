@@ -837,12 +837,17 @@ export function renderCollateralHero(options = {}) {
              sides, which is the "it needs to be full screen" problem from
              earlier. */
           .clt-hero{
-            /* 918/1650, the portrait plate's true pixel ratio. This MUST track
+            /* 918/1840, the portrait plate's true pixel ratio. This MUST track
                the file: background-size below is 100% 100%, which stretches,
                and the only thing that makes that safe is the box matching the
-               image exactly. The old 900/1500 against this 0.5564 file would
-               squash it about 7% horizontally. */
-            aspect-ratio:918 / 1650 !important;
+               image exactly.
+
+               1650 -> 1840 because the portrait plate needed sky for the same
+               reason the landscape one did. Measured on the old file, its sky
+               ended at 50.5% and the CTA row bottomed 57px INTO the artwork —
+               the buttons were sitting on the magistrates. +190px of mirrored
+               sky takes the sky share to 55.6% and the clearance positive. */
+            aspect-ratio:918 / 1840 !important;
             height:auto !important;
             padding:0;
             width:100vw;
@@ -861,11 +866,17 @@ export function renderCollateralHero(options = {}) {
              would already win. Kept because the inline-style form is the
              obvious thing to revert to. */
           .clt-hero::before{
-            background-image:url(/assets/images/collateral-plate-sepia-mobile.jpg) !important;
+            background-image:url(/assets/images/collateral-plate-wide-mobile.jpg) !important;
             background-size:100% 100%;
             background-position:center top;
           }
-          .clt-lockup{position:absolute;inset:0 0 auto 0;padding:96px 22px 0;z-index:1}
+          /* 96 -> 76px top padding. The extra sky in the portrait plate does
+             most of the work, but the mobile lockup is fixed px while the hero
+             scales with viewport WIDTH, so a narrow-and-short phone gets the
+             least sky and the same tall lockup. At 360x740 the clearance was
+             +3px with 96; 76 makes it +23px and every larger phone gains 20px
+             with it. Still clears the 64px header by 12px. */
+          .clt-lockup{position:absolute;inset:0 0 auto 0;padding:76px 22px 0;z-index:1}
           .clt-eyebrow{font-size:9px;gap:8px;letter-spacing:.18em}
           .clt-eyebrow::before,.clt-eyebrow::after{width:20px;height:2px}
           /* src/mobile.css:521 forces h1 to clamp(24px,7vw,36px) !important for
