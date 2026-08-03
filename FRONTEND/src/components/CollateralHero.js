@@ -94,9 +94,32 @@ export function renderCollateralHero(options = {}) {
         .clt *{box-sizing:border-box;margin:0;padding:0}
         .clt-mono{font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace}
 
-        /* ---- hero ---- */
+        /* #app carries pt-24 (96px) to clear the fixed header on every view.
+           On this hero that gap is dead paper above the plate AND it costs the
+           96px of height that was pushing the bottom of the engraving — temple
+           steps, the figures at the desk — below the fold. Cancel it so the
+           plate starts at the very top and runs full width. The header is an
+           opaque paper bar and the top of the plate is open sky, so it reads as
+           one surface. The lockup's 8.4cqw padding still clears the 64px header
+           (161px at 1920), which is why the eyebrow never slides under it. */
+        .clt{margin-top:-96px}
+
+        /* ---- hero ----
+           The lockup is sized in cqw (1cqw = 1% of .clt-hero's width), NOT vw.
+           That is a strict improvement on the original vw units, not a
+           departure from them: while the hero spans the full viewport the two
+           are identical, but once max-width caps the hero the vw version would
+           keep scaling with the window and walk the headline off the sky
+           channel and onto the temple. cqw stays locked to the plate.
+
+           The plate ALWAYS full-bleeds. A max-width cap that fit the whole
+           engraving above the fold was tried and rejected on sight: it
+           letterboxes the plate with dead paper gutters either side, which
+           looks terrible. The engraving runs edge to edge; the bottom of it
+           falling below the fold on a short window is the accepted trade. ---- */
         .clt-hero{
           position:relative;width:100%;
+          container-type:inline-size;
           background-position:center top;
           background-size:100% 100%;
           background-repeat:no-repeat;
@@ -104,32 +127,36 @@ export function renderCollateralHero(options = {}) {
         }
         .clt-lockup{
           position:absolute;inset:0 0 auto 0;
-          padding-top:8.4vw;
+          padding-top:8.4cqw;
           display:flex;flex-direction:column;align-items:center;text-align:center;
         }
         .clt-eyebrow{
-          display:flex;align-items:center;gap:.85vw;
-          font-size:.78vw;letter-spacing:.24em;font-weight:700;color:var(--ox);
+          display:flex;align-items:center;gap:.85cqw;
+          font-size:clamp(9px,.78cqw,20px);letter-spacing:.24em;font-weight:700;color:var(--ox);
         }
-        .clt-eyebrow::before,.clt-eyebrow::after{content:"";width:2.4vw;height:.13vw;background:var(--ox)}
+        .clt-eyebrow::before,.clt-eyebrow::after{content:"";width:2.4cqw;height:.13cqw;background:var(--ox)}
         .clt-hero h1{
-          margin-top:1.4vw;
-          font-size:6.4vw;line-height:.855;letter-spacing:-.038em;font-weight:800;
+          margin-top:1.4cqw;
+          font-size:6.4cqw;line-height:.855;letter-spacing:-.038em;font-weight:800;
           text-transform:uppercase;
         }
-        .clt-cta{margin-top:2.6vw;display:flex;align-items:center;gap:1.9vw}
+        .clt-cta{margin-top:2.6cqw;display:flex;align-items:center;gap:1.9cqw}
+        /* Scale is the authored one. The only addition is a px FLOOR on the two
+           CTA labels: pure .82cqw falls to 8.4px at 1024 and keeps dropping,
+           which is unreadable. The floor never engages above ~1340px, so it does
+           not change how this renders on a full-size screen. */
         .clt-btn{
           background:var(--ink);color:var(--paper-hi);border:0;cursor:pointer;
-          padding:1.15vw 2.5vw;
-          font:700 .82vw/1 ui-monospace,Menlo,monospace;letter-spacing:.17em;
-          box-shadow:.42vw .42vw 0 var(--ox);
+          padding:1.15cqw 2.5cqw;
+          font:700 clamp(11px,.82cqw,20px)/1 ui-monospace,Menlo,monospace;letter-spacing:.17em;
+          box-shadow:.42cqw .42cqw 0 var(--ox);
           transition:box-shadow .16s ease,transform .16s ease;
         }
-        .clt-btn:hover{box-shadow:.12vw .12vw 0 var(--ox);transform:translate(.3vw,.3vw)}
+        .clt-btn:hover{box-shadow:.12cqw .12cqw 0 var(--ox);transform:translate(.3cqw,.3cqw)}
         .clt-link{
           background:none;border:0;cursor:pointer;color:var(--ink);
-          font:700 .82vw/1 ui-monospace,Menlo,monospace;letter-spacing:.15em;
-          padding-bottom:.3vw;border-bottom:.13vw solid var(--ox);
+          font:700 clamp(11px,.82cqw,20px)/1 ui-monospace,Menlo,monospace;letter-spacing:.15em;
+          padding-bottom:.3cqw;border-bottom:.13cqw solid var(--ox);
         }
         .clt-link:hover{color:var(--ox)}
         .clt-btn:focus-visible,.clt-link:focus-visible{
