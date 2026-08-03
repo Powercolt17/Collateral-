@@ -82,8 +82,8 @@
 // it without cutting figures. The desktop scene is wide and short, so it drops
 // into the bottom third of a shorter canvas and leaves the top clear. Hero on a
 // 390 phone goes 822px -> 650px, inside one screen instead of overflowing it.
-const PLATE_W = 1815;
-const PLATE_H = 976;
+const PLATE_W = 1817;
+const PLATE_H = 866;
 
 function escapeHtml(value) {
     return String(value)
@@ -104,7 +104,7 @@ function escapeHtml(value) {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-plate-v5.jpg',
+        plateSrc = '/assets/images/collateral-crop2.jpg',
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
@@ -337,15 +337,19 @@ export function renderCollateralHero(options = {}) {
              artwork solves it at source and the veil was double-counting —
              it came out with the artwork swap. */
           background-image:var(--clt-plate);
-          /* BOTTOM, not 35%. The native wide plate carries 61.3% sky, which is
-             enough that every pixel cover discards can come off the TOP and
-             none off the picture. Anchoring low was impossible on every earlier
-             plate — anchor traded table against headline clearance one for one,
-             and bottom put the CTA 51px into the artwork. With this much sky
-             the trade is gone: bottom gives 100% of the table at EVERY viewport
-             measured, 1551x760 through 2560x1440, and still clears the lockup
-             by 67px at worst. Raising this number only throws away table. */
-          background-position:center bottom;
+          /* LEFT, and this is the whole reason the layout changed.
+             The plate is no longer a landscape with a hole of sky in the
+             middle — it is a close crop with the figures massed on the RIGHT
+             and empty paper on the LEFT, which is where the type now lives.
+             Ink starts at 30.5% of the plate width, measured.
+
+             Anchoring left puts every pixel cover discards on the RIGHT edge,
+             where the magistrate already bleeds off by design, so the clear
+             zone the type sits in is never eaten. Centre-anchoring would split
+             the crop and take 130px off the left at 1351 wide, cutting the
+             usable type width from 491px to 361px — a 27% loss of the only
+             space the headline has. */
+          background-position:left center;
           background-size:cover;
           background-repeat:no-repeat;
           filter:var(--plate-grade);
@@ -595,17 +599,41 @@ export function renderCollateralHero(options = {}) {
            the frame instead of walking down onto the foliage. On a normal
            desktop the cqw side wins and nothing changes. */
         .clt-hero{--u:min(1cqw,1.75vh)}
+        /* ---- lockup: left column, vertically centred ----
+           SUPERSEDED: this was a centred block pinned to the top of the hero,
+           padded down into a band of open sky. That arrangement is gone with
+           the landscape plate. The crop puts its figures on the right and
+           leaves paper on the left, so the type takes the left column and the
+           artwork is never asked to carry a hole in its middle. Every geometry
+           fight in this file — the 35% anchor, the sky-line measurements, the
+           table cropping, the statue clipping — came from centring type over a
+           picture. A left column removes the class of problem rather than
+           tuning it.
+
+           inset 0 with margin:auto 0 centres vertically against the full hero
+           instead of hanging from the top, which is what makes it read as a
+           column rather than a banner.
+
+           SIZED IN cqw, NOT var(--u), and that is deliberate. --u is
+           min(1cqw, 1.75vh), which ties type to the SHORTER of width and
+           height. That was correct when the lockup sat in a band of sky whose
+           depth collapsed on a short window. It is wrong now: the constraint is
+           purely horizontal — how far across the plate the ink starts — so
+           height must not enter into it at all. Keeping --u here would shrink
+           the headline on a short window for no reason.
+
+           Ink starts at 44% of the plate width, measured. Anchored left, the
+           narrowest that lands at across 1351-2560 is 44% of the HERO width,
+           at 1905. So the box stops at 42cqw, the gutter takes 5cqw, and the
+           column is 37cqw with a couple of percent of slack.
+           RAISING max-width PUSHES THE HEADLINE ONTO THE OPERATOR'S BACK. */
         .clt-lockup{
-          position:absolute;inset:0 0 auto 0;
-          /* Above the plate layer. Both are positioned children of .clt-hero, so
-             without this the ::before would paint over the type. */
+          position:absolute;inset:0;
           z-index:1;
-          /* 8.1, up from 6.3, to seat the block lower in the open sky — there was
-             too much slack between the CTA row and the temple steps. This is the
-             authored 8.4 -> 10.8 move (x1.286) carried onto the 0.75 scale the
-             lockup now runs at. */
-          padding-top:calc(8.1 * var(--u));
-          display:flex;flex-direction:column;align-items:center;text-align:center;
+          display:flex;flex-direction:column;justify-content:center;
+          align-items:flex-start;text-align:left;
+          padding:0 0 0 5cqw;
+          max-width:42cqw;
         }
         .clt-eyebrow{
           display:flex;align-items:center;gap:calc(.64 * var(--u));
@@ -637,7 +665,19 @@ export function renderCollateralHero(options = {}) {
              .855 -> .875 line-height. The old setting jammed the three lines
              into a slab; a little air between them reads as considered
              typesetting instead of a compressed logo. */
-          font-size:calc(4.62 * var(--u));line-height:.875;letter-spacing:-.046em;font-weight:700;
+          /* 4.5cqw, and it is BIGGER than the 4.62 var(--u) it replaces, not
+             smaller. That is the whole payoff of the re-render: the first crop
+             put its figures at 30.5% and the type had to drop to 48px to fit
+             beside them; at 44% the column is wide enough to carry 70px at
+             1551 against the 61px it had while centred.
+
+             In cqw for the same reason as the box above — the limit is
+             horizontal, so height must not shrink it. The longest line, ON YOUR
+             OWN, runs about 8.1px per 1px of font size, so 4.5cqw puts it at
+             36.5cqw inside a 37cqw column. Anything above 4.55 overflows into
+             the operator at 1905, where the clear zone is proportionally
+             narrowest. */
+          font-size:4.5cqw;line-height:.92;letter-spacing:-.038em;font-weight:700;
           text-transform:uppercase;
           /* Oxblood, per the new colourway. The !important is still doing work:
              a global h1{color:var(--text-primary)} wins over an unweighted rule
@@ -894,7 +934,22 @@ export function renderCollateralHero(options = {}) {
              least sky and the same tall lockup. At 360x740 the clearance was
              +3px with 96; 76 makes it +23px and every larger phone gains 20px
              with it. Still clears the 64px header by 12px. */
-          .clt-lockup{position:absolute;inset:0 0 auto 0;padding:76px 22px 0;z-index:1}
+          /* Mobile stays CENTRED AND TOP-ANCHORED. The desktop rule above turns
+             the lockup into a left column because the landscape crop puts its
+             figures on the right; the portrait plate is composed the old way,
+             sky on top and figures below, so it needs the old arrangement. Every
+             property the desktop rule sets has to be undone explicitly —
+             justify-content, align-items, text-align, padding and max-width —
+             or the phone gets a narrow left column against a full-width plate. */
+          .clt-lockup{
+            position:absolute;inset:0 0 auto 0;
+            justify-content:flex-start;align-items:center;text-align:center;
+            padding:76px 22px 0;max-width:none;z-index:1;
+          }
+          /* Back to var(--u): on the portrait plate the limit is the depth of
+             the sky band, not a horizontal clear zone, so height belongs in the
+             unit again. */
+          .clt .clt-hero h1{font-size:clamp(38px,12vw,48px) !important}
           .clt-eyebrow{font-size:9px;gap:8px;letter-spacing:.18em}
           .clt-eyebrow::before,.clt-eyebrow::after{width:20px;height:2px}
           /* src/mobile.css:521 forces h1 to clamp(24px,7vw,36px) !important for
