@@ -82,8 +82,8 @@
 // it without cutting figures. The desktop scene is wide and short, so it drops
 // into the bottom third of a shorter canvas and leaves the top clear. Hero on a
 // 390 phone goes 822px -> 650px, inside one screen instead of overflowing it.
-const PLATE_W = 1817;
-const PLATE_H = 866;
+const PLATE_W = 1976;
+const PLATE_H = 941;
 
 function escapeHtml(value) {
     return String(value)
@@ -104,7 +104,7 @@ function escapeHtml(value) {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-crop2.jpg',
+        plateSrc = '/assets/images/collateral-crop3.jpg',
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
@@ -215,7 +215,7 @@ export function renderCollateralHero(options = {}) {
              brightness 1.07 still carries the cloud layer's 4.5% mean shade;
              it is higher only because the extra desaturation costs a little
              lightness. Contrast on the oxblood: 8.40:1 sun, 6.89:1 cloud. */
-          --plate-grade:saturate(.62) brightness(1.07);
+          --plate-grade:saturate(.62) brightness(1.09);
           background:var(--paper); color:var(--ink);
           font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
           -webkit-font-smoothing:antialiased;
@@ -539,7 +539,7 @@ export function renderCollateralHero(options = {}) {
              staining on the paper rather than light crossing a scene. The
              failure mode inverted completely: invisible on the old plate at
              this setting, too loud on the new one. */
-          opacity:.09;
+          opacity:.16;
           /* 12.5% of a 400% layer = HALF the hero width, so two cycles cross
              the frame instead of one. This is the change that matters and it
              is the one thing the brief ruled out.
@@ -633,7 +633,7 @@ export function renderCollateralHero(options = {}) {
           display:flex;flex-direction:column;justify-content:center;
           align-items:flex-start;text-align:left;
           padding:0 0 0 5cqw;
-          max-width:42cqw;
+          max-width:36cqw;
         }
         .clt-eyebrow{
           display:flex;align-items:center;gap:calc(.64 * var(--u));
@@ -677,7 +677,7 @@ export function renderCollateralHero(options = {}) {
              36.5cqw inside a 37cqw column. Anything above 4.55 overflows into
              the operator at 1905, where the clear zone is proportionally
              narrowest. */
-          font-size:4.5cqw;line-height:.92;letter-spacing:-.038em;font-weight:700;
+          font-size:3.7cqw;line-height:.92;letter-spacing:-.038em;font-weight:700;
           text-transform:uppercase;
           /* Oxblood, per the new colourway. The !important is still doing work:
              a global h1{color:var(--text-primary)} wins over an unweighted rule
@@ -894,19 +894,21 @@ export function renderCollateralHero(options = {}) {
              this width; without this the hero sits inset with paper down both
              sides, which is the "it needs to be full screen" problem from
              earlier. */
-          .clt-hero{
-            /* 918/1840, the portrait plate's true pixel ratio. This MUST track
-               the file: background-size below is 100% 100%, which stretches,
-               and the only thing that makes that safe is the box matching the
-               image exactly.
+          /* NO ASPECT LOCK, NO PORTRAIT PLATE, NO SYNTHESISED SKY.
+             Every mobile plate before this was a portrait canvas with sky
+             painted above the figures, and each one failed the same way: the
+             sky share never matched what the lockup needed, so the CTA landed
+             on the scribe. The last portrait measured 36% sky against 55%
+             required.
 
-               1650 -> 1840 because the portrait plate needed sky for the same
-               reason the landscape one did. Measured on the old file, its sky
-               ended at 50.5% and the CTA row bottomed 57px INTO the artwork —
-               the buttons were sitting on the magistrates. +190px of mirrored
-               sky takes the sky share to 55.6% and the clearance positive. */
-            aspect-ratio:918 / 1840 !important;
-            height:auto !important;
+             The sky was never the artwork's job. The type sits on PAPER, and
+             the section already has paper. So the hero is a plain paper panel
+             with the figure crop anchored to its bottom edge — which is also
+             exactly what the approved mockup shows. There is no join to blend
+             because there is no synthesised region: the artwork's own ground
+             meets the section's background-color, and those are matched. */
+          .clt-hero{
+            height:100vh;
             padding:0;
             width:100vw;
             margin-left:calc(50% - 50vw);
@@ -924,9 +926,18 @@ export function renderCollateralHero(options = {}) {
              would already win. Kept because the inline-style form is the
              obvious thing to revert to. */
           .clt-hero::before{
-            background-image:url(/assets/images/collateral-plate-wide-mobile.jpg) !important;
-            background-size:100% 100%;
-            background-position:center top;
+            background-image:url(/assets/images/collateral-group.jpg) !important;
+            /* 100% auto, NOT cover and NOT 100% 100%. The crop keeps its own
+               1.324 ratio, so it is never stretched and never cropped — the
+               full group is always visible, at every phone width. */
+            background-size:100% auto;
+            background-position:center bottom;
+            /* The artwork's own paper, sampled from its top corners. It sits
+               UNDER the image on the same element, so --plate-grade treats both
+               identically and the panel above the figures cannot drift to a
+               different tone than the figures' own ground. That match is the
+               only thing standing in for the sky that used to be painted in. */
+            background-color:#EBD2AE;
           }
           /* 96 -> 76px top padding. The extra sky in the portrait plate does
              most of the work, but the mobile lockup is fixed px while the hero
@@ -941,11 +952,19 @@ export function renderCollateralHero(options = {}) {
              property the desktop rule sets has to be undone explicitly —
              justify-content, align-items, text-align, padding and max-width —
              or the phone gets a narrow left column against a full-width plate. */
+          /* LEFT-ALIGNED and top-anchored, matching the approved mockup and the
+             desktop column. Centred type was a consequence of the old portrait
+             plate, where the lockup floated in a band of sky; on a paper panel
+             there is no reason for it, and left-aligning puts mobile in the same
+             voice as desktop and as the rest of the site. */
           .clt-lockup{
             position:absolute;inset:0 0 auto 0;
-            justify-content:flex-start;align-items:center;text-align:center;
+            justify-content:flex-start;align-items:flex-start;text-align:left;
             padding:76px 22px 0;max-width:none;z-index:1;
           }
+          /* The eyebrow's flanking rules are a centred device. Drop the leading
+             one so the label starts flush with the headline's left edge. */
+          .clt-eyebrow::before{display:none}
           /* Back to var(--u): on the portrait plate the limit is the depth of
              the sky band, not a horizontal clear zone, so height belongs in the
              unit again. */
@@ -1008,7 +1027,7 @@ export function renderCollateralHero(options = {}) {
             animation:none !important;
             transform:none !important;
             background-image:none !important;
-            background-color:rgba(0,0,0,.045) !important;
+            background-color:rgba(0,0,0,.08) !important;
             opacity:1 !important;
           }
         }
