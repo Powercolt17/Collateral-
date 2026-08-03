@@ -3,6 +3,7 @@ import api from '../api.js';
 import { landingCSS } from './LandingStyles.js';
 import { motionController, animateValue, initEntranceObservers, revealStyles } from './LandingMotion.js';
 import { renderCollateralHero } from '../components/CollateralHero.js';
+import { renderForkSection } from '../components/ForkSection.js';
 
 // Inject LandingCSS once into document head
 if (!document.getElementById('lp-injected-styles')) {
@@ -25,101 +26,8 @@ export function renderLanding() {
         onWatchFlow: "document.getElementById('flow') &amp;&amp; document.getElementById('flow').scrollIntoView({behavior:'smooth'}); return false;",
     })}
 
-            <!-- ═════ 2 · MODES ═════ -->
-            <section class="section alt reveal cm-root" id="modes-section" aria-labelledby="cm-title">
-                <div class="shell" style="max-width: 1060px; margin: 0 auto; padding: 0 24px;">
-                    <!-- Real Section Header OUTSIDE the frame -->
-                    <header style="margin-bottom: 24px;">
-                        <p class="cm-rise" style="--d: 0ms; font-size: 10px; letter-spacing: 0.18em; color: #8C877B; margin-bottom: 8px; text-transform: uppercase;">
-                            STEP 02 &middot; CHOOSE YOUR COUNTERPARTY
-                        </p>
-                        <h2 id="cm-title" class="cm-rise" style="--d: 80ms; font-family: var(--display, 'Archivo', sans-serif); font-weight: 700; font-size: clamp(24px, 3.4vw, 36px); letter-spacing: -0.025em; line-height: 1.1; margin-bottom: 10px; color: #1A1A18;">
-                            Who holds you to it
-                        </h2>
-                        <p class="cm-rise cm-lede" style="--d: 160ms; max-width: 480px; font-size: 13.5px; line-height: 1.6; color: #8C877B;">
-                            Stake against your own record, or against somebody who wants it as badly as you claim to. Both settle the same way, and neither asks your opinion.
-                        </p>
-                    </header>
-
-                    <!-- Single Bordered Frame Containing Panels + Settlement Band -->
-                    <div class="cm-frame">
-                        <!-- Two-Column Grid: Solo and Rivalry Panels -->
-                        <div class="cm-grid">
-                            <!-- Cream Panel: Solo Contract -->
-                            <article class="cm-panel leaf leaf--cream" style="--d: 220ms">
-                                <div class="cm-band" style="border-bottom: 1px solid #D8D3C6;">
-                                    <img class="cm-img" src="/assets/images/solo-seal.png" alt="Solo Contract Engraving" loading="lazy" />
-                                </div>
-                                <div class="cm-panel-body">
-                                    <div class="cm-rise cm-meta-row" style="--d: 340ms">
-                                        <span>MODE 01</span>
-                                        <span>FORM S&ndash;01</span>
-                                    </div>
-                                    <h3 class="cm-hero-title" style="--d: 440ms">SOLO</h3>
-                                    <p class="cm-vs-line" style="--d: 620ms">YOU<span class="cm-vs-tag">vs</span>YOU</p>
-                                    <ul class="cm-terms-list">
-                                        <li class="cm-rise cm-term" style="--d: 740ms"><span class="cm-bullet">&sect;</span>You set the target. You don't get to move it</li>
-                                        <li class="cm-rise cm-term" style="--d: 820ms"><span class="cm-bullet">&sect;</span>One oracle decides. No excuses</li>
-                                        <li class="cm-rise cm-term" style="--d: 900ms"><span class="cm-bullet">&sect;</span>Hit it and every dollar comes back</li>
-                                    </ul>
-                                    <div class="cm-rise cm-cta-wrap" style="--d: 1020ms">
-                                        <a href="/signin" class="cm-cta-link" onclick="if(window.app && window.app.openAccessModal){ window.app.openAccessModal('signup'); } else { window.router.navigate('/signin'); } return false;">Write a solo contract &rarr;</a>
-                                    </div>
-                                </div>
-                            </article>
-
-                            <!-- Maroon Panel: Rivalry Contract -->
-                            <article class="cm-panel leaf leaf--dark is-rival" style="--d: 340ms">
-                                <div class="cm-band" style="border-bottom: 1px solid rgba(240,227,216,0.20);">
-                                    <img class="cm-img" src="/assets/images/rivalry-seal.png" alt="Rivalry Contract Engraving" loading="lazy" />
-                                </div>
-                                <div class="cm-panel-body">
-                                    <div class="cm-rise cm-meta-row" style="--d: 460ms">
-                                        <span>MODE 02</span>
-                                        <span>FORM R&ndash;01</span>
-                                    </div>
-                                    <h3 class="cm-hero-title cm-hero-rivalry" style="--d: 560ms">RIVALRY</h3>
-                                    <p class="cm-vs-line" style="--d: 740ms">YOU<span class="cm-vs-tag">vs</span><span class="cm-them">THEM</span></p>
-                                    <ul class="cm-terms-list">
-                                        <li class="cm-rise cm-term" style="--d: 860ms"><span class="cm-bullet">&sect;</span>Equal capital, same metric, same clock</li>
-                                        <li class="cm-rise cm-term" style="--d: 940ms"><span class="cm-bullet">&sect;</span>One oracle decides. Neither of you gets a vote</li>
-                                        <li class="cm-rise cm-term" style="--d: 1020ms"><span class="cm-bullet">&sect;</span>The escrow goes to the winner. There is no draw</li>
-                                    </ul>
-                                    <div class="cm-rise cm-cta-wrap" style="--d: 1140ms">
-                                        <a href="/signin" class="cm-cta-link" onclick="if(window.app && window.app.openAccessModal){ window.app.openAccessModal('signup'); } else { window.router.navigate('/signin'); } return false;">Find a counterparty &rarr;</a>
-                                    </div>
-                                </div>
-                            </article>
-                        </div>
-
-                        <!-- Bottom Settlement Band Attached Inside Frame -->
-                        <div class="cm-settle">
-                            <div class="cm-rise cm-settle-head" style="--d: 1120ms">
-                                <span class="cm-settle-title">Both settle the same way</span>
-                                <span class="cm-settle-tag">IDENTICAL FOR S&ndash;01 AND R&ndash;01</span>
-                            </div>
-
-                            <div class="cm-steps">
-                                <div class="cm-rise cm-step" style="--d: 1200ms">
-                                    <div class="cm-step-n">01 &middot; CONNECT</div>
-                                    <div class="cm-step-title">The oracle reads you</div>
-                                    <p class="cm-step-body">Stripe, Shopify, YouTube. Live data at the source. Nothing you type, nothing you upload.</p>
-                                </div>
-                                <div class="cm-rise cm-step" style="--d: 1280ms">
-                                    <div class="cm-step-n">02 &middot; LOCK</div>
-                                    <div class="cm-step-title">The capital is held</div>
-                                    <p class="cm-step-body">Escrowed for the full window. No early exit, no renegotiating once started.</p>
-                                </div>
-                                <div class="cm-rise cm-step" style="--d: 1360ms">
-                                    <div class="cm-step-n">03 &middot; SETTLE</div>
-                                    <div class="cm-step-title">The date decides</div>
-                                    <p class="cm-step-body">On the closing date the oracle reports and the outcome is set. Neither party gets a vote.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <!-- ═════ 2 · FORK (how it settles) ═════ -->
+            ${renderForkSection()}
 
             <!-- ═════ 3 · CASE ═════ -->
             <section class="section reveal" id="case">
