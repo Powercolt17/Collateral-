@@ -1222,37 +1222,51 @@ export function renderCollateralHero(options = {}) {
             width:100vw;
             margin-left:calc(50% - 50vw);
             /* Reserves the artwork. MUST stay equal to the ::before height. */
-            padding:0 0 96vw;
+            padding:0 0 108vw;
           }
-          /* The plate is a block pinned to the bottom of the hero. 96vw tall in
-             a 100vw wide hero is the senate crop's own 1066x1024 ratio (1.041),
-             so cover neither stretches nor crops it — the full group shows at
-             every phone width, which is the whole reason a dedicated mobile
-             crop exists.
+          /* The plate is a block pinned to the bottom of the hero, drawn at its
+             own 1066x1024 ratio (1.041) via 100% auto, so it is never stretched
+             and never cropped — the full group shows at every phone width,
+             which is the whole reason a dedicated mobile crop exists. At 100vw
+             wide the image is 96.06vw tall.
 
-             The top 15% masks to transparent so the plate's own ground
-             dissolves into the section paper. That retires a colour match that
-             used to be load-bearing: background-color below is still the
-             measured corner value, but it is now a fallback rather than a join,
-             because the fade ends in the section's real background. However the
-             plate grades, the two can no longer drift apart. */
+             THE BOX IS 108vw, NOT 96 — the extra 11.9vw is clear ground the
+             fade needs, and the number is derived, not chosen. Ink starts 9.18%
+             down the image (measured: first departure from the top-row paper by
+             more than 54 summed levels, at x=405, row 94 of 1024). Fading
+             across the top 15% of a box that was exactly image height put that
+             first ink at 61% mask opacity, which ghosts the top of the tallest
+             head — a defect, not a soft edge.
+
+             With 11.94vw of flat ground above the image, ink now sits 19.2% down
+             the box and the fade ends at 18%, so every figure is fully opaque
+             with margin to spare. The three numbers are locked together: box
+             height, image height and fade depth. Move one and re-derive the ink
+             line before shipping.
+
+             The fade also retires a colour match that used to be load-bearing.
+             background-color is still the measured corner value, but it is a
+             fallback now rather than a join, because the fade ends in the
+             section's real background — however the plate grades, the two
+             cannot drift apart. */
           .clt-hero::before{
             background-image:url(/assets/images/collateral-senate-mobile.jpg) !important;
-            top:auto;height:96vw;
-            background-size:cover;
-            background-position:center center;
+            top:auto;height:108vw;
+            background-size:100% auto;
+            background-position:center bottom;
+            background-repeat:no-repeat;
             background-color:#EED6AF;
-            -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 15%);
-            mask-image:linear-gradient(to bottom,transparent 0,#000 15%);
+            -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 18%);
+            mask-image:linear-gradient(to bottom,transparent 0,#000 18%);
           }
           /* Clouds stay, confined to the artwork block and fading with it. The
              desktop mask is a left-to-right ramp protecting the type column,
              which means nothing once the type is not over the picture, so it is
              replaced rather than inherited. */
           .clt-sky{
-            top:auto;height:96vw;
-            -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 15%);
-            mask-image:linear-gradient(to bottom,transparent 0,#000 15%);
+            top:auto;height:108vw;
+            -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 18%);
+            mask-image:linear-gradient(to bottom,transparent 0,#000 18%);
           }
           /* position:relative, not static — z-index only applies to positioned
              elements and the lockup has to stay above the sky layer. */
