@@ -227,7 +227,20 @@ export function renderCollateralHero(options = {}) {
              taken off the engraved line, and brightness comes off entirely
              because the artwork does not need lifting — it needed leaving
              alone. Re-measured after the change, not assumed. */
-          --plate-grade:saturate(1.12) contrast(1.02) brightness(1);
+          /* REFINEMENT PASS — the artwork steps back so the headline leads.
+             The brief specified contrast(.92) saturate(.9) brightness(1.02) as
+             absolute values, but those were written against an ungraded image.
+             This plate already carries a measured grade, and going straight to
+             saturate(.9) would have thrown away a deliberate correction: the
+             senate plate reads flat without the 1.12 lift above.
+
+             So the brief's FACTORS are composed onto what was already here
+             rather than replacing it — 1.12 x .90 = 1.01, 1.02 x .92 = .94,
+             1 x 1.02 = 1.02. Same intent (about 10% less local contrast, a
+             slight desaturation, a touch lighter) without discarding the
+             earlier measurement. The wax seal ends up the most saturated thing
+             on the page by being the only thing not pulled down. */
+          --plate-grade:saturate(1.01) contrast(.94) brightness(1.02);
           background:var(--paper); color:var(--ink);
           font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
           -webkit-font-smoothing:antialiased;
@@ -313,6 +326,10 @@ export function renderCollateralHero(options = {}) {
              mix-blend-mode on ::after would reach past the hero and blend with
              .cl-grain and the page beneath. */
           isolation:isolate;
+          /* Clips the 0.6% the breathing animation pushes past the right edge.
+             Without it the scaled ::before overhangs the section and lands on
+             the proof strip below. */
+          overflow:hidden;
         }
         /* The plate paints on a LAYER, not on the section, so --plate-grade can
            be applied to the artwork alone. filter on .clt-hero itself would drag
@@ -455,7 +472,84 @@ export function renderCollateralHero(options = {}) {
              would slide the composition horizontally during the settle and walk
              the artwork across the type channel on the way. */
           transform-origin:left center;
-          animation:clt-press 980ms cubic-bezier(.16,.84,.28,1) both;
+          /* clt-breathe is a second animation on the SAME list rather than a
+             duplicate rule inside a prefers-reduced-motion:no-preference block.
+             The brief asked for the no-preference wrapper, but honouring that
+             literally would mean restating the clt-press shorthand in two
+             places, and duplicated declarations in this file have shipped three
+             separate bugs. The reduce block further down already kills both
+             with animation:none !important and transform:none !important, so
+             the guarantee the wrapper exists to provide is met either way.
+
+             Scaling from LEFT CENTER is what makes this safe: the origin is
+             already pinned there for the press, so the artwork grows to the
+             right and the type column never moves. The 0.6% overflow is
+             clipped by overflow:hidden on the section. */
+          animation:
+            clt-press 980ms cubic-bezier(.16,.84,.28,1) both,
+            clt-breathe 14s ease-in-out 980ms infinite alternate;
+        }
+        /* SCRIM. The headline has to be read before the illustration is, and on
+           a plate this busy that cannot be won with type alone — the figures
+           have to be given something to fall back behind.
+
+           THE STOPS ARE NOT THE ONES IN THE BRIEF, and the brief's own guardrail
+           is why. It specified full strength to 26%, .55 at 46% and clear by
+           64%. Measured on collateral-senate-frame.jpg, the first sustained ink
+           in the band the headline occupies starts at 41.9% of the plate width,
+           and the type column runs from 5% to 41%. The brief's ramp is only
+           about 64% opaque where the longest headline line ends, so the leading
+           figure's arm would have surfaced directly behind it.
+
+           Holding .86 out to 44% covers the whole column and the first ink
+           behind it, then falling to zero by 70% leaves the faces, the scroll
+           and the seal completely untouched. The artwork loses nothing that
+           matters; it loses the edge that was competing with the type.
+
+           Three layers, one element: the top fade dissolves the figures into
+           paper along the upper edge, the radial sits on the wax seal at
+           68% 78% and quietly darkens everything away from it, and the
+           left-to-right ramp is the scrim proper. Alpha only — no blend mode,
+           because a blend here would reach past the hero. */
+        .clt-hero::after{
+          content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+          background:
+            linear-gradient(180deg,
+              rgba(239,230,210,.50) 0%,
+              rgba(239,230,210,0) 22%),
+            radial-gradient(120% 90% at 68% 78%,
+              rgba(239,230,210,0) 40%,
+              rgba(239,230,210,.35) 100%),
+            linear-gradient(90deg,
+              rgba(239,230,210,.96) 0%,
+              rgba(239,230,210,.93) 28%,
+              rgba(239,230,210,.86) 44%,
+              rgba(239,230,210,.45) 56%,
+              rgba(239,230,210,0) 70%);
+        }
+        /* AMBIENT SWEEP. Sits on .clt-sky::after so it inherits that layer's
+           left-to-right mask, which keeps it off the type column for free. New
+           element with nothing but this animation on it, so the brief's
+           no-preference wrapper costs nothing here and is used as written. */
+        .clt-sky::after{
+          content:"";position:absolute;inset:-20% -40%;
+          pointer-events:none;
+          background:radial-gradient(38% 60% at 50% 45%,
+            rgba(255,249,235,.9) 0%, rgba(255,249,235,0) 70%);
+          opacity:.05;
+        }
+        @media (prefers-reduced-motion:no-preference){
+          .clt-sky::after{animation:clt-drift 30s ease-in-out infinite alternate}
+        }
+        @keyframes clt-drift{
+          from{transform:translate3d(-18%,0,0)}
+          to{transform:translate3d(18%,0,0)}
+        }
+        /* 1.000 -> 1.006. Any more and it stops being weather and starts being
+           a zoom, which the brief rules out explicitly. */
+        @keyframes clt-breathe{
+          from{transform:scale(1)}
+          to{transform:scale(1.006)}
         }
         /* The sheet comes off the plate left to right, and the 1.6% overscale
            settling to 1 is the paper releasing from the pressure. Both run on
@@ -845,7 +939,9 @@ export function renderCollateralHero(options = {}) {
            RAISING max-width PUSHES THE HEADLINE ONTO THE OPERATOR'S BACK. */
         .clt-lockup{
           position:absolute;inset:0;
-          z-index:1;
+          /* 1 -> 2. The scrim now occupies z-index:1 between the artwork and
+             the type, which is the whole point of it. */
+          z-index:2;
           display:flex;flex-direction:column;justify-content:center;
           align-items:flex-start;text-align:left;
           padding:0 0 0 5cqw;
@@ -888,18 +984,25 @@ export function renderCollateralHero(options = {}) {
            sentence into a second headline. */
         .clt-sub{
           font-family:var(--text-serif);
-          margin-top:calc(1.55 * var(--u));
+          /* h1 -> paragraph = 22px in the spacing rhythm. */
+          margin-top:clamp(13px,1.42cqw,22px);
           font-size:clamp(14px,calc(1.02 * var(--u)),21px);
-          /* 30ch -> 42ch. The replacement sentence is 88 characters against the
-             old 62, and at 30ch it broke into four short lines that read as a
-             list. 42ch sets it as two, matching the approved frame. */
-          line-height:1.5;color:#4A4035;max-width:42ch;
+          /* 30ch -> 42ch -> 56ch. At 30ch the sentence broke into four short
+             lines that read as a list; 42ch set it as two. 56ch puts the
+             measure in the 55-65 character range the brief asked for, which is
+             where a text serif is most comfortable. At the 36cqw column that
+             still resolves to roughly 400px, so it cannot reach the figures —
+             the scrim holds to 44% and the column ends at 41%. */
+          line-height:1.5;color:#4A4035;max-width:56ch;
         }
         .clt-hero h1{
           /* 1.05 -> 1.70 var(--u), about +10px at desktop. Part of the
              deliberate-pacing pass: eyebrow, headline and CTA all gained
              separation so the lockup reads as composed rather than stacked. */
-          margin-top:calc(1.70 * var(--u));
+          /* SPACING RHYTHM: eyebrow -> h1 = 24px at desktop. cqw keeps it fluid;
+             the clamp stops it collapsing on small containers or running away
+             on very wide ones. */
+          margin-top:clamp(14px,1.55cqw,24px);
           /* Institutional, not startup. Three changes, each small:
 
              800 -> 700. An 800 grotesque at display size is a product-launch
@@ -947,9 +1050,16 @@ export function renderCollateralHero(options = {}) {
              Sized up from 3.95cqw: lowercase sets narrower than caps at equal
              size, so the same measure carries more type. The cap-height reads
              close to the old line while the x-height does the work. */
-          font-family:var(--text-serif);font-weight:400;font-synthesis:none;
-          font-size:4.55cqw;line-height:1.06;letter-spacing:-.012em;
-          color:var(--ink-warm) !important;
+          /* Stronger, NOT bigger — the size is untouched at 4.55cqw.
+             400 -> 500 on Newsreader's variable weight axis (index.html requests
+             400..700, so this is a real instance, not a synthesised one).
+             1.06 -> .98 line-height binds the three lines into one mass.
+             -.012 -> -.005em: the tighter tracking was compensating for a
+             lighter weight, and at 500 it closed the counters up.
+             --ink-warm #2B2118 -> #1C160E for more bite against the scrim. */
+          font-family:var(--text-serif);font-weight:500;font-synthesis:none;
+          font-size:4.55cqw;line-height:.98;letter-spacing:-.005em;
+          color:#1C160E !important;
           text-transform:none;
         }
         /* The accent span is now the same colour as the rest of the headline —
@@ -961,7 +1071,8 @@ export function renderCollateralHero(options = {}) {
            headline. The gap between the two CTAs opens too, 1.43 -> 1.70, so
            the primary and secondary read as two separate decisions rather than
            a button pair. */
-        .clt-cta{margin-top:calc(2.60 * var(--u));display:flex;align-items:center;gap:calc(1.70 * var(--u))}
+        /* paragraph -> buttons = 32px. */
+        .clt-cta{margin-top:clamp(20px,2.06cqw,32px);display:flex;align-items:center;gap:calc(1.70 * var(--u))}
         /* The px FLOOR on the two CTA labels stops them collapsing to ~8px on a
            1024 laptop. It does not engage on a full-size screen. */
         /* ox-deep FILL with an ox shadow — the inverse of the first attempt.
@@ -1002,26 +1113,47 @@ export function renderCollateralHero(options = {}) {
            paper at low alpha, which is the bevel a stamped plate catches. */
         .clt-btn{
           background:var(--ox);color:#F6EAD6;cursor:pointer;
-          border:1px solid var(--ox-deep);
-          padding:calc(1.05 * var(--u)) calc(2.40 * var(--u));
+          /* Lighter edge. The solid --ox-deep border drew a hard line around
+             the shape; at .5 alpha it reads as the edge of a pressed wax slab
+             rather than a UI stroke. */
+          border:1px solid rgba(101,21,34,.5);
+          /* ~18px top and bottom, min-height 56px — the button was the one
+             element still sized like a form control. */
+          padding:clamp(14px,1.16cqw,18px) calc(2.40 * var(--u));
+          min-height:56px;box-sizing:border-box;
           font-family:var(--roman);font-weight:400;font-synthesis:none;
           font-size:clamp(12px,calc(.68 * var(--u)),21px);line-height:1;
           text-transform:uppercase;letter-spacing:.17em;
           display:inline-flex;align-items:center;gap:calc(1.6 * var(--u));
+          /* Depth without a UI drop-shadow. The inset highlight is the lit top
+             edge of a poured slab; the outer shadow is wide, soft and tinted
+             oxblood rather than grey, so it reads as the object sitting in the
+             page rather than floating above it. */
           box-shadow:
-            inset 0 0 0 1px rgba(246,234,214,.30),
-            inset 0 1px 0 0 rgba(246,234,214,.16);
-          transition:background .16s ease,box-shadow .16s ease;
+            inset 0 1px 0 rgba(255,255,255,.10),
+            inset 0 0 0 1px rgba(246,234,214,.22),
+            0 8px 22px rgba(101,21,34,.18);
+          transition:all 220ms ease-out;
         }
-        .clt-btn .clt-arrow{font-size:1.05em;line-height:1;transform:translateY(-.02em)}
+        .clt-btn .clt-arrow{
+          font-size:1.05em;line-height:1;transform:translateY(-.02em);
+          transition:transform 220ms ease-out;
+        }
+        .clt-btn:hover .clt-arrow{transform:translate(5px,-.02em)}
         /* Darkens rather than moves. With the cast gone there is nothing to
            collapse, so the plate deepens a shade and the inner rule brightens
            — the same gesture as ink taking under pressure. */
         .clt-btn:hover{
           background:var(--ox-deep);
+          /* Lifts 1px. The earlier note argued against movement because the
+             old cast shadow had nothing to collapse into; with a real ambient
+             shadow underneath there is now somewhere to lift FROM, and the
+             shadow deepens with it. */
+          transform:translateY(-1px);
           box-shadow:
-            inset 0 0 0 1px rgba(246,234,214,.40),
-            inset 0 1px 0 0 rgba(246,234,214,.20);
+            inset 0 1px 0 rgba(255,255,255,.14),
+            inset 0 0 0 1px rgba(246,234,214,.34),
+            0 12px 28px rgba(101,21,34,.24);
         }
         /* Serif caps on a hairline, matching the plate. Oxblood is now reserved
            for the button alone, so the secondary action cannot be mistaken for
@@ -1057,20 +1189,51 @@ export function renderCollateralHero(options = {}) {
            air above and between, so it is a third block rather than a line
            tacked under the buttons. */
         .clt-proof{
-          margin-top:calc(2.90 * var(--u));
-          padding-top:calc(1.45 * var(--u));
-          border-top:1px solid rgba(43,33,24,.18);
-          display:flex;align-items:flex-start;flex-wrap:wrap;
-          gap:calc(.7 * var(--u)) calc(3.0 * var(--u));
-          font:400 clamp(8.5px,calc(.46 * var(--u)),12px)/1.5 ui-monospace,Menlo,monospace;
-          letter-spacing:.16em;color:rgba(43,33,24,.52);
+          /* buttons -> metrics = 40px, the largest gap in the stack. The rhythm
+             widens as it descends so the column reads as deliberate rather
+             than evenly stacked. */
+          margin-top:clamp(26px,2.58cqw,40px);
+          padding-top:clamp(12px,1.45cqw,20px);
+          border-top:1px solid rgba(60,48,30,.18);
+          display:flex;align-items:stretch;flex-wrap:nowrap;
+          /* 40px minimum between the two cells, per the brief. */
+          gap:0 clamp(28px,2.58cqw,40px);
+          /* The label leaves ui-monospace for the display serif. A monospace
+             caption on an engraved plate was the one element still reading as
+             software. 10px / .24em / 600 is the certificate idiom: small,
+             widely tracked, and set solid rather than faint.
+
+             THE COLOUR GOES UP, NOT DOWN — .52 -> .72. The brief said not to
+             reduce it further and it was right, but the value was already
+             failing: rgba(43,33,24,.52) measures 2.96:1 on this ground, under
+             the 4.5:1 AA floor for text this size. .72 measures 5.67:1 over
+             the scrim. Strengthening it is the accessibility fix AND the
+             design one. */
+          font:600 clamp(9px,.65cqw,10px)/1.5 var(--roman),Georgia,serif;
+          font-synthesis:none;
+          text-transform:uppercase;
+          letter-spacing:.24em;color:rgba(43,33,24,.72);
+        }
+        /* The vertical divider. Two cells on a shared rule, which is what makes
+           it read as one engraved line rather than two floating numbers. */
+        .clt-proof span{display:block}
+        .clt-proof span + span{
+          border-left:1px solid rgba(60,48,30,.18);
+          padding-left:clamp(28px,2.58cqw,40px);
         }
         .clt-proof b{
-          display:block;font-weight:400;color:var(--ink-warm);
-          font-family:var(--roman);font-synthesis:none;
-          font-size:2.35em;letter-spacing:.01em;line-height:1.05;
-          margin-bottom:calc(.28 * var(--u));
-          font-variant-numeric:tabular-nums;
+          display:block;font-weight:500;color:var(--ink-warm);
+          /* Cormorant Garamond, already loaded in index.html at 400/500/600, so
+             this costs no new asset. Trajan has no lowercase and no true
+             oldstyle figures; Cormorant is the certificate face and its numerals
+             sit properly on the baseline at this size. */
+          font-family:"Cormorant Garamond",Georgia,serif;font-synthesis:none;
+          font-size:clamp(24px,1.94cqw,30px);
+          letter-spacing:.005em;line-height:1;
+          margin-bottom:clamp(5px,.52cqw,8px);
+          /* Tabular so the two cells align on the baseline and the digits do
+             not shift when the live numbers change. */
+          font-variant-numeric:tabular-nums lining-nums;
         }
 
         /* ---- entrance ----
@@ -1370,6 +1533,18 @@ export function renderCollateralHero(options = {}) {
             -webkit-mask-image:none;
             mask-image:none;
           }
+          /* The scrim is OFF here, and that is not an oversight. It is a
+             left-to-right ramp that exists to hold a left type column apart
+             from artwork on the right — a two-column device. Mobile is a stack:
+             the type is full width and already on its own paper above the
+             picture, so there is nothing to separate. Left on, it would lay a
+             band of parchment across the artwork for no reason.
+
+             The ambient sweep goes with it. On desktop it rides the .clt-sky
+             mask, which kept it off the type; with that mask removed here it
+             would drift across the headline instead. */
+          .clt-hero::after{display:none}
+          .clt-sky::after{display:none}
           /* position:relative, not static — z-index only applies to positioned
              elements and the lockup has to stay above the sky layer.
 

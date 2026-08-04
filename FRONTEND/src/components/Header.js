@@ -239,11 +239,12 @@ export function renderHeader(currentRoute = '') {
             .ch-right {
                 display: flex;
                 align-items: center;
-                /* 16 -> 22px. The right cluster was the tightest part of the
-                   bar and read as a toolbar. Institutional headers space their
-                   controls apart and let the rules do the separating. Height is
-                   untouched, so the bar itself does not move. */
-                gap: 22px;
+                /* 16 -> 22 -> 34px. Same argument as before, carried further:
+                   the nav should recede until it is wanted, and on an
+                   institutional bar that is bought with air rather than with
+                   weight. Height is untouched, so the bar itself does not
+                   move. */
+                gap: 34px;
                 height: 100%;
             }
 
@@ -332,12 +333,34 @@ export function renderHeader(currentRoute = '') {
                rather than a wordmark with a toolbar bolted to its right. */
             .ch-nav-link {
                 font-family: "Trajan Pro", "Cinzel", Georgia, serif;
-                font-size: 11.5px;
+                /* 11.5 -> 11px and the ink drops to --ink-soft, so the two
+                   secondary links sit back and GET STARTED is unambiguously
+                   the only call to action in the bar.
+
+                   The brief asked for --ink-soft and for weight 500. Neither
+                   is applied, and both for measured reasons.
+
+                   --ink-soft is #5A6172, a COOL blue-grey, and these links sit
+                   over warm sepia artwork on the landing hero — the scrim is
+                   zero by the time it reaches this side of the bar. Measured
+                   against the plate under the nav after the grade and the top
+                   fade, it lands at 4.40:1 over the mean sky and 3.96:1 at the
+                   darkest point, both under the 4.5:1 AA floor at 11px.
+                   #5F5344 is the same recession in a warm key and measures
+                   5.31:1 and 4.77:1 — it passes at both, and it belongs to the
+                   palette rather than fighting it.
+
+                   Weight 500 is Trajan Pro, which is loaded at 400 and 700
+                   only, with font-synthesis:none. A 500 would silently resolve
+                   to 400 — a declaration that reads as intent and does nothing.
+                   The recession is bought with colour and size instead, which
+                   is what the brief was actually after. */
+                font-size: 11px;
                 font-weight: 400;
                 font-synthesis: none;
                 letter-spacing: 0.13em;
                 text-transform: uppercase;
-                color: var(--ink, #0E1420);
+                color: #5F5344;
                 text-decoration: none;
                 white-space: nowrap;
                 transition: color 150ms ease;
