@@ -582,6 +582,81 @@ export function renderCollateralHero(options = {}) {
           from{transform:translate3d(0,0,0)}
           to{transform:translate3d(12.5%,0,0)}
         }
+
+        /* ---- the slow arc: a SECOND layer, doing a different job ----
+           The cloud layer above is tuned for VISIBILITY and its whole history is
+           documented there: amplitude raised three times with no effect, a smooth
+           single-period wave abandoned for fractal noise, tile halved, 30s to 12s.
+           None of that is reopened here. This layer does not compete with it.
+
+           What the clouds cannot say is DIRECTION. A 12s loop reads as weather:
+           ambient, repeating, going nowhere. The product is about a date arriving
+           and not waiting for you, and the visual equivalent of that is light that
+           only ever travels one way and only passes once. So: a single broad band
+           of shade crossing the frame over six minutes, iteration count 1.
+
+           It is deliberately BELOW the threshold the cloud layer was tuned to
+           clear. Nobody is meant to catch it moving. It is the difference between
+           a scene that loops and a scene that is somewhere in its own afternoon —
+           felt on a second visit rather than seen on the first.
+
+           STARTS AND ENDS OFF-FRAME, and that is a correctness requirement, not a
+           style choice. --plate-grade carries a brightness that exists solely to
+           offset the cloud layer's MEAN cover; it knows nothing about this one.
+           A band parked over the plate at the end of its run would be permanent
+           uncompensated darkening. Off-frame at both ends means the composited
+           baseline before and after the sweep is exactly what the grade expects,
+           and the darkening is purely transient.
+
+           CARRIES ITS OWN MASK, and does not simply inherit .clt-sky's.
+
+           Inheriting looked sufficient and is not. .clt-sky holds the type column
+           to 45% rather than to nothing, which is right for the clouds: they are
+           the visible layer and killing them outright behind the headline would
+           leave a dead rectangle in the weather. Measured, that let 5.7% black
+           swing under the headline at the arc's peak — contrast 11.1 to 9.82, and
+           the accent 7.45 to 6.58. Both still pass at display sizes, so this is
+           not a failure. It is simply not what was specified: no luminance
+           movement under the type, full stop.
+
+           So the arc gets a second mask, transparent to 42% and full by 66%. The
+           headline measures 5% to 39.7% of the sky, so the type column sees
+           exactly zero of this layer, and the artwork sees all of it. The mask
+           lives on a WRAPPER rather than on the sweeping element, because a mask
+           on the element itself would travel with it and the exclusion has to
+           stay fixed to the frame. */
+        .clt-arcwrap{
+          position:absolute;inset:0;overflow:hidden;pointer-events:none;
+          -webkit-mask-image:linear-gradient(to right,
+            rgba(0,0,0,0) 0%, rgba(0,0,0,0) 42%,
+            rgba(0,0,0,1) 66%, rgba(0,0,0,1) 100%);
+          mask-image:linear-gradient(to right,
+            rgba(0,0,0,0) 0%, rgba(0,0,0,0) 42%,
+            rgba(0,0,0,1) 66%, rgba(0,0,0,1) 100%);
+        }
+        .clt-arcwrap b{
+          display:block;
+          position:absolute;top:0;bottom:0;left:-100%;width:300%;
+          pointer-events:none;
+          /* 100deg, not 90 — a raking angle reads as a sun low in the sky rather
+             than a wipe. The band spans 30% to 70% of a 300% layer, so the shade
+             is about 1.2 hero widths across with nothing but feather either side.
+             There is no hard edge anywhere in it at any point in the sweep. */
+          background:linear-gradient(100deg,
+            rgba(0,0,0,0) 30%,
+            rgba(0,0,0,.10) 50%,
+            rgba(0,0,0,0) 70%);
+          transform:translate3d(-33.333%,0,0);
+          will-change:transform;
+          animation:clt-arc 360s linear 1 forwards;
+        }
+        /* A third of a 300% layer is exactly one hero width, so the band centre
+           travels from one frame-width left of the frame to one frame-width right
+           of it: fully clear at both ends. */
+        @keyframes clt-arc{
+          from{transform:translate3d(-33.333%,0,0)}
+          to{transform:translate3d(33.333%,0,0)}
+        }
         /* clt-breathe removed. It modulated the layer's opacity as a second,
            slower rhythm, but opacity scales the entire darkening, so it spent
            most of the cycle under the amplitude the sweep was tuned for and
@@ -1082,12 +1157,26 @@ export function renderCollateralHero(options = {}) {
             background-color:rgba(0,0,0,.08) !important;
             opacity:1 !important;
           }
+          /* The arc is REMOVED here, where the cloud layer above is only frozen.
+             That difference is deliberate and follows from the same rule.
+
+             The cloud layer must survive as a flat tone because --plate-grade
+             carries a brightness offsetting its mean, so deleting it would leave
+             the compensation unopposed and hand a reduced-motion visitor a washed
+             plate — the exact bug recorded above. The arc has no such
+             compensation: it is transient by construction and its resting
+             contribution is already zero. Removing it therefore lands on the same
+             composited tone as a viewer who arrives after the sweep has passed,
+             which is the correct baseline. Freezing it instead would park a fixed
+             band across the artwork forever, which is what happened to the wave
+             the first time round. */
+          .clt-arcwrap{display:none !important}
         }
         </style>
 
         <div class="clt">
             <section class="clt-hero" style="--clt-plate:url(${plateSrc});" data-plate="${PLATE_W}x${PLATE_H}">
-                <div class="clt-sky" aria-hidden="true"><i></i></div>
+                <div class="clt-sky" aria-hidden="true"><i></i><span class="clt-arcwrap"><b></b></span></div>
                 <div class="clt-lockup">
                     <div class="clt-eyebrow clt-mono clt-in" style="--d:60ms">SELF-ENFORCING PERFORMANCE CONTRACTS</div>
                     <h1><span class="clt-line" style="--d:150ms">Put money</span><br /><span class="clt-line" style="--d:240ms">on your own</span><br /><span class="clt-line" style="--d:330ms"><span class="clt-accent">deadline</span></span></h1>
