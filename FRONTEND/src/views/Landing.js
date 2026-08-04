@@ -4,7 +4,7 @@ import { landingCSS } from './LandingStyles.js';
 import { motionController, animateValue, initEntranceObservers, revealStyles } from './LandingMotion.js';
 import { renderCollateralHero } from '../components/CollateralHero.js';
 import { renderForkSection } from '../components/ForkSection.js';
-import { renderLedgerSection } from '../components/LedgerSection.js';
+import { renderLedgerSection, initLedgerSection } from '../components/LedgerSection.js';
 
 // Inject LandingCSS once into document head
 if (!document.getElementById('lp-injected-styles')) {
@@ -734,6 +734,11 @@ export function renderLanding() {
 }
 
 export function initLanding() {
+    /* The ledger takes over its own rows from the live API. Fire and forget: it
+       resolves on its own and never rejects into here, and if it fails the rows
+       rendered at build time stay on screen rather than the section emptying. */
+    initLedgerSection();
+
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function money(n) {

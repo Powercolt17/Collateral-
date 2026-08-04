@@ -47,9 +47,9 @@
  * same box with a transparent background. Returned and forfeited rows get
  * nothing — they have no day count to align.
  *
- * PRE-LAUNCH: showRatio is gated behind !sampleData, so a bar claiming a
- * settlement rate can never render above a "no contract has settled yet"
- * notice. Leave it off until the numbers are real.
+ * LIVE DATA: initLedgerSection at the foot of this file replaces every row with
+ * what is in the database, and gates the ratio bar and the standfirst on the
+ * real settled count. The ENTRIES above are the first-paint fallback only.
  */
 
 const URGENT_DAYS = 5;
@@ -95,15 +95,13 @@ function renderRow(entry) {
 /**
  * @param {object}  [options]
  * @param {Array}   [options.entries]         Ledger rows.
- * @param {boolean} [options.sampleData]      Shows the pre-launch notice and gates the ratio bar.
- * @param {boolean} [options.showRatio]       Split bar. Only renders when sampleData is false.
+ * @param {boolean} [options.showRatio]       Split bar. initLedgerSection hides it while nothing has settled.
  * @param {number}  [options.returnedPct]     Used by the ratio bar only.
  * @param {string}  [options.onSeeFullLedger] Inline handler for the footer link.
  */
 export function renderLedgerSection(options = {}) {
     const {
         entries = ENTRIES,
-        sampleData = true,
         showRatio = false,
         returnedPct = 61,
         onSeeFullLedger = '',
@@ -112,11 +110,7 @@ export function renderLedgerSection(options = {}) {
     const forfeitedPct = 100 - returnedPct;
     const rows = entries.map(renderRow).join('');
 
-    const sampleNotice = sampleData
-        ? '<div class="lg-sample lg-mono">SAMPLE DATA &middot; NO CONTRACT HAS SETTLED YET</div>'
-        : '';
-
-    const ratio = (showRatio && !sampleData)
+    const ratio = showRatio
         ? `
                 <div class="lg-ratio">
                     <div class="lg-ratio-bar" role="img" aria-label="${escapeHtml(returnedPct)}% of deposits returned, ${escapeHtml(forfeitedPct)}% forfeited">
@@ -265,13 +259,12 @@ export function renderLedgerSection(options = {}) {
                 <div class="lg-head">
                     <div class="lg-kicker lg-mono">THE LEDGER</div>
                     <h2>Every contract settles in public</h2>
-                    <p>
+                    <p id="lg-standfirst">
                         Nothing here was decided by us. An API reported, the date passed, and the escrow moved.
                         Losses are listed beside the wins, because that is what makes the wins mean anything.
                     </p>
-                    ${sampleNotice}
                 </div>
-${ratio}
+                <div id="lg-ratio-slot">${ratio}</div>
                 <div class="lg-cols lg-mono">
                     <span>&#8470;</span>
                     <span>GOAL</span>
@@ -279,7 +272,7 @@ ${ratio}
                     <span>AT STAKE</span>
                     <span>OUTCOME</span>
                 </div>
-${rows}
+                <div id="lg-body">${rows}</div>
                 <div class="lg-foot lg-mono">
                     <span>SETTLEMENT IS AUTOMATIC &middot; <b>NO APPEALS</b> &middot; <b>NO EXTENSIONS</b></span>
                     <button type="button" class="lg-link"${onSeeFullLedger ? ` onclick="${onSeeFullLedger}"` : ''}>SEE THE FULL LEDGER &rarr;</button>
@@ -287,4 +280,150 @@ ${rows}
             </div>
         </section>
     `;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LIVE DATA
+
+   The section renders with ENTRIES so it is never blank on first paint, then
+   this replaces every row with what is actually in the database. Three sources:
+
+     /v1/market/contracts        the live contract set — real rows, real stakes,
+                                 real funding windows, straight from the DB
+     /v1/market/homepage-stats   settled count, capital locked, total paid out
+     /v1/ledger                  real staked contracts with a named principal
+
+   WHAT THE OUTCOME COLUMN CAN AND CANNOT SAY. Outcomes are derived, never
+   assumed. RETURNED and FORFEITED are only ever written for a contract that
+   carries a settlement event; everything else is an open window and reports the
+   days left against its real close date. At the time of writing the API returns
+   contractsSettled 0, so nothing renders as returned or forfeited — and that is
+   the section telling the truth, not a bug.
+
+   THE RATIO BAR IS GATED ON THE SAME FACT. A returned-versus-forfeited split
+   computed from zero settlements is 0/0, so the bar is removed until the first
+   real settlement exists, and appears on its own the moment one does.
+
+   The standfirst is swapped for the same reason. Its wording — "an API reported,
+   the date passed, and the escrow moved" — is a claim about completed
+   settlements. With none on record it is replaced by a sentence describing what
+   IS true; the original returns automatically once contractsSettled goes above
+   zero. Neither string needs editing again.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+const LG_PAGE = 6;
+const LG_CYCLE_MS = 7000;
+
+function lgDaysLeft(iso) {
+    if (!iso) return null;
+    const ms = new Date(iso).getTime() - Date.now();
+    return ms <= 0 ? 0 : Math.ceil(ms / 86400000);
+}
+
+/** Live market listings -> ledger rows. Open windows only; nothing is settled. */
+function lgFromMarket(list) {
+    return (list || []).map((c) => {
+        const t = c.template || {};
+        const days = lgDaysLeft(c.fundingCloseAt);
+        return {
+            id: String(c.id || '').replace(/-/g, '').slice(0, 3).toUpperCase(),
+            goal: t.title || t.name || c.metricKey || 'Open contract',
+            party: 'OPEN',
+            oracle: (t.provider || c.provider || '').replace(/^\w/, (m) => m.toUpperCase()),
+            stake: Math.round((c.costCents || 0) / 100),
+            status: 'open',
+            daysLeft: days == null ? 30 : days,
+        };
+    });
+}
+
+/** Real staked contracts from the ledger. These have a named principal. */
+function lgFromLedger(events) {
+    const byContract = new Map();
+    for (const e of events || []) {
+        const cur = byContract.get(e.contractId) || { events: [], first: e };
+        cur.events.push(e);
+        if (e.lockAmountUsdCents) cur.lock = e.lockAmountUsdCents;
+        if (e.principal) cur.principal = e.principal;
+        if (e.platform) cur.platform = e.platform;
+        byContract.set(e.contractId, cur);
+    }
+    const rows = [];
+    for (const [id, c] of byContract) {
+        const types = c.events.map((e) => e.eventType).join(' ');
+        // Derived, never assumed. Only a real settlement event earns an outcome.
+        const settled = /SETTLED|RETURNED|PAYOUT_COMPLETE/.test(types);
+        const forfeited = /FORFEIT|SETTLED_FAILURE|BOTH_MISS/.test(types);
+        rows.push({
+            id: String(id).replace(/-/g, '').slice(0, 3).toUpperCase(),
+            goal: c.platform ? `${c.platform.charAt(0) + c.platform.slice(1).toLowerCase()} performance contract` : 'Performance contract',
+            party: c.principal ? '@' + c.principal : 'OPEN',
+            oracle: (c.platform || '').replace(/^(\w)(\w*)$/, (_, a, b) => a + b.toLowerCase()),
+            stake: Math.round((c.lock || 0) / 100),
+            status: forfeited ? 'forfeited' : settled ? 'returned' : 'open',
+            daysLeft: 0,
+        });
+    }
+    return rows;
+}
+
+/**
+ * Fetches live data and takes over the section. Safe to call when the section
+ * is absent — it no-ops. Never throws into the caller: on any failure the rows
+ * rendered at build time stay on screen rather than the section going blank.
+ */
+export async function initLedgerSection() {
+    const body = document.getElementById('lg-body');
+    if (!body) return;
+
+    /* Same base the api module resolves, rather than a second hardcoded host. */
+    const BASE = import.meta.env.VITE_API_BASE_URL || 'https://collateral-production.up.railway.app';
+    /* Direct fetches, NOT window.api.getLedgerEvents. That helper is shaped for
+       a single contract and routes through the authed path, so calling it with
+       no id throws "Authentication required" and silently drops the one really
+       staked contract from the section. /v1/ledger itself is public. */
+    const get = (path) => fetch(BASE + path).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+
+    const [stats, market, ledger] = await Promise.all([
+        get('/v1/market/homepage-stats'),
+        get('/v1/market/contracts'),
+        get('/v1/ledger'),
+    ]);
+
+    const staked = lgFromLedger(ledger && ledger.events);
+    const open = lgFromMarket(market && market.contracts);
+    const all = staked.concat(open);
+    if (!all.length) return;
+
+    const settledCount = stats && Number(stats.contractsSettled) || 0;
+
+    // Standfirst: the shipped wording claims completed settlements. Only leave it
+    // in place once at least one exists.
+    const sf = document.getElementById('lg-standfirst');
+    if (sf && settledCount === 0) {
+        const openCount = all.length;
+        sf.textContent = `Nothing here was decided by us. ${openCount} contract${openCount === 1 ? '' : 's'} `
+            + `${openCount === 1 ? 'is' : 'are'} open against a live oracle and a fixed date. `
+            + `None has reached its date yet — when one does, the outcome is posted here whichever way it goes.`;
+    }
+
+    // Ratio bar: a returned/forfeited split needs something settled to divide.
+    const ratioSlot = document.getElementById('lg-ratio-slot');
+    if (ratioSlot && settledCount === 0) ratioSlot.innerHTML = '';
+
+    let page = 0;
+    const paint = () => {
+        const start = (page * LG_PAGE) % all.length;
+        const slice = [];
+        for (let i = 0; i < Math.min(LG_PAGE, all.length); i++) slice.push(all[(start + i) % all.length]);
+        body.innerHTML = slice.map(renderRow).join('');
+    };
+    paint();
+
+    // Cycle only when there is more than one page, and never for someone who
+    // asked for reduced motion.
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (all.length > LG_PAGE && !reduced) {
+        setInterval(() => { page += 1; paint(); }, LG_CYCLE_MS);
+    }
 }
