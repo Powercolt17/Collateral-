@@ -1965,6 +1965,10 @@ function updateAuthUI() {
     if (!appState.sessionHydrated) return;
 
     const btnAuth = document.getElementById('btn-auth');
+    // Signed-out primary action. Tracks btnAuth exactly — both are the
+    // signed-out pair, and toggling one without the other leaves GET STARTED
+    // sitting beside a signed-in avatar.
+    const btnGetStarted = document.getElementById('btn-get-started');
     const capitalArea = document.getElementById('header-capital-area');
     const headerAvatarTrigger = document.getElementById('header-avatar-trigger');
     const headerAvatarDivider = document.getElementById('header-avatar-divider');
@@ -1973,6 +1977,7 @@ function updateAuthUI() {
 
     if (appState.isLoggedIn) {
         if (btnAuth) btnAuth.style.display = 'none';
+        if (btnGetStarted) btnGetStarted.style.display = 'none';
         if (capitalArea) {
             capitalArea.style.display = 'flex';
             window.api.getBillingStatus().then(res => {
@@ -2003,6 +2008,7 @@ function updateAuthUI() {
         console.log('[Auth] UI updated, showing:', appState.username);
     } else {
         if (btnAuth) btnAuth.style.display = 'inline-block';
+        if (btnGetStarted) btnGetStarted.style.display = 'inline-block';
         if (capitalArea) capitalArea.style.display = 'none';
         if (headerAvatarTrigger) headerAvatarTrigger.style.display = 'none';
         if (headerAvatarDivider) headerAvatarDivider.style.display = 'none';

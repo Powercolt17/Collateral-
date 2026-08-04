@@ -313,6 +313,59 @@ export function renderHeader(currentRoute = '') {
                 text-transform: uppercase;
                 transition: background 150ms ease;
             }
+
+            /* NAV LINKS AND THE PRIMARY ACTION.
+               Trajan, not the mono stack the rest of the bar uses. The approved
+               frame sets the nav in the same inscriptional face as the wordmark
+               beside it, which is what makes the header read as one object
+               rather than a wordmark with a toolbar bolted to its right. */
+            .ch-nav-link {
+                font-family: "Trajan Pro", "Cinzel", Georgia, serif;
+                font-size: 11.5px;
+                font-weight: 400;
+                font-synthesis: none;
+                letter-spacing: 0.13em;
+                text-transform: uppercase;
+                color: var(--ink, #0E1420);
+                text-decoration: none;
+                white-space: nowrap;
+                transition: color 150ms ease;
+            }
+            .ch-nav-link:hover { color: var(--blood, #7A1C29); }
+            .ch-nav-link:focus-visible { outline: 2px solid var(--blood, #7A1C29); outline-offset: 4px; }
+            /* The sign-in control is a <button> for the modal it opens, so it
+               needs the button chrome stripped to sit level with the anchor. */
+            .ch-nav-btn {
+                background: none; border: 0; padding: 0; cursor: pointer;
+                line-height: 1;
+            }
+
+            .ch-cta-btn {
+                font-family: "Trajan Pro", "Cinzel", Georgia, serif;
+                font-size: 11.5px;
+                font-weight: 400;
+                font-synthesis: none;
+                letter-spacing: 0.13em;
+                text-transform: uppercase;
+                color: #FFF8F5;
+                background: var(--blood, #7A1C29);
+                border: 0;
+                border-radius: var(--r, 2px);
+                padding: 11px 21px;
+                cursor: pointer;
+                white-space: nowrap;
+                transition: background 150ms ease;
+            }
+            .ch-cta-btn:hover { background: #5E1420; }
+            .ch-cta-btn:focus-visible { outline: 2px solid var(--ink, #0E1420); outline-offset: 3px; }
+
+            /* The nav collapses into the drawer on small screens for the same
+               reason SIGN IN already did: the bar is wordmark + controls +
+               MENU, and three more items walk them onto the wordmark. The
+               hamburger is untouched and remains the way in at every width. */
+            @media (max-width: 1023px) {
+                .ch-nav-link, .ch-cta-btn { display: none !important; }
+            }
             .ch-connect-btn:hover { background: #54111B; }
             .ch-connect-btn:focus-visible {
                 outline: 2px solid var(--blood, #7A1C29);
@@ -889,8 +942,33 @@ export function renderHeader(currentRoute = '') {
                         </div>
                     </div>
 
-                    <!-- Signed-Out Header Sign-In Button -->
-                    <button class="ch-connect-btn" id="btn-auth" onclick="window.app.openAccessModal()" style="display:none;">SIGN IN</button>
+                    <!-- Primary nav. Present for signed-out and signed-in alike;
+                         it is wayfinding, not account state. -->
+                    <!-- Scrolls to the flow section rather than routing to
+                         /how-it-works: THAT ROUTE DOES NOT EXIST. The router's
+                         table has no entry for it, so the link would have hit
+                         the SPA catch-all and rendered a blank shell. #flow is
+                         the section that actually explains it, and is the same
+                         target the hero's own "See how it works" uses. From any
+                         other route it goes home first, then scrolls once the
+                         landing view has rendered. -->
+                    <a class="ch-nav-link" href="/#flow" onclick="
+                       var f=document.getElementById('flow');
+                       if(f){f.scrollIntoView({behavior:'smooth'});}
+                       else{window.router.navigate('/');
+                            setTimeout(function(){var g=document.getElementById('flow');
+                              if(g)g.scrollIntoView({behavior:'smooth'});},260);}
+                       return false;">HOW IT WORKS</a>
+
+                    <!-- Signed-Out Header Sign-In. Still #btn-auth and still
+                         toggled by updateAuthUI; only its appearance changed
+                         from a filled button to a nav link, because the filled
+                         treatment now belongs to GET STARTED beside it. -->
+                    <button class="ch-nav-link ch-nav-btn" id="btn-auth" onclick="window.app.openAccessModal()" style="display:none;">SIGN IN</button>
+
+                    <!-- Signed-out primary action. Mirrors #btn-auth's
+                         visibility in updateAuthUI. -->
+                    <button class="ch-cta-btn" id="btn-get-started" onclick="window.app.openAccessModal('signup')" style="display:none;">GET STARTED</button>
 
                     <!-- Signed-In Avatar Status Indicator (Separated by Thin Rule) -->
                     <div class="ch-trigger-avatar-indicator" id="header-avatar-trigger" style="display:none;" title="Signed In Account">

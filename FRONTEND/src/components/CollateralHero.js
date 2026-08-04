@@ -89,8 +89,11 @@
 // direction here, because the sides are where the clear type zone and the
 // deliberate right-edge bleed live. The bottom of the pedestal is already cut
 // off in the source, so trimming a little more of it costs nothing.
-const PLATE_W = 1536;
+const PLATE_W = 2662;
 const PLATE_H = 1024;
+// The 1536x1024 original is still shipped and still used, by the narrow-aspect
+// fallback below 3/2 where the wide canvas would read as a strip.
+const PLATE_NARROW = '/assets/images/collateral-senate.jpg';
 
 function escapeHtml(value) {
     return String(value)
@@ -111,7 +114,7 @@ function escapeHtml(value) {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-senate.jpg',
+        plateSrc = '/assets/images/collateral-senate-wide.jpg',
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
@@ -327,7 +330,58 @@ export function renderCollateralHero(options = {}) {
              the crop and take 130px off the left at 1351 wide, cutting the
              usable type width from 491px to 361px — a 27% loss of the only
              space the headline has. */
-          /* CONTAIN AND ANCHOR BOTTOM-RIGHT, not cover-and-left.
+          /* COVER, ANCHORED RIGHT, ON A PLATE WHOSE PAPER WAS EXTENDED.
+
+             THE SEAM IS WHY THIS CHANGED AGAIN. contain plus a flat
+             background-color fill showed the whole plate correctly, but the
+             fill met the artwork's left edge at a visible vertical line: the
+             JPEG's paper is textured and very slightly modulated, a CSS colour
+             is perfectly flat, and no single value matches a texture. The wider
+             the window the larger that flat panel became — 496px of it at
+             1882x924 — so the join was unmissable on exactly the screens most
+             people use.
+
+             Fixed at source instead of in CSS. collateral-senate-wide.jpg is
+             the same artwork on a 2662x1024 canvas, the extra 1126px being the
+             plate's own leftmost 400px of paper, mirror-tiled. It is the same
+             trick a previous plate used and was rejected for, and the reason it
+             works here is that the slice is pure paper: the earlier attempt
+             mirrored 193px that contained the Nike statue and a piece of the
+             temple. Measured after building rather than assumed — the largest
+             column-to-column luma step anywhere in the paper is 0.765, and the
+             three tile joins measure 0.295, 0.338 and 0.295, all far below what
+             an eye resolves.
+
+             With cover the image always fills the box, so no fill is ever
+             exposed and there is no join to see at any width. The
+             background-color stays only as a first-paint and decode-failure
+             fallback.
+
+             ANCHORED RIGHT is what fixes the composition, and the arithmetic is
+             worth keeping because it is exact. Extending the canvas leftward
+             does not move the distance from the first inked pixel to the right
+             edge: that stays 1025px. With cover and a right anchor, while the
+             plate is taller in ratio than the box, the scale is set by height,
+             so the clear channel is
+
+                 f = 1 - 1025 / (1024 * A)      A = box aspect ratio
+
+             which is 33.3% at 1.5, 42.1% at 1.73 — the approved frame's own
+             ratio and its own measured value — and 50.9% at 2.04. The channel
+             widens with the window instead of the artwork creeping across the
+             type.
+
+             right TOP, not bottom. Below 2.6 the height-based scale means there
+             is no vertical crop at all and the anchor is inert. Above it — an
+             ultrawide — the surplus is vertical, and top keeps the paper and
+             the heads while spending the crop on the pedestal's base, which the
+             source already cuts off. bottom would decapitate the figures.
+
+             SUPERSEDED — the note below describes the contain approach this
+             replaced. Kept because the framing reasoning still holds and the
+             narrow-aspect fallback further down still uses it:
+
+             CONTAIN AND ANCHOR BOTTOM-RIGHT, not cover-and-left.
              cover was cropping the plate's top off on every desktop window —
              at 1920x950 it discarded 317px of height, which lifted the figures
              until their heads touched the top edge and left no paper above
@@ -351,8 +405,8 @@ export function renderCollateralHero(options = {}) {
              on .clt-hero instead and the ungraded fill meets the graded plate
              at a visible vertical seam down the middle of the hero. Same value
              and same reasoning as the mobile panel. */
-          background-position:right bottom;
-          background-size:contain;
+          background-position:right top;
+          background-size:cover;
           background-color:#EED6AF;
           background-repeat:no-repeat;
           filter:var(--plate-grade);
@@ -1071,6 +1125,30 @@ export function renderCollateralHero(options = {}) {
            against a 289px band, so it fits one frame comfortably, but min-height
            means a longer translation or a larger font grows the hero instead of
            spilling type over the artwork. ---- */
+        /* NARROW-ASPECT DESKTOP FALLBACK.
+           The wide canvas is 2.6:1. cover keeps it honest while the window is
+           wider in ratio than the artwork, but on a tall desktop window — a
+           square-ish 1280x1024, a rotated display — cover on a 2.6 plate scales
+           by width and the clear channel formula goes NEGATIVE: at A=1.2 the
+           first inked pixel lands left of x=0 and the entire lockup sits on the
+           figures.
+
+           So below 3/2 the ORIGINAL 1536x1024 plate comes back with contain,
+           which is what it was doing correctly before the wide canvas existed.
+           At these ratios contain fits the WIDTH, so the surplus is a band
+           above the artwork and there is no flat panel beside it — the seam the
+           wide plate was built to solve cannot occur here.
+
+           min-width guards the mobile block below, which owns everything at
+           820px and narrower and must not be caught by this. */
+        @media (min-width:821px) and (max-aspect-ratio:3/2){
+          .clt-hero::before{
+            background-image:url(${PLATE_NARROW});
+            background-size:contain;
+            background-position:right bottom;
+          }
+        }
+
         @media (max-width:820px){
           /* Mobile gets its OWN portrait plate, aspect-locked. This replaces the
              band-under-the-type approach entirely: the landscape plate used to
