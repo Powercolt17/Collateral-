@@ -574,12 +574,21 @@ export async function initLedgerSection() {
     /* Three digits, matching the width the register column pads to. */
     const pad = (n) => String(n).padStart(3, '0');
 
+    const n = Math.min(LG_PAGE, all.length);
+    const pageCount = Math.ceil(all.length / n);
+
     let page = 0;
     const paint = () => {
-        const start = (page * LG_PAGE) % all.length;
-        const n = Math.min(LG_PAGE, all.length);
-        const slice = [];
-        for (let i = 0; i < n; i++) slice.push(all[(start + i) % all.length]);
+        /* CLAMP, DO NOT WRAP. 49 rows at 6 a page leaves a last page of one, and
+           wrapping it round to the top of the register put rows 001, 049, 048,
+           047, 046, 045 on screen together — which the pager then honestly but
+           uselessly described as "001-045 OF 49". Clamping slides the final page
+           back to the last six entries, so every page is a contiguous
+           descending run and the range always means what it says. The cost is
+           that the last page overlaps the one before it, which is what a
+           paginated table normally does anyway. */
+        const start = Math.min((page % pageCount) * n, all.length - n);
+        const slice = all.slice(start, start + n);
         body.innerHTML = slice.map(renderRow).join('');
 
         /* Quote the REGISTER NUMBERS on screen, not the slice position. seq runs
