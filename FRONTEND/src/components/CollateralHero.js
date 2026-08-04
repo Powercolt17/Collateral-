@@ -1269,11 +1269,20 @@ export function renderCollateralHero(options = {}) {
             mask-image:linear-gradient(to bottom,transparent 0,#000 18%);
           }
           /* position:relative, not static — z-index only applies to positioned
-             elements and the lockup has to stay above the sky layer. */
+             elements and the lockup has to stay above the sky layer.
+
+             THE 96px TOP PADDING IS HEADER CLEARANCE, NOT TASTE. .ch-header is
+             position:fixed, 64px tall at z-index 50, and the hero starts at
+             y=0, so it overlays the top of the lockup. Anything less than 64
+             here puts the eyebrow underneath the wordmark — this shipped once
+             at 34px and the eyebrow rendered straight through COLLATERAL and
+             MENU. 96 clears the header by 32px, which is the gap the mockup
+             shows. Do not trim this to tighten the stack; take it out of the
+             margins below the eyebrow instead. */
           .clt-lockup{
             position:relative;inset:auto;
             justify-content:flex-start;align-items:stretch;text-align:left;
-            padding:34px 22px 30px;max-width:none;z-index:2;
+            padding:96px 22px 30px;max-width:none;z-index:2;
           }
           /* Rule moves to the LEFT of the label so the eyebrow starts on the
              same margin as everything below it. */
