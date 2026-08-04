@@ -6,6 +6,7 @@ import { renderCollateralHero } from '../components/CollateralHero.js';
 import { renderForkSection } from '../components/ForkSection.js';
 import { renderCaseSection } from '../components/CaseSection.js';
 import { renderOracleSection } from '../components/OracleSection.js';
+import { renderRecordSection, initRecordSection } from '../components/RecordSection.js';
 import { renderLedgerSection, initLedgerSection } from '../components/LedgerSection.js';
 
 // Inject LandingCSS once into document head
@@ -44,82 +45,8 @@ export function renderLanding() {
             ${renderOracleSection()}
 
             <!-- ═════ 4 · RECORD ═════ -->
-            <section class="section alt reveal" id="record" style="padding-bottom: 52px;">
-                <span class="idx-mark" aria-hidden="true">05</span>
-                <div class="shell">
-                    <p class="eyebrow rise" style="--d:40ms">Settlement record</p>
-                    <h2 class="title clip-wipe" style="--d:120ms">The receipts, including the ones that hurt</h2>
-                    <p class="lede rise" style="--d:220ms">Most sites show you the wins. Every contract here settles on the same
-                        telemetry whether it went well or not, and we publish both, because a record with no
-                        losses in it isn't a record.</p>
+            ${renderRecordSection()}
 
-                    <div class="receipts">
-                        <article class="receipt card-rise" style="--d:320ms">
-                            <div class="r-top">
-                                <div class="r-meta"><span class="mono">Settlement receipt</span><span class="mono">№ C&ndash;34D6</span></div>
-                                <h3 class="r-goal">+20% revenue in 30 days</h3>
-                                <p class="r-src">@revpilot &middot; via Stripe API</p>
-                                <dl class="r-fields">
-                                    <div class="r-row"><dt>Capital staked</dt><span class="dots"></span><dd>$2,000.00</dd></div>
-                                    <div class="r-row"><dt>Verified by</dt><span class="dots"></span><dd>Stripe oracle</dd></div>
-                                    <div class="r-row"><dt>Settled on</dt><span class="dots"></span><dd>14 Mar 2026</dd></div>
-                                </dl>
-                            </div>
-                            <div class="perf" aria-hidden="true"></div>
-                            <div class="r-bottom won">
-                                <div><p class="r-amt">+$2,240.00</p><p class="r-note">Stake + payout returned</p></div>
-                                <span class="r-stamp won">Approved</span>
-                            </div>
-                        </article>
-
-                        <article class="receipt card-rise" style="--d:420ms">
-                            <div class="r-top">
-                                <div class="r-meta"><span class="mono">Settlement receipt</span><span class="mono">№ C&ndash;9F21</span></div>
-                                <h3 class="r-goal">50,000 subscribers in 60 days</h3>
-                                <p class="r-src">@deltacreator &middot; via YouTube API</p>
-                                <dl class="r-fields">
-                                    <div class="r-row"><dt>Capital staked</dt><span class="dots"></span><dd>$1,000.00</dd></div>
-                                    <div class="r-row"><dt>Verified by</dt><span class="dots"></span><dd>YouTube oracle</dd></div>
-                                    <div class="r-row"><dt>Settled on</dt><span class="dots"></span><dd>09 Mar 2026</dd></div>
-                                </dl>
-                            </div>
-                            <div class="perf" aria-hidden="true"></div>
-                            <div class="r-bottom won">
-                                <div><p class="r-amt">+$1,120.00</p><p class="r-note">Stake + payout returned</p></div>
-                                <span class="r-stamp won">Approved</span>
-                            </div>
-                        </article>
-
-                        <article class="receipt card-rise" style="--d:520ms">
-                            <div class="r-top">
-                                <div class="r-meta"><span class="mono">Settlement receipt</span><span class="mono">№ C&ndash;780B</span></div>
-                                <h3 class="r-goal">25,000 followers in 30 days</h3>
-                                <p class="r-src">@marcusk &middot; via X API</p>
-                                <dl class="r-fields">
-                                    <div class="r-row"><dt>Capital staked</dt><span class="dots"></span><dd>$1,500.00</dd></div>
-                                    <div class="r-row"><dt>Verified by</dt><span class="dots"></span><dd>X oracle</dd></div>
-                                    <div class="r-row"><dt>Settled on</dt><span class="dots"></span><dd>02 Mar 2026</dd></div>
-                                </dl>
-                            </div>
-                            <div class="perf" aria-hidden="true"></div>
-                            <div class="r-bottom lost">
-                                <div><p class="r-amt">&minus;$1,500.00</p><p class="r-note">Forfeited to match pool</p></div>
-                                <span class="r-stamp lost">Denied</span>
-                            </div>
-                        </article>
-                    </div>
-
-                    <div class="footing card-rise" style="--d:500ms">
-                        <p class="mono" style="margin:0 0 6px">Book totals &middot; inception to date</p>
-                        <dl style="margin:0">
-                            <div class="f-row"><dt>Contracts won</dt><span class="dots"></span><dd>74%</dd></div>
-                            <div class="f-row"><dt>Verified counterparties</dt><span class="dots"></span><dd>812</dd></div>
-                            <div class="f-row"><dt>Average time to target</dt><span class="dots"></span><dd>18 days</dd></div>
-                            <div class="f-row f-total"><dt>Total capital settled</dt><span class="dots"></span><dd id="book-total-amt">$8,700,000</dd></div>
-                        </dl>
-                    </div>
-                </div>
-            </section>
 
             <!-- ═════ 5 · FORFEIT FLOW + SCHEMATIC ═════ -->
             <section class="section reveal" id="flow">
@@ -621,6 +548,7 @@ export function initLanding() {
        resolves on its own and never rejects into here, and if it fails the rows
        rendered at build time stay on screen rather than the section emptying. */
     initLedgerSection();
+    initRecordSection();
 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -639,11 +567,11 @@ export function initLanding() {
                     });
                     revealObserver.unobserve(e.target);
 
-                    // Count up book totals when Section 05 becomes active
-                    if (e.target.id === 'record') {
-                        const bookTotalEl = document.getElementById('book-total-amt');
-                        countUp(bookTotalEl, 8700000, money);
-                    }
+                    /* The count-up to 8700000 that lived here is gone with the
+                       markup it animated. It was a hardcoded figure counting to
+                       a total capital settled of .7M against a real
+                       totalPaidOut of 0. RecordSection now reads its own totals
+                       from the register. */
                 }
             });
         }, { threshold: 0.1, rootMargin: '0px 0px -5% 0px' });
@@ -655,9 +583,6 @@ export function initLanding() {
                 sec.querySelectorAll('.r-item, .r-plate, .r-rule, .clip-wipe, .clip-reveal, .rise, .cm-rise, .card-rise, .item, .duel').forEach(child => {
                     child.classList.add('is-in');
                 });
-                if (sec.id === 'record') {
-                    countUp(document.getElementById('book-total-amt'), 8700000, money);
-                }
             } else {
                 revealObserver.observe(sec);
             }
