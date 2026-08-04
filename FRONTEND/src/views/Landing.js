@@ -5,6 +5,7 @@ import { motionController, animateValue, initEntranceObservers, revealStyles } f
 import { renderCollateralHero } from '../components/CollateralHero.js';
 import { renderForkSection } from '../components/ForkSection.js';
 import { renderCaseSection } from '../components/CaseSection.js';
+import { renderOracleSection } from '../components/OracleSection.js';
 import { renderLedgerSection, initLedgerSection } from '../components/LedgerSection.js';
 
 // Inject LandingCSS once into document head
@@ -40,89 +41,7 @@ export function renderLanding() {
             ${renderCaseSection()}
 
             <!-- ═════ 3b · ORACLE REGISTER ═════ -->
-            <section class="section reveal" id="oracles" style="padding-top:0">
-                <div class="shell">
-                    <div class="oracles-head">
-                        <div class="oracles-title-block">
-                            <p class="eyebrow rise" style="--d:40ms">Verification sources</p>
-                            <h2 class="title clip-wipe" style="--d:120ms">Four APIs decide every contract</h2>
-                            <p class="lede rise" style="--d:220ms">Collateral does not score you. It reads the same numbers your platform
-                                already reports, on a fixed schedule, and settles on whatever it finds there.</p>
-                        </div>
-                        <aside class="marg-note-top rise" style="--d:320ms">
-                            <span class="mono mono-b" style="color:var(--blood)">&sect; 3.4</span>
-                            <p class="mono">Read-only scopes only. Collateral cannot post, message, refund, or change a single
-                                setting on any account you connect, and the token can be revoked from your side at any
-                                time without affecting an open contract's settlement.</p>
-                        </aside>
-                    </div>
-
-                    <div class="oracles-table-wrap card-rise" style="--d:360ms">
-                        <p class="reg-caption mono rise" style="--d:300ms">Register of accepted oracles &middot; read-only scopes</p>
-
-                        <table class="reg plate">
-                            <caption>Accepted verification oracles and reading parameters</caption>
-                            <thead>
-                                <tr>
-                                    <th scope="col">Platform</th>
-                                    <th scope="col">Metrics read</th>
-                                    <th scope="col">Poll cadence</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <span class="reg-name">
-                                            <span class="reg-mark" aria-hidden="true">
-                                                <svg fill="currentColor" role="img" viewBox="0 0 24 24" class="reg-logo"><title>Stripe</title><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"/></svg>
-                                            </span>
-                                            <span class="reg-plat">Stripe</span>
-                                        </span>
-                                    </td>
-                                    <td data-label="Metrics read">Net revenue, MRR, order volume</td>
-                                    <td data-label="Poll cadence"><span class="reg-num">Every 6h</span></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <span class="reg-name">
-                                            <span class="reg-mark" aria-hidden="true">
-                                                <svg fill="currentColor" role="img" viewBox="0 0 24 24" class="reg-logo"><title>X</title><path d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z"/></svg>
-                                            </span>
-                                            <span class="reg-plat">X</span>
-                                        </span>
-                                    </td>
-                                    <td data-label="Metrics read">Followers, impressions, post reach</td>
-                                    <td data-label="Poll cadence"><span class="reg-num">Every 1h</span></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <span class="reg-name">
-                                            <span class="reg-mark" aria-hidden="true">
-                                                <svg fill="currentColor" role="img" viewBox="0 0 24 24" class="reg-logo"><title>YouTube</title><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                                            </span>
-                                            <span class="reg-plat">YouTube</span>
-                                        </span>
-                                    </td>
-                                    <td data-label="Metrics read">Subscribers, views, watch time</td>
-                                    <td data-label="Poll cadence"><span class="reg-num">Every 12h</span></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <span class="reg-name">
-                                            <span class="reg-mark" aria-hidden="true">
-                                                <svg fill="currentColor" role="img" viewBox="0 0 24 24" class="reg-logo"><title>Shopify</title><path d="M15.337 23.979l7.216-1.561s-2.604-17.613-2.625-17.73c-.018-.116-.114-.192-.211-.192s-1.929-.136-1.929-.136-1.275-1.274-1.439-1.411c-.045-.037-.075-.057-.121-.074l-.914 21.104h.023zM11.71 11.305s-.81-.424-1.774-.424c-1.447 0-1.504.906-1.504 1.141 0 1.232 3.24 1.715 3.24 4.629 0 2.295-1.44 3.76-3.406 3.76-2.354 0-3.54-1.465-3.54-1.465l.646-2.086s1.245 1.066 2.28 1.066c.675 0 .975-.545.975-.932 0-1.619-2.654-1.694-2.654-4.359-.034-2.237 1.571-4.416 4.827-4.416 1.257 0 1.875.361 1.875.361l-.945 2.715-.02.01zM11.17.83c.136 0 .271.038.405.135-.984.465-2.064 1.639-2.508 3.992-.656.213-1.293.405-1.889.578C7.697 3.75 8.951.84 11.17.84V.83zm1.235 2.949v.135c-.754.232-1.583.484-2.394.736.466-1.777 1.333-2.645 2.085-2.971.193.501.309 1.176.309 2.1zm.539-2.234c.694.074 1.141.867 1.429 1.755-.349.114-.735.231-1.158.366v-.252c0-.752-.096-1.371-.271-1.871v.002zm2.992 1.289c-.02 0-.06.021-.078.021s-.289.075-.714.21c-.423-1.233-1.176-2.37-2.508-2.37h-.115C12.135.209 11.669 0 11.265 0 8.159 0 6.675 3.877 6.21 5.846c-1.194.365-2.063.636-2.16.674-.675.213-.694.232-.772.87-.075.462-1.83 14.063-1.83 14.063L15.009 24l.927-21.166z"/></svg>
-                                            </span>
-                                            <span class="reg-plat">Shopify</span>
-                                        </span>
-                                    </td>
-                                    <td data-label="Metrics read">Orders, revenue, average order value</td>
-                                    <td data-label="Poll cadence"><span class="reg-num">Every 6h</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
+            ${renderOracleSection()}
 
             <!-- ═════ 4 · RECORD ═════ -->
             <section class="section alt reveal" id="record" style="padding-bottom: 52px;">
