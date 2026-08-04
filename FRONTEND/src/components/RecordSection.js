@@ -64,16 +64,29 @@ const usdShort = (n) => {
  * One receipt. Only ever called with a real settlement record.
  * `won` is derived from the record's own outcome, never from the absence of one.
  */
-function renderReceipt(r) {
+/* The three receipts from the design sheet, shipped as WORKED EXAMPLES and
+   labelled as such on every card. They render only while the register has no
+   settlements of its own; the first real one replaces them.
+
+   @revpilot is deliberately not among them. The sheet used it, and it is a real
+   principal in /v1/ledger - hanging an invented $2,240 payout on a real handle
+   is worse than inventing the handle too. These three are fictional. */
+const EXAMPLES = [
+    { ref: 'C-34D6', party: '@northgate', goal: '+20% revenue in 30 days', oracle: 'Stripe', staked: 2000, amount: 2240, outcome: 'won', settledOn: '14 Mar 2026' },
+    { ref: 'C-9F21', party: '@deltacreator', goal: '50,000 subscribers in 60 days', oracle: 'YouTube', staked: 1000, amount: 1120, outcome: 'won', settledOn: '09 Mar 2026' },
+    { ref: 'C-780B', party: '@marcusk', goal: '25,000 followers in 30 days', oracle: 'X', staked: 1500, amount: 1500, outcome: 'lost', settledOn: '02 Mar 2026' },
+];
+
+function renderReceipt(r, example) {
     const won = r.outcome === 'won';
     const cls = won ? 'rec-win' : 'rec-loss';
     const sign = won ? '+' : '−';
     const amount = sign + usd2(Math.abs(r.amount));
     return `
-                    <article class="rec-card">
+                    <article class="rec-card${example ? ' rec-eg' : ''}">
                         <div class="rec-top">
                             <div class="rec-head">
-                                <span class="rec-l">Settlement Receipt</span>
+                                <span class="rec-l">${example ? 'Example Receipt' : 'Settlement Receipt'}</span>
                                 <span class="rec-id"><b>&sect;</b> ${escapeHtml(r.ref)}</span>
                             </div>
                             <div class="rec-title">${escapeHtml(r.goal)}</div>
@@ -182,6 +195,18 @@ export function renderRecordSection() {
           letter-spacing:.04em;color:var(--rec-muted);background:rgba(250,245,232,.5)}
         .rec-empty b{color:var(--rec-ink-soft);font-weight:500}
 
+        /* The illustrative notice sits ABOVE the cards and spans the grid, so it
+           cannot be read as belonging to one receipt. */
+        .rec-note{grid-column:1 / -1;font-family:var(--rec-mono);font-size:11px;
+          line-height:1.75;letter-spacing:.03em;color:var(--rec-muted);
+          border-left:2px solid var(--rec-ox);padding:2px 0 2px 14px;margin-bottom:4px}
+        .rec-note b{color:var(--rec-ink-soft);font-weight:500}
+        /* An example card is visibly a specimen: the stock is flatter, the edge
+           is dashed rather than ruled, and it does not lift off the page. A
+           reader should not have to read the badge to know. */
+        .rec-eg{border-style:dashed;box-shadow:none;background:rgba(250,245,232,.55)}
+        .rec-eg .rec-l{color:var(--rec-ox)}
+
         /* ---- book totals ---- */
         .rec-totals{margin-top:44px;padding-top:22px;border-top:1px solid var(--rec-line);
           display:flex;align-items:flex-end;gap:56px;flex-wrap:wrap}
@@ -265,17 +290,21 @@ export async function initRecordSection() {
        contract reaches its date, and an empty array renders the empty state
        rather than a placeholder that looks like a settlement. */
     const recent = Array.isArray(stats.recentSettlements) ? stats.recentSettlements : [];
+
+    /* Real settlements always win. While there are none, the three worked
+       examples render in their place so the section shows the shape of a
+       receipt instead of an empty box - each one badged Example, above a notice
+       saying plainly that nothing has settled. The book totals underneath stay
+       real either way, because those are the numbers that describe the company
+       rather than illustrate a mechanism. */
     if (!recent.length) {
-        const lead = settled === 0
-            ? 'Nothing has been returned and nothing forfeited'
-            : 'Receipts are being prepared';
-        empty(
-            '<b>No contract has reached its settlement date yet.</b><br>'
-            + lead + ', so there are no receipts to publish. '
-            + 'The first one that settles is posted here, whichever way it goes.'
-        );
+        cards.innerHTML =
+            `<div class="rec-note"><b>Illustrative &mdash; no contract has reached its settlement `
+            + `date yet.</b> These show the shape of a receipt. Book totals below are live. `
+            + `The first real settlement replaces them, whichever way it goes.</div>`
+            + EXAMPLES.map((r) => renderReceipt(r, true)).join('');
         return;
     }
 
-    cards.innerHTML = recent.slice(0, 3).map(renderReceipt).join('');
+    cards.innerHTML = recent.slice(0, 3).map((r) => renderReceipt(r, false)).join('');
 }
