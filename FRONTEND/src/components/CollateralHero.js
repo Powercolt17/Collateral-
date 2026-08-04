@@ -740,7 +740,25 @@ export function renderCollateralHero(options = {}) {
              compatible requests: broad and feathered IS the definition of the
              frequency band the eye is worst at. Something had to give and it
              had to be the breadth. */
-          background-size:12.5% 100%;
+          /* 600px, NOT 12.5% — and this is a seam fix, not a tuning change.
+             12.5% of a 400%-wide layer makes the tile exactly half the hero
+             width, and every tile boundary showed as a hard vertical line down
+             the artwork. On a 390px phone that put visible seams roughly 195px
+             apart, which is exactly the spacing they were reported at.
+
+             The noise itself is fine: feTurbulence carries stitchTiles=stitch,
+             so it IS seamless at its own edges. What broke it was scaling. A
+             percentage size resamples the 600x400 source to a fractional pixel
+             width, and the tile joins then land off the pixel grid, so the
+             browser blends each edge against its neighbour and draws a line.
+
+             Pinning the horizontal axis to the source's native 600px puts every
+             join on an integer boundary and lets stitchTiles do its job. The
+             vertical axis stays 100% — stretching only the height cannot
+             disturb a horizontal seam, and it stops the tile repeating
+             downward, which would have added horizontal seams on a hero this
+             tall. */
+          background-size:600px 100%;
           background-repeat:repeat;
           will-change:transform;
           /* 14s, not 30s, and that is the change that matters most here.
@@ -758,13 +776,29 @@ export function renderCollateralHero(options = {}) {
              clt-breathe is GONE. It scaled the whole darkening down to as
              little as 82%, which spent much of the cycle under the tuned
              amplitude for no visible benefit, and it made the mean darkening
-             harder to compensate for. One animation, one job. */
-          animation:clt-sun 12s linear infinite;
+             harder to compensate for. One animation, one job.
+
+             12s -> 18s, because the travel is now an absolute distance rather
+             than a share of the viewport, and the two cannot both be preserved.
+             The old percentage moved the layer half the hero width per cycle:
+             about 65px/s on a 1551px desktop but only 16px/s on a 390px phone,
+             so the same declaration produced a four-to-one difference in
+             apparent speed. 600px over 18s is 33px/s on every device — slower
+             than desktop was, faster than mobile was, and identical across
+             them. The rate is deliberately kept well above the 30s case argued
+             against above, which was slow enough to read as static.
+
+             (The paragraph above this one argues for 14s while the declaration
+             said 12s. The comment was stale; this is what actually ships.) */
+          animation:clt-sun 18s linear infinite;
         }
-        /* One whole tile. Any other value shows a seam at the wrap. */
+        /* EXACTLY ONE TILE, and the tile is now 600px rather than 12.5%, so
+           this must be 600px too. Any other value shows a seam at the wrap —
+           the wrap is only invisible because the layer lands on a position
+           identical to where it started. */
         @keyframes clt-sun{
           from{transform:translate3d(0,0,0)}
-          to{transform:translate3d(12.5%,0,0)}
+          to{transform:translate3d(600px,0,0)}
         }
 
         /* clt-breathe removed. It modulated the layer's opacity as a second,
@@ -1221,52 +1255,68 @@ export function renderCollateralHero(options = {}) {
             height:auto;
             width:100vw;
             margin-left:calc(50% - 50vw);
-            /* Reserves the artwork. MUST stay equal to the ::before height. */
-            padding:0 0 108vw;
+            /* Reserves the artwork so the lockup cannot sit on the figures.
+               96vw is the drawn image height (100vw / 1.041). It no longer has
+               to match the ::before, which is now the full hero. */
+            padding:0 0 96vw;
           }
-          /* The plate is a block pinned to the bottom of the hero, drawn at its
-             own 1066x1024 ratio (1.041) via 100% auto, so it is never stretched
-             and never cropped — the full group shows at every phone width,
-             which is the whole reason a dedicated mobile crop exists. At 100vw
-             wide the image is 96.06vw tall.
+          /* THE GOLD RUNS THE WHOLE HERO, exactly as it does on desktop, and
+             the layer that carries it is the one that already existed. ::before
+             goes back to filling the section (inset:0 from the desktop rule),
+             with the artwork drawn at the BOTTOM of it and the plate's own
+             ground as this element's background-color. The image sits on that
+             colour, on the SAME element, so --plate-grade grades both in one
+             pass and the flat field can never drift to a different tone than
+             the artwork's own paper. That is why there is no mask here any
+             more, and no fade to tune: there is no join to hide, because above
+             the image it is not a different surface, it is the same one.
 
-             THE BOX IS 108vw, NOT 96 — the extra 11.9vw is clear ground the
-             fade needs, and the number is derived, not chosen. Ink starts 9.18%
-             down the image (measured: first departure from the top-row paper by
-             more than 54 summed levels, at x=405, row 94 of 1024). Fading
-             across the top 15% of a box that was exactly image height put that
-             first ink at 61% mask opacity, which ghosts the top of the tallest
-             head — a defect, not a soft edge.
+             The colour is #E8CCA1, measured as the mean of the crop's own top
+             row across its full width — not the old #EED6AF, which came from a
+             corner block and sat six levels light on red. At the image's top
+             edge the flat field now continues the drawn sky rather than
+             stepping off it.
 
-             With 11.94vw of flat ground above the image, ink now sits 19.2% down
-             the box and the fade ends at 18%, so every figure is fully opaque
-             with margin to spare. The three numbers are locked together: box
-             height, image height and fade depth. Move one and re-derive the ink
-             line before shipping.
+             The image keeps its native 1066x1024 ratio (1.041) via 100% auto,
+             so it is never stretched or cropped, and no-repeat stops it tiling
+             upward into the field it is supposed to sit on.
 
-             The fade also retires a colour match that used to be load-bearing.
-             background-color is still the measured corner value, but it is a
-             fallback now rather than a join, because the fade ends in the
-             section's real background — however the plate grades, the two
-             cannot drift apart. */
+             This also puts the gold behind the header for free: .ch-header is
+             fixed and background:transparent until it gains .nav-scrolled, so
+             at the top of the page it shows whatever the hero paints. */
           .clt-hero::before{
             background-image:url(/assets/images/collateral-senate-mobile.jpg) !important;
-            top:auto;height:108vw;
             background-size:100% auto;
             background-position:center bottom;
             background-repeat:no-repeat;
-            background-color:#EED6AF;
-            -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 18%);
-            mask-image:linear-gradient(to bottom,transparent 0,#000 18%);
+            background-color:#E8CCA1;
           }
-          /* Clouds stay, confined to the artwork block and fading with it. The
-             desktop mask is a left-to-right ramp protecting the type column,
-             which means nothing once the type is not over the picture, so it is
-             replaced rather than inherited. */
+          /* Clouds cover the whole hero, like desktop — but ATTENUATED OVER THE
+             TYPE, which is the same job the desktop mask does, turned through
+             90 degrees. Desktop ramps left-to-right because the type is a left
+             column; here the type is a full-width band across the top, so the
+             ramp runs top-to-bottom.
+
+             Removing the mask outright was measured and rejected. The cloud
+             darkens by up to its full opacity of .26, which drops the subhead
+             #4A4035 on the graded gold from 6.66:1 to 3.64:1 — under the 4.5:1
+             AA floor for body text. Holding the top of the hero at half
+             strength puts the worst case at 5.01:1. The headline never came
+             close to failing; the subhead is the binding constraint, and it is
+             the thing that would have shipped broken.
+
+             The ramp finishes by 65%, which is about where the artwork begins
+             at phone proportions, so the picture still gets the clouds at full
+             strength. The crossover is soft and the exact percentage is not
+             critical — what matters is that it is complete before the figures
+             start and well clear of the metrics. */
           .clt-sky{
-            top:auto;height:108vw;
-            -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 18%);
-            mask-image:linear-gradient(to bottom,transparent 0,#000 18%);
+            -webkit-mask-image:linear-gradient(to bottom,
+              rgba(0,0,0,.5) 0%, rgba(0,0,0,.5) 45%,
+              rgba(0,0,0,1) 65%, rgba(0,0,0,1) 100%);
+            mask-image:linear-gradient(to bottom,
+              rgba(0,0,0,.5) 0%, rgba(0,0,0,.5) 45%,
+              rgba(0,0,0,1) 65%, rgba(0,0,0,1) 100%);
           }
           /* position:relative, not static — z-index only applies to positioned
              elements and the lockup has to stay above the sky layer.
@@ -1407,7 +1457,12 @@ export function renderCollateralHero(options = {}) {
             animation:none !important;
             transform:none !important;
             background-image:none !important;
-            background-color:rgba(0,0,0,.08) !important;
+            /* .08 -> .13. This is the animated layer's MEAN darkening, and it
+               has to track the layer opacity or reduced-motion users get a
+               differently lit hero. The noise averages about .5 alpha, so the
+               mean is opacity x 0.5; .08 was correct when opacity was .16 and
+               was left behind when it went to .26. */
+            background-color:rgba(0,0,0,.13) !important;
             opacity:1 !important;
           }
         }
