@@ -700,7 +700,26 @@ export function renderCollateralHero(options = {}) {
         }
         .clt-sky i{
           display:block;
-          position:absolute;top:0;bottom:0;left:-150%;width:400%;
+          /* THE OFFSET IS PINNED IN PIXELS, AND THAT IS THE FIX FOR THE VERTICAL
+             STREAKING. This was left:-150%;width:400%, and a percentage of an
+             odd viewport width lands on a half pixel: -150% is -562.5 at 375,
+             -589.5 at 393, -2326.5 at 1551. The tile is 600px at its native
+             size, so every tile boundary inherited that half pixel, and the
+             browser resampled across each seam and drew a line down the plate.
+             It looked intermittent because it depends entirely on whether the
+             viewport width happens to be even — 360, 390 and 414 are clean,
+             375 and 393 are not.
+
+             -1200px is an exact multiple of the 600px tile, so boundaries fall
+             on integers at EVERY width. The travel is already an integer 600px,
+             so the alignment holds through the whole animation rather than only
+             at the start.
+
+             The width has to grow with it: calc(100% + 2400px) spans from
+             -1200 to viewport+1200, which still covers the frame after the
+             600px translate. 400% no longer would, because the offset is now
+             fixed while 400% shrinks with the viewport. */
+          position:absolute;top:0;bottom:0;left:-1200px;width:calc(100% + 2400px);
           pointer-events:none;
           /* NO mix-blend-mode, deliberately. See the note above. */
           /* Alphas are set by measurement, not by eye. soft-light lifts dark
