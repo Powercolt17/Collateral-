@@ -1190,7 +1190,7 @@ export function renderCollateralHero(options = {}) {
 
             <div class="clt-strip clt-mono">
                 <span>ORACLES <b>STRIPE · YOUTUBE · SHOPIFY</b></span>
-                <span>SETTLEMENT IS AUTOMATIC · <b>NO APPEALS</b> · <b>NO EXTENSIONS</b></span>
+                <span>VERIFICATION IS AUTOMATIC · <b>NO APPEALS</b> · <b>NO EXTENSIONS</b></span>
             </div>
 
         </div>

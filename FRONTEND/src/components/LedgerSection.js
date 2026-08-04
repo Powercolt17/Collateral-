@@ -50,17 +50,40 @@
  * LIVE DATA: initLedgerSection at the foot of this file replaces every row with
  * what is in the database, and gates the ratio bar and the standfirst on the
  * real settled count. The ENTRIES above are the first-paint fallback only.
+ *
+ * WHAT VARIES, AND WHY THE COLUMNS ARE THESE COLUMNS. The table went live
+ * looking synthetic while being entirely real: every row read "OPEN / 4d LEFT"
+ * and the stakes were "$500 $500 $100 $100 $100 $100". The two columns the eye
+ * lands on were constant. Measuring the live set explains it and says what to do
+ * instead:
+ *
+ *   fundingCloseAt   48 distinct timestamps, but all 48 publish at the SAME
+ *                    instant with the same 168h window, so day-granularity
+ *                    collapses them to one value. A window-elapsed bar was
+ *                    designed here and abandoned once measured: elapsed% has
+ *                    exactly ONE distinct value across all 48. It would have
+ *                    been the same monotony in a new shape.
+ *   displayTargetHint  35 distinct against 16 distinct titles. The real variety.
+ *   multiplier       1.7 / 2.5 / 4, and it is the number a performance contract
+ *                    is actually about.
+ *   costCents        $100 / $250 / $500, correlated with tier.
+ *   capacityRemaining  33 distinct — live, unused here, and the best remaining
+ *                    signal if this table ever needs a fourth varying column.
+ *
+ * So the day count stopped being the visual load-bearer, GOAL carries the real
+ * target beneath the title, and MULTIPLE was added. Three varying columns where
+ * there were none.
  */
 
 const URGENT_DAYS = 5;
 
 const ENTRIES = [
-    { id: 372, goal: '50,000 subscribers in 60 days', party: '@deltacreator', oracle: 'YouTube', stake: 1000, status: 'returned' },
-    { id: 371, goal: '+20% revenue in 30 days', party: '@revpilot', oracle: 'Stripe', stake: 2000, status: 'forfeited' },
-    { id: 370, goal: '10,000 email leads in 30 days', party: '@growthlead', oracle: 'Shopify', stake: 1200, status: 'open', daysLeft: 3 },
-    { id: 369, goal: '100k views on launch video', party: '@indiehacker', oracle: 'YouTube', stake: 800, status: 'open', daysLeft: 11 },
-    { id: 368, goal: '$100k ARR in 90 days', party: '@saasfounder', oracle: 'Stripe', stake: 5000, status: 'returned' },
-    { id: 367, goal: '25,000 followers in 30 days', party: '@marcusk', oracle: 'X', stake: 1500, status: 'forfeited' },
+    { id: 372, goal: '50,000 subscribers in 60 days', target: 'TARGET +40%', party: '@deltacreator', oracle: 'YouTube', stake: 1000, mult: 2.5, tier: 'elevated', status: 'returned' },
+    { id: 371, goal: '+20% revenue in 30 days', target: 'TARGET +20%', party: '@revpilot', oracle: 'Stripe', stake: 2000, mult: 1.7, tier: 'controlled', status: 'forfeited' },
+    { id: 370, goal: '10,000 email leads in 30 days', target: 'TARGET +50%', party: '@growthlead', oracle: 'Shopify', stake: 1200, mult: 4, tier: 'maximum', status: 'open', daysLeft: 3 },
+    { id: 369, goal: '100k views on launch video', target: 'TARGET +65%', party: '@indiehacker', oracle: 'YouTube', stake: 800, mult: 1.7, tier: 'controlled', status: 'open', daysLeft: 11 },
+    { id: 368, goal: '$100k ARR in 90 days', target: 'TARGET +35%', party: '@saasfounder', oracle: 'Stripe', stake: 5000, mult: 2.5, tier: 'elevated', status: 'returned' },
+    { id: 367, goal: '25,000 followers in 30 days', target: 'TARGET +45%', party: '@marcusk', oracle: 'X', stake: 1500, mult: 4, tier: 'maximum', status: 'forfeited' },
 ];
 
 function escapeHtml(value) {
@@ -75,19 +98,48 @@ const usd = (n) => '$' + Number(n).toLocaleString('en-US');
 
 function renderRow(entry) {
     const open = entry.status === 'open';
-    const soon = open && entry.daysLeft <= URGENT_DAYS;
+    /* daysLeft may legitimately be absent — a staked rivalry carries no published
+       close date. Guard the comparison: null <= 5 is true in JS, so an unknown
+       date used to raise the urgency flag on a contract nothing said was urgent. */
+    const dated = open && entry.daysLeft != null;
+    const soon = dated && entry.daysLeft <= URGENT_DAYS;
     const cls = ['lg-row', 'lg-' + entry.status, soon ? 'lg-soon' : ''].filter(Boolean).join(' ');
 
+    /* No date, no countdown. It reported "0d LEFT" — a claim that the contract
+       expires today — purely because the field was missing. */
     const outcome = open
-        ? '<span class="lg-clock">' + escapeHtml(entry.daysLeft) + 'd</span> LEFT'
+        ? (dated
+            ? '<span class="lg-clock">' + escapeHtml(entry.daysLeft) + 'd</span> LEFT'
+            : 'OPEN')
         : escapeHtml(String(entry.status).toUpperCase());
 
+    /* The real per-contract target — "+65% revenue (14d)". 35 distinct strings
+       across the 48 live listings against 16 distinct titles, so this is where
+       the table's variety actually lives. */
+    const target = entry.target
+        ? `<span class="lg-target">${escapeHtml(entry.target)}</span>`
+        : '';
+
+    /* Payout multiple. Real and varying: 1.7 / 2.5 / 4 across the live set.
+       Staked rivalry rows carry no multiple, so they get a rule rather than a
+       fabricated number. */
+    const mult = entry.mult
+        ? `&times;${escapeHtml(entry.mult)}`
+        : '<span class="lg-x-none">&mdash;</span>';
+
+    /* Sequential register number. A ledger numbers its entries in order; the
+       sliced UUID that used to sit here read as random. seq is assigned over the
+       whole set in initLedgerSection, so it survives paging. */
+    const no = entry.seq != null ? String(entry.seq).padStart(3, '0') : String(entry.id);
+    const tierCls = entry.tier ? ' lg-t-' + String(entry.tier).replace(/[^a-z]/gi, '') : '';
+
     return `
-                <div class="${escapeHtml(cls)}">
-                    <span class="lg-no lg-mono">${escapeHtml(entry.id)}</span>
-                    <span class="lg-goal">${escapeHtml(entry.goal)}</span>
+                <div class="${escapeHtml(cls)}${escapeHtml(tierCls)}">
+                    <span class="lg-no lg-mono">${escapeHtml(no)}</span>
+                    <span class="lg-goal">${escapeHtml(entry.goal)}${target}</span>
                     <span class="lg-src lg-mono">${escapeHtml(entry.party)} &middot; ${escapeHtml(entry.oracle)}</span>
                     <span class="lg-amt">${escapeHtml(usd(entry.stake))}</span>
+                    <span class="lg-mult lg-mono">${mult}</span>
                     <span class="lg-out lg-mono">${outcome}</span>
                 </div>`;
 }
@@ -169,9 +221,25 @@ export function renderLedgerSection(options = {}) {
           letter-spacing:.008em;line-height:1.12;
           color:var(--ox);max-width:19ch;text-wrap:balance}
         .lg-head p{margin-top:17px;font-size:15px;line-height:1.62;color:#3B4254;max-width:58ch}
-        .lg-sample{display:inline-block;margin:22px 0 40px;padding:7px 12px;
-          border:1px solid var(--spine);background:var(--paper-hi);
-          font-size:9.5px;letter-spacing:.16em;color:var(--ink-soft)}
+
+        /* SPACING IS STRUCTURAL, ON THE HEAD ITSELF. It used to come from
+           .lg-sample's 40px bottom margin, so deleting the sample box and hiding
+           the ratio bar left the standfirst and the column rule sharing one
+           baseline — measured at a 0px gap on production. Nothing below may be
+           the only thing holding this apart again. */
+        .lg-head{display:grid;grid-template-columns:1fr auto;gap:24px 48px;
+          align-items:start;margin-bottom:40px}
+        .lg-head-l{min-width:0}
+
+        /* The head used 479px of a 1040px measure and left 529px of empty paper
+           above a full-width table. A ledger that does not total itself is not a
+           ledger; these are the totals, and they are live. */
+        .lg-sum{display:grid;gap:15px;text-align:right;padding-top:4px}
+        .lg-sum dt{font-size:9px;letter-spacing:.18em;color:var(--ink-faint);
+          white-space:nowrap}
+        .lg-sum dd{font-size:19px;margin-top:5px;color:var(--ink);
+          font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+        .lg-sum .lg-sum-ox dd{color:var(--ox)}
 
         .lg-ratio{margin-bottom:34px}
         .lg-ratio-bar{display:flex;height:5px;background:var(--spine)}
@@ -185,11 +253,12 @@ export function renderLedgerSection(options = {}) {
 
         /* identical padding on every row keeps the table's left edge true */
         .lg-cols,.lg-row{display:grid;
-          grid-template-columns:46px 1fr 172px 92px 112px;gap:20px;
+          grid-template-columns:52px 1fr 148px 84px 70px 104px;gap:18px;
           padding-left:14px;padding-right:2px}
         .lg-cols{padding-bottom:9px;border-bottom:1px solid var(--ink);
           font-size:9.5px;letter-spacing:.18em;color:var(--ink-faint)}
-        .lg-cols span:nth-child(4),.lg-cols span:nth-child(5){text-align:right}
+        .lg-cols span:nth-child(4),.lg-cols span:nth-child(5),
+        .lg-cols span:nth-child(6){text-align:right}
 
         .lg-row{align-items:baseline;padding-top:17px;padding-bottom:17px;
           border-bottom:1px solid var(--rule);
@@ -198,9 +267,20 @@ export function renderLedgerSection(options = {}) {
         .lg-row:hover{background:var(--paper-hi)}
         .lg-forfeited{box-shadow:inset 2px 0 0 var(--ox)}
 
-        .lg-no{font-size:10px;color:var(--ink-faint)}
-        .lg-goal{font-size:15px;font-weight:600;letter-spacing:-.005em}
+        .lg-no{font-size:10px;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+        .lg-goal{font-size:15px;font-weight:600;letter-spacing:-.005em;min-width:0}
+        .lg-target{display:block;margin-top:4px;font-size:10px;font-weight:400;
+          letter-spacing:.13em;color:var(--ink-faint);
+          font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace}
         .lg-forfeited .lg-goal{color:var(--ox)}
+
+        /* The payout multiple, and the only column whose weight tracks its own
+           value: 4x should not read the same as 1.7x. */
+        .lg-mult{text-align:right;font-size:12.5px;color:var(--ink-soft);
+          white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+        .lg-t-elevated .lg-mult{color:var(--ink);font-weight:600}
+        .lg-t-maximum .lg-mult{color:var(--ox);font-weight:700}
+        .lg-x-none{color:var(--spine)}
         .lg-src{font-size:11px;color:var(--ink-soft)}
         .lg-amt{font-size:15px;text-align:right;white-space:nowrap;font-weight:600;
           font-variant-numeric:tabular-nums;letter-spacing:-.01em}
@@ -221,6 +301,18 @@ export function renderLedgerSection(options = {}) {
         .lg-open:not(.lg-soon) .lg-out::before{content:"";display:inline-block;
           width:5px;height:5px;background:transparent;margin-right:8px;vertical-align:1px}
 
+        /* Six rows silently swapping every 7s reads as a glitch until the table
+           says it is a window onto 49. The tick's width is the page's real share
+           of the set, so it doubles as a scale. */
+        .lg-pager{display:flex;align-items:center;gap:14px;
+          margin-top:18px;padding-left:14px}
+        .lg-pager-n{font-size:9.5px;letter-spacing:.16em;color:var(--ink-faint);
+          font-variant-numeric:tabular-nums;white-space:nowrap}
+        .lg-pager-track{position:relative;flex:0 1 190px;height:1px;background:var(--rule)}
+        .lg-pager-track i{position:absolute;top:-1px;height:3px;background:var(--ox);
+          left:0;width:12%;transition:left .5s cubic-bezier(.16,.84,.28,1)}
+        @media (prefers-reduced-motion:reduce){.lg-pager-track i{transition:none}}
+
         .lg-foot{display:flex;justify-content:space-between;align-items:baseline;gap:20px;
           margin-top:26px;padding-left:14px;
           font-size:10.5px;letter-spacing:.15em;color:var(--ink-soft)}
@@ -237,16 +329,23 @@ export function renderLedgerSection(options = {}) {
              desktop step because the phone column is narrow and 19ch is dropped
              here, so the string wraps on measure alone. */
           .lg h2{font-size:26px;max-width:none}
-          .lg-sample{margin-bottom:28px}
           .lg-cols{display:none}
           .lg-ratio-legend{flex-direction:column;gap:6px}
+          /* The totals sit under the standfirst on a phone and go horizontal, so
+             they read as a strip rather than a second column. */
+          .lg-head{grid-template-columns:1fr;gap:26px;margin-bottom:30px}
+          .lg-sum{grid-auto-flow:column;justify-content:start;gap:26px;text-align:left}
+          .lg-sum dd{font-size:16px}
           .lg-row{grid-template-columns:1fr auto;gap:4px 14px;
             padding-top:16px;padding-bottom:16px}
           .lg-no{grid-column:1}
           .lg-goal{grid-column:1;grid-row:2;font-size:14px}
           .lg-src{grid-column:1;grid-row:3;margin-top:3px}
           .lg-amt{grid-column:2;grid-row:2}
+          /* The multiple pairs with the stake it multiplies, not with the clock. */
+          .lg-mult{grid-column:2;grid-row:1;text-align:right;font-size:11.5px}
           .lg-out{grid-column:2;grid-row:3;margin-top:4px}
+          .lg-pager-track{flex:1 1 auto}
           .lg-foot{flex-direction:column;gap:12px;align-items:flex-start}
         }
         @media (prefers-reduced-motion:reduce){.lg *{transition:none !important}}
@@ -257,12 +356,19 @@ export function renderLedgerSection(options = {}) {
                 <div class="lg-top-rule"></div>
 
                 <div class="lg-head">
-                    <div class="lg-kicker lg-mono">THE LEDGER</div>
-                    <h2>Every contract settles in public</h2>
-                    <p id="lg-standfirst">
-                        Nothing here was decided by us. An API reported, the date passed, and the escrow moved.
-                        Losses are listed beside the wins, because that is what makes the wins mean anything.
-                    </p>
+                    <div class="lg-head-l">
+                        <div class="lg-kicker lg-mono">THE LEDGER</div>
+                        <h2>Every contract settles in public</h2>
+                        <p id="lg-standfirst">
+                            Nothing here was decided by us. An API reported, the date passed, and the escrow moved.
+                            Losses are listed beside the wins, because that is what makes the wins mean anything.
+                        </p>
+                    </div>
+                    <dl class="lg-sum lg-mono">
+                        <div><dt>CAPITAL AT STAKE</dt><dd id="lg-sum-cap">&mdash;</dd></div>
+                        <div><dt>CONTRACTS OPEN</dt><dd id="lg-sum-open">&mdash;</dd></div>
+                        <div class="lg-sum-ox"><dt>SETTLED</dt><dd id="lg-sum-settled">&mdash;</dd></div>
+                    </dl>
                 </div>
                 <div id="lg-ratio-slot">${ratio}</div>
                 <div class="lg-cols lg-mono">
@@ -270,11 +376,16 @@ export function renderLedgerSection(options = {}) {
                     <span>GOAL</span>
                     <span>PARTY &middot; ORACLE</span>
                     <span>AT STAKE</span>
+                    <span>MULTIPLE</span>
                     <span>OUTCOME</span>
                 </div>
                 <div id="lg-body">${rows}</div>
+                <div class="lg-pager" id="lg-pager" hidden>
+                    <span class="lg-pager-n lg-mono" id="lg-pager-n"></span>
+                    <span class="lg-pager-track"><i id="lg-pager-tick"></i></span>
+                </div>
                 <div class="lg-foot lg-mono">
-                    <span>SETTLEMENT IS AUTOMATIC &middot; <b>NO APPEALS</b> &middot; <b>NO EXTENSIONS</b></span>
+                    <span>VERIFICATION IS AUTOMATIC &middot; <b>NO APPEALS</b> &middot; <b>NO EXTENSIONS</b></span>
                     <button type="button" class="lg-link"${onSeeFullLedger ? ` onclick="${onSeeFullLedger}"` : ''}>SEE THE FULL LEDGER &rarr;</button>
                 </div>
             </div>
@@ -328,11 +439,35 @@ function lgFromMarket(list) {
         return {
             id: String(c.id || '').replace(/-/g, '').slice(0, 3).toUpperCase(),
             goal: t.title || t.name || c.metricKey || 'Open contract',
+            /* THE PERCENTAGE ONLY, NEVER THE NOUN.
+               displayTargetHint arrives as "Target: +65% units (14d)", and on 12
+               of the 48 live listings that noun contradicts the contract's own
+               metricKey — stripe_mrr described as "units", stripe_charge_volume
+               as "orders". Rendering the string verbatim would print a
+               self-contradicting row ("Monthly Recurring Revenue / +65% units")
+               on a quarter of the table.
+
+               The figure itself was checked and is sound: it is a strict
+               function of tier (controlled 25-60, elevated 35-85, maximum
+               50-130), the same template at the same tier always yields the same
+               number, and the window matches template.rules.window_days on all
+               48. So the percentage is kept and the noun is dropped — the title
+               already names the metric, which is what made the noun redundant as
+               well as wrong. Fix the generator upstream and nothing here needs to
+               change. */
+            target: (() => {
+                const m = /\+\s*(\d+(?:\.\d+)?)\s*%/.exec(c.displayTargetHint || '');
+                return m ? 'TARGET +' + m[1] + '%' : null;
+            })(),
             party: 'OPEN',
             oracle: (t.provider || c.provider || '').replace(/^\w/, (m) => m.toUpperCase()),
             stake: Math.round((c.costCents || 0) / 100),
+            mult: c.multiplier || null,
+            tier: c.tier || null,
             status: 'open',
-            daysLeft: days == null ? 30 : days,
+            /* No invented default. A missing fundingCloseAt used to render as
+               "30d LEFT", which is a date the API never gave us. */
+            daysLeft: days,
         };
     });
 }
@@ -346,6 +481,7 @@ function lgFromLedger(events) {
         if (e.lockAmountUsdCents) cur.lock = e.lockAmountUsdCents;
         if (e.principal) cur.principal = e.principal;
         if (e.platform) cur.platform = e.platform;
+        if (e.riskTier) cur.riskTier = e.riskTier;
         byContract.set(e.contractId, cur);
     }
     const rows = [];
@@ -357,11 +493,18 @@ function lgFromLedger(events) {
         rows.push({
             id: String(id).replace(/-/g, '').slice(0, 3).toUpperCase(),
             goal: c.platform ? `${c.platform.charAt(0) + c.platform.slice(1).toLowerCase()} performance contract` : 'Performance contract',
+            /* A staked rivalry carries a risk tier but no published multiple, so
+               the multiple column gets a rule rather than an invented number. */
+            target: c.riskTier ? String(c.riskTier).toUpperCase() + ' · HEAD TO HEAD' : null,
             party: c.principal ? '@' + c.principal : 'OPEN',
             oracle: (c.platform || '').replace(/^(\w)(\w*)$/, (_, a, b) => a + b.toLowerCase()),
             stake: Math.round((c.lock || 0) / 100),
+            mult: null,
+            tier: null,
             status: forfeited ? 'forfeited' : settled ? 'returned' : 'open',
-            daysLeft: 0,
+            /* The ledger publishes no close date for a rivalry, so there is no
+               countdown to state. renderRow prints OPEN rather than inventing one. */
+            daysLeft: null,
         });
     }
     return rows;
@@ -397,6 +540,20 @@ export async function initLedgerSection() {
 
     const settledCount = stats && Number(stats.contractsSettled) || 0;
 
+    /* Descending register numbers over the whole set, assigned once so a row
+       keeps its number across pages. */
+    all.forEach((e, i) => { e.seq = all.length - i; });
+
+    /* Totals. capitalLocked is what is actually staked right now, which is the
+       one staked contract — not the sum of the catalogue's entry prices, which
+       nobody has paid. */
+    const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    if (stats) {
+        setText('lg-sum-cap', usd(Number(stats.capitalLocked) || 0));
+        setText('lg-sum-open', String(all.length));
+        setText('lg-sum-settled', String(settledCount));
+    }
+
     // Standfirst: the shipped wording claims completed settlements. Only leave it
     // in place once at least one exists.
     const sf = document.getElementById('lg-standfirst');
@@ -411,14 +568,31 @@ export async function initLedgerSection() {
     const ratioSlot = document.getElementById('lg-ratio-slot');
     if (ratioSlot && settledCount === 0) ratioSlot.innerHTML = '';
 
+    const pager = document.getElementById('lg-pager');
+    const pagerN = document.getElementById('lg-pager-n');
+    const pagerTick = document.getElementById('lg-pager-tick');
+    /* Three digits, matching the width the register column pads to. */
+    const pad = (n) => String(n).padStart(3, '0');
+
     let page = 0;
     const paint = () => {
         const start = (page * LG_PAGE) % all.length;
+        const n = Math.min(LG_PAGE, all.length);
         const slice = [];
-        for (let i = 0; i < Math.min(LG_PAGE, all.length); i++) slice.push(all[(start + i) % all.length]);
+        for (let i = 0; i < n; i++) slice.push(all[(start + i) % all.length]);
         body.innerHTML = slice.map(renderRow).join('');
+
+        /* Quote the REGISTER NUMBERS on screen, not the slice position. seq runs
+           downwards, so a positional "37–42 OF 49" sat above rows numbered
+           013–008 and the two contradicted each other in the same eyeline. */
+        if (pagerN) pagerN.textContent = `${pad(slice[0].seq)}–${pad(slice[n - 1].seq)} OF ${all.length}`;
+        if (pagerTick) {
+            pagerTick.style.width = (n / all.length) * 100 + '%';
+            pagerTick.style.left = (start / all.length) * 100 + '%';
+        }
     };
     paint();
+    if (pager && all.length > LG_PAGE) pager.hidden = false;
 
     // Cycle only when there is more than one page, and never for someone who
     // asked for reduced motion.
