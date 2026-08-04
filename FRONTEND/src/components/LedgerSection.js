@@ -159,9 +159,20 @@ export function renderLedgerSection(options = {}) {
         /* The old rule set no font-family at all and inherited Helvetica off
            .lg, which is why Trajan never appeared. 0,1,1 here beats the bare h2
            in index.css at 0,0,1, so nothing needs !important. */
+        /* 42px, up from 31. The weight was already right and was checked rather
+           than assumed: both Trajan cuts load, and 700 measures 590.2px against
+           400 at 582.3px on this string, so a real bold face is in use. Trajan
+           simply has a quiet bold — it is drawn from chiselled inscription, where
+           weight comes from stroke modulation rather than mass, so asking it to
+           shout through font-weight does not work. On this family presence is a
+           function of SIZE.
+
+           42 is the largest step that still reads as a section head rather than a
+           second hero. The hero display runs far above it, so the hierarchy is
+           unambiguous either way. */
         .lg h2{font-family:var(--roman);
-          font-size:31px;font-weight:700;font-synthesis:none;
-          letter-spacing:.008em;line-height:1.16;
+          font-size:42px;font-weight:700;font-synthesis:none;
+          letter-spacing:.008em;line-height:1.12;
           color:var(--ox);max-width:19ch;text-wrap:balance}
         .lg-head p{margin-top:17px;font-size:15px;line-height:1.62;color:#3B4254;max-width:58ch}
         .lg-sample{display:inline-block;margin:22px 0 40px;padding:7px 12px;
@@ -228,7 +239,10 @@ export function renderLedgerSection(options = {}) {
 
         @media (max-width:880px){
           .lg-wrap{padding:44px 20px 64px}
-          .lg h2{font-size:22px;max-width:none}
+          /* 26px, up from 22, tracking the desktop increase. Kept well below the
+             desktop step because the phone column is narrow and 19ch is dropped
+             here, so the string wraps on measure alone. */
+          .lg h2{font-size:26px;max-width:none}
           .lg-sample{margin-bottom:28px}
           .lg-cols{display:none}
           .lg-ratio-legend{flex-direction:column;gap:6px}
