@@ -206,33 +206,21 @@ export function renderCollateralHero(options = {}) {
            (161px at 1920), which is why the eyebrow never slides under it. */
         .clt{margin-top:-96px}
 
-        /* Header loses its opaque paper fill over the hero so the plate runs
-           under it. Scoped by lifetime, not by selector: this <style> lives
-           inside the landing view's markup, so the router replaces it on
-           navigation and no other route is affected. .ch-header sets its
-           background with !important, hence the !important here.
+        /* THE HEADER SCRIM LIVES IN Header.js NOW, AND MUST NOT BE DUPLICATED
+           HERE. This rule used to paint a cream gradient onto .ch-header with
+           !important so the plate could run under the bar. The header now
+           carries its own blurred, masked scrim on .ch-header::before, and a
+           background on the element itself paints BEHIND that layer — a .92
+           fill here would sit under the blur and block the plate it was meant
+           to reveal, which is the opposite of what this rule existed to do.
 
-           A gradient scrim, NOT background:transparent. Fully transparent was
-           measured and fails: because the hero crops from the top, a short
-           window lifts the left-hand cypresses into the header band, putting
-           12.1% ink at luma 29 directly under the #0E1420 wordmark — dark on
-           dark. The menu side stays clean (luma 226), so it is the wordmark
-           alone that breaks. The scrim fades to nothing by the bottom edge, so
-           the plate still reads through it.
-
-           NOT backdrop-filter — over an aspect-broken hero it renders a partial
-           pane with a hard visible edge.
-
-           Only at the top of the page. Once .nav-scrolled lands the header
-           takes back its opaque paper fill, which it needs to stay readable
-           over the sections below. */
-        .ch-header:not(.nav-scrolled){
-          background:linear-gradient(to bottom,
-            rgba(241,238,232,.92) 0%,
-            rgba(241,238,232,.70) 55%,
-            rgba(241,238,232,0) 100%) !important;
-          border-bottom-color:transparent !important;
-        }
+           The reason it existed still holds and is still handled: the hero
+           crops from the top, so a short window lifts the left-hand cypresses
+           into the header band, putting 12.1% ink at luma 29 under the #0E1420
+           wordmark. Dark on dark. That is now solved by the blur — which
+           averages those cypresses into their surroundings before anything is
+           composited over them — plus the tint in Header.js. Verified by
+           sampling the plate under the wordmark box rather than by eye. */
 
         /* ---- hero ----
            The lockup is sized in cqw (1cqw = 1% of .clt-hero's width), NOT vw.

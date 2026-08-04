@@ -44,23 +44,73 @@ export function renderHeader(currentRoute = '') {
             /* ══════════════════════════════════════════════════════════════
                FULL-BLEED STICKY HEADER & SEPARATED MENU CLUSTER
                ══════════════════════════════════════════════════════════════ */
+            /* SEAMLESS BLURRED HEADER.
+               The bar itself paints nothing — no fill, no rule. Everything
+               visible is on ::before, which carries the blur, a light tint and
+               a mask.
+
+               THE MASK IS THE POINT, not decoration. backdrop-filter had been
+               tried on this header before and rejected, because a blur layer
+               with a square bottom edge draws a visible seam across the artwork
+               where the filter stops. Fading the layer out over its last third
+               means the blur has no edge to see: it thins to nothing before the
+               bar ends. That is what makes it read as seamless rather than as a
+               pane sitting on top.
+
+               The tint is deliberately low. It is there to lift text contrast,
+               not to reintroduce the paper fill this replaces. */
             .ch-header {
                 width: 100%;
-                border-bottom: 1px solid var(--rule, #DCD5C6);
-                background: var(--paper, #FFFDF9) !important;
+                border-bottom: 0;
+                background: transparent;
                 position: fixed;
                 top: 0;
                 left: 0;
                 right: 0;
                 z-index: 50;
                 height: 64px; /* Fixed constant height — ZERO layout shift on scroll */
-                transition: background 150ms ease, border-color 150ms ease;
             }
-            .ch-header.nav-scrolled {
-                background: rgba(255, 253, 249, 0.96) !important;
-                backdrop-filter: blur(8px);
-                -webkit-backdrop-filter: blur(8px);
-                border-bottom-color: var(--rule-strong, #BDB3A0);
+            .ch-header::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 0;
+                pointer-events: none;
+                backdrop-filter: blur(14px) saturate(116%);
+                -webkit-backdrop-filter: blur(14px) saturate(116%);
+                background: linear-gradient(to bottom,
+                    rgba(252, 250, 246, 0.50) 0%,
+                    rgba(252, 250, 246, 0.34) 58%,
+                    rgba(252, 250, 246, 0.10) 100%);
+                -webkit-mask-image: linear-gradient(to bottom,
+                    #000 0%, #000 64%, transparent 100%);
+                mask-image: linear-gradient(to bottom,
+                    #000 0%, #000 64%, transparent 100%);
+                transition: background 150ms ease;
+            }
+            /* Content rides above the blur layer. Without this the wordmark and
+               the menu sit inside the blurred pane and get filtered with it. */
+            .ch-header-inner { position: relative; z-index: 1; }
+
+            /* Scrolled over ordinary sections the tint comes up for legibility.
+               The blur and the fade are unchanged, so the bar never grows an
+               edge on the way. */
+            .ch-header.nav-scrolled::before {
+                background: linear-gradient(to bottom,
+                    rgba(252, 250, 246, 0.74) 0%,
+                    rgba(252, 250, 246, 0.60) 60%,
+                    rgba(252, 250, 246, 0.30) 100%);
+            }
+
+            /* No backdrop-filter, no blur to hide behind — fall back to a solid
+               bar rather than leaving dark artwork under dark type. */
+            @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+                .ch-header::before {
+                    background: linear-gradient(to bottom,
+                        rgba(252, 250, 246, 0.97) 0%,
+                        rgba(252, 250, 246, 0.90) 60%,
+                        rgba(252, 250, 246, 0.62) 100%);
+                }
             }
 
             /* Full-Bleed Viewport Layout: Wordmark and Menu sit flush to edge gutters */
