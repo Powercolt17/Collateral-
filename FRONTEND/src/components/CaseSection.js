@@ -81,7 +81,11 @@ export function renderCaseSection() {
         }
         .cs *{box-sizing:border-box;margin:0;padding:0}
         .cs-wrap{max-width:1440px;margin:0 auto;padding:76px 90px 72px}
-        .cs-grid{display:grid;grid-template-columns:.82fr 1fr;gap:76px;align-items:start}
+        /* minmax(0,...) rather than bare fr. A grid track defaults to a floor of
+           min-content, so the table dragged the whole column out to its own
+           min-width and the section overflowed with it. */
+        .cs-grid{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1fr);
+          gap:76px;align-items:start}
 
         /* ---- left column ---- */
         .cs-kicker{display:flex;align-items:center;gap:12px;font-family:var(--cs-mono);
@@ -108,7 +112,17 @@ export function renderCaseSection() {
           overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
         .cs-cap{font-family:var(--cs-mono);font-size:11px;letter-spacing:.24em;
           text-transform:uppercase;color:var(--cs-muted);font-weight:500;margin-bottom:16px}
-        .cs-tbl{width:100%;border-collapse:collapse;border-top:2px solid var(--cs-ink)}
+        /* min-width:0 is LOAD-BEARING and needs the !important to survive.
+           mobile.css carries a bare "table" selector with min-width:600px
+           !important for every viewport under 768px. It exists for the wide
+           data tables on other routes, which sit inside an overflow-x:auto
+           wrapper and are meant to be scrolled sideways. This table is designed
+           to fit, so that floor forced it to 600px in a 320px column - it was
+           not scrolling, it was being clipped by the page overflow:hidden, so
+           the last column simply vanished at 360px. A bare element selector
+           loses to one class, but only if this one is important too. */
+        .cs-tbl{width:100%;min-width:0 !important;border-collapse:collapse;
+          border-top:2px solid var(--cs-ink)}
         /* display:grid on the table elements. The rows keep their tr/td
            semantics and the header keeps th scope=col; only the layout is
            taken over. See the note at the top of the file. */
@@ -137,7 +151,7 @@ export function renderCaseSection() {
         @media (max-width:900px){
           .cs-wrap{padding-block:clamp(40px,8vw,64px);padding-inline:clamp(20px,5.5vw,90px)}
           .cs-body{font-size:clamp(1rem,4.2vw,1.125rem)}
-          .cs-grid{grid-template-columns:1fr;gap:40px}
+          .cs-grid{grid-template-columns:minmax(0,1fr);gap:40px}
           .cs-tbl tr{grid-template-columns:34px 1fr 1fr;column-gap:12px;padding:14px 4px}
           .cs-void,.cs-under{font-size:15px}
         }
