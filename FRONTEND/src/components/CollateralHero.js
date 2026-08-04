@@ -1306,29 +1306,88 @@ export function renderCollateralHero(options = {}) {
            band is the carved table front, which the 35% anchor is already
            cropping into, and the strip's own 1px top rule reads as the plate's
            bottom edge. */
+        /* ORACLE BAND. Replaces the two-line text strip. Same position in the
+           document and the same job — naming the sources that decide outcomes —
+           but the brands are shown rather than listed.
+
+           Namespaced to clt-. The supplied sheet styles bare *, body, .band,
+           .inner, .logo and .name; this ships in the same document as the hero
+           and the ledger, so pasted as authored it would restyle both.
+
+           width:1440px in the sheet becomes width:100% with the max-width moved
+           onto the inner element, or the band would refuse to fill the viewport
+           and would overflow below 1440. */
         .clt-strip{
           position:relative;z-index:3;
-          /* SUPERSEDED: this pulled up -44px so the strip peeked above the fold
-             and the escrow figure was visible at scroll-top. The sepia plate
-             makes that unaffordable. Its table and everything on it — coins,
-             scroll, seal, the actual subject of the picture — sit in the bottom
-             20% of the file, and the strip was parked directly over them.
-
-             Measured at 1562x741: the table had 50px visible with the overlap
-             and 94px without. The anchor cannot buy that back, because anchor
-             is zero-sum — moving it from .35 to .55 gains 24px of table and
-             costs 25px of headline clearance, which goes negative. Dropping
-             the overlap gains 44px for nothing.
-
-             So the proof numbers move below the fold again. The artwork's
-             subject beats the social proof; the strip is one scroll away. */
           margin-top:0;
-          display:flex;justify-content:center;align-items:baseline;gap:10px 40px;flex-wrap:wrap;
-          padding:22px 24px;font-size:10px;letter-spacing:.16em;color:var(--ink-soft);
-          background:var(--paper);
-          border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+          background:linear-gradient(180deg,#ECE1C7 0%,#E9DDC0 100%);
+          border-top:1px solid rgba(60,48,30,.16);
+          border-bottom:1px solid rgba(60,48,30,.16);
         }
-        .clt-strip b{color:var(--ink);font-weight:700}
+        /* Printed-paper tooth. 5px dot grid at 5% — it is what stops the
+           gradient reading as a flat CSS panel between two engravings. */
+        .clt-strip::before{
+          content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+          background-image:radial-gradient(rgba(90,70,40,.05) 1px,transparent 1px);
+          background-size:5px 5px;
+        }
+        .clt-strip-in{
+          max-width:1160px;margin:0 auto;
+          padding:32px 90px 30px;text-align:center;position:relative;
+        }
+        .clt-strip-eyebrow{
+          font-family:var(--text-serif);
+          font-size:10px;letter-spacing:.42em;text-transform:uppercase;
+          color:#9A8C6F;font-weight:600;margin-bottom:24px;
+        }
+        .clt-oracles{display:flex;align-items:center;justify-content:center;gap:30px;flex-wrap:wrap}
+        .clt-live{
+          display:inline-flex;align-items:center;gap:9px;
+          font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+          font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+          color:#5B5140;font-weight:500;transform:translateY(-8px);
+        }
+        /* Optical, not structural: the label centres against the marks rather
+           than the marks plus their captions. */
+        .clt-dot{width:7px;height:7px;border-radius:50%;background:#5F7D4F;flex:none}
+        .clt-vline{width:1px;height:44px;background:rgba(60,48,30,.16);margin:0 8px}
+
+        .clt-logos{display:flex;align-items:flex-start;gap:52px;flex-wrap:wrap;justify-content:center}
+        .clt-logo{
+          display:flex;flex-direction:column;align-items:center;gap:12px;
+          color:#3B3223;transition:color .2s ease;
+        }
+        .clt-mark{height:30px;display:flex;align-items:center;justify-content:center}
+        .clt-mark svg{width:auto;fill:currentColor;display:block}
+        .clt-name{
+          font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+          font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+          color:#9A8C6F;font-weight:500;
+        }
+        .clt-logo:hover{color:#211B12}
+        .clt-logo:hover .clt-name{color:#5B5140}
+
+        /* Optically balanced per brand — the three marks have different cap
+           heights and set at one size the wordless glyphs read at three
+           different weights. */
+        .clt-logo-stripe  .clt-mark svg{height:23px}
+        .clt-logo-youtube .clt-mark svg{height:19px}
+        .clt-logo-shopify .clt-mark svg{height:29px}
+        .clt-logo-x       .clt-mark svg{height:20px}
+
+        /* PLACEHOLDER, and it is marked as one in the supplied sheet too. This
+           is a monogram tile, not Plaid's mark. It should be swapped for the
+           official SVG before this is considered finished — a hand-drawn letter
+           standing in for a brand is the kind of thing that reads as sloppy
+           rather than as pending. */
+        .clt-plaid-tile{
+          width:27px;height:27px;border-radius:7px;background:currentColor;
+          display:flex;align-items:center;justify-content:center;
+        }
+        .clt-plaid-tile span{
+          font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+          font-weight:600;font-size:15px;color:#ECE1C7;line-height:1;
+        }
         .clt-fig{font-size:15px;letter-spacing:.02em;font-weight:600}
         .clt-ox{color:var(--ox)}
         .clt-gr{color:var(--green)}
@@ -1656,11 +1715,17 @@ export function renderCollateralHero(options = {}) {
             font-family:var(--text-serif);font-weight:700;
             font-size:3.05em;letter-spacing:-.01em;margin-bottom:7px;
           }
-          .clt-strip{
-            gap:8px;flex-direction:column;align-items:flex-start;
-            justify-content:flex-start;text-align:left;
-            font-size:9px;padding:18px 22px;
-          }
+          /* The band restacks rather than shrinking. At 52px the four marks
+             overflow a phone, so the gap closes, the label sits above the row
+             instead of beside it, and the vertical rule goes — it separates two
+             things that are no longer side by side. */
+          .clt-strip-in{padding:26px 20px 24px}
+          .clt-strip-eyebrow{margin-bottom:18px;letter-spacing:.3em}
+          .clt-oracles{flex-direction:column;gap:18px}
+          .clt-vline{display:none}
+          .clt-live{transform:none}
+          .clt-logos{gap:26px}
+          .clt-name{font-size:9px;letter-spacing:.18em}
         }
         /* No max-width:420px block. It existed to re-tune the zoom and padding of
            the old scaled band; the aspect-lock makes both meaningless. */
@@ -1747,9 +1812,36 @@ export function renderCollateralHero(options = {}) {
                 </div>
             </section>
 
-            <div class="clt-strip clt-mono">
-                <span>ORACLES <b>STRIPE · YOUTUBE · SHOPIFY</b></span>
-                <span>VERIFICATION IS AUTOMATIC · <b>NO APPEALS</b> · <b>NO EXTENSIONS</b></span>
+            <!-- The terms line that used to sit here — VERIFICATION IS
+                 AUTOMATIC / NO APPEALS / NO EXTENSIONS — is not lost. It is
+                 still on the page, in the ledger section's footer, so removing
+                 it from the band does not drop the claim from the document. -->
+            <div class="clt-strip">
+                <div class="clt-strip-in">
+                    <div class="clt-strip-eyebrow">Every outcome, verified at the source</div>
+                    <div class="clt-oracles">
+                        <span class="clt-live"><span class="clt-dot" aria-hidden="true"></span> Live Oracles</span>
+                        <span class="clt-vline" aria-hidden="true"></span>
+                        <span class="clt-logos">
+                            <span class="clt-logo clt-logo-plaid" title="Plaid">
+                                <span class="clt-mark"><span class="clt-plaid-tile" aria-hidden="true"><span>P</span></span></span>
+                                <span class="clt-name">Plaid</span>
+                            </span>
+                            <span class="clt-logo clt-logo-stripe" title="Stripe">
+                                <span class="clt-mark"><svg viewBox="0 0 24 24" role="img" aria-label="Stripe"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"/></svg></span>
+                                <span class="clt-name">Stripe</span>
+                            </span>
+                            <span class="clt-logo clt-logo-youtube" title="YouTube">
+                                <span class="clt-mark"><svg viewBox="0 0 24 24" role="img" aria-label="YouTube"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
+                                <span class="clt-name">YouTube</span>
+                            </span>
+                            <span class="clt-logo clt-logo-shopify" title="Shopify">
+                                <span class="clt-mark"><svg viewBox="0 0 24 24" role="img" aria-label="Shopify"><path d="M15.337 23.979l7.216-1.561s-2.604-17.613-2.625-17.73c-.018-.116-.114-.192-.211-.192s-1.929-.136-1.929-.136-1.275-1.274-1.439-1.411c-.045-.037-.075-.057-.121-.074l-.914 21.104h.023zM11.71 11.305s-.81-.424-1.774-.424c-1.447 0-1.504.906-1.504 1.141 0 1.232 3.24 1.715 3.24 4.629 0 2.295-1.44 3.76-3.406 3.76-2.354 0-3.54-1.465-3.54-1.465l.646-2.086s1.245 1.066 2.28 1.066c.675 0 .975-.545.975-.932 0-1.619-2.654-1.694-2.654-4.359-.034-2.237 1.571-4.416 4.827-4.416 1.257 0 1.875.361 1.875.361l-.945 2.715-.02.01zM11.17.83c.136 0 .271.038.405.135-.984.465-2.064 1.639-2.508 3.992-.656.213-1.293.405-1.889.578C7.697 3.75 8.951.84 11.17.84V.83zm1.235 2.949v.135c-.754.232-1.583.484-2.394.736.466-1.777 1.333-2.645 2.085-2.971.193.501.309 1.176.309 2.1zm.539-2.234c.694.074 1.141.867 1.429 1.755-.349.114-.735.231-1.158.366v-.252c0-.752-.096-1.371-.271-1.871v.002zm2.992 1.289c-.02 0-.06.021-.078.021s-.289.075-.714.21c-.423-1.233-1.176-2.37-2.508-2.37h-.115C12.135.209 11.669 0 11.265 0 8.159 0 6.675 3.877 6.21 5.846c-1.194.365-2.063.636-2.16.674-.675.213-.694.232-.772.87-.075.462-1.83 14.063-1.83 14.063L15.009 24l.927-21.166z"/></svg></span>
+                                <span class="clt-name">Shopify</span>
+                            </span>
+                        </span>
+                    </div>
+                </div>
             </div>
 
         </div>
