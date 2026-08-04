@@ -1198,115 +1198,136 @@ export function renderCollateralHero(options = {}) {
         }
 
         @media (max-width:820px){
-          /* Mobile gets its OWN portrait plate, aspect-locked. This replaces the
-             band-under-the-type approach entirely: the landscape plate used to
-             be scaled and anchored to the bottom with the lockup flowing above
-             it, which is why the lockup was position:static and why there was a
-             padding-bottom reserving the band. A portrait crop needs none of
-             that — the hero is simply the plate, and the type sits on it, the
-             same way desktop works.
+          /* MOBILE IS A STACK, NOT AN OVERLAY.
+             Every mobile treatment before this put the lockup on top of a
+             full-bleed plate, and every one failed the same way: the crop has
+             no reserved empty region, so whatever sat lowest in the lockup
+             landed on the figures. The shipped version had the secondary link
+             and BOTH metrics rendered across the scribe and the table,
+             unreadable — not dim, not tight, genuinely illegible.
 
-             background-size:100% 100% is safe here precisely BECAUSE of the
-             aspect-lock: the box always matches 900/1614, so the image is never
-             actually stretched.
+             No amount of tuning fixes that, because the constraint is a
+             contradiction: the type wants a quiet field and this crop is busy
+             edge to edge. Earlier attempts tried to buy the field by painting
+             sky above the figures, and the note below records how that went —
+             36% sky against 55% required. So the artwork stops being a backdrop
+             and becomes a BLOCK: type on paper, picture underneath, both in
+             normal flow, which is what the approved mockup actually shows.
 
-             width:100vw + margin-left:calc(50% - 50vw) is kept, and is not in
-             the supplied rules. .lp puts a 16px gutter on the landing page at
-             this width; without this the hero sits inset with paper down both
-             sides, which is the "it needs to be full screen" problem from
-             earlier. */
-          /* NO ASPECT LOCK, NO PORTRAIT PLATE, NO SYNTHESISED SKY.
-             Every mobile plate before this was a portrait canvas with sky
-             painted above the figures, and each one failed the same way: the
-             sky share never matched what the lockup needed, so the CTA landed
-             on the scribe. The last portrait measured 36% sky against 55%
-             required.
-
-             The sky was never the artwork's job. The type sits on PAPER, and
-             the section already has paper. So the hero is a plain paper panel
-             with the figure crop anchored to its bottom edge — which is also
-             exactly what the approved mockup shows. There is no join to blend
-             because there is no synthesised region: the artwork's own ground
-             meets the section's background-color, and those are matched. */
+             This also permanently kills the scroll glitch. The hero no longer
+             has a viewport-derived height, so the mobile URL bar collapsing
+             cannot resize it. 100svh is removed rather than patched. */
           .clt-hero{
-            height:100vh;
-            height:100svh;
-            padding:0;
+            height:auto;
             width:100vw;
             margin-left:calc(50% - 50vw);
+            /* Reserves the artwork. MUST stay equal to the ::before height. */
+            padding:0 0 96vw;
           }
-          /* The portrait plate swaps on the LAYER now, not on the section.
-             --plate-grade is not repeated here on purpose: the desktop
-             ::before rule already carries it and this block only overrides the
-             three background properties, so mobile and desktop cannot drift to
-             different colourways.
+          /* The plate is a block pinned to the bottom of the hero. 96vw tall in
+             a 100vw wide hero is the senate crop's own 1066x1024 ratio (1.041),
+             so cover neither stretches nor crops it — the full group shows at
+             every phone width, which is the whole reason a dedicated mobile
+             crop exists.
 
-             The !important is now belt-and-braces rather than load-bearing. It
-             was required when the section carried an inline background-image,
-             which no stylesheet rule can beat; the inline style now sets
-             --clt-plate instead, so equal specificity plus later source order
-             would already win. Kept because the inline-style form is the
-             obvious thing to revert to. */
+             The top 15% masks to transparent so the plate's own ground
+             dissolves into the section paper. That retires a colour match that
+             used to be load-bearing: background-color below is still the
+             measured corner value, but it is now a fallback rather than a join,
+             because the fade ends in the section's real background. However the
+             plate grades, the two can no longer drift apart. */
           .clt-hero::before{
             background-image:url(/assets/images/collateral-senate-mobile.jpg) !important;
-            /* 100% auto, NOT cover and NOT 100% 100%. The crop keeps its own
-               1.041 ratio, so it is never stretched and never cropped — the
-               full group is always visible, at every phone width. */
-            background-size:100% auto;
-            background-position:center bottom;
-            /* The artwork's own paper, sampled from its top corners. It sits
-               UNDER the image on the same element, so --plate-grade treats both
-               identically and the panel above the figures cannot drift to a
-               different tone than the figures' own ground. That match is the
-               only thing standing in for the sky that used to be painted in. */
-            /* Sampled from the senate plate's own clear top-left corner, mean of
-               a 292x112 block: rgb(238,214,175). The previous artwork's paper
-               was #F0D6AF, two points off on red — near enough that the join was
-               invisible either way, but this is the measured value for the plate
-               actually on screen, so the panel and the artwork's ground are the
-               same colour by derivation rather than by luck. */
+            top:auto;height:96vw;
+            background-size:cover;
+            background-position:center center;
             background-color:#EED6AF;
+            -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 15%);
+            mask-image:linear-gradient(to bottom,transparent 0,#000 15%);
           }
-          /* 96 -> 76px top padding. The extra sky in the portrait plate does
-             most of the work, but the mobile lockup is fixed px while the hero
-             scales with viewport WIDTH, so a narrow-and-short phone gets the
-             least sky and the same tall lockup. At 360x740 the clearance was
-             +3px with 96; 76 makes it +23px and every larger phone gains 20px
-             with it. Still clears the 64px header by 12px. */
-          /* Mobile stays CENTRED AND TOP-ANCHORED. The desktop rule above turns
-             the lockup into a left column because the landscape crop puts its
-             figures on the right; the portrait plate is composed the old way,
-             sky on top and figures below, so it needs the old arrangement. Every
-             property the desktop rule sets has to be undone explicitly —
-             justify-content, align-items, text-align, padding and max-width —
-             or the phone gets a narrow left column against a full-width plate. */
-          /* LEFT-ALIGNED and top-anchored, matching the approved mockup and the
-             desktop column. Centred type was a consequence of the old portrait
-             plate, where the lockup floated in a band of sky; on a paper panel
-             there is no reason for it, and left-aligning puts mobile in the same
-             voice as desktop and as the rest of the site. */
+          /* Clouds stay, confined to the artwork block and fading with it. The
+             desktop mask is a left-to-right ramp protecting the type column,
+             which means nothing once the type is not over the picture, so it is
+             replaced rather than inherited. */
+          .clt-sky{
+            top:auto;height:96vw;
+            -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 15%);
+            mask-image:linear-gradient(to bottom,transparent 0,#000 15%);
+          }
+          /* position:relative, not static — z-index only applies to positioned
+             elements and the lockup has to stay above the sky layer. */
           .clt-lockup{
-            position:absolute;inset:0 0 auto 0;
-            justify-content:flex-start;align-items:flex-start;text-align:left;
-            padding:76px 22px 0;max-width:none;z-index:1;
+            position:relative;inset:auto;
+            justify-content:flex-start;align-items:stretch;text-align:left;
+            padding:34px 22px 30px;max-width:none;z-index:2;
           }
-          /* The eyebrow's flanking rules are a centred device. Drop the leading
-             one so the label starts flush with the headline's left edge. */
-          .clt-eyebrow::before{display:none}
-          .clt-eyebrow{font-size:9px;gap:8px;letter-spacing:.18em}
-          .clt-eyebrow::before,.clt-eyebrow::after{width:20px;height:2px}
-          /* src/mobile.css:521 forces h1 to clamp(24px,7vw,36px) !important for
-             every view at max-width 768px, which beats a scoped rule. The extra
-             .clt and the !important below exist only to win that cascade — the
-             VALUE is exactly as authored, unconverted. */
-          .clt .clt-hero h1{margin-top:14px;font-size:clamp(26px,7.2vw,34px) !important;line-height:1.06 !important;letter-spacing:.02em !important}
-          .clt-cta{margin-top:26px;gap:18px;flex-direction:column}
-          /* min-height is the 44px touch target; the padding alone gave 43px. */
-          .clt-btn{padding:16px 30px;min-height:44px;font-size:11px;box-shadow:5px 5px 0 var(--ox)}
-          .clt-btn:hover{box-shadow:2px 2px 0 var(--ox);transform:translate(3px,3px)}
-          .clt-link{font-size:11px;border-bottom-width:2px;padding-bottom:5px}
+          /* Rule moves to the LEFT of the label so the eyebrow starts on the
+             same margin as everything below it. */
+          .clt-eyebrow{font-size:9px;gap:10px;letter-spacing:.18em}
+          .clt-eyebrow::after{display:none}
+          .clt-eyebrow::before{display:block;width:26px;height:1px}
+          /* The desktop rule already sets --text-serif, weight 400 and
+             text-transform:none, so the caps problem is solved upstream. Two
+             things still need saying here.
 
-          .clt-strip{gap:10px;flex-direction:column;align-items:center;font-size:9px;padding:16px}
+             WEIGHT GOES TO 700 ON MOBILE ONLY. Newsreader carries an optical
+             size axis, and 400 that reads composed at 4.55cqw reads thin and
+             underset at 34px. This is optical compensation, not a different
+             voice, and it is what the mockup shows.
+
+             LETTER-SPACING WAS STILL POSITIVE HERE. The old value was .02em,
+             left over from Trajan, which is inscriptional and wants air. On a
+             text serif it just loosens the line. Matched to desktop at -.012em.
+
+             src/mobile.css:521 forces font-size, line-height AND letter-spacing
+             on a bare h1 with !important for every view under 768px. An
+             !important at lower specificity beats a plain declaration at higher
+             specificity, so those three need !important here or they silently
+             lose — that is how mobile ended up with NEGATIVE tracking once
+             already. font-family, weight and text-transform are not in that
+             rule, so they do not need it. */
+          .clt .clt-hero h1{
+            font-weight:700;
+            margin-top:18px;
+            font-size:clamp(33px,10.6vw,44px) !important;
+            line-height:1.1 !important;
+            letter-spacing:-.012em !important;
+          }
+          .clt-sub{margin-top:16px;font-size:16px;line-height:1.55;max-width:36ch}
+          .clt-cta{margin-top:26px;gap:16px;flex-direction:column;align-items:stretch}
+          /* Full-width button. min-height is the 44px touch target; the padding
+             alone came to 43. The offset drop-shadow the old rule added is
+             dropped — it replaced the base inset hairlines wholesale, and the
+             mockup shows the button flat. */
+          .clt-btn{
+            padding:17px 24px;min-height:44px;font-size:11px;
+            justify-content:center;text-align:center;
+          }
+          /* The link must NOT stretch — align-items:stretch above would drag
+             its underline the full width of the column. */
+          .clt-link{align-self:flex-start;font-size:11px;padding-bottom:6px}
+          /* Metrics sit side by side with a rule between them. They are the
+             last thing before the artwork, so this doubles as the seam. */
+          .clt-proof{
+            margin-top:30px;padding-top:20px;gap:0;
+            font-size:9px;letter-spacing:.15em;
+            flex-wrap:nowrap;align-items:stretch;
+          }
+          .clt-proof span{flex:1 1 0;min-width:0}
+          .clt-proof span + span{
+            border-left:1px solid rgba(43,33,24,.18);padding-left:20px;
+          }
+          /* Numbers follow the headline out of Trajan. Trajan regular beside a
+             bold text serif read as two different voices stacked. */
+          .clt-proof b{
+            font-family:var(--text-serif);font-weight:700;
+            font-size:3.05em;letter-spacing:-.01em;margin-bottom:7px;
+          }
+          .clt-strip{
+            gap:8px;flex-direction:column;align-items:flex-start;
+            justify-content:flex-start;text-align:left;
+            font-size:9px;padding:18px 22px;
+          }
         }
         /* No max-width:420px block. It existed to re-tune the zoom and padding of
            the old scaled band; the aspect-lock makes both meaningless. */
