@@ -303,7 +303,9 @@ export function renderForkSection(options = {}) {
         /* Narrow. The four-across timeline becomes a vertical rail with the
            nodes down the left, and the two cards stack. */
         @media (max-width:900px){
-          .fk-wrap{padding:44px 20px 40px}
+          .fk-wrap{padding-block:clamp(40px,8vw,64px);padding-inline:clamp(20px,5.5vw,90px)}
+          .fk-head p{font-size:clamp(1rem,4.2vw,1.125rem)}
+          .fk-step p{font-size:clamp(.9rem,3.8vw,15px)}
           .fk-steps{grid-template-columns:1fr;gap:0;margin-top:40px}
           .fk-steps::before{top:6px;bottom:6px;left:6px;right:auto;width:1px;height:auto}
           .fk-step{padding:0 0 30px 30px}
@@ -314,6 +316,16 @@ export function renderForkSection(options = {}) {
           .fk-card{padding:26px 22px 24px}
           .fk-c-name{font-size:24px}
           .fk-foot{margin-top:32px}
+        }
+        /* FULL BLEED BELOW 768. mobile.css forces padding-left/right:16px on .lp
+           at exactly this width, so the section stopped 16px short of both edges
+           and its own parchment never reached them. Those two strips were the
+           white side margins - the page ground showing past the section, not the
+           section itself. 100vw plus the negative margin escapes the gutter, the
+           same technique the hero already documents. Pinned to 768 deliberately:
+           above it there is no gutter to escape. */
+        @media (max-width:768px){
+          .fk{width:100vw;margin-left:calc(50% - 50vw)}
         }
         </style>
 

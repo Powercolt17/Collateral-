@@ -191,6 +191,16 @@ html {
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Parchment on the ROOT, because the root is what paints the canvas — the
+       area a phone shows when you rubber-band past the top or bottom of the
+       page. Once html declares a background, body's no longer reaches there, so
+       an overscroll on the landing page was flashing the near-white --bg-page.
+
+       Deliberately here and not on body: body is var(--bg-page) and every other
+       route is designed against it. Repainting the whole application would be a
+       heavy way to fix an edge that only appears while the page is being
+       dragged past its end. */
+    background: #F1E8D3;
 }
 
 body {

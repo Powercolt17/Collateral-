@@ -1623,7 +1623,9 @@ export function renderCollateralHero(options = {}) {
           .clt-lockup{
             position:relative;inset:auto;
             justify-content:flex-start;align-items:stretch;text-align:left;
-            padding:96px 22px 30px;max-width:none;z-index:2;
+            /* Inline inset matched to the sections so the hero headline and every
+               section heading share one left margin on a phone. */
+            padding:96px clamp(20px,5.5vw,90px) 30px;max-width:none;z-index:2;
           }
           /* Rule moves to the LEFT of the label so the eyebrow starts on the
              same margin as everything below it. */
@@ -1716,13 +1718,35 @@ export function renderCollateralHero(options = {}) {
              overflow a phone, so the gap closes, the label sits above the row
              instead of beside it, and the vertical rule goes — it separates two
              things that are no longer side by side. */
-          .clt-strip-in{padding:26px 20px 24px}
-          .clt-strip-eyebrow{margin-bottom:18px;letter-spacing:.3em}
-          .clt-oracles{flex-direction:column;gap:18px}
+          /* THE BAND IS A STRIP, NOT A SECTION. It measured 195px tall on a
+             phone, which is section height for what is a credit line.
+
+             The label sits above the marks and the divider goes, because it
+             separated two things that are no longer side by side. All four
+             marks come down to a common 20px: on desktop they are optically
+             balanced per brand at 19-29px, but at strip scale that spread stops
+             reading as four brands and starts reading as four sizes, and the
+             captions carry the identification anyway.
+
+             nowrap is deliberate. Letting them wrap turns the strip back into a
+             tall block, which is the thing being fixed. At 360px the four marks
+             plus the minimum 20px gaps come to about 230px against 320px of
+             available width, so they hold one row. */
+          .clt-strip-in{padding:clamp(22px,7vw,28px) clamp(20px,5.5vw,90px)}
+          .clt-strip-eyebrow{margin-bottom:14px;letter-spacing:.3em;font-size:9px}
+          .clt-oracles{flex-direction:column;gap:14px}
           .clt-vline{display:none}
-          .clt-live{transform:none}
-          .clt-logos{gap:26px}
+          .clt-live{transform:none;font-size:10px}
+          .clt-logos{gap:clamp(20px,6vw,52px);flex-wrap:nowrap}
+          .clt-logo{gap:8px}
+          .clt-mark{height:20px}
+          .clt-logo-stripe .clt-mark svg,
+          .clt-logo-youtube .clt-mark svg,
+          .clt-logo-shopify .clt-mark svg,
+          .clt-logo-plaid .clt-mark svg{height:20px}
           .clt-name{font-size:9px;letter-spacing:.18em}
+          /* Same gutter escape as the other sections — see ForkSection.js. */
+          .clt-strip{width:100vw;margin-left:calc(50% - 50vw)}
         }
         /* No max-width:420px block. It existed to re-tune the zoom and padding of
            the old scaled band; the aspect-lock makes both meaningless. */

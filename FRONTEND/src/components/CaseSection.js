@@ -135,11 +135,14 @@ export function renderCaseSection() {
         /* Narrow. The two columns stack and the table drops its week gutter —
            at phone width a 52px column of two-digit numbers is pure overhead. */
         @media (max-width:900px){
-          .cs-wrap{padding:48px 20px 44px}
+          .cs-wrap{padding-block:clamp(40px,8vw,64px);padding-inline:clamp(20px,5.5vw,90px)}
+          .cs-body{font-size:clamp(1rem,4.2vw,1.125rem)}
           .cs-grid{grid-template-columns:1fr;gap:40px}
           .cs-tbl tr{grid-template-columns:34px 1fr 1fr;column-gap:12px;padding:14px 4px}
           .cs-void,.cs-under{font-size:15px}
-          .cs-body{font-size:17px}
+        }
+        @media (max-width:768px){
+          .cs{width:100vw;margin-left:calc(50% - 50vw)}
         }
         @media (prefers-reduced-motion:reduce){.cs *{transition:none !important}}
         </style>

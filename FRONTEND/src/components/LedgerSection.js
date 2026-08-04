@@ -423,7 +423,8 @@ export function renderLedgerSection(options = {}) {
            track columns collapse and the party block drops out of the row rather
            than being squeezed into 40px. */
         @media (max-width:900px){
-          .lg-wrap{padding:44px 20px 28px}
+          .lg-wrap{padding-block:clamp(40px,8vw,64px) clamp(24px,5vw,40px);padding-inline:clamp(20px,5.5vw,90px)}
+          .lg-head-l p{font-size:clamp(1rem,4.2vw,1.125rem)}
           .lg-cols,.lg-row{grid-template-columns:40px minmax(0,1fr) 92px 108px;column-gap:12px}
           .lg-cols span:nth-child(3),.lg-row .lg-src{display:none}
           .lg-cols span:nth-child(n+4){text-align:right}
@@ -440,6 +441,9 @@ export function renderLedgerSection(options = {}) {
           .lg-scrolling .lg-track{animation:none}
           .lg-body{overflow:visible;height:auto !important}
           .lg-scrolling{-webkit-mask-image:none;mask-image:none}
+        }
+        @media (max-width:768px){
+          .lg{width:100vw;margin-left:calc(50% - 50vw)}
         }
         @media (prefers-reduced-motion:reduce){.lg *{transition:none !important}}
         </style>
