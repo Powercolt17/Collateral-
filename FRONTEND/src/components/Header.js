@@ -237,7 +237,16 @@ export function renderHeader(currentRoute = '') {
                 font-weight: 500;
                 letter-spacing: 0.2em;
                 text-transform: uppercase;
-                color: #A8A296 !important;
+                /* Oxblood, using the header's own --blood token so it tracks the
+                   nav hover colour rather than introducing a fourth red.
+
+                   Measured before switching, because this is 9.2px text and the
+                   label sits over two different grounds as you move around the
+                   site: 8.51:1 on the parchment page ground and 7.36:1 on the
+                   hero's graded gold. Both clear the 4.5:1 AA floor for text
+                   this size with room to spare - the grey it replaces was the
+                   lighter of the two. */
+                color: var(--blood, #7A1C29) !important;
                 user-select: none;
                 display: none;
                 align-self: center;
