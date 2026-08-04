@@ -984,8 +984,6 @@ export function renderCollateralHero(options = {}) {
            sentence into a second headline. */
         .clt-sub{
           font-family:var(--text-serif);
-          /* h1 -> paragraph = 22px in the spacing rhythm. */
-          margin-top:clamp(13px,1.42cqw,22px);
           font-size:clamp(14px,calc(1.02 * var(--u)),21px);
           /* 30ch -> 42ch -> 56ch. At 30ch the sentence broke into four short
              lines that read as a list; 42ch set it as two. 56ch puts the
@@ -995,6 +993,16 @@ export function renderCollateralHero(options = {}) {
              the scrim holds to 44% and the column ends at 41%. */
           line-height:1.5;color:#4A4035;max-width:56ch;
         }
+        /* h1 -> paragraph = 22px, and it needs the extra .clt to get there.
+           Set inside .clt-sub above, this ONE declaration silently lost while
+           every other property in the same rule applied — max-width:56ch landed
+           at 473px on the live page while margin-top computed to 0. That
+           asymmetry is the tell: something global targets the margin of a <p>
+           at higher specificity than a single class, so it beats margin-top and
+           leaves the rest alone. .clt .clt-sub is two classes and wins outright.
+           The mobile override below is raised to match, or it would lose to
+           this instead. */
+        .clt .clt-sub{margin-top:clamp(13px,1.42cqw,22px)}
         .clt-hero h1{
           /* 1.05 -> 1.70 var(--u), about +10px at desktop. Part of the
              deliberate-pacing pass: eyebrow, headline and CTA all gained
@@ -1600,7 +1608,11 @@ export function renderCollateralHero(options = {}) {
              4.67:1 at the worst point of the cycle and is still clearly lighter
              than the #2B2118 headline, so the hierarchy survives.
              If the mask ever comes back, this can go back with it. */
-          .clt-sub{margin-top:16px;font-size:16px;line-height:1.55;max-width:36ch;color:#383028}
+          .clt-sub{font-size:16px;line-height:1.55;max-width:36ch;color:#383028}
+          /* Raised to match the desktop rule above, which had to go to two
+             classes to beat a global p-margin. At one class this would now
+             lose to it. */
+          .clt .clt-sub{margin-top:16px}
           .clt-cta{margin-top:26px;gap:16px;flex-direction:column;align-items:stretch}
           /* Full-width button. min-height is the 44px touch target; the padding
              alone came to 43. The offset drop-shadow the old rule added is
