@@ -1,51 +1,53 @@
 /**
  * Collateral — "Every contract settles in public".
  *
- * PORTED FROM THE SUPPLIED LedgerSection.jsx. This frontend has no React and no
- * react-dom, so the .jsx could not be shipped as authored; it follows the same
- * convention as CollateralHero.js and Header.js instead — a render function
- * returning an HTML string with a scoped <style> block. Props became options,
- * the Row component became renderRow, and every interpolated value goes through
- * escapeHtml. Behaviour, markup order, class names and CSS are otherwise the
- * supplied file, with the two fixes noted under TYPE and OUTCOME COLUMN.
+ * This frontend has no React and no react-dom, so supplied designs cannot ship
+ * as authored. It follows the same convention as CollateralHero.js and
+ * Header.js — a render function returning an HTML string with a scoped <style>
+ * block, options instead of props, renderRow instead of a Row component, and
+ * every interpolated value through escapeHtml.
  *
- * COLOUR: paper, ink, maroon. Nothing else. The previous version ran four hues
- * — green for settled, gold for urgency, tinted row backgrounds and a saturated
- * split bar — which read as spreadsheet conditional formatting, and green is
- * foreign to this palette. Only forfeiture is marked now: a 2px maroon inset
- * rail and maroon type. Two marked rows out of six puts the eye on the losses,
- * which is the section's argument.
+ * REDESIGNED against a supplied HTML sheet. Everything below the data layer is
+ * new; the data layer, the honesty rules and the continuous scroll are not.
  *
- * ALIGNMENT: every row carries the same 14px left padding and a transparent
- * inset shadow. Forfeited rows only swap the shadow colour. Do not move the
- * padding onto the forfeited rule — it indents those rows and breaks the
- * table's left edge, which is the one alignment a ledger has to hold.
+ * COLOUR: warm parchment, ink, oxblood, and a muted olive for wins. The note
+ * this replaces argued that paper/ink/maroon was the whole palette and that
+ * green was foreign to it — that was true of the design it described and is not
+ * true of this one. Wins and losses now both carry a tint and an inset rail,
+ * because a ledger that only marks its losses is making an argument rather than
+ * keeping a record. The olive is desaturated into the parchment family, not a
+ * UI green.
  *
- * TYPE: the heading is Trajan, and the bug it fixes was neither a cascade
- * problem nor a family-name mismatch. The old .lg h2 declared NO font-family at
- * all, so it inherited the Helvetica stack off .lg and never asked for Trajan
- * in the first place. The global h2 in index.css is not the culprit either: it
- * is a bare element selector at 0,0,1 against 0,1,1 here, so this rule beats it
- * on every property it sets, without !important.
+ * TYPE: Cormorant Garamond small-caps for the heading, the figures and the
+ * stakes; EB Garamond for body and labels; IBM Plex Mono for register numbers,
+ * handles and multiples. All three are already requested in index.html, so this
+ * costs no new asset. The heading is NOT Trajan any more and the long note about
+ * resolving "Trajan Pro" has gone with it — that bug was real but it belonged to
+ * a heading that no longer exists.
  *
- * The family name that works is "Trajan Pro" — what this project's own
- * @font-face declares in src/index.css. "Trajan Pro 3" and "trajan-pro-3" are
- * Adobe Fonts web-project names we do not use; they sit after ours so the
- * section still resolves if the site is ever moved onto a Typekit kit. Both a
- * 400 TTF and a 700 OTF are loaded, so font-weight:700 selects a REAL bold;
- * font-synthesis:none is set anyway so a failed load degrades to real Regular
- * rather than a smeared fake bold.
+ * It is an h2, not the h1 the design sheet marks up. The hero already owns the
+ * page's h1 and a second would flatten the document outline.
  *
- * Grotesque stays on the hero headline and the wordmark — the contrast between
- * the engraving and modern type is the point, and Trajan is caps-only and too
- * wide to carry a 6vw display line. Figures stay mono; that is what makes them
- * read as a record.
+ * SCOPING: every selector is namespaced under .lg. The supplied sheet styles
+ * bare *, body, h1, .row, .num, .stake and .full; this component ships in the
+ * same document as the hero, the header and the market views, so pasted as
+ * authored it would restyle the site.
  *
- * OUTCOME COLUMN: urgent rows carry a maroon flag before the day count, so
- * without a counterpart the non-urgent rows sat 13px to the right of them and
- * the column's right edge came out ragged. Non-urgent OPEN rows now get the
- * same box with a transparent background. Returned and forfeited rows get
- * nothing — they have no day count to align.
+ * WHAT THE DESIGN SHOWS THAT THE DATA DOES NOT HAVE. The sheet draws a lettered
+ * avatar and an @handle on every row. Only genuinely staked contracts carry a
+ * principal — lgFromMarket sets party to the literal 'OPEN' because the market
+ * API returns no owner. So the token is drawn only where a handle exists, and
+ * every other row reserves the space and leaves it blank. The alternative was
+ * inventing an identity per row, which is the one thing this section has always
+ * refused to do.
+ *
+ * The sheet also shows settled WON and LOST rows. The API reports
+ * contractsSettled 0, so those styles are written but dormant. They are not a
+ * promise that any exist.
+ *
+ * OUTCOME COLUMN: a status square for open rows, a tick for won, a cross for
+ * lost. All three are drawn from status, and status comes from a real
+ * settlement event or not at all.
  *
  * LIVE DATA: initLedgerSection at the foot of this file replaces every row with
  * what is in the database, and gates the ratio bar and the standfirst on the
@@ -108,13 +110,27 @@ function renderRow(entry) {
     const soon = dated && entry.daysLeft <= URGENT_DAYS;
     const cls = ['lg-row', 'lg-' + entry.status, soon ? 'lg-soon' : ''].filter(Boolean).join(' ');
 
-    /* No date, no countdown. It reported "0d LEFT" — a claim that the contract
-       expires today — purely because the field was missing. */
+    /* No date, no countdown: it once reported "0d LEFT", a claim that the
+       contract expires today, purely because the field was missing.
+
+       The marks are drawn per STATUS, and status is derived from a real
+       settlement event in lgFromLedger — never from the absence of one. The tick
+       and the cross can only appear on a contract the ledger says has settled,
+       which is why nothing on the live page carries them today. */
+    const TICK = '<svg class="lg-ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+        + 'stroke-width="2.4" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg>';
+    const CROSS = '<svg class="lg-ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+        + 'stroke-width="2.4" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    const SQ = '<span class="lg-sq" aria-hidden="true"></span>';
     const outcome = open
         ? (dated
-            ? '<span class="lg-clock">' + escapeHtml(entry.daysLeft) + 'd</span> LEFT'
-            : 'OPEN')
-        : escapeHtml(String(entry.status).toUpperCase());
+            ? SQ + '<span class="lg-clock">' + escapeHtml(entry.daysLeft) + 'd</span> LEFT'
+            : SQ + 'OPEN')
+        : entry.status === 'returned'
+            ? TICK + 'SETTLED &middot; WON'
+            : entry.status === 'forfeited'
+                ? CROSS + 'SETTLED &middot; LOST'
+                : SQ + escapeHtml(String(entry.status).toUpperCase());
 
     /* The real per-contract target — "+65% revenue (14d)". 35 distinct strings
        across the 48 live listings against 16 distinct titles, so this is where
@@ -129,6 +145,32 @@ function renderRow(entry) {
     const mult = entry.mult
         ? `&times;${escapeHtml(entry.mult)}`
         : '<span class="lg-x-none">&mdash;</span>';
+    /* The design marks the top multiple in oxblood. Threshold, not a hand-picked
+       row: 4 is the highest the live set carries (1.7 / 2.5 / 4), so this
+       highlights whatever the ceiling turns out to be rather than a literal. */
+    const multCls = Number(entry.mult) >= 4 ? ' lg-hi' : '';
+
+    /* PARTY. The design shows a lettered token beside an @handle for every row.
+       Only real staked contracts carry a principal — lgFromMarket sets party to
+       the literal 'OPEN' because the market API returns no owner, so on the
+       live register almost nothing has a name to show.
+
+       A token is therefore drawn ONLY where a handle actually exists. Everywhere
+       else the space is reserved and left blank, which keeps the oracle aligned
+       down the column without putting an identity on screen that no API
+       returned. Initials come from the handle itself — first letter plus its
+       first digit, or the next letter if it has none. */
+    const named = typeof entry.party === 'string' && entry.party.startsWith('@');
+    const handle = named ? entry.party.slice(1) : '';
+    const initials = named
+        ? (handle[0] + (/(\d)/.exec(handle) ? /(\d)/.exec(handle)[1] : (handle[1] || ''))).toUpperCase()
+        : '';
+    const partyCell = named
+        ? `<span class="lg-ava">${escapeHtml(initials)}</span>`
+          + `<span class="lg-src-meta"><span class="lg-h">${escapeHtml(entry.party)}</span>`
+          + `<span class="lg-o">${escapeHtml(entry.oracle)}</span></span>`
+        : `<span class="lg-ava lg-ava-none" aria-hidden="true"></span>`
+          + `<span class="lg-src-meta"><span class="lg-o">${escapeHtml(entry.oracle)}</span></span>`;
 
     /* Sequential register number. A ledger numbers its entries in order; the
        sliced UUID that used to sit here read as random. seq is assigned over the
@@ -138,12 +180,12 @@ function renderRow(entry) {
 
     return `
                 <div class="${escapeHtml(cls)}${escapeHtml(tierCls)}">
-                    <span class="lg-no lg-mono">${escapeHtml(no)}</span>
+                    <span class="lg-no">${escapeHtml(no)}</span>
                     <span class="lg-goal">${escapeHtml(entry.goal)}${target}</span>
-                    <span class="lg-src lg-mono">${escapeHtml(entry.party)} &middot; ${escapeHtml(entry.oracle)}</span>
+                    <span class="lg-src">${partyCell}</span>
                     <span class="lg-amt">${escapeHtml(usd(entry.stake))}</span>
-                    <span class="lg-mult lg-mono">${mult}</span>
-                    <span class="lg-out lg-mono">${outcome}</span>
+                    <span class="lg-mult${multCls}">${mult}</span>
+                    <span class="lg-out">${outcome}</span>
                 </div>`;
 }
 
@@ -181,130 +223,127 @@ export function renderLedgerSection(options = {}) {
 
     return `
         <style>
+        /* EVERY SELECTOR IS SCOPED UNDER .lg, and that is not stylistic tidiness.
+           The supplied design sheet styles bare *, body, h1, .row, .num, .stake,
+           .out and .full. Pasted in as written it would restyle every table,
+           heading and reset on the site — this component ships inside the same
+           document as the hero, the header and the market views. Same values,
+           namespaced. */
         .lg{
-          --paper:#F1EEE8; --paper-hi:#F7F5F0;
-          --ink:#131A2A; --ink-soft:#5A6172; --ink-faint:#8B8F99;
-          --ox:#7C1A24; --rule:#D8D3C8; --spine:#C9C2B4;
-          --display:"Neue Haas Grotesk Display","neue-haas-grotesk-display",
-                    "Helvetica Neue",Helvetica,Arial,sans-serif;
-          /* "Trajan Pro" FIRST because that is the family name this project's
-             own @font-face declares in src/index.css, backed by a 400 TTF and a
-             700 OTF. The Adobe Fonts web-project names follow as a fallback for
-             a future Typekit setup; Cinzel is the free stand-in. */
-          --roman:"Trajan Pro","Trajan Pro 3","trajan-pro-3","Cinzel",Georgia,serif;
-          background:var(--paper); color:var(--ink);
-          font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+          /* Warm parchment, matched to the hero rather than to --paper. The hero
+             now carries the plate's own gold ground, and the flat #F1EEE8 the
+             section used to sit on read cold directly beneath it. */
+          --lg-parch:#F1E8D3;
+          --lg-ink:#211B12;
+          --lg-ink-soft:#5B5140;
+          --lg-muted:#9A8C6F;
+          --lg-faint:#B4A98C;
+          --lg-ox:#7C1D2B;
+          --lg-win:#4E6B3E;
+          --lg-line:rgba(60,48,30,.16);
+          --lg-line-soft:rgba(60,48,30,.09);
+          --lg-won-tint:rgba(78,107,62,.06);
+          --lg-lost-tint:rgba(124,29,43,.05);
+          --lg-serif:"EB Garamond",Georgia,serif;
+          --lg-display:"Cormorant Garamond","EB Garamond",Georgia,serif;
+          --lg-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+
+          background:var(--lg-parch);
+          color:var(--lg-ink);
+          font-family:var(--lg-serif);
           -webkit-font-smoothing:antialiased;
         }
         .lg *{box-sizing:border-box;margin:0;padding:0}
-        .lg-mono{font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace}
+        .lg-mono{font-family:var(--lg-mono)}
+        .lg-wrap{max-width:1440px;margin:0 auto;padding:64px 90px 40px}
+        .lg-top-rule{display:none}
 
-        /* narrowed so the head and the table read as one layout */
-        .lg-wrap{max-width:1040px;margin:0 auto;padding:76px 32px 92px}
+        /* ---- header ---- */
+        .lg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:40px}
+        .lg-head-l{max-width:640px}
+        .lg-kicker{font-size:11px;letter-spacing:.4em;text-transform:uppercase;
+          color:var(--lg-muted);font-weight:600;margin-bottom:22px}
+        /* h2, NOT h1. The design sheet marks this up as h1, but the page already
+           has one in the hero and a second would flatten the document outline
+           for anything reading structure rather than pixels. The size, face and
+           small-caps are the sheet's; only the element is different. */
+        .lg h2{
+          font-family:var(--lg-display);font-weight:600;color:var(--lg-ox);
+          font-size:clamp(34px,3.6vw,52px);line-height:1.02;letter-spacing:.005em;
+          text-transform:uppercase;font-variant:small-caps;margin-bottom:20px;
+        }
+        .lg-head-l p{font-size:18px;line-height:1.55;color:var(--lg-ink-soft);max-width:560px}
 
-        .lg-top-rule{height:1px;background:var(--rule);margin-bottom:20px}
-        .lg-kicker{font-size:10px;letter-spacing:.22em;font-weight:700;
-          color:var(--ink-faint);margin-bottom:20px}
-        /* The old rule set no font-family at all and inherited Helvetica off
-           .lg, which is why Trajan never appeared. 0,1,1 here beats the bare h2
-           in index.css at 0,0,1, so nothing needs !important. */
-        /* 42px, up from 31. The weight was already right and was checked rather
-           than assumed: both Trajan cuts load, and 700 measures 590.2px against
-           400 at 582.3px on this string, so a real bold face is in use. Trajan
-           simply has a quiet bold — it is drawn from chiselled inscription, where
-           weight comes from stroke modulation rather than mass, so asking it to
-           shout through font-weight does not work. On this family presence is a
-           function of SIZE.
+        .lg-sum{display:flex;flex-direction:column;gap:18px;text-align:right;padding-top:4px}
+        .lg-sum dt{font-size:10px;letter-spacing:.3em;text-transform:uppercase;
+          color:var(--lg-muted);font-weight:600;margin-bottom:4px}
+        .lg-sum dd{font-family:var(--lg-display);font-size:30px;font-weight:600;
+          color:var(--lg-ink);line-height:1;font-variant-numeric:tabular-nums lining-nums}
+        .lg-sum .lg-u{font-size:15px;color:var(--lg-muted);margin-left:4px}
 
-           42 is the largest step that still reads as a section head rather than a
-           second hero. The hero display runs far above it, so the hierarchy is
-           unambiguous either way. */
-        .lg h2{font-family:var(--roman);
-          font-size:42px;font-weight:700;font-synthesis:none;
-          letter-spacing:.008em;line-height:1.12;
-          color:var(--ox);max-width:19ch;text-wrap:balance}
-        .lg-head p{margin-top:17px;font-size:15px;line-height:1.62;color:#3B4254;max-width:58ch}
+        /* ---- table ---- */
+        .lg-cols,.lg-row{
+          display:grid;
+          grid-template-columns:56px minmax(0,1fr) 240px 120px 110px 160px;
+          align-items:center;column-gap:20px;
+        }
+        .lg-cols{border-bottom:1px solid var(--lg-line);padding:0 8px 12px;margin-top:52px;
+          font-size:10px;letter-spacing:.26em;text-transform:uppercase;
+          color:var(--lg-faint);font-weight:600}
+        .lg-cols span:nth-child(n+4){text-align:right}
+        .lg-row{padding:20px 8px;border-bottom:1px solid var(--lg-line-soft)}
 
-        /* SPACING IS STRUCTURAL, ON THE HEAD ITSELF. It used to come from
-           .lg-sample's 40px bottom margin, so deleting the sample box and hiding
-           the ratio bar left the standfirst and the column rule sharing one
-           baseline — measured at a 0px gap on production. Nothing below may be
-           the only thing holding this apart again. */
-        .lg-head{display:grid;grid-template-columns:1fr auto;gap:24px 48px;
-          align-items:start;margin-bottom:40px}
-        .lg-head-l{min-width:0}
+        .lg-no{font-family:var(--lg-mono);font-size:13px;color:var(--lg-muted);letter-spacing:.02em}
+        .lg-goal{font-size:19px;font-weight:600;color:var(--lg-ink);letter-spacing:.01em;min-width:0}
+        .lg-target{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+          color:var(--lg-muted);margin-top:5px;font-weight:500}
 
-        /* The head used 479px of a 1040px measure and left 529px of empty paper
-           above a full-width table. A ledger that does not total itself is not a
-           ledger; these are the totals, and they are live. */
-        .lg-sum{display:grid;gap:15px;text-align:right;padding-top:4px}
-        .lg-sum dt{font-size:9px;letter-spacing:.18em;color:var(--ink-faint);
-          white-space:nowrap}
-        .lg-sum dd{font-size:19px;margin-top:5px;color:var(--ink);
-          font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-        .lg-sum .lg-sum-ox dd{color:var(--ox)}
+        .lg-src{display:flex;align-items:center;gap:11px;min-width:0}
+        .lg-ava{width:26px;height:26px;border-radius:50%;flex:none;
+          background:rgba(124,29,43,.10);border:1px solid rgba(124,29,43,.25);
+          display:flex;align-items:center;justify-content:center;
+          font-family:var(--lg-mono);font-size:10px;color:var(--lg-ox);font-weight:500}
+        /* A row whose party is not a named principal gets the SPACE but not the
+           mark. The register is mostly unclaimed contracts, and drawing a
+           lettered token for them would put an identity on the page that the
+           API never returned. Invisible, so the oracle still lines up with the
+           handles above and below it. */
+        .lg-ava-none{background:none;border:0}
+        .lg-src-meta{display:flex;flex-direction:column;gap:2px;min-width:0}
+        .lg-h{font-family:var(--lg-mono);font-size:13px;color:var(--lg-ink-soft);
+          letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .lg-o{font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+          color:var(--lg-faint);font-weight:600}
 
-        .lg-ratio{margin-bottom:34px}
-        .lg-ratio-bar{display:flex;height:5px;background:var(--spine)}
-        .lg-ratio-bar i{display:block;height:100%}
-        .lg-kept{background:var(--ink)}
-        .lg-lost{background:var(--ox)}
-        .lg-ratio-legend{display:flex;justify-content:space-between;gap:18px;margin-top:11px;
-          font-size:10px;letter-spacing:.15em;color:var(--ink-soft)}
-        .lg-ratio-legend b{color:var(--ink);font-weight:700}
-        .lg-lost-label b{color:var(--ox)}
+        .lg-amt{font-family:var(--lg-display);font-size:22px;font-weight:600;
+          color:var(--lg-ink);text-align:right;font-variant-numeric:tabular-nums lining-nums}
+        .lg-mult{font-family:var(--lg-mono);font-size:15px;text-align:right;
+          color:var(--lg-ink-soft);letter-spacing:.01em}
+        .lg-mult.lg-hi{color:var(--lg-ox);font-weight:500}
+        .lg-x-none{color:var(--lg-faint)}
 
-        /* identical padding on every row keeps the table's left edge true */
-        .lg-cols,.lg-row{display:grid;
-          grid-template-columns:52px 1fr 148px 84px 70px 104px;gap:18px;
-          padding-left:14px;padding-right:2px}
-        .lg-cols{padding-bottom:9px;border-bottom:1px solid var(--ink);
-          font-size:9.5px;letter-spacing:.18em;color:var(--ink-faint)}
-        .lg-cols span:nth-child(4),.lg-cols span:nth-child(5),
-        .lg-cols span:nth-child(6){text-align:right}
+        .lg-out{display:flex;align-items:center;justify-content:flex-end;gap:9px;
+          font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
+          color:var(--lg-ink-soft)}
+        .lg-sq{width:8px;height:8px;flex:none;background:var(--lg-muted)}
+        .lg-soon .lg-out{color:var(--lg-ox)}
+        .lg-soon .lg-sq{background:var(--lg-ox)}
+        .lg-out .lg-clock{font-family:var(--lg-mono);font-size:11px;letter-spacing:.06em}
+        .lg-ck{width:13px;height:13px;flex:none}
 
-        .lg-row{align-items:baseline;padding-top:17px;padding-bottom:17px;
-          border-bottom:1px solid var(--rule);
-          box-shadow:inset 2px 0 0 transparent;
-          transition:background .14s ease}
-        .lg-row:hover{background:var(--paper-hi)}
-        .lg-forfeited{box-shadow:inset 2px 0 0 var(--ox)}
+        /* Settled rows read as archived. These are DORMANT at the time of
+           writing — the API reports contractsSettled 0, so nothing on the live
+           page carries .lg-returned or .lg-forfeited. They are written now so
+           the first real settlement lands styled instead of unstyled; they are
+           not a promise that any exist. */
+        .lg-returned{background:var(--lg-won-tint);box-shadow:inset 3px 0 0 var(--lg-win)}
+        .lg-forfeited{background:var(--lg-lost-tint);box-shadow:inset 3px 0 0 var(--lg-ox)}
+        .lg-returned .lg-out{color:var(--lg-win)}
+        .lg-forfeited .lg-out{color:var(--lg-ox)}
+        .lg-returned .lg-goal,.lg-forfeited .lg-goal{color:var(--lg-ink-soft)}
+        .lg-returned .lg-no,.lg-forfeited .lg-no{color:var(--lg-faint)}
 
-        .lg-no{font-size:10px;color:var(--ink-faint);font-variant-numeric:tabular-nums}
-        .lg-goal{font-size:15px;font-weight:600;letter-spacing:-.005em;min-width:0}
-        .lg-target{display:block;margin-top:4px;font-size:10px;font-weight:400;
-          letter-spacing:.13em;color:var(--ink-faint);
-          font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace}
-        .lg-forfeited .lg-goal{color:var(--ox)}
-
-        /* The payout multiple, and the only column whose weight tracks its own
-           value: 4x should not read the same as 1.7x. */
-        .lg-mult{text-align:right;font-size:12.5px;color:var(--ink-soft);
-          white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-        .lg-t-elevated .lg-mult{color:var(--ink);font-weight:600}
-        .lg-t-maximum .lg-mult{color:var(--ox);font-weight:700}
-        .lg-x-none{color:var(--spine)}
-        .lg-src{font-size:11px;color:var(--ink-soft)}
-        .lg-amt{font-size:15px;text-align:right;white-space:nowrap;font-weight:600;
-          font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-        .lg-forfeited .lg-amt{color:var(--ox)}
-        .lg-open .lg-amt{color:var(--ink-soft);font-weight:500}
-
-        .lg-out{text-align:right;font:9.5px/1.5 ui-monospace,Menlo,monospace;
-          letter-spacing:.15em;white-space:nowrap;color:var(--ink-soft)}
-        .lg-returned .lg-out{color:var(--ink);font-weight:700}
-        .lg-forfeited .lg-out{color:var(--ox);font-weight:700}
-        .lg-clock{font-size:12px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
-        /* urgency reads as a flag; an underline here looked like a link */
-        .lg-soon .lg-out::before{content:"";display:inline-block;width:5px;height:5px;
-          background:var(--ox);margin-right:8px;vertical-align:1px}
-        /* Same box, no colour. Without it the flag pushes urgent rows 13px left
-           of the others and the outcome column's right edge comes out ragged.
-           OPEN rows only — returned and forfeited have no day count to align. */
-        .lg-open:not(.lg-soon) .lg-out::before{content:"";display:inline-block;
-          width:5px;height:5px;background:transparent;margin-right:8px;vertical-align:1px}
-
-        /* CONTINUOUS SCROLL.
+        /* CONTINUOUS SCROLL — kept exactly as it was, by request.
            #lg-body is the viewport and .lg-track is what moves. The track holds
            the register TWICE, and the animation travels exactly -50% — one full
            copy — so the second copy is under the cursor at the instant the first
@@ -338,7 +377,37 @@ export function renderLedgerSection(options = {}) {
             #000 calc(100% - 26px),transparent 100%)}
 
         .lg-empty{padding:26px 0 26px 14px;font-size:10px;letter-spacing:.16em;
-          color:var(--ink-faint);border-bottom:1px solid var(--rule)}
+          color:var(--lg-faint);border-bottom:1px solid var(--lg-line)}
+
+        /* ---- footer ---- */
+        .lg-foot{display:flex;justify-content:space-between;align-items:center;
+          margin-top:34px;padding-top:22px;border-top:1px solid var(--lg-line);gap:24px}
+        .lg-foot > span{font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+          color:var(--lg-muted);font-weight:600}
+        .lg-foot b{color:var(--lg-ink-soft);font-weight:600}
+        .lg-link{background:none;border:0;cursor:pointer;
+          font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+          color:var(--lg-ink);font-weight:600;
+          border-bottom:2px solid var(--lg-ox);padding-bottom:5px;
+          transition:color 160ms ease}
+        .lg-link:hover{color:var(--lg-ox)}
+        .lg-link:focus-visible{outline:2px solid var(--lg-ox);outline-offset:3px}
+        .lg-arw{color:var(--lg-ox);margin-left:8px}
+
+        /* Narrow. The six-column grid cannot hold at phone width, so the fixed
+           track columns collapse and the party block drops out of the row rather
+           than being squeezed into 40px. */
+        @media (max-width:900px){
+          .lg-wrap{padding:44px 20px 28px}
+          .lg-cols,.lg-row{grid-template-columns:40px minmax(0,1fr) 92px 108px;column-gap:12px}
+          .lg-cols span:nth-child(3),.lg-row .lg-src{display:none}
+          .lg-cols span:nth-child(n+4){text-align:right}
+          .lg-head{flex-direction:column;gap:28px}
+          .lg-sum{flex-direction:row;gap:28px;text-align:left;flex-wrap:wrap}
+          .lg-goal{font-size:16px}
+          .lg-amt{font-size:19px}
+          .lg-foot{flex-direction:column;align-items:flex-start}
+        }
 
         /* Nothing moves for someone who asked for that. The full register is
            still there and still reachable by scrolling the page. */
@@ -346,41 +415,6 @@ export function renderLedgerSection(options = {}) {
           .lg-scrolling .lg-track{animation:none}
           .lg-body{overflow:visible;height:auto !important}
           .lg-scrolling{-webkit-mask-image:none;mask-image:none}
-        }
-
-        .lg-foot{display:flex;justify-content:space-between;align-items:baseline;gap:20px;
-          margin-top:26px;padding-left:14px;
-          font-size:10.5px;letter-spacing:.15em;color:var(--ink-soft)}
-        .lg-foot b{color:var(--ink);font-weight:700}
-        .lg-link{background:none;border:0;cursor:pointer;color:var(--ink);
-          font:700 10.5px/1 ui-monospace,Menlo,monospace;letter-spacing:.15em;
-          border-bottom:2px solid var(--ox);padding:0 0 3px}
-        .lg-link:hover{color:var(--ox)}
-        .lg-link:focus-visible{outline:2px solid var(--ox);outline-offset:3px}
-
-        @media (max-width:880px){
-          .lg-wrap{padding:44px 20px 64px}
-          /* 26px, up from 22, tracking the desktop increase. Kept well below the
-             desktop step because the phone column is narrow and 19ch is dropped
-             here, so the string wraps on measure alone. */
-          .lg h2{font-size:26px;max-width:none}
-          .lg-cols{display:none}
-          .lg-ratio-legend{flex-direction:column;gap:6px}
-          /* The totals sit under the standfirst on a phone and go horizontal, so
-             they read as a strip rather than a second column. */
-          .lg-head{grid-template-columns:1fr;gap:26px;margin-bottom:30px}
-          .lg-sum{grid-auto-flow:column;justify-content:start;gap:26px;text-align:left}
-          .lg-sum dd{font-size:16px}
-          .lg-row{grid-template-columns:1fr auto;gap:4px 14px;
-            padding-top:16px;padding-bottom:16px}
-          .lg-no{grid-column:1}
-          .lg-goal{grid-column:1;grid-row:2;font-size:14px}
-          .lg-src{grid-column:1;grid-row:3;margin-top:3px}
-          .lg-amt{grid-column:2;grid-row:2}
-          /* The multiple pairs with the stake it multiplies, not with the clock. */
-          .lg-mult{grid-column:2;grid-row:1;text-align:right;font-size:11.5px}
-          .lg-out{grid-column:2;grid-row:3;margin-top:4px}
-          .lg-foot{flex-direction:column;gap:12px;align-items:flex-start}
         }
         @media (prefers-reduced-motion:reduce){.lg *{transition:none !important}}
         </style>
@@ -391,21 +425,29 @@ export function renderLedgerSection(options = {}) {
 
                 <div class="lg-head">
                     <div class="lg-head-l">
-                        <div class="lg-kicker lg-mono">THE LEDGER</div>
-                        <h2>Every contract settles in public</h2>
+                        <div class="lg-kicker">The Ledger</div>
+                        <h2>Every contract<br />settles in public</h2>
                         <p id="lg-standfirst">
-                            Nothing here was decided by us. An API reported, the date passed, and the escrow moved.
-                            Losses are listed beside the wins, because that is what makes the wins mean anything.
+                            Nothing here was decided by us. Every contract runs against a live oracle
+                            and a fixed date &mdash; and when the date arrives, the outcome is posted here
+                            whichever way it goes. Won or lost, it stays on the record.
                         </p>
                     </div>
-                    <dl class="lg-sum lg-mono">
-                        <div><dt>CAPITAL AT STAKE</dt><dd id="lg-sum-cap">&mdash;</dd></div>
-                        <div><dt>CONTRACTS OPEN</dt><dd id="lg-sum-open">&mdash;</dd></div>
-                        <div class="lg-sum-ox"><dt>SETTLED</dt><dd id="lg-sum-settled">&mdash;</dd></div>
+                    <!-- SETTLED -> NEXT SETTLES. The count it replaced reads 0 and
+                         will read 0 until the first contract reaches its date, which
+                         is a true number that tells the reader nothing. The soonest
+                         close date is derived from the same rows already on screen —
+                         see lg-sum-next in initLedgerSection — so it is live, not a
+                         stand-in, and it degrades to an em dash when no row carries a
+                         published date rather than inventing one. -->
+                    <dl class="lg-sum">
+                        <div><dt>Capital at Stake</dt><dd id="lg-sum-cap">&mdash;</dd></div>
+                        <div><dt>Contracts Open</dt><dd id="lg-sum-open">&mdash;</dd></div>
+                        <div><dt>Next Settles</dt><dd id="lg-sum-next">&mdash;</dd></div>
                     </dl>
                 </div>
                 <div id="lg-ratio-slot">${ratio}</div>
-                <div class="lg-cols lg-mono">
+                <div class="lg-cols">
                     <span>&#8470;</span>
                     <span>GOAL</span>
                     <span>PARTY &middot; ORACLE</span>
@@ -414,9 +456,9 @@ export function renderLedgerSection(options = {}) {
                     <span>OUTCOME</span>
                 </div>
                 <div class="lg-body" id="lg-body">${rows}</div>
-                <div class="lg-foot lg-mono">
-                    <span>VERIFICATION IS AUTOMATIC &middot; <b>NO APPEALS</b> &middot; <b>NO EXTENSIONS</b></span>
-                    <button type="button" class="lg-link"${onSeeFullLedger ? ` onclick="${onSeeFullLedger}"` : ''}>SEE THE FULL LEDGER &rarr;</button>
+                <div class="lg-foot">
+                    <span><b>Verification is automatic</b> &middot; No appeals &middot; No extensions</span>
+                    <button type="button" class="lg-link"${onSeeFullLedger ? ` onclick="${onSeeFullLedger}"` : ''}>See the full ledger <span class="lg-arw">&rarr;</span></button>
                 </div>
             </div>
         </section>
@@ -595,17 +637,44 @@ export async function initLedgerSection() {
     if (stats) {
         setText('lg-sum-cap', usd(Number(stats.capitalLocked) || 0));
         setText('lg-sum-open', String(all.length));
-        setText('lg-sum-settled', String(settledCount));
     }
 
-    // Standfirst: the shipped wording claims completed settlements. Only leave it
-    // in place once at least one exists.
+    /* NEXT SETTLES. Derived from the rows already on screen — the soonest real
+       close date in the set — so it cannot disagree with the table beneath it.
+       Only dated open rows count: a staked rivalry publishes no close date, and
+       treating a missing date as 0 is the same bug that once printed "0d LEFT"
+       on every undated contract.
+
+       If nothing carries a date the field stays an em dash. The unit is written
+       separately so it can be typeset smaller without a second lookup. */
+    const nextDays = all
+        .filter((e) => e.status === 'open' && e.daysLeft != null)
+        .reduce((min, e) => (min == null || e.daysLeft < min ? e.daysLeft : min), null);
+    const nextEl = document.getElementById('lg-sum-next');
+    if (nextEl) {
+        nextEl.innerHTML = nextDays == null
+            ? '&mdash;'
+            : String(nextDays) + '<span class="lg-u">'
+                + (nextDays === 1 ? 'day' : 'days') + '</span>';
+    }
+
+    /* Standfirst. The supplied copy is kept as the default because it promises
+       rather than claims — "when the date arrives, the outcome is posted here"
+       describes the mechanism and asserts nothing about the past.
+
+       The rewrite below still fires while nothing has settled, and it is worth
+       keeping for a reason the static line cannot cover: a reader looking at a
+       table with no won or lost rows in it deserves to be told WHY. "None has
+       reached its date yet" answers that; silence invites the assumption that
+       settlements are being hidden. It swaps itself out the moment the first
+       contract settles. */
     const sf = document.getElementById('lg-standfirst');
     if (sf && settledCount === 0) {
         const openCount = all.length;
         sf.textContent = `Nothing here was decided by us. ${openCount} contract${openCount === 1 ? '' : 's'} `
             + `${openCount === 1 ? 'is' : 'are'} open against a live oracle and a fixed date. `
-            + `None has reached its date yet — when one does, the outcome is posted here whichever way it goes.`;
+            + `None has reached its date yet — when one does, the outcome is posted here `
+            + `whichever way it goes. Won or lost, it stays on the record.`;
     }
 
     // Ratio bar: a returned/forfeited split needs something settled to divide.
