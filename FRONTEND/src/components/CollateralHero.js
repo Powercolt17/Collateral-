@@ -595,21 +595,41 @@ export function renderCollateralHero(options = {}) {
            only ever travels one way and only passes once. So: a single broad band
            of shade crossing the frame, iteration count 1.
 
-           SUPERSEDED: .10 peak over 360s, on the theory that this layer should sit
-           below the threshold the clouds were tuned to clear and be "felt on a
-           second visit rather than seen on the first". That was wrong, and wrong
-           in a specific way worth recording — it was not subtlety, it was an
-           effect too small to exist, with a justification written around it. At
-           .0006 alpha per second nothing is felt on any visit. The tuning numbers
-           are in the background declaration below.
+           TWO SUPERSEDED VERSIONS, both recorded because each failed for a
+           different reason and the second reason is the interesting one.
 
-           STARTS AND ENDS OFF-FRAME, and that is a correctness requirement, not a
-           style choice. --plate-grade carries a brightness that exists solely to
-           offset the cloud layer's MEAN cover; it knows nothing about this one.
-           A band parked over the plate at the end of its run would be permanent
-           uncompensated darkening. Off-frame at both ends means the composited
-           baseline before and after the sweep is exactly what the grade expects,
-           and the darkening is purely transient.
+           1. .10 peak over 360s, single pass, on the theory that this layer
+           should sit below the threshold the clouds were tuned to clear and be
+           "felt on a second visit rather than seen on the first". That was not
+           subtlety, it was an effect too small to exist with a justification
+           written around it: .0006 alpha per second.
+
+           2. .28 peak over 105s, still a single pass, still travelling from one
+           frame-width left of the frame to one frame-width right. The amplitude
+           was now fine and it was STILL invisible, for a reason amplitude could
+           never fix. The wrapper mask reveals only from 42% rightward, so the
+           band did not enter visible territory until roughly 48s after load and
+           had left by 79s. Load the page, watch for twenty seconds, see nothing
+           — then nothing ever again, because it ran once. The geometry put the
+           entire event outside both the visible region and the window anyone
+           actually looks.
+
+           So the single pass is gone. It was my idea, it carried the nicer
+           meaning — light travels one way, the day ends once — and it is what
+           made the layer unobservable twice. A thing nobody can see does not
+           mean anything. Now it repeats on the same seamless-tile principle as
+           clt-sun: one shadow crosses the artwork every 60s, always something in
+           frame, no start condition to miss.
+
+           COST, AND IT IS REAL: a repeating band means a PERMANENT mean
+           darkening over the artwork, roughly 7%, where the single pass left the
+           resting state untouched. --plate-grade's brightness offsets the cloud
+           mean and knows nothing about this, and the wrapper mask means the left
+           column gets none of it, so the two sides now sit at slightly different
+           mean values with a soft 42-66% ramp between them. That should read as
+           a gentle vignette rather than a seam — but it is a change to the
+           plate's resting tone, it is not compensated anywhere, and it is the
+           first thing to look at if the artwork now reads muddy on the right.
 
            CARRIES ITS OWN MASK, and does not simply inherit .clt-sky's.
 
@@ -639,7 +659,7 @@ export function renderCollateralHero(options = {}) {
         }
         .clt-arcwrap b{
           display:block;
-          position:absolute;top:0;bottom:0;left:-100%;width:300%;
+          position:absolute;top:0;bottom:0;left:0;width:200%;
           pointer-events:none;
           /* 100deg, not 90 — a raking angle reads as a sun low in the sky rather
              than a wipe. The band spans 30% to 70% of a 300% layer, so the shade
@@ -665,20 +685,31 @@ export function renderCollateralHero(options = {}) {
              reason the wrapper mask exists. The type column sees exactly zero of
              this layer at any alpha, so this number can go as far as the artwork
              tolerates without touching a single measured contrast figure. */
-          background:linear-gradient(100deg,
-            rgba(0,0,0,0) 30%,
-            rgba(0,0,0,.28) 50%,
-            rgba(0,0,0,0) 70%);
-          transform:translate3d(-33.333%,0,0);
+          background-image:linear-gradient(100deg,
+            rgba(0,0,0,0) 0%,
+            rgba(0,0,0,.28) 26%,
+            rgba(0,0,0,0) 52%,
+            rgba(0,0,0,0) 100%);
+          /* 50% of a 200% layer is exactly one wrapper width, so one period is
+             one frame and the translate below moves precisely one period. */
+          background-size:50% 100%;
+          background-repeat:repeat;
           will-change:transform;
-          animation:clt-arc 105s linear 1 forwards;
+          /* NEGATIVE DELAY, so the page opens 25s into the cycle rather than at
+             its start. Simulated across a full period, peak visible shade runs
+             .011 at t=0, .057 at 8s, .137 at 15s and reaches the full .28 by
+             30s: the band is still entering the revealed region for the first
+             several seconds. That is a small version of exactly the fault that
+             killed both previous attempts — the effect existing outside the
+             window anyone looks. Starting mid-cycle puts a fully formed shadow
+             on the artwork in the first frame. */
+          animation:clt-arc 60s linear -25s infinite;
         }
-        /* A third of a 300% layer is exactly one hero width, so the band centre
-           travels from one frame-width left of the frame to one frame-width right
-           of it: fully clear at both ends. */
+        /* One whole tile, same seamless-loop rule as clt-sun. 50% of a 200%
+           layer is one frame width, so the wrap is invisible. */
         @keyframes clt-arc{
-          from{transform:translate3d(-33.333%,0,0)}
-          to{transform:translate3d(33.333%,0,0)}
+          from{transform:translate3d(0,0,0)}
+          to{transform:translate3d(50%,0,0)}
         }
         /* clt-breathe removed. It modulated the layer's opacity as a second,
            slower rhythm, but opacity scales the entire darkening, so it spent
