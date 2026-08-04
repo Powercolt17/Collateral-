@@ -1303,22 +1303,35 @@ export function renderCollateralHero(options = {}) {
              plate has local grain, because no smooth curve tracks noise.
 
              So the same file is painted TWICE. The second layer is the same
-             JPEG at background-size:100% 20000px anchored top, which scales it
+             JPEG at background-size:100% 100000px anchored top, which scales it
              so tall that only its own uppermost sliver is ever on screen — at a
-             927px hero that is source rows 0 to 47, all of them open sky, well
-             clear of the ink that starts at row 94. Horizontal detail is
-             preserved exactly because the width is still 100%, so every column
-             gets that column's real colour rather than an approximation of it.
+             927px hero that is source rows 0 to 9, all open sky, nowhere near
+             the ink that starts at row 94. Horizontal detail is preserved
+             exactly because the width is still 100%, so every column gets that
+             column's real colour rather than an approximation of it.
 
-             At the join the sky layer is showing about source row 28 while the
-             artwork layer starts at row 0, and rows 0 and 28 differ by roughly
-             one luma level — below the threshold for a visible edge, and an
-             order of magnitude better than the flat colour it replaces.
+             THE HEIGHT IS THE TUNING KNOB, and bigger is better. The join shows
+             source row joinY/height*1024, so the taller the layer, the closer
+             that row is to the artwork's own row 0 and the smaller the step.
+             Measured as the low-frequency error over a 121px window, which is
+             what actually reads as a visible band:
 
-             20000px is chosen, not arbitrary: it has to be large enough that
-             the visible slice stays above row 94. Below about 17000 the ink
-             enters the frame and heads appear in the sky. The browser only
-             rasterises the visible portion, so the number costs nothing.
+               100% 20000px    row 28 at the join    5.07 levels
+               100% 50000px    row 11                1.75
+               100% 100000px   row  6                1.49
+               100% 200000px   row  3                1.10
+
+             100000 is the knee — past it the gain is under half a level and
+             the sizes get silly. The browser only rasterises the visible slice,
+             so the number costs nothing at runtime.
+
+             What does NOT go away is about 11 levels of worst-case per-pixel
+             difference, and it is not worth chasing: that is the plate's own
+             film grain, it is the same texture on both sides of the join, and
+             it reads as material rather than as an edge. The flat colour it
+             replaces was 10.09 levels of LOW-frequency error — a smooth,
+             systematic mismatch across the whole width, which is exactly the
+             kind the eye picks up as a horizontal step.
 
              Layer order matters — the artwork paints OVER the sky layer, so the
              sky only shows where the artwork is not. Both live on this one
@@ -1329,7 +1342,7 @@ export function renderCollateralHero(options = {}) {
             background-image:
               url(/assets/images/collateral-senate-mobile.jpg),
               url(/assets/images/collateral-senate-mobile.jpg) !important;
-            background-size:100% auto, 100% 20000px;
+            background-size:100% auto, 100% 100000px;
             background-position:center bottom, center top;
             background-repeat:no-repeat, no-repeat;
             background-color:#E8CCA1;
