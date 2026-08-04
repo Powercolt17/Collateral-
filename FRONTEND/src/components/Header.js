@@ -114,8 +114,21 @@ export function renderHeader(currentRoute = '') {
                unreadable over them. Solid, not translucent — there is no blur
                to soften what shows through any more, so a partial tint would
                just be text over text. */
+            /* Parchment, not --paper. This fill only ever existed to keep the
+               wordmark legible once the bar is over content, and #FFFDF9 is a
+               near-white that now reads as a foreign panel against a parchment
+               page. Matched to .cl-root so that when it does engage the bar
+               does not announce itself.
+
+               WORTH KNOWING: this class is not currently being applied. Checked
+               on the live page at scrollY 900 — neither body nor .ch-header
+               carries nav-scrolled, so handleGlobalScroll in main.js is not
+               running on this route. The header has therefore never had a fill
+               at all, which is why unifying the page ground was the fix for the
+               white bar rather than this rule. Left correct so it behaves if
+               that handler is ever repaired. */
             .ch-header.nav-scrolled {
-                background: var(--paper, #FFFDF9);
+                background: #F1E8D3;
             }
 
             /* No backdrop-filter, no blur to hide behind — fall back to a solid

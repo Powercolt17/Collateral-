@@ -72,7 +72,19 @@ html, body {
 
 .cl-root {
   position: relative;
-  background: var(--paper) !important;
+  /* #F1E8D3, not var(--paper), and this is the fix for the header going white.
+     .ch-header is position:fixed with background:transparent, so it shows
+     whatever is beneath it. The page had drifted into four tones: the rebuilt
+     sections (.fk, .cs, .lg) paint their own parchment #F1E8D3, #record and
+     #terms paint #EFEAE0, and #oracles, #flow and #duels paint nothing at all
+     — so those fell through to this rule and the near-white --paper #F7F4ED
+     underneath. Scrolling past them turned the bar white.
+
+     Unifying the page ground to the parchment the rebuilt sections already use
+     leaves the header nothing white to sit on anywhere. The TOKEN is not
+     changed: --paper is used in thirteen other places for cards and panels
+     that are meant to read lighter than the page. */
+  background: #F1E8D3 !important;
   color: var(--ink);
   font-family: var(--body);
   font-size: 17px;
