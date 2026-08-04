@@ -919,6 +919,235 @@ export function renderHeader(currentRoute = '') {
                     animation: none !important;
                 }
             }
+        /* ══════════════════════════════════════════════════════════════════
+           PORTED FROM THE SUPPLIED CollateralMenu.jsx
+
+           This codebase has no React and no react-dom, so the component could
+           not ship as authored. It is applied here as a restyle of the drawer
+           that already exists rather than as a replacement for it, and that is
+           a deliberate choice, not a shortcut:
+
+             - The supplied NAV array is the nav this drawer ALREADY has —
+               Market with Solo and Rivalry beneath it, Active, Ledger, Sources,
+               Protocol with children. The difference is that the supplied one
+               points at "#market", "#solo", "#how" placeholders while this one
+               is wired to window.router.navigate with the real routes and marks
+               the current page with aria-current. Replacing the markup would
+               have traded working navigation for hrefs that go nowhere.
+
+             - The drawer carries auth state by ID. #mobile-user-section,
+               #mobile-capital-summary, #mobile-account-links,
+               #mobile-connect-section, #pnl-signout-btn, #mobile-menu-initial,
+               #mobile-menu-username and #btn-auth-mobile are all written to by
+               updateMobileAuthUI. Swapping the markup deletes those IDs, and
+               because that function guards every lookup with "if (el)" it would
+               have failed SILENTLY — a signed-in user would simply have lost
+               their account links and sign-out with nothing logged.
+
+             - The component renders its own fixed .cm-burger at top right. The
+               standing instruction on this header is that the hamburger stays,
+               and there is already one wired to window.app.toggleMobileMenu. The
+               supplied file's own note says to delete .cm-burger and drive it
+               from the existing button, which is what happens here.
+
+           WHAT IS DELIBERATELY NOT PORTED: the status footer's figures. The
+           supplied markup hardcodes "All Systems Operational", "Mainnet", "USD"
+           and "Uptime 99.9%". Those are claims about a running system, none of
+           them is fed by anything, and this project has spent real effort this
+           week removing exactly that kind of unbacked assertion from the
+           homepage. They can come back the moment something measures them.
+
+           FONTS: the supplied file injects Cormorant Garamond and EB Garamond
+           from Google Fonts. Not done. This site's display face is Trajan Pro
+           and its text serif is Newsreader, both already loaded, and the header
+           beside this drawer was set in Trajan two commits ago. Adding two more
+           families would cost a render-blocking request to a third party and put
+           the drawer in a different voice from the bar that opens it.
+           ══════════════════════════════════════════════════════════════════ */
+
+        /* ---------- blurred artwork backdrop ---------- */
+        /* The overlay was a flat ink wash with a 4px blur of whatever happened
+           to be under it. It now carries the hero plate itself, blurred and
+           dimmed, with a scrim that is dark at the drawer edge and clears
+           toward the opposite side — the supplied design's defining feature.
+
+           The artwork is a real image rather than backdrop-filter on purpose:
+           backdrop-filter samples the page beneath, so the backdrop changed
+           depending on how far the user had scrolled, and below the hero it
+           blurred body copy into grey mush. A fixed plate looks the same from
+           anywhere on the page. */
+        .pnl-overlay {
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+        .pnl-overlay::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: url(/assets/images/collateral-senate-frame.jpg);
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            filter: blur(7px) brightness(.78) saturate(.95);
+            /* Scaled up so the blur's soft edge is pushed off-screen instead of
+               showing a pale border where the filter runs out of pixels. */
+            transform: scale(1.06);
+        }
+        /* Dark at the LEFT, where the drawer is, clearing to the right. */
+        .pnl-overlay::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg,
+                rgba(20, 14, 8, .60) 0%,
+                rgba(20, 14, 8, .30) 34%,
+                rgba(20, 14, 8, .12) 60%,
+                rgba(20, 14, 8, 0) 100%);
+        }
+
+        /* ---------- drawer: left-anchored parchment ---------- */
+        .pnl-drawer {
+            left: 0;
+            right: auto;
+            border-left: none;
+            border-right: 1px solid rgba(124, 29, 43, .25);
+            box-shadow: 24px 0 60px rgba(0, 0, 0, 0);
+            background:
+                radial-gradient(120% 60% at 80% 0%, rgba(255,255,255,.28), transparent 60%),
+                linear-gradient(180deg, #EFE5CE 0%, #E7DBBF 100%);
+            transition: transform 550ms cubic-bezier(.22,1,.36,1),
+                        box-shadow 550ms cubic-bezier(.22,1,.36,1);
+        }
+        .pnl-drawer.open { box-shadow: 24px 0 60px rgba(0, 0, 0, .38); }
+        /* Laid paper. Sits above the gradient and below the content. */
+        .pnl-drawer::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: .5;
+            background-image: radial-gradient(rgba(90,70,40,.05) 1px, transparent 1px);
+            background-size: 4px 4px;
+        }
+        /* The slide direction has to be flipped at BOTH breakpoints, because
+           each declares its own transform. Overriding only the base rule leaves
+           the drawer parked off the right edge and it never appears. */
+        @media (max-width: 767px) {
+            .pnl-drawer { transform: translateX(-102%); width: 88vw; max-width: 404px; }
+            .pnl-drawer.open { transform: translateX(0); }
+        }
+        @media (min-width: 768px) {
+            .pnl-drawer { transform: translateX(-102%); width: 404px; }
+            .pnl-drawer.open { transform: translateX(0); }
+        }
+
+        /* ---------- staggered reveal ---------- */
+        /* --i is set per row in the markup; the delay only applies while open,
+           so closing collapses everything together instead of unwinding. */
+        .pnl-drawer .pnl-nav-group,
+        .pnl-drawer #drawer-nav-group > .pnl-nav-link {
+            opacity: 0;
+            transform: translateX(-14px);
+            transition: opacity 500ms cubic-bezier(.22,1,.36,1),
+                        transform 500ms cubic-bezier(.22,1,.36,1);
+        }
+        .pnl-drawer.open .pnl-nav-group,
+        .pnl-drawer.open #drawer-nav-group > .pnl-nav-link {
+            opacity: 1;
+            transform: translateX(0);
+            transition-delay: calc(var(--i, 0) * 55ms + 140ms);
+        }
+
+        /* ---------- oxblood marker on hover ---------- */
+        .pnl-drawer .pnl-nav-link,
+        .pnl-drawer .pnl-nav-group-header { position: relative; }
+        .pnl-drawer .pnl-nav-link::before,
+        .pnl-drawer .pnl-nav-group-header::before {
+            content: "";
+            position: absolute;
+            left: -14px; top: 8px; bottom: 8px;
+            width: 3px;
+            background: var(--blood, #7A1C29);
+            transform: scaleY(0);
+            transform-origin: top;
+            opacity: 0;
+            transition: transform 350ms cubic-bezier(.22,1,.36,1),
+                        opacity 350ms cubic-bezier(.22,1,.36,1);
+        }
+        .pnl-drawer .pnl-nav-link:hover::before,
+        .pnl-drawer .pnl-nav-link.active::before,
+        .pnl-drawer .pnl-nav-group.expanded .pnl-nav-group-header::before {
+            transform: scaleY(1);
+            opacity: 1;
+        }
+
+        /* ---------- accordion ---------- */
+        /* grid-template-rows 0fr -> 1fr animates to the content's real height
+           without anyone having to know what that height is. The rule it
+           replaces was display:none/flex, which cannot transition at all — the
+           sub-nav simply appeared. */
+        .pnl-drawer .pnl-subnav {
+            display: grid !important;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 450ms cubic-bezier(.22,1,.36,1);
+        }
+        .pnl-drawer .pnl-nav-group.expanded .pnl-subnav { grid-template-rows: 1fr; }
+        .pnl-drawer .pnl-subnav > * { min-height: 0; }
+        /* NO VERTICAL PADDING ON EITHER BOX, and the first attempt at this was
+           wrong in an instructive way. The sub-nav collapsed to 8px rather than
+           0 — exactly its own 4px top and bottom — so the padding was moved off
+           the grid container and onto the wrapper. It measured 8px again.
+
+           Padding on the grid ITEM is no better than padding on the container:
+           the row track goes to zero, which drives the item's HEIGHT to zero,
+           but padding is added outside that height and survives. Only content
+           inside the item is clipped. Both boxes are therefore flat, and the
+           breathing room comes from the links' own padding, which is inside the
+           clip and collapses with it. */
+        .pnl-drawer .pnl-subnav { padding-top: 0; padding-bottom: 0; }
+        .pnl-drawer .pnl-subnav-inner {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        /* ---------- close button ---------- */
+        .pnl-drawer .pnl-close {
+            transition: background 250ms cubic-bezier(.22,1,.36,1),
+                        color 250ms cubic-bezier(.22,1,.36,1),
+                        border-color 250ms cubic-bezier(.22,1,.36,1),
+                        transform 400ms cubic-bezier(.22,1,.36,1);
+        }
+        .pnl-drawer .pnl-close:hover {
+            background: var(--blood, #7A1C29);
+            color: #EFE5CE;
+            border-color: var(--blood, #7A1C29);
+            transform: rotate(90deg);
+        }
+
+        /* ---------- primary action ---------- */
+        .pnl-drawer .pnl-connect-btn { position: relative; }
+        .pnl-drawer .pnl-connect-btn .pnl-arrow {
+            display: inline-block;
+            transition: transform 300ms cubic-bezier(.22,1,.36,1);
+        }
+        .pnl-drawer .pnl-connect-btn:hover .pnl-arrow { transform: translateX(5px); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .pnl-drawer .pnl-nav-group,
+            .pnl-drawer #drawer-nav-group > .pnl-nav-link {
+                opacity: 1 !important;
+                transform: none !important;
+                transition-duration: .01ms !important;
+            }
+            .pnl-drawer .pnl-subnav,
+            .pnl-drawer .pnl-close,
+            .pnl-drawer .pnl-nav-link::before,
+            .pnl-drawer .pnl-nav-group-header::before { transition-duration: .01ms !important; }
+        }
         </style>
 
         <header class="ch-header">
@@ -1068,7 +1297,7 @@ export function renderHeader(currentRoute = '') {
                             <div class="pnl-section-label">NAVIGATION</div>
 
                             <!-- MARKET Group -->
-                            <div class="pnl-nav-group ${isMarket ? 'expanded' : ''}">
+                            <div class="pnl-nav-group ${isMarket ? 'expanded' : ''}" style="--i:0">
                                 <div class="pnl-nav-group-header">
                                     <button class="pnl-nav-link ${isMarket ? 'active' : ''}" 
                                             onclick="window.app.toggleNavSection(this); return false;"
@@ -1079,17 +1308,25 @@ export function renderHeader(currentRoute = '') {
                                         <svg class="pnl-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
                                     </button>
                                 </div>
+                                <!-- .pnl-subnav-inner is REQUIRED, not decoration. The
+                                     accordion animates grid-template-rows 0fr -> 1fr, and
+                                     that only measures a single track: with the links as
+                                     direct children each one gets its own row and the
+                                     collapse comes out ragged. One wrapper, one track,
+                                     overflow hidden on the wrapper. -->
                                 <div class="pnl-subnav" id="subnav-market">
+                                  <div class="pnl-subnav-inner">
                                     <a href="#" onclick="window.app.closeMobileMenu(); window.router.navigate('/market'); return false;" class="pnl-subnav-link ${(currentRoute === '/market' && !window.location.search.includes('type=rivalry')) ? 'active' : ''}">Solo Contracts</a>
                                     <a href="#" onclick="window.app.closeMobileMenu(); window.router.navigate('/market?type=rivalry'); return false;" class="pnl-subnav-link ${(currentRoute === '/market' && window.location.search.includes('type=rivalry')) ? 'active' : ''}">Rivalry Contracts</a>
+                                  </div>
                                 </div>
                             </div>
 
-                            <a href="#" onclick="window.app.closeMobileMenu(); window.router.navigate('/my-contracts'); return false;" class="pnl-nav-link ${isActiveContracts ? 'active' : ''}" ${isActiveContracts ? 'aria-current="page"' : ''}>ACTIVE</a>
-                            <a href="#" onclick="window.app.closeMobileMenu(); window.router.navigate('/ledger'); return false;" class="pnl-nav-link ${isLedger ? 'active' : ''}" ${isLedger ? 'aria-current="page"' : ''}>LEDGER</a>
-                            <a href="#" onclick="window.app.closeMobileMenu(); window.router.navigate('/sources'); return false;" class="pnl-nav-link ${isSources ? 'active' : ''}" ${isSources ? 'aria-current="page"' : ''}>SOURCES</a>
+                            <a href="#" onclick="window.app.closeMobileMenu(); window.router.navigate('/my-contracts'); return false;" style="--i:1" class="pnl-nav-link ${isActiveContracts ? 'active' : ''}" ${isActiveContracts ? 'aria-current="page"' : ''}>ACTIVE</a>
+                            <a href="#" onclick="window.app.closeMobileMenu(); window.router.navigate('/ledger'); return false;" style="--i:2" class="pnl-nav-link ${isLedger ? 'active' : ''}" ${isLedger ? 'aria-current="page"' : ''}>LEDGER</a>
+                            <a href="#" onclick="window.app.closeMobileMenu(); window.router.navigate('/sources'); return false;" style="--i:3" class="pnl-nav-link ${isSources ? 'active' : ''}" ${isSources ? 'aria-current="page"' : ''}>SOURCES</a>
 
-                            <div class="pnl-nav-group ${isProtocol ? 'expanded' : ''}">
+                            <div class="pnl-nav-group ${isProtocol ? 'expanded' : ''}" style="--i:4">
                                 <div class="pnl-nav-group-header">
                                     <button class="pnl-nav-link ${isProtocol ? 'active' : ''}" 
                                             onclick="window.app.toggleNavSection(this); return false;"
@@ -1101,14 +1338,16 @@ export function renderHeader(currentRoute = '') {
                                     </button>
                                 </div>
                                 <div class="pnl-subnav" id="subnav-protocol">
+                                  <div class="pnl-subnav-inner">
                                     <a href="#" onclick="window.app.closeMobileMenu(); window.router.navigate('/protocol?tab=overview'); return false;" class="pnl-subnav-link ${window.location.search.includes('tab=overview') ? 'active' : ''}">Overview</a>
                                     <a href="#" onclick="window.app.closeMobileMenu(); window.router.navigate('/protocol?tab=vision'); return false;" class="pnl-subnav-link ${window.location.search.includes('tab=vision') ? 'active' : ''}">Vision</a>
                                     <a href="#" onclick="window.app.closeMobileMenu(); window.router.navigate('/protocol?tab=whitepaper'); return false;" class="pnl-subnav-link ${window.location.search.includes('tab=whitepaper') ? 'active' : ''}">Whitepaper</a>
                                     <a href="#" onclick="window.app.closeMobileMenu(); window.router.navigate('/protocol?tab=economics'); return false;" class="pnl-subnav-link ${window.location.search.includes('tab=economics') ? 'active' : ''}">Economics</a>
+                                  </div>
                                 </div>
                             </div>
 
-                            <a href="#" onclick="window.app.closeMobileMenu(); window.router.navigate('/protocol?tab=terminal'); return false;" class="pnl-nav-link ${isCustodyTerminal ? 'active' : ''}" ${isCustodyTerminal ? 'aria-current="page"' : ''}>CUSTODY TERMINAL</a>
+                            <a href="#" onclick="window.app.closeMobileMenu(); window.router.navigate('/protocol?tab=terminal'); return false;" style="--i:5" class="pnl-nav-link ${isCustodyTerminal ? 'active' : ''}" ${isCustodyTerminal ? 'aria-current="page"' : ''}>CUSTODY TERMINAL</a>
                             <div class="pnl-divider"></div>
                         </div>
 
