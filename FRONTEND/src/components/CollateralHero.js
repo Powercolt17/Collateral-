@@ -149,16 +149,24 @@ export function renderCollateralHero(options = {}) {
              a small correction, not a colour conversion. Three parts, each
              load-bearing:
 
-             saturate(.62) — the supplied plate reads warmer than the palette.
-             Behind the headline it means 239,213,174, saturation .272 (HSV,
-             the metric every number in this file uses) against --paper
-             #F1EEE8 at .037. The grade lands it at .169 and pulls the RGB
-             distance to --paper from 63 down to 34. It is a nudge toward the
-             token, not a neutralising pass — this plate is warmer than --paper
-             and always will be. If the join at the proof strip reads wrong,
-             warm --paper rather than desaturating further: below about .55 the
-             engraving goes grey and loses the reason sepia was chosen, and
-             above .75 it reads orange against the page.
+             SUPERSEDED — saturate(.62) was the value here, and the argument for
+             it was that the plate reads warmer than --paper #F1EEE8, so pulling
+             its saturation from .272 toward .169 closed the RGB distance from 63
+             to 34 and brought the artwork nearer the token.
+
+             That was the wrong thing to optimise. It treated the plate's warmth
+             as drift from a palette token instead of as the artwork's subject,
+             and the correction it prescribed — desaturating, then brightening to
+             compensate — is what produced a chalky plate. The engraving is not a
+             surface that should match --paper; it is the picture, and --paper is
+             the page around it. The current value is above the file's own
+             saturation, not below it, and the guidance to "warm --paper rather
+             than desaturate further" still stands and is now the ONLY lever that
+             should be reached for if the join at the proof strip reads wrong.
+
+             The old note's stated floor was real, though, and worth keeping:
+             below about .55 the engraving goes grey and loses the reason sepia
+             was chosen at all.
 
              contrast(.92) — the plate stepping BACK. It is cross-hatched edge
              to edge and carries far more visual noise per square inch than a
