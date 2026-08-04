@@ -184,15 +184,24 @@ export function renderCollateralHero(options = {}) {
              plate, and clips the sky. It is wrong here for a further reason —
              this plate is already sepia, so it would do the job twice.
 
-             Measured on collateral-crop5.jpg at these exact values, over the
-             region the headline actually occupies:
-               plate mean        239,213,174
-               graded mean       242,225,201
-               brightest pixel   254,237,214 — no clipping, but that is the
-                                 headroom the whole chain has left
-               headline contrast 12.30:1 full sun, 11.32:1 mean cloud,
-                                 10.39:1 deepest cloud, against --ink-warm
-                                 #2B2118. AAA throughout.
+             RE-MEASURED on collateral-senate.jpg at these exact values, over
+             the region the headline actually occupies. The grade was tuned on
+             the plate before this one and was carried over rather than
+             re-derived, so it was checked rather than assumed — the two plates
+             turn out to sit within two or three points of each other on every
+             channel, which is why nothing here had to move:
+               plate mean        237,213,175   (crop5 was 239,213,174)
+               graded mean       241,226,202   (crop5 was 242,225,201)
+               brightest pixel   249,236,213 — no clipping, and 5 points more
+                                 headroom than crop5 left
+               headline contrast 12.36:1 against the graded mean, 10.88:1
+                                 against the darkest pixel in the region and
+                                 13.45:1 against the brightest, all versus
+                                 --ink-warm #2B2118. AAA throughout.
+             Those three figures are plate-and-grade only. The .clt-sun cloud
+             layer sits above at .16 opacity and modulates them further; the
+             crop5 note quoted sun/cloud numbers instead, so the two sets are
+             not directly comparable line for line.
              The headline is --ink-warm, not --ox; the oxblood is button-only.
              Grading it any brighter starts clipping the paper. */
           --plate-grade:saturate(.62) contrast(.92) brightness(1.09);
