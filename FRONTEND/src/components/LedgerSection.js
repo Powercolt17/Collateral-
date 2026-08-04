@@ -49,7 +49,8 @@
  *
  * LIVE DATA: initLedgerSection at the foot of this file replaces every row with
  * what is in the database, and gates the ratio bar and the standfirst on the
- * real settled count. The ENTRIES above are the first-paint fallback only.
+ * real settled count. There is no fallback row set and no entries option — every
+ * row on screen came from the API, or the section says why it did not.
  *
  * WHAT VARIES, AND WHY THE COLUMNS ARE THESE COLUMNS. The table went live
  * looking synthetic while being entirely real: every row read "OPEN / 4d LEFT"
@@ -77,14 +78,16 @@
 
 const URGENT_DAYS = 5;
 
-const ENTRIES = [
-    { id: 372, goal: '50,000 subscribers in 60 days', target: 'TARGET +40%', party: '@deltacreator', oracle: 'YouTube', stake: 1000, mult: 2.5, tier: 'elevated', status: 'returned' },
-    { id: 371, goal: '+20% revenue in 30 days', target: 'TARGET +20%', party: '@revpilot', oracle: 'Stripe', stake: 2000, mult: 1.7, tier: 'controlled', status: 'forfeited' },
-    { id: 370, goal: '10,000 email leads in 30 days', target: 'TARGET +50%', party: '@growthlead', oracle: 'Shopify', stake: 1200, mult: 4, tier: 'maximum', status: 'open', daysLeft: 3 },
-    { id: 369, goal: '100k views on launch video', target: 'TARGET +65%', party: '@indiehacker', oracle: 'YouTube', stake: 800, mult: 1.7, tier: 'controlled', status: 'open', daysLeft: 11 },
-    { id: 368, goal: '$100k ARR in 90 days', target: 'TARGET +35%', party: '@saasfounder', oracle: 'Stripe', stake: 5000, mult: 2.5, tier: 'elevated', status: 'returned' },
-    { id: 367, goal: '25,000 followers in 30 days', target: 'TARGET +45%', party: '@marcusk', oracle: 'X', stake: 1500, mult: 4, tier: 'maximum', status: 'forfeited' },
-];
+/* THERE IS NO FALLBACK ROW SET, DELIBERATELY.
+   A hardcoded ENTRIES array used to paint first so the section was never blank,
+   and initLedgerSection replaced it once the API answered. Six invented
+   contracts with invented handles were therefore on screen for as long as the
+   fetch took, and any slow or failed request left them there indefinitely,
+   indistinguishable from the real register. Live data only: the section paints a
+   placeholder line, then real rows, and says so plainly if the fetch fails. It
+   never shows a contract that does not exist. */
+const LOADING_ROW = `
+                <div class="lg-empty lg-mono" id="lg-empty">READING THE REGISTER&hellip;</div>`;
 
 function escapeHtml(value) {
     return String(value)
@@ -146,21 +149,21 @@ function renderRow(entry) {
 
 /**
  * @param {object}  [options]
- * @param {Array}   [options.entries]         Ledger rows.
  * @param {boolean} [options.showRatio]       Split bar. initLedgerSection hides it while nothing has settled.
  * @param {number}  [options.returnedPct]     Used by the ratio bar only.
  * @param {string}  [options.onSeeFullLedger] Inline handler for the footer link.
+ *
+ * There is no entries option. Rows come from the API and nowhere else.
  */
 export function renderLedgerSection(options = {}) {
     const {
-        entries = ENTRIES,
         showRatio = false,
         returnedPct = 61,
         onSeeFullLedger = '',
     } = options;
 
     const forfeitedPct = 100 - returnedPct;
-    const rows = entries.map(renderRow).join('');
+    const rows = LOADING_ROW;
 
     const ratio = showRatio
         ? `
@@ -301,17 +304,49 @@ export function renderLedgerSection(options = {}) {
         .lg-open:not(.lg-soon) .lg-out::before{content:"";display:inline-block;
           width:5px;height:5px;background:transparent;margin-right:8px;vertical-align:1px}
 
-        /* Six rows silently swapping every 7s reads as a glitch until the table
-           says it is a window onto 49. The tick's width is the page's real share
-           of the set, so it doubles as a scale. */
-        .lg-pager{display:flex;align-items:center;gap:14px;
-          margin-top:18px;padding-left:14px}
-        .lg-pager-n{font-size:9.5px;letter-spacing:.16em;color:var(--ink-faint);
-          font-variant-numeric:tabular-nums;white-space:nowrap}
-        .lg-pager-track{position:relative;flex:0 1 190px;height:1px;background:var(--rule)}
-        .lg-pager-track i{position:absolute;top:-1px;height:3px;background:var(--ox);
-          left:0;width:12%;transition:left .5s cubic-bezier(.16,.84,.28,1)}
-        @media (prefers-reduced-motion:reduce){.lg-pager-track i{transition:none}}
+        /* CONTINUOUS SCROLL.
+           #lg-body is the viewport and .lg-track is what moves. The track holds
+           the register TWICE, and the animation travels exactly -50% — one full
+           copy — so the second copy is under the cursor at the instant the first
+           finishes and the seam never shows. Duplicating is what makes it
+           seamless; a single copy has to snap back.
+
+           Speed is set in px/sec in JS and converted to a duration against the
+           measured track height, so the rows travel at the same rate whether the
+           register holds 12 contracts or 400. A fixed duration would crawl on a
+           long set and blur on a short one.
+
+           translate3d, not top/margin: it runs on the compositor and does not
+           relayout 98 rows every frame. */
+        .lg-body{position:relative;overflow:hidden}
+        .lg-track{will-change:transform}
+        .lg-scrolling .lg-track{animation:lg-scroll linear infinite}
+        @keyframes lg-scroll{
+          from{transform:translate3d(0,0,0)}
+          to{transform:translate3d(0,-50%,0)}
+        }
+        /* Readable on demand — the register stops while you are pointing at it. */
+        .lg-scrolling:hover .lg-track{animation-play-state:paused}
+
+        /* Softens the cut at both edges so rows enter and leave rather than
+           being chopped. On the viewport, never on the track — masking the
+           element that translates drags the mask along with it. */
+        .lg-scrolling{
+          -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 26px,
+            #000 calc(100% - 26px),transparent 100%);
+          mask-image:linear-gradient(to bottom,transparent 0,#000 26px,
+            #000 calc(100% - 26px),transparent 100%)}
+
+        .lg-empty{padding:26px 0 26px 14px;font-size:10px;letter-spacing:.16em;
+          color:var(--ink-faint);border-bottom:1px solid var(--rule)}
+
+        /* Nothing moves for someone who asked for that. The full register is
+           still there and still reachable by scrolling the page. */
+        @media (prefers-reduced-motion:reduce){
+          .lg-scrolling .lg-track{animation:none}
+          .lg-body{overflow:visible;height:auto !important}
+          .lg-scrolling{-webkit-mask-image:none;mask-image:none}
+        }
 
         .lg-foot{display:flex;justify-content:space-between;align-items:baseline;gap:20px;
           margin-top:26px;padding-left:14px;
@@ -345,7 +380,6 @@ export function renderLedgerSection(options = {}) {
           /* The multiple pairs with the stake it multiplies, not with the clock. */
           .lg-mult{grid-column:2;grid-row:1;text-align:right;font-size:11.5px}
           .lg-out{grid-column:2;grid-row:3;margin-top:4px}
-          .lg-pager-track{flex:1 1 auto}
           .lg-foot{flex-direction:column;gap:12px;align-items:flex-start}
         }
         @media (prefers-reduced-motion:reduce){.lg *{transition:none !important}}
@@ -379,11 +413,7 @@ export function renderLedgerSection(options = {}) {
                     <span>MULTIPLE</span>
                     <span>OUTCOME</span>
                 </div>
-                <div id="lg-body">${rows}</div>
-                <div class="lg-pager" id="lg-pager" hidden>
-                    <span class="lg-pager-n lg-mono" id="lg-pager-n"></span>
-                    <span class="lg-pager-track"><i id="lg-pager-tick"></i></span>
-                </div>
+                <div class="lg-body" id="lg-body">${rows}</div>
                 <div class="lg-foot lg-mono">
                     <span>VERIFICATION IS AUTOMATIC &middot; <b>NO APPEALS</b> &middot; <b>NO EXTENSIONS</b></span>
                     <button type="button" class="lg-link"${onSeeFullLedger ? ` onclick="${onSeeFullLedger}"` : ''}>SEE THE FULL LEDGER &rarr;</button>
@@ -396,8 +426,8 @@ export function renderLedgerSection(options = {}) {
 /* ─────────────────────────────────────────────────────────────────────────────
    LIVE DATA
 
-   The section renders with ENTRIES so it is never blank on first paint, then
-   this replaces every row with what is actually in the database. Three sources:
+   The section paints a single placeholder line and this fills it with what is
+   actually in the database. Nothing else ever reaches the screen. Three sources:
 
      /v1/market/contracts        the live contract set — real rows, real stakes,
                                  real funding windows, straight from the DB
@@ -422,8 +452,12 @@ export function renderLedgerSection(options = {}) {
    zero. Neither string needs editing again.
    ───────────────────────────────────────────────────────────────────────────── */
 
-const LG_PAGE = 6;
-const LG_CYCLE_MS = 7000;
+/* How many rows the viewport shows. The track holds the whole register. */
+const LG_VISIBLE_ROWS = 6;
+/* Travel rate. Set in px/sec, not as a duration, so 49 contracts and 400
+   contracts move at the same speed instead of the long set crawling. At ~81px a
+   desktop row this is a little over one row a second. */
+const LG_SCROLL_PX_PER_SEC = 90;
 
 function lgDaysLeft(iso) {
     if (!iso) return null;
@@ -511,13 +545,18 @@ function lgFromLedger(events) {
 }
 
 /**
- * Fetches live data and takes over the section. Safe to call when the section
- * is absent — it no-ops. Never throws into the caller: on any failure the rows
- * rendered at build time stay on screen rather than the section going blank.
+ * Fetches live data and fills the section. Safe to call when the section is
+ * absent — it no-ops. Nothing is ever invented: if the fetch returns nothing,
+ * the section says so rather than showing contracts that do not exist.
  */
 export async function initLedgerSection() {
     const body = document.getElementById('lg-body');
     if (!body) return;
+
+    const fail = (msg) => {
+        const el = document.getElementById('lg-empty');
+        if (el) el.textContent = msg;
+    };
 
     /* Same base the api module resolves, rather than a second hardcoded host. */
     const BASE = import.meta.env.VITE_API_BASE_URL || 'https://collateral-production.up.railway.app';
@@ -536,7 +575,12 @@ export async function initLedgerSection() {
     const staked = lgFromLedger(ledger && ledger.events);
     const open = lgFromMarket(market && market.contracts);
     const all = staked.concat(open);
-    if (!all.length) return;
+    if (!all.length) {
+        fail(market || ledger
+            ? 'NO OPEN CONTRACTS ON THE REGISTER'
+            : 'THE REGISTER IS UNREACHABLE RIGHT NOW');
+        return;
+    }
 
     const settledCount = stats && Number(stats.contractsSettled) || 0;
 
@@ -568,45 +612,60 @@ export async function initLedgerSection() {
     const ratioSlot = document.getElementById('lg-ratio-slot');
     if (ratioSlot && settledCount === 0) ratioSlot.innerHTML = '';
 
-    const pager = document.getElementById('lg-pager');
-    const pagerN = document.getElementById('lg-pager-n');
-    const pagerTick = document.getElementById('lg-pager-tick');
-    /* Three digits, matching the width the register column pads to. */
-    const pad = (n) => String(n).padStart(3, '0');
-
-    const n = Math.min(LG_PAGE, all.length);
-    const pageCount = Math.ceil(all.length / n);
-
-    let page = 0;
-    const paint = () => {
-        /* CLAMP, DO NOT WRAP. 49 rows at 6 a page leaves a last page of one, and
-           wrapping it round to the top of the register put rows 001, 049, 048,
-           047, 046, 045 on screen together — which the pager then honestly but
-           uselessly described as "001-045 OF 49". Clamping slides the final page
-           back to the last six entries, so every page is a contiguous
-           descending run and the range always means what it says. The cost is
-           that the last page overlaps the one before it, which is what a
-           paginated table normally does anyway. */
-        const start = Math.min((page % pageCount) * n, all.length - n);
-        const slice = all.slice(start, start + n);
-        body.innerHTML = slice.map(renderRow).join('');
-
-        /* Quote the REGISTER NUMBERS on screen, not the slice position. seq runs
-           downwards, so a positional "37–42 OF 49" sat above rows numbered
-           013–008 and the two contradicted each other in the same eyeline. */
-        if (pagerN) pagerN.textContent = `${pad(slice[0].seq)}–${pad(slice[n - 1].seq)} OF ${all.length}`;
-        if (pagerTick) {
-            pagerTick.style.width = (n / all.length) * 100 + '%';
-            pagerTick.style.left = (start / all.length) * 100 + '%';
-        }
-    };
-    paint();
-    if (pager && all.length > LG_PAGE) pager.hidden = false;
-
-    // Cycle only when there is more than one page, and never for someone who
-    // asked for reduced motion.
+    const markup = all.map(renderRow).join('');
     const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (all.length > LG_PAGE && !reduced) {
-        setInterval(() => { page += 1; paint(); }, LG_CYCLE_MS);
+
+    /* ONE COPY WHEN NOTHING WILL MOVE. The duplicate exists only to make the
+       loop seamless; with the animation off it is just the register printed
+       twice, which is what a reduced-motion reader would have got. */
+    if (reduced) {
+        body.innerHTML = markup;
+        return;
     }
+
+    /* THE REGISTER IS RENDERED TWICE INTO ONE TRACK.
+       The animation travels -50%, exactly one copy, so at the moment it loops
+       the second copy is sitting where the first began and the join is
+       invisible. With a single copy there is nothing to move into shot and the
+       list has to snap. The clone is aria-hidden so a screen reader reads the
+       register once. */
+    body.innerHTML = `<div class="lg-track" id="lg-track">${markup}`
+        + `<div aria-hidden="true">${markup}</div></div>`;
+
+    const track = document.getElementById('lg-track');
+    if (!body.querySelector('.lg-row')) return;
+
+    const visible = Math.min(LG_VISIBLE_ROWS, all.length);
+
+    /* Height and duration are both MEASURED, never assumed: the viewport is a
+       real row's height times the rows we want to see, and the duration is one
+       copy's travel divided by the speed. Rows are far taller on a phone, where
+       the grid restacks, so a constant would be wrong on one of the two. */
+    const applyMetrics = () => {
+        const firstRow = body.querySelector('.lg-row');
+        if (!firstRow) return;
+        const rowH = firstRow.getBoundingClientRect().height;
+        const copyH = track.scrollHeight / 2;
+        /* Bail on a degenerate layout rather than committing it. Measured once
+           at init, a zero-width container — a hidden tab, a display:none
+           ancestor, a not-yet-visible route — laid the rows out at 220px instead
+           of 81 and baked a 1319px viewport in permanently. */
+        if (rowH <= 0 || copyH <= 0 || !body.clientWidth) return;
+        body.style.height = Math.round(rowH * visible) + 'px';
+        track.style.animationDuration = (copyH / LG_SCROLL_PX_PER_SEC).toFixed(2) + 's';
+    };
+
+    applyMetrics();
+    body.classList.add('lg-scrolling');
+
+    /* Re-measure on anything that reflows the rows: the 880px restack, an
+       orientation change, a webfont arriving after first paint, or the section
+       simply becoming visible. Observing the track cannot feed back — setting
+       the viewport's height and the animation's duration changes neither the
+       track's own height nor its width. */
+    let t;
+    const schedule = () => { clearTimeout(t); t = setTimeout(applyMetrics, 150); };
+    if (window.ResizeObserver) new ResizeObserver(schedule).observe(track);
+    window.addEventListener('resize', schedule);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(applyMetrics).catch(() => {});
 }
