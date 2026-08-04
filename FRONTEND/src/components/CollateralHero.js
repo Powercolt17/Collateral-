@@ -326,6 +326,77 @@ export function renderCollateralHero(options = {}) {
           background-size:cover;
           background-repeat:no-repeat;
           filter:var(--plate-grade);
+
+          /* THE PRESS. The plate does not fade in, it prints.
+
+             This replaces the travelling shadow that was here before, which was
+             removed outright. That layer was ambient — it asked to be noticed
+             while nothing was happening, failed at it three times running, and
+             its last working version left a permanent 7.3% darkening on the
+             right half of the artwork as the price of being visible at all. A
+             moment costs nothing once it is over.
+
+             Why this and not something more elaborate: the artwork arrives as
+             ONE FLAT JPEG. Animating the seal coming down, or the scribes'
+             quills, needs the press hand and the scroll delivered as separate
+             layers, which do not exist. A press reveal is the one gesture that
+             works on a flat raster and still means something — the hero IS an
+             engraved plate, so having it land as an impression rather than a
+             fade says printed instrument rather than stock photo behind text.
+
+             transform-origin is LEFT CENTER and that is not cosmetic. The
+             background is anchored background-position:left center for the
+             reasons recorded above — ink starts at 30.5% and every pixel cover
+             discards has to fall on the right. Scaling from the default centre
+             would slide the composition horizontally during the settle and walk
+             the artwork across the type channel on the way. */
+          transform-origin:left center;
+          animation:clt-press 980ms cubic-bezier(.16,.84,.28,1) both;
+        }
+        /* The sheet comes off the plate left to right, and the 1.6% overscale
+           settling to 1 is the paper releasing from the pressure. Both run on
+           the same curve so the release lands with the wipe rather than after
+           it. */
+        @keyframes clt-press{
+          from{clip-path:inset(0 100% 0 0);transform:scale(1.016)}
+          to{clip-path:inset(0 0 0 0);transform:scale(1)}
+        }
+
+        /* The roller edge. Without this the wipe reads as a reveal; with it, it
+           reads as something passing over the sheet and leaving ink behind.
+
+           Deliberately ABOVE the type as well as the plate, so the whole hero is
+           printed in one pass rather than the picture being printed next to type
+           that was already there. pointer-events:none and it is gone in under a
+           second, so nothing it crosses is ever interactive during it.
+
+           The band carries warm ink on its trailing side and a thin bright edge
+           at the very front, which is the wet highlight where a roller lifts.
+           Same duration and same curve as the wipe, so the two edges travel
+           locked together — any drift between them and it stops reading as one
+           physical object. */
+        .clt-press{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:4}
+        .clt-press i{
+          display:block;position:absolute;top:-2%;bottom:-2%;left:0;width:13%;
+          background:linear-gradient(95deg,
+            rgba(43,33,24,0) 0%,
+            rgba(43,33,24,.13) 55%,
+            rgba(43,33,24,.30) 86%,
+            rgba(255,252,246,.34) 99%,
+            rgba(255,252,246,0) 100%);
+          transform:translate3d(-100%,0,0);
+          will-change:transform,opacity;
+          animation:clt-roller 980ms cubic-bezier(.16,.84,.28,1) both;
+        }
+        /* 13% wide travelling 800% of its own width. 769% is the exact figure
+           that lands its trailing edge on the right edge of the frame and it
+           measured one pixel short at 1905 wide; the opacity ramp hides that,
+           but relying on a fade to cover a geometry error is how the arc's
+           problems started. 800 clears it outright at every width. */
+        @keyframes clt-roller{
+          from{transform:translate3d(-100%,0,0);opacity:1}
+          88%{opacity:1}
+          to{transform:translate3d(800%,0,0);opacity:0}
         }
 
         /* ---- living engraving: ambient sun ----
@@ -583,134 +654,6 @@ export function renderCollateralHero(options = {}) {
           to{transform:translate3d(12.5%,0,0)}
         }
 
-        /* ---- the slow arc: a SECOND layer, doing a different job ----
-           The cloud layer above is tuned for VISIBILITY and its whole history is
-           documented there: amplitude raised three times with no effect, a smooth
-           single-period wave abandoned for fractal noise, tile halved, 30s to 12s.
-           None of that is reopened here. This layer does not compete with it.
-
-           What the clouds cannot say is DIRECTION. A 12s loop reads as weather:
-           ambient, repeating, going nowhere. The product is about a date arriving
-           and not waiting for you, and the visual equivalent of that is light that
-           only ever travels one way and only passes once. So: a single broad band
-           of shade crossing the frame, iteration count 1.
-
-           TWO SUPERSEDED VERSIONS, both recorded because each failed for a
-           different reason and the second reason is the interesting one.
-
-           1. .10 peak over 360s, single pass, on the theory that this layer
-           should sit below the threshold the clouds were tuned to clear and be
-           "felt on a second visit rather than seen on the first". That was not
-           subtlety, it was an effect too small to exist with a justification
-           written around it: .0006 alpha per second.
-
-           2. .28 peak over 105s, still a single pass, still travelling from one
-           frame-width left of the frame to one frame-width right. The amplitude
-           was now fine and it was STILL invisible, for a reason amplitude could
-           never fix. The wrapper mask reveals only from 42% rightward, so the
-           band did not enter visible territory until roughly 48s after load and
-           had left by 79s. Load the page, watch for twenty seconds, see nothing
-           — then nothing ever again, because it ran once. The geometry put the
-           entire event outside both the visible region and the window anyone
-           actually looks.
-
-           So the single pass is gone. It was my idea, it carried the nicer
-           meaning — light travels one way, the day ends once — and it is what
-           made the layer unobservable twice. A thing nobody can see does not
-           mean anything. Now it repeats on the same seamless-tile principle as
-           clt-sun: one shadow crosses the artwork every 60s, always something in
-           frame, no start condition to miss.
-
-           COST, AND IT IS REAL: a repeating band means a PERMANENT mean
-           darkening over the artwork, roughly 7%, where the single pass left the
-           resting state untouched. --plate-grade's brightness offsets the cloud
-           mean and knows nothing about this, and the wrapper mask means the left
-           column gets none of it, so the two sides now sit at slightly different
-           mean values with a soft 42-66% ramp between them. That should read as
-           a gentle vignette rather than a seam — but it is a change to the
-           plate's resting tone, it is not compensated anywhere, and it is the
-           first thing to look at if the artwork now reads muddy on the right.
-
-           CARRIES ITS OWN MASK, and does not simply inherit .clt-sky's.
-
-           Inheriting looked sufficient and is not. .clt-sky holds the type column
-           to 45% rather than to nothing, which is right for the clouds: they are
-           the visible layer and killing them outright behind the headline would
-           leave a dead rectangle in the weather. Measured, that let 5.7% black
-           swing under the headline at the arc's peak — contrast 11.1 to 9.82, and
-           the accent 7.45 to 6.58. Both still pass at display sizes, so this is
-           not a failure. It is simply not what was specified: no luminance
-           movement under the type, full stop.
-
-           So the arc gets a second mask, transparent to 42% and full by 66%. The
-           headline measures 5% to 39.7% of the sky, so the type column sees
-           exactly zero of this layer, and the artwork sees all of it. The mask
-           lives on a WRAPPER rather than on the sweeping element, because a mask
-           on the element itself would travel with it and the exclusion has to
-           stay fixed to the frame. */
-        .clt-arcwrap{
-          position:absolute;inset:0;overflow:hidden;pointer-events:none;
-          -webkit-mask-image:linear-gradient(to right,
-            rgba(0,0,0,0) 0%, rgba(0,0,0,0) 42%,
-            rgba(0,0,0,1) 66%, rgba(0,0,0,1) 100%);
-          mask-image:linear-gradient(to right,
-            rgba(0,0,0,0) 0%, rgba(0,0,0,0) 42%,
-            rgba(0,0,0,1) 66%, rgba(0,0,0,1) 100%);
-        }
-        .clt-arcwrap b{
-          display:block;
-          position:absolute;top:0;bottom:0;left:0;width:200%;
-          pointer-events:none;
-          /* 100deg, not 90 — a raking angle reads as a sun low in the sky rather
-             than a wipe. The band spans 30% to 70% of a 300% layer, so the shade
-             is about 1.2 hero widths across with nothing but feather either side.
-             There is no hard edge anywhere in it at any point in the sweep.
-
-             .28 PEAK, UP FROM .10, AND 105s, DOWN FROM 360s. The first pass was
-             specified so conservatively that it cancelled itself: .10 over 360s
-             is about .0006 alpha per second, roughly a thousandth of the rate the
-             cloud layer runs at — and the clouds needed several rounds of tuning
-             to become visible at all. "Felt rather than seen" was the intent and
-             it was not achievable at those numbers; it was an unobservable
-             effect with a rationale attached.
-
-             .28 peaks above the clouds' .16 deliberately. The clouds carry
-             structure — four octaves of noise, so some energy always lands where
-             vision is sensitive. This band is one very broad, very smooth ramp,
-             which is the spatial frequency the eye is worst at, so it needs more
-             amplitude to read at all. Same lesson the cloud layer already learned
-             and recorded above, applied the other way round.
-
-             Amplitude here is FREE of the contrast budget, which is the whole
-             reason the wrapper mask exists. The type column sees exactly zero of
-             this layer at any alpha, so this number can go as far as the artwork
-             tolerates without touching a single measured contrast figure. */
-          background-image:linear-gradient(100deg,
-            rgba(0,0,0,0) 0%,
-            rgba(0,0,0,.28) 26%,
-            rgba(0,0,0,0) 52%,
-            rgba(0,0,0,0) 100%);
-          /* 50% of a 200% layer is exactly one wrapper width, so one period is
-             one frame and the translate below moves precisely one period. */
-          background-size:50% 100%;
-          background-repeat:repeat;
-          will-change:transform;
-          /* NEGATIVE DELAY, so the page opens 25s into the cycle rather than at
-             its start. Simulated across a full period, peak visible shade runs
-             .011 at t=0, .057 at 8s, .137 at 15s and reaches the full .28 by
-             30s: the band is still entering the revealed region for the first
-             several seconds. That is a small version of exactly the fault that
-             killed both previous attempts — the effect existing outside the
-             window anyone looks. Starting mid-cycle puts a fully formed shadow
-             on the artwork in the first frame. */
-          animation:clt-arc 60s linear -25s infinite;
-        }
-        /* One whole tile, same seamless-loop rule as clt-sun. 50% of a 200%
-           layer is one frame width, so the wrap is invisible. */
-        @keyframes clt-arc{
-          from{transform:translate3d(0,0,0)}
-          to{transform:translate3d(50%,0,0)}
-        }
         /* clt-breathe removed. It modulated the layer's opacity as a second,
            slower rhythm, but opacity scales the entire darkening, so it spent
            most of the cycle under the amplitude the sweep was tuned for and
@@ -1179,6 +1122,18 @@ export function renderCollateralHero(options = {}) {
             clip-path:none !important;
             transform:none !important;
           }
+          /* Same treatment for the press, and it MUST be explicit. The plate's
+             first keyframe is clip-path:inset(0 100% 0 0) — fully hidden — so
+             simply cancelling the animation would leave a reduced-motion visitor
+             looking at no artwork at all, permanently. Land it on the last frame
+             instead. The roller is a one-second event with nothing to freeze, so
+             it just goes. */
+          .clt-hero::before{
+            animation:none !important;
+            clip-path:none !important;
+            transform:none !important;
+          }
+          .clt-press{display:none !important}
           /* The sweep is continuous and never stops, which is exactly what a
              reduced-motion request is about, so the MOTION goes. The layer
              does not: it is replaced with a flat, unanimated 8% black.
@@ -1211,26 +1166,13 @@ export function renderCollateralHero(options = {}) {
             background-color:rgba(0,0,0,.08) !important;
             opacity:1 !important;
           }
-          /* The arc is REMOVED here, where the cloud layer above is only frozen.
-             That difference is deliberate and follows from the same rule.
-
-             The cloud layer must survive as a flat tone because --plate-grade
-             carries a brightness offsetting its mean, so deleting it would leave
-             the compensation unopposed and hand a reduced-motion visitor a washed
-             plate — the exact bug recorded above. The arc has no such
-             compensation: it is transient by construction and its resting
-             contribution is already zero. Removing it therefore lands on the same
-             composited tone as a viewer who arrives after the sweep has passed,
-             which is the correct baseline. Freezing it instead would park a fixed
-             band across the artwork forever, which is what happened to the wave
-             the first time round. */
-          .clt-arcwrap{display:none !important}
         }
         </style>
 
         <div class="clt">
             <section class="clt-hero" style="--clt-plate:url(${plateSrc});" data-plate="${PLATE_W}x${PLATE_H}">
-                <div class="clt-sky" aria-hidden="true"><i></i><span class="clt-arcwrap"><b></b></span></div>
+                <div class="clt-sky" aria-hidden="true"><i></i></div>
+                <div class="clt-press" aria-hidden="true"><i></i></div>
                 <div class="clt-lockup">
                     <div class="clt-eyebrow clt-mono clt-in" style="--d:60ms">SELF-ENFORCING PERFORMANCE CONTRACTS</div>
                     <h1><span class="clt-line" style="--d:150ms">Put money</span><br /><span class="clt-line" style="--d:240ms">on your own</span><br /><span class="clt-line" style="--d:330ms"><span class="clt-accent">deadline</span></span></h1>
