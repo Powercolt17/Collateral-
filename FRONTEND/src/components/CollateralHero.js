@@ -711,7 +711,16 @@ export function renderCollateralHero(options = {}) {
              staining on the paper rather than light crossing a scene. The
              failure mode inverted completely: invisible on the old plate at
              this setting, too loud on the new one. */
-          opacity:.16;
+          /* .16 -> .26. The note above records amplitude being raised three
+             times with no reported change, and concludes amplitude was never
+             the limiting term — which was right at the time, because the tile
+             was still full-width and the wave sat at a spatial frequency the
+             eye cannot resolve. That is fixed: the tile is now 12.5% and the
+             cycle is 12s, so the modulation is inside the band vision responds
+             to and amplitude finally does something. This is a raise on top of
+             a working frequency, not another attempt to solve frequency with
+             amplitude. */
+          opacity:.26;
           /* 12.5% of a 400% layer = HALF the hero width, so two cycles cross
              the frame instead of one. This is the change that matters and it
              is the one thing the brief ruled out.

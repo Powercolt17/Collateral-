@@ -68,50 +68,61 @@ export function renderHeader(currentRoute = '') {
                 left: 0;
                 right: 0;
                 z-index: 50;
-                height: 64px; /* Fixed constant height — ZERO layout shift on scroll */
+                /* Fixed constant height — ZERO layout shift on scroll. */
+                height: 64px;
             }
-            .ch-header::before {
-                content: "";
-                position: absolute;
-                inset: 0;
-                z-index: 0;
-                pointer-events: none;
-                backdrop-filter: blur(14px) saturate(116%);
-                -webkit-backdrop-filter: blur(14px) saturate(116%);
-                background: linear-gradient(to bottom,
-                    rgba(252, 250, 246, 0.50) 0%,
-                    rgba(252, 250, 246, 0.34) 58%,
-                    rgba(252, 250, 246, 0.10) 100%);
-                -webkit-mask-image: linear-gradient(to bottom,
-                    #000 0%, #000 64%, transparent 100%);
-                mask-image: linear-gradient(to bottom,
-                    #000 0%, #000 64%, transparent 100%);
-                transition: background 150ms ease;
+            /* 64 -> 92px, and 24 -> 56px of gutter, on desktop only. The
+               approved header gives the wordmark and the nav visibly more room
+               off the top edge than a 64px bar can: at its own width the mark's
+               optical centre sits near y=46, which is a 92px bar centred, and
+               the mark starts about 3.5% in rather than 24px.
+
+               Held to 1024 and up on purpose. The 64px height is load-bearing
+               on a phone — the mobile hero's eyebrow was measured clearing the
+               header by 22px, so a 92px bar would put it 6px UNDER. The target
+               is a desktop frame and this is a desktop change. */
+            @media (min-width: 1024px) {
+                .ch-header { height: 92px; }
+                /* Selector is .ch-header .ch-header-inner, not .ch-header-inner
+                   alone. The base padding rule is declared LATER in this same
+                   stylesheet, so at equal specificity it wins on source order
+                   and a bare selector here silently did nothing — measured 24px
+                   with the rule in place. Two classes beats one. */
+                .ch-header .ch-header-inner { padding: 0 64px; }
             }
+            /* NO BLUR, NO TINT, NO LAYER. The ::before that carried
+               backdrop-filter, a paper tint and a fade mask is gone entirely.
+               Over the hero the bar is simply transparent and the plate reads
+               through it at full sharpness, which is what the approved header
+               shows — the engraving behind the wordmark is crisp, not frosted.
+
+               This is safe here for a reason worth recording rather than
+               assuming: the senate plate's top band is clear paper. The first
+               inked pixel sits at y=97 of 1024, and at the header's own depth
+               the band measured 0% dark pixels. There is nothing behind the bar
+               to hide from, so there is nothing for a tint to do.
+
+               Legibility while scrolled is handled by .nav-scrolled below with a
+               solid fill, not by a blur. */
             /* Content rides above the blur layer. Without this the wordmark and
                the menu sit inside the blurred pane and get filtered with it. */
             .ch-header-inner { position: relative; z-index: 1; }
 
-            /* Scrolled over ordinary sections the tint comes up for legibility.
-               The blur and the fade are unchanged, so the bar never grows an
-               edge on the way. */
-            .ch-header.nav-scrolled::before {
-                background: linear-gradient(to bottom,
-                    rgba(252, 250, 246, 0.74) 0%,
-                    rgba(252, 250, 246, 0.60) 60%,
-                    rgba(252, 250, 246, 0.30) 100%);
+            /* Scrolled off the hero the bar takes a solid paper fill. Below the
+               hero it passes over the ledger, the fork and the rest, which are
+               real content rather than clear plate, and a transparent bar is
+               unreadable over them. Solid, not translucent — there is no blur
+               to soften what shows through any more, so a partial tint would
+               just be text over text. */
+            .ch-header.nav-scrolled {
+                background: var(--paper, #FFFDF9);
             }
 
             /* No backdrop-filter, no blur to hide behind — fall back to a solid
                bar rather than leaving dark artwork under dark type. */
-            @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-                .ch-header::before {
-                    background: linear-gradient(to bottom,
-                        rgba(252, 250, 246, 0.97) 0%,
-                        rgba(252, 250, 246, 0.90) 60%,
-                        rgba(252, 250, 246, 0.62) 100%);
-                }
-            }
+            /* The @supports fallback for missing backdrop-filter went with the
+               blur it was covering for. Nothing here uses backdrop-filter now,
+               so there is no capability left to branch on. */
 
             /* Full-Bleed Viewport Layout: Wordmark and Menu sit flush to edge gutters */
             .ch-header-inner {
