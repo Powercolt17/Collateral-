@@ -89,7 +89,7 @@
 // direction here, because the sides are where the clear type zone and the
 // deliberate right-edge bleed live. The bottom of the pedestal is already cut
 // off in the source, so trimming a little more of it costs nothing.
-const PLATE_W = 2662;
+const PLATE_W = 1767;
 const PLATE_H = 1024;
 // The 1536x1024 original is still shipped and still used, by the narrow-aspect
 // fallback below 3/2 where the wide canvas would read as a strip.
@@ -114,7 +114,7 @@ function escapeHtml(value) {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-senate-wide.jpg',
+        plateSrc = '/assets/images/collateral-senate-frame.jpg',
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
@@ -207,7 +207,19 @@ export function renderCollateralHero(options = {}) {
              not directly comparable line for line.
              The headline is --ink-warm, not --ox; the oxblood is button-only.
              Grading it any brighter starts clipping the paper. */
-          --plate-grade:saturate(.62) contrast(.92) brightness(1.09);
+          /* GOLD RESTORED. saturate(.62) was pulling 38% of the chroma out of an
+             engraving whose whole character is warm gold, and brightness(1.09)
+             then washed what survived toward grey-cream — the plate arrived on
+             screen paler and flatter than the artwork actually is. The two
+             compounded: desaturating first and lifting second is the exact
+             recipe for chalk.
+
+             1.12 puts the gold slightly ABOVE the file's own saturation rather
+             than merely back at it, contrast 1.02 returns the bite that .92 had
+             taken off the engraved line, and brightness comes off entirely
+             because the artwork does not need lifting — it needed leaving
+             alone. Re-measured after the change, not assumed. */
+          --plate-grade:saturate(1.12) contrast(1.02) brightness(1);
           background:var(--paper); color:var(--ink);
           font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
           -webkit-font-smoothing:antialiased;
@@ -1141,6 +1153,25 @@ export function renderCollateralHero(options = {}) {
 
            min-width guards the mobile block below, which owns everything at
            820px and narrower and must not be caught by this. */
+        /* ULTRAWIDE GUARD.
+           The frame plate is 1.726, so on anything wider cover scales by WIDTH
+           — which is the point, it is what holds the artwork's size — and the
+           surplus is vertical. That is affordable up to a point: the content
+           that matters runs from the heads at y=97 to the pedestal's face at
+           about y=820, and the crop only starts eating it once
+           boxW/1767 > boxH/820, i.e. beyond A = 2.155. At 3440x1080 the table
+           and the seal would be gone entirely.
+
+           So past 2.2 the 2.6 canvas takes over, where the scale goes back to
+           height-based and nothing is cropped. The artwork reads smaller there,
+           which is the trade — on a 3440 display there is no framing that keeps
+           it both large and whole. */
+        @media (min-width:821px) and (min-aspect-ratio:11/5){
+          .clt-hero::before{
+            background-image:url(/assets/images/collateral-senate-wide.jpg);
+          }
+        }
+
         @media (min-width:821px) and (max-aspect-ratio:3/2){
           .clt-hero::before{
             background-image:url(${PLATE_NARROW});
