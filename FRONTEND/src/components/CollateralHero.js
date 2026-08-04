@@ -27,14 +27,19 @@
  * units keep the headline inside it at every viewport width. Converting them to
  * rem, px or utility classes drops the headline onto the temple.
  *
- * The hero's aspect-ratio comes from PLATE_W/PLATE_H; the mobile media query
- * overrides it with !important. Both are required.
+ * PLATE_W/PLATE_H describe the artwork and are reported on data-plate. The hero
+ * box itself is height:100vh and is NOT aspect-locked — an older revision locked
+ * it and the note about that lock survived the change for a while. Any statement
+ * that the hero's aspect comes from these constants is out of date.
  *
- * Never add backdrop-filter to anything layered over the hero. The aspect-locked
- * hero breaks the backdrop root, so it renders a partial pane — a visible box
- * with a hard edge. Use a gradient scrim. (The --plate-grade filter on
- * .clt-hero::before is a plain filter on an element that owns its own
- * background, so it is not subject to this and is not an exception to it.)
+ * backdrop-filter over the hero: the old rule here was "never", because a blur
+ * layer rendered a partial pane with a hard visible edge. The edge was the real
+ * problem, not the blur. .ch-header now blurs over this hero successfully by
+ * fading its own layer out with a mask, so it has no edge to show — see
+ * Header.js. Anything layered over the hero that blurs must do the same; a
+ * square-edged blur layer will still draw that seam. (The --plate-grade filter
+ * on .clt-hero::before is a plain filter on an element that owns its own
+ * background, and was never subject to this.)
  *
  * The plate paints on .clt-hero::before, NOT on .clt-hero, and the section's
  * inline style hands over --clt-plate rather than background-image. That split
@@ -50,40 +55,42 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-// Desktop plate: 2018x961 JPEG, 514KB. Mobile: 918x1650 JPEG, 401KB.
+// Desktop plate: collateral-senate.jpg, 1536x1024 JPEG, 381KB.
+// Mobile crop:   collateral-senate-mobile.jpg, 1066x1024 JPEG, 335KB.
 //
-// WHY THE DESKTOP PLATE IS WIDER THAN THE ARTWORK AS DRAWN. The supplied sepia
-// engraving is 1632x901, ratio 1.811, against hero frames that run 2.04 to 2.22.
-// cover therefore threw away 96-192px of HEIGHT on every desktop window, and
-// that loss lands on the bottom of the picture, where the table, the coins, the
-// scroll and the seal are — the transaction the whole image is about. Anchoring
-// could not fix it: anchor trades table against headline clearance one for one,
-// and anything past 45% put the CTA into the artwork.
+// SUPERSEDED, kept because the lesson still binds: an earlier plate was widened
+// to 2018x961 by mirror-tiling its outer 70px, because the artwork as drawn was
+// 1.811 against hero frames running 2.04-2.22 and cover was eating the bottom of
+// the picture — the table, coins, scroll and seal, which is the transaction the
+// image is about. That canvas is gone. The senate plate is used as drawn, with
+// no synthesised margin anywhere, so there is no bilateral symmetry to spot at
+// the lower left and nothing to regenerate.
 //
-// So the canvas was extended rather than the crop rationed: +60px of sky on top
-// and +193px per side, giving 2018x961 at ratio 2.100. At that ratio cover
-// crops horizontally instead of vertically on most desktop windows, so the full
-// depth of the picture survives.
+// The mobile crop is still built from the DESKTOP artwork rather than a portrait
+// render, for the reason that has held through three plates: a portrait render
+// puts the scene between 28% and 100% of its height, so the scene alone comes
+// out ~1365px tall on a 390 phone and no crop shortens it without cutting
+// figures. Cropping the desktop artwork on the LEFT only — x 470 of 1536, full
+// height — keeps the whole group, keeps the artwork's own ground, and lands at
+// 1.041 so it renders 375px tall on a 390 phone. That leaves 469px of paper
+// above it for a lockup that measures ~340px.
 //
-// The side margins are MIRROR-TILED from the outermost 70px of the original,
-// which is pure cypress and oak. The slice has to stay that narrow: a first
-// attempt mirrored 193px wholesale and reproduced the Nike statue and a fragment
-// of the temple, which was unusable. The top strip is a vertical mirror of the
-// band below it and is invisible because that band is flat sky.
+// SENATE PLATE, 1536x1024 (3:2). Replaces the 1917x866 crop.
 //
-// This is a stopgap. The mirrored margins read as foliage but carry visible
-// bilateral symmetry on close inspection at the lower left. A regenerated plate
-// drawn at 2.1 natively would be cleaner; nothing else about the layout would
-// need to change, only PLATE_W/PLATE_H and the file.
+// The composition is the same shape as the one it replaces and the layout did
+// not have to move: figures massed on the right, empty paper on the left. Ink
+// starts at 33.3% of the width against 30.5% before, measured the same way, so
+// the type channel got slightly WIDER rather than narrower.
 //
-// The mobile crop is built from the DESKTOP artwork, not from a portrait
-// render. A portrait render put the scene between 28% and 100% of its height,
-// so the scene alone was ~1365px tall on a 390 phone and no crop could shorten
-// it without cutting figures. The desktop scene is wide and short, so it drops
-// into the bottom third of a shorter canvas and leaves the top clear. Hero on a
-// 390 phone goes 822px -> 650px, inside one screen instead of overflowing it.
-const PLATE_W = 1917;
-const PLATE_H = 866;
+// What did change is the aspect: 1.5 against 2.214, so the plate is much taller
+// relative to its width. The hero is height:100vh with background-size:cover
+// and is not aspect-locked, so on any desktop wider than 3:2 the surplus is
+// discarded top and bottom rather than off the sides — which is the good
+// direction here, because the sides are where the clear type zone and the
+// deliberate right-edge bleed live. The bottom of the pedestal is already cut
+// off in the source, so trimming a little more of it costs nothing.
+const PLATE_W = 1536;
+const PLATE_H = 1024;
 
 function escapeHtml(value) {
     return String(value)
@@ -104,7 +111,7 @@ function escapeHtml(value) {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-crop5.jpg',
+        plateSrc = '/assets/images/collateral-senate.jpg',
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
@@ -302,7 +309,8 @@ export function renderCollateralHero(options = {}) {
              The plate is no longer a landscape with a hole of sky in the
              middle — it is a close crop with the figures massed on the RIGHT
              and empty paper on the LEFT, which is where the type now lives.
-             Ink starts at 30.5% of the plate width, measured.
+             Ink starts at 33.3% of the plate width, measured (30.5% on the
+             plate this replaced, so the type channel widened slightly).
 
              Anchoring left puts every pixel cover discards on the RIGHT edge,
              where the magistrate already bleeds off by design, so the clear
@@ -334,7 +342,7 @@ export function renderCollateralHero(options = {}) {
 
              transform-origin is LEFT CENTER and that is not cosmetic. The
              background is anchored background-position:left center for the
-             reasons recorded above — ink starts at 30.5% and every pixel cover
+             reasons recorded above — ink starts at 33.3% and every pixel cover
              discards has to fall on the right. Scaling from the default centre
              would slide the composition horizontally during the settle and walk
              the artwork across the type channel on the way. */
@@ -690,7 +698,20 @@ export function renderCollateralHero(options = {}) {
           display:flex;flex-direction:column;justify-content:center;
           align-items:flex-start;text-align:left;
           padding:0 0 0 5cqw;
-          max-width:40cqw;
+          /* 36cqw, down from 40. The senate plate's clear channel is not a
+             straight edge — the pedestal widens as it descends, so the first
+             inked pixel moves LEFT down the lockup: measured at 1440x900 it sits
+             at x=598 on the eyebrow's row, 552 by the headline's last line and
+             504 by the button's. 40cqw put the column's right edge at 570 and
+             ran the secondary link 40px into the pedestal at 18.3% ink coverage,
+             with the headline's last line clipping it by 14px.
+
+             36cqw ends the column at 513, which clears the tightest row the
+             lockup actually occupies. It is not the plate's global minimum
+             (33.3cqw, set by the pedestal's foot) because the lockup never
+             reaches that far down; capping there would have cost the headline
+             another 43px of measure for clearance it does not need. */
+          max-width:36cqw;
         }
         /* Roman caps, not mono. The mono eyebrow belonged to the terminal
            register the hero used to run in; against a serif headline it read
@@ -1042,9 +1063,9 @@ export function renderCollateralHero(options = {}) {
              would already win. Kept because the inline-style form is the
              obvious thing to revert to. */
           .clt-hero::before{
-            background-image:url(/assets/images/collateral-group2.jpg) !important;
+            background-image:url(/assets/images/collateral-senate-mobile.jpg) !important;
             /* 100% auto, NOT cover and NOT 100% 100%. The crop keeps its own
-               1.324 ratio, so it is never stretched and never cropped — the
+               1.041 ratio, so it is never stretched and never cropped — the
                full group is always visible, at every phone width. */
             background-size:100% auto;
             background-position:center bottom;
@@ -1053,7 +1074,13 @@ export function renderCollateralHero(options = {}) {
                identically and the panel above the figures cannot drift to a
                different tone than the figures' own ground. That match is the
                only thing standing in for the sky that used to be painted in. */
-            background-color:#F0D6AF;
+            /* Sampled from the senate plate's own clear top-left corner, mean of
+               a 292x112 block: rgb(238,214,175). The previous artwork's paper
+               was #F0D6AF, two points off on red — near enough that the join was
+               invisible either way, but this is the measured value for the plate
+               actually on screen, so the panel and the artwork's ground are the
+               same colour by derivation rather than by luck. */
+            background-color:#EED6AF;
           }
           /* 96 -> 76px top padding. The extra sky in the portrait plate does
              most of the work, but the mobile lockup is fixed px while the hero
