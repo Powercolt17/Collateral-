@@ -1673,38 +1673,7 @@ footer .logo-wordmark-light,
   padding-block: var(--section-y);
 }
 
-.argue {
-  display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: 72px;
-  align-items: start;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-@media(max-width:900px){
-  .argue {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
-}
-
-.argue-note {
-  margin: 28px 0 0;
-  padding-top: 16px;
-  border-top: 1px solid var(--rule-strong);
-  max-width: 46ch;
-}
-
-.argue-note p {
-  margin: 6px 0 0;
-  font-family: var(--mono);
-  font-size: 11.5px;
-  line-height: 1.85;
-  color: var(--ink-2);
-}
-
-.cmp-caption, .reg-caption {
+.reg-caption {
   font-family: var(--mono);
   font-size: 10.5px;
   letter-spacing: .16em;
@@ -1714,45 +1683,6 @@ footer .logo-wordmark-light,
   display: block;
 }
 
-.cmp { width: 100%; border-collapse: collapse; margin-top: 0; }
-
-.cmp th {
-  text-align: left;
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--ink);
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-}
-
-.cmp th:first-child { width: 58px; color: var(--ink-4); }
-
-.cmp td {
-  padding: 14px 20px;
-  border-bottom: 1px dotted var(--rule);
-  font-size: 15px;
-  color: var(--ink-2);
-}
-
-.cmp td:first-child { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; color: var(--ink-4); }
-
-.void {
-  color: var(--ink-3);
-  text-decoration: line-through;
-  text-decoration-color: var(--blood-mid);
-  text-decoration-thickness: 1px;
-}
-
-.cmp tr:last-child td { border-bottom: 0; font-weight: 600; color: var(--ink); padding-block: 18px; }
-.cmp tr:last-child .void { font-weight: 400; color: var(--ink-3); }
-.cmp tr:last-child .won-txt {
-  font-weight: 700;
-  font-size: 16.5px;
-  color: var(--win) !important;
-  letter-spacing: -.01em;
-}
 
 /* ═══════════ ORACLE REGISTER ═══════════ */
 .oracles-head {
