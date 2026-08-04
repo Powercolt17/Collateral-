@@ -1129,7 +1129,136 @@ export function renderHeader(currentRoute = '') {
         }
 
         /* ---------- primary action ---------- */
-        .pnl-drawer .pnl-connect-btn { position: relative; }
+        /* ---------- TYPE: SERIF, NOT THE TERMINAL MONO ---------- */
+        /* This is the change that makes it read as the supplied component. The
+           drawer inherited the mono stack the rest of the panel UI uses, and
+           mono was the single loudest tell that the old aesthetic was still in
+           place — every other fix is invisible next to it.
+
+           Cormorant Garamond for the nav and figures, EB Garamond for labels
+           and body, both added to the EXISTING Google Fonts link in index.html
+           rather than a second request or a runtime injection. Georgia falls
+           behind them, so a failed load degrades to a serif and never back to
+           fixed-width. */
+        .pnl-drawer, .pnl-drawer .pnl-body, .pnl-drawer .pnl-legal {
+            font-family: "EB Garamond", Georgia, "Times New Roman", serif;
+            color: #211B12;
+        }
+        .pnl-drawer .pnl-nav-link,
+        .pnl-drawer .pnl-header-title,
+        .pnl-drawer .pnl-meta-value,
+        .pnl-drawer .pnl-connect-btn,
+        .pnl-drawer .pnl-cta-primary {
+            font-family: "Cormorant Garamond", Georgia, serif !important;
+            font-synthesis: none;
+        }
+        .pnl-drawer .pnl-nav-link {
+            font-size: 17px !important;
+            font-weight: 600;
+            letter-spacing: .14em;
+            transition: color 250ms cubic-bezier(.22,1,.36,1),
+                        letter-spacing 300ms cubic-bezier(.22,1,.36,1);
+        }
+        .pnl-drawer .pnl-nav-link:hover { letter-spacing: .18em; }
+        .pnl-drawer .pnl-section-label,
+        .pnl-drawer .pnl-meta-label,
+        .pnl-drawer .pnl-status-text {
+            font-family: "EB Garamond", Georgia, serif !important;
+            letter-spacing: .30em;
+        }
+        .pnl-drawer .pnl-subnav-link {
+            font-family: "EB Garamond", Georgia, serif !important;
+            font-size: 15px !important;
+            letter-spacing: .06em;
+            text-transform: none !important;
+            display: flex; align-items: center; gap: 10px;
+        }
+        /* Rotated square bullet, as in the supplied sub-nav. */
+        .pnl-drawer .pnl-subnav-link::before {
+            content: "";
+            width: 5px; height: 5px;
+            border: 1px solid var(--blood, #7A1C29);
+            transform: rotate(45deg);
+            opacity: .55;
+            flex: 0 0 auto;
+            transition: opacity 200ms cubic-bezier(.22,1,.36,1);
+        }
+        .pnl-drawer .pnl-subnav-link:hover::before { opacity: 1; }
+
+        /* ---------- ACTIVE: LEFT MARKER, NO FILL ---------- */
+        /* The old active state was a tinted fill plus a rule down the RIGHT
+           edge. The supplied design marks the left edge and leaves the row
+           clear, so the fill and the right rule are both removed — they were
+           set with !important, so these have to be too. */
+        .pnl-drawer .pnl-nav-link.active,
+        .pnl-drawer .pnl-acct-link.active {
+            background: transparent !important;
+            border-right: none !important;
+            border-left: none !important;
+        }
+        @media (hover: hover) {
+            .pnl-drawer .pnl-nav-link:hover,
+            .pnl-drawer .pnl-acct-link:hover { background: transparent; }
+        }
+
+        /* ---------- ACTIONS: OXBLOOD PRIMARY, GHOST SIGN IN ---------- */
+        .pnl-drawer .pnl-cta-primary {
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            width: 100%; min-height: 52px;
+            background: var(--blood, #7A1C29);
+            color: #EFE5CE;
+            border: 1px solid #651522;
+            border-radius: 2px;
+            font-size: 12px; font-weight: 600;
+            letter-spacing: .28em; text-transform: uppercase;
+            cursor: pointer; text-decoration: none;
+            transition: background 300ms cubic-bezier(.22,1,.36,1),
+                        transform 300ms cubic-bezier(.22,1,.36,1),
+                        box-shadow 300ms cubic-bezier(.22,1,.36,1);
+        }
+        .pnl-drawer .pnl-cta-primary:hover {
+            background: #651522; transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgba(101,21,34,.28);
+        }
+        /* #btn-auth-mobile KEEPS its id and its onclick — only its skin changes,
+           from the black block to the ghost. Restyling rather than replacing is
+           what keeps updateMobileAuthUI working. */
+        .pnl-drawer .pnl-connect-btn {
+            position: relative;
+            background: transparent !important;
+            color: #211B12 !important;
+            border: 1px solid rgba(60,48,30,.28) !important;
+            min-height: 52px;
+            font-size: 12px !important;
+            letter-spacing: .28em !important;
+            font-weight: 600 !important;
+            transition: border-color 300ms cubic-bezier(.22,1,.36,1),
+                        transform 300ms cubic-bezier(.22,1,.36,1);
+        }
+        .pnl-drawer .pnl-connect-btn:hover {
+            background: transparent !important;
+            border-color: #211B12 !important;
+            transform: translateY(-1px);
+        }
+
+        /* ---------- FOOTER ---------- */
+        .pnl-drawer .pnl-status-dot {
+            width: 8px; height: 8px;
+            box-shadow: 0 0 0 0 rgba(95,125,79,.35);
+            animation: pnl-pulse 2.4s ease-out infinite;
+        }
+        @keyframes pnl-pulse {
+            0%   { box-shadow: 0 0 0 0 rgba(95,125,79,.35); }
+            70%  { box-shadow: 0 0 0 7px rgba(95,125,79,0); }
+            100% { box-shadow: 0 0 0 0 rgba(95,125,79,0); }
+        }
+        .pnl-drawer .pnl-meta-value {
+            font-size: 17px; font-weight: 600; letter-spacing: .03em;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .pnl-drawer .pnl-status-dot { animation: none; }
+        }
+
         .pnl-drawer .pnl-connect-btn .pnl-arrow {
             display: inline-block;
             transition: transform 300ms cubic-bezier(.22,1,.36,1);
@@ -1368,8 +1497,18 @@ export function renderHeader(currentRoute = '') {
 
                         <!-- Sign In Row -->
                         <div id="mobile-connect-section" class="pnl-connect-section">
+                            <!-- Oxblood primary above the ghost, per the supplied
+                                 design. GET STARTED opens the signup modal, the
+                                 same action the header's own GET STARTED uses, so
+                                 the two agree. #btn-auth-mobile below is
+                                 UNCHANGED in id and handler — updateMobileAuthUI
+                                 still finds it — and only its skin moved from the
+                                 black block to the outline. -->
+                            <button onclick="window.app.closeMobileMenu(); window.app.openAccessModal('signup')" id="btn-get-started-mobile" class="pnl-cta-primary">
+                                Get Started <span class="pnl-arrow" aria-hidden="true">&rarr;</span>
+                            </button>
                             <button onclick="window.app.closeMobileMenu(); window.app.handleAuthClick()" id="btn-auth-mobile" class="pnl-connect-btn">
-                                SIGN IN
+                                Sign In
                             </button>
                         </div>
                     </nav>
@@ -1389,10 +1528,8 @@ export function renderHeader(currentRoute = '') {
                 </div>
 
                 <div id="pnl-footer-meta" class="pnl-meta collapsed">
-                    <div class="pnl-meta-item">
-                        <span class="pnl-meta-label">Protocol</span>
-                        <span class="pnl-meta-value">v1.0</span>
-                    </div>
+                    <!-- The Protocol v1.0 row is removed: the supplied footer is
+                         Network / Settlement / Uptime and nothing else. -->
                     <div class="pnl-meta-item">
                         <span class="pnl-meta-label">Network</span>
                         <span class="pnl-meta-value">Mainnet</span>
