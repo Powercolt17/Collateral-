@@ -712,19 +712,51 @@ export async function initLedgerSection() {
        the grid restacks, so a constant would be wrong on one of the two. */
     const applyMetrics = () => {
         const firstRow = body.querySelector('.lg-row');
-        if (!firstRow) return;
+        if (!firstRow) return false;
         const rowH = firstRow.getBoundingClientRect().height;
         const copyH = track.scrollHeight / 2;
         /* Bail on a degenerate layout rather than committing it. Measured once
            at init, a zero-width container — a hidden tab, a display:none
            ancestor, a not-yet-visible route — laid the rows out at 220px instead
            of 81 and baked a 1319px viewport in permanently. */
-        if (rowH <= 0 || copyH <= 0 || !body.clientWidth) return;
+        if (rowH <= 0 || copyH <= 0 || !body.clientWidth) return false;
         body.style.height = Math.round(rowH * visible) + 'px';
         track.style.animationDuration = (copyH / LG_SCROLL_PX_PER_SEC).toFixed(2) + 's';
+        return true;
     };
 
-    applyMetrics();
+    /* IT NOW REPORTS WHETHER IT SUCCEEDED, AND RETRIES UNTIL IT DOES.
+       The bail above is correct and stays, but bailing silently was leaving the
+       register permanently still: measured on the live page, height was never
+       set and animation-duration sat at the initial 0s, so the track was
+       animating across no time at all.
+
+       The section sits far below the fold. At init its subtree is not laid out,
+       so clientWidth reads 0 and the guard fires — correctly. What did not
+       happen is the recovery: the ResizeObserver below watches the track, and a
+       subtree whose layout is being skipped does not report a size change, so
+       nothing ever asked again.
+
+       Two independent recoveries, because the failure was silent once already:
+       an IntersectionObserver that fires when the section approaches the
+       viewport, and a bounded rAF poll for any path that misses. Both stop the
+       moment a measurement sticks; neither can spin forever. */
+    if (!applyMetrics()) {
+        let settled = false;
+        const done = () => { settled = true; };
+        if (window.IntersectionObserver) {
+            const io = new IntersectionObserver((entries) => {
+                if (entries.some((e) => e.isIntersecting) && applyMetrics()) { done(); io.disconnect(); }
+            }, { rootMargin: '600px' });
+            io.observe(body);
+        }
+        let tries = 0;
+        const tick = () => {
+            if (settled || applyMetrics() || ++tries > 90) return;
+            requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+    }
     body.classList.add('lg-scrolling');
 
     /* Re-measure on anything that reflows the rows: the 880px restack, an
