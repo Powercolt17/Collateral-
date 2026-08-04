@@ -169,8 +169,9 @@ function renderRow(entry) {
         ? `<span class="lg-ava">${escapeHtml(initials)}</span>`
           + `<span class="lg-src-meta"><span class="lg-h">${escapeHtml(entry.party)}</span>`
           + `<span class="lg-o">${escapeHtml(entry.oracle)}</span></span>`
-        : `<span class="lg-ava lg-ava-none" aria-hidden="true"></span>`
-          + `<span class="lg-src-meta"><span class="lg-o">${escapeHtml(entry.oracle)}</span></span>`;
+        : `<span class="lg-ava lg-ava-src" aria-hidden="true">${escapeHtml((entry.oracle || '?').charAt(0).toUpperCase())}</span>`
+          + `<span class="lg-src-meta"><span class="lg-h lg-h-open">Open</span>`
+          + `<span class="lg-o">${escapeHtml(entry.oracle)}</span></span>`;
 
     /* Sequential register number. A ledger numbers its entries in order; the
        sliced UUID that used to sit here read as random. seq is assigned over the
@@ -303,12 +304,36 @@ export function renderLedgerSection(options = {}) {
           background:rgba(124,29,43,.10);border:1px solid rgba(124,29,43,.25);
           display:flex;align-items:center;justify-content:center;
           font-family:var(--lg-mono);font-size:10px;color:var(--lg-ox);font-weight:500}
-        /* A row whose party is not a named principal gets the SPACE but not the
-           mark. The register is mostly unclaimed contracts, and drawing a
-           lettered token for them would put an identity on the page that the
-           API never returned. Invisible, so the oracle still lines up with the
-           handles above and below it. */
-        .lg-ava-none{background:none;border:0}
+        /* A row with no named principal is MOST of the register, and leaving its
+           cell as a single faint line was the reason the table read as stretched
+           and half-empty next to the design — one column of the six was carrying
+           almost nothing while the others were full.
+
+           It is filled with what is actually true rather than with an invented
+           handle: the party line reads Open, because that is the contract's real
+           state and the literal value the API returns, and the token carries the
+           ORACLE's initial, not a person's. The outlined treatment is the tell —
+           a filled token is a party, a hairline token is a source. Nobody's
+           identity is implied by either.
+
+           Do not restyle .lg-ava-src to match .lg-ava. The difference between
+           them is the difference between a contract someone has staked and one
+           nobody has claimed yet. */
+        .lg-ava-src{
+          background:none;border:1px solid rgba(60,48,30,.22);
+          color:var(--lg-muted);font-size:9px;
+        }
+        .lg-h-open{color:var(--lg-muted);letter-spacing:.14em;
+          text-transform:uppercase;font-size:11px}
+
+        /* The site sets a 1.62 line-height globally and it lands on these cells,
+           which is not what the design was drawn against — it inflated the goal
+           cell from 23px to 31px and every row with it, about 11px per row over
+           98 rows. Pinned here rather than fought elsewhere. */
+        .lg-goal{line-height:1.2}
+        .lg-target{line-height:1.45}
+        .lg-amt{line-height:1}
+        .lg-h,.lg-o{line-height:1.3}
         .lg-src-meta{display:flex;flex-direction:column;gap:2px;min-width:0}
         .lg-h{font-family:var(--lg-mono);font-size:13px;color:var(--lg-ink-soft);
           letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
