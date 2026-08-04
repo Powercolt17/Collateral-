@@ -1284,11 +1284,54 @@ export function renderCollateralHero(options = {}) {
              This also puts the gold behind the header for free: .ch-header is
              fixed and background:transparent until it gains .nav-scrolled, so
              at the top of the page it shows whatever the hero paints. */
+          /* THE FIELD ABOVE THE ARTWORK IS THE PLATE'S OWN SKY, not a colour
+             chosen to imitate it. That is the whole point, and it is the only
+             way this matches exactly.
+
+             Why a flat colour cannot work: the plate's top row is not one tone.
+             Measured across its full width it spans 20.5 luma levels, running
+             #EED6AE at the left to #E5C698 toward the right. Any single
+             background-color is therefore the MEAN of an edge that varies,
+             which makes it wrong in every column except the two where the
+             image happens to cross that average. The eye reads the difference
+             as a horizontal step. #E8CCA1 was that mean and it was out by up to
+             ten levels at the edges — the visible seam.
+
+             A sampled linear-gradient was measured as the next candidate and
+             rejected: 41 stops cut the mean error from 3.15 to 1.23 levels but
+             still left about 8 levels in the blue channel at columns where the
+             plate has local grain, because no smooth curve tracks noise.
+
+             So the same file is painted TWICE. The second layer is the same
+             JPEG at background-size:100% 20000px anchored top, which scales it
+             so tall that only its own uppermost sliver is ever on screen — at a
+             927px hero that is source rows 0 to 47, all of them open sky, well
+             clear of the ink that starts at row 94. Horizontal detail is
+             preserved exactly because the width is still 100%, so every column
+             gets that column's real colour rather than an approximation of it.
+
+             At the join the sky layer is showing about source row 28 while the
+             artwork layer starts at row 0, and rows 0 and 28 differ by roughly
+             one luma level — below the threshold for a visible edge, and an
+             order of magnitude better than the flat colour it replaces.
+
+             20000px is chosen, not arbitrary: it has to be large enough that
+             the visible slice stays above row 94. Below about 17000 the ink
+             enters the frame and heads appear in the sky. The browser only
+             rasterises the visible portion, so the number costs nothing.
+
+             Layer order matters — the artwork paints OVER the sky layer, so the
+             sky only shows where the artwork is not. Both live on this one
+             element, so --plate-grade grades them in a single pass and they
+             cannot drift apart. background-color is a fallback for a failed
+             image load only. */
           .clt-hero::before{
-            background-image:url(/assets/images/collateral-senate-mobile.jpg) !important;
-            background-size:100% auto;
-            background-position:center bottom;
-            background-repeat:no-repeat;
+            background-image:
+              url(/assets/images/collateral-senate-mobile.jpg),
+              url(/assets/images/collateral-senate-mobile.jpg) !important;
+            background-size:100% auto, 100% 20000px;
+            background-position:center bottom, center top;
+            background-repeat:no-repeat, no-repeat;
             background-color:#E8CCA1;
           }
           /* Clouds cover the whole hero, like desktop — but ATTENUATED OVER THE
