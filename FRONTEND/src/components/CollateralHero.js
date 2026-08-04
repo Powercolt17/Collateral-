@@ -1311,12 +1311,8 @@ export function renderCollateralHero(options = {}) {
              critical — what matters is that it is complete before the figures
              start and well clear of the metrics. */
           .clt-sky{
-            -webkit-mask-image:linear-gradient(to bottom,
-              rgba(0,0,0,.5) 0%, rgba(0,0,0,.5) 45%,
-              rgba(0,0,0,1) 65%, rgba(0,0,0,1) 100%);
-            mask-image:linear-gradient(to bottom,
-              rgba(0,0,0,.5) 0%, rgba(0,0,0,.5) 45%,
-              rgba(0,0,0,1) 65%, rgba(0,0,0,1) 100%);
+            -webkit-mask-image:none;
+            mask-image:none;
           }
           /* position:relative, not static — z-index only applies to positioned
              elements and the lockup has to stay above the sky layer.
@@ -1366,7 +1362,14 @@ export function renderCollateralHero(options = {}) {
             line-height:1.1 !important;
             letter-spacing:-.012em !important;
           }
-          .clt-sub{margin-top:16px;font-size:16px;line-height:1.55;max-width:36ch}
+          /* #4A4035 -> #383028, forced by the clouds now running full strength
+             across the type. The cloud darkens by up to its whole .26 opacity,
+             which takes the old colour on the graded gold from 6.66:1 down to
+             3.64:1 — under the 4.5:1 AA floor for body text. #383028 measures
+             4.67:1 at the worst point of the cycle and is still clearly lighter
+             than the #2B2118 headline, so the hierarchy survives.
+             If the mask ever comes back, this can go back with it. */
+          .clt-sub{margin-top:16px;font-size:16px;line-height:1.55;max-width:36ch;color:#383028}
           .clt-cta{margin-top:26px;gap:16px;flex-direction:column;align-items:stretch}
           /* Full-width button. min-height is the 44px touch target; the padding
              alone came to 43. The offset drop-shadow the old rule added is
@@ -1381,10 +1384,24 @@ export function renderCollateralHero(options = {}) {
           .clt-link{align-self:flex-start;font-size:11px;padding-bottom:6px}
           /* Metrics sit side by side with a rule between them. They are the
              last thing before the artwork, so this doubles as the seam. */
+          /* The label alpha goes .52 -> .88. This one was NOT caused by the
+             clouds — it was already failing. rgba(43,33,24,.52) measured
+             3.22:1 on the old cool paper and 2.96:1 on the gold, both under
+             the AA floor, and full-strength cloud would have taken it to
+             2.39:1. .88 measures 4.67:1 at the worst point.
+
+             It reads darker than a caption "wants" to, and that is the honest
+             cost of a 9px letterspaced label on a mid-tone ground. The colour
+             is the only free variable here — the size and tracking are doing
+             the work of making it a label, and shrinking the contrast further
+             to keep it feeling secondary would just make it decorative text
+             nobody can read. The same declaration on desktop is still at .52
+             and still fails; that is a separate fix. */
           .clt-proof{
             margin-top:30px;padding-top:20px;gap:0;
             font-size:9px;letter-spacing:.15em;
             flex-wrap:nowrap;align-items:stretch;
+            color:rgba(43,33,24,.88);
           }
           .clt-proof span{flex:1 1 0;min-width:0}
           .clt-proof span + span{
