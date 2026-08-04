@@ -327,8 +327,33 @@ export function renderCollateralHero(options = {}) {
              the crop and take 130px off the left at 1351 wide, cutting the
              usable type width from 491px to 361px — a 27% loss of the only
              space the headline has. */
-          background-position:left center;
-          background-size:cover;
+          /* CONTAIN AND ANCHOR BOTTOM-RIGHT, not cover-and-left.
+             cover was cropping the plate's top off on every desktop window —
+             at 1920x950 it discarded 317px of height, which lifted the figures
+             until their heads touched the top edge and left no paper above
+             them. That is the single biggest difference from the approved
+             frame, and it had a second cost: the header's blur then had heads
+             directly under it and smeared them into grey blobs, instead of
+             sitting over clear paper.
+
+             contain shows the whole plate. The surplus box width appears on the
+             LEFT, which is exactly where the type lives, so the clear channel
+             gets wider rather than narrower — the artwork's own empty third
+             plus the page paper beside it, reading as one continuous surface.
+
+             right bottom, so the surplus falls top-left. That matches the
+             artwork's own composition, which is already paper at the top left,
+             and it keeps the pedestal seated on the bottom edge instead of
+             floating on a band.
+
+             The fill BELONGS ON THIS ELEMENT, under the image, so
+             --plate-grade treats the paper and the artwork identically. Put it
+             on .clt-hero instead and the ungraded fill meets the graded plate
+             at a visible vertical seam down the middle of the hero. Same value
+             and same reasoning as the mobile panel. */
+          background-position:right bottom;
+          background-size:contain;
+          background-color:#EED6AF;
           background-repeat:no-repeat;
           filter:var(--plate-grade);
 
@@ -733,6 +758,13 @@ export function renderCollateralHero(options = {}) {
           color:var(--ink-warm);
         }
         .clt-eyebrow::before,.clt-eyebrow::after{content:"";width:calc(1.8 * var(--u));height:1px;background:rgba(43,33,24,.45)}
+        /* One rule, trailing. The approved frame brackets the eyebrow on the
+           right only; a rule on the left as well pushed the label off the
+           column's left edge, so it no longer aligned with the headline, the
+           subhead, the button and the stats — every other element in the
+           lockup starts at the same x. Mobile already suppressed this one for
+           the same reason. */
+        .clt-eyebrow::before{display:none}
 
         /* Subhead. Newsreader because it needs LOWERCASE and Trajan has none —
            setting this in the display face would force it to caps and turn a
@@ -741,7 +773,10 @@ export function renderCollateralHero(options = {}) {
           font-family:var(--text-serif);
           margin-top:calc(1.55 * var(--u));
           font-size:clamp(14px,calc(1.02 * var(--u)),21px);
-          line-height:1.5;color:#4A4035;max-width:30ch;
+          /* 30ch -> 42ch. The replacement sentence is 88 characters against the
+             old 62, and at 30ch it broke into four short lines that read as a
+             list. 42ch sets it as two, matching the approved frame. */
+          line-height:1.5;color:#4A4035;max-width:42ch;
         }
         .clt-hero h1{
           /* 1.05 -> 1.70 var(--u), about +10px at desktop. Part of the
@@ -780,10 +815,25 @@ export function renderCollateralHero(options = {}) {
              36.5cqw inside a 37cqw column. Anything above 4.55 overflows into
              the operator at 1905, where the clear zone is proportionally
              narrowest. */
-          font-family:var(--roman);font-weight:400;font-synthesis:none;
-          font-size:3.95cqw;line-height:1.02;letter-spacing:.02em;
+          /* SENTENCE CASE IN THE TEXT SERIF, NOT TRAJAN CAPS.
+             The approved frame sets the headline as a sentence — "Put money on
+             your own deadline" — and Trajan cannot render it: the face is
+             caps-only, so text-transform:uppercase was not a style choice here
+             but a consequence of the family. Dropping to Newsreader is what
+             makes lowercase possible, and lowercase is what makes the line read
+             as a statement rather than an inscription.
+
+             Trajan keeps the eyebrow and the wordmark, so the inscriptional
+             voice is still in the composition where it belongs — on the labels,
+             not on the sentence.
+
+             Sized up from 3.95cqw: lowercase sets narrower than caps at equal
+             size, so the same measure carries more type. The cap-height reads
+             close to the old line while the x-height does the work. */
+          font-family:var(--text-serif);font-weight:400;font-synthesis:none;
+          font-size:4.55cqw;line-height:1.06;letter-spacing:-.012em;
           color:var(--ink-warm) !important;
-          text-transform:uppercase;
+          text-transform:none;
         }
         /* The accent span is now the same colour as the rest of the headline —
            the whole line went oxblood, so this no longer differentiates. Kept
@@ -1200,10 +1250,10 @@ export function renderCollateralHero(options = {}) {
                 <div class="clt-lockup">
                     <div class="clt-eyebrow clt-mono clt-in" style="--d:60ms">SELF-ENFORCING PERFORMANCE CONTRACTS</div>
                     <h1><span class="clt-line" style="--d:150ms">Put money</span><br /><span class="clt-line" style="--d:240ms">on your own</span><br /><span class="clt-line" style="--d:330ms"><span class="clt-accent">deadline</span></span></h1>
-                    <p class="clt-sub clt-in" style="--d:400ms">Self-enforcing contracts for your goals. Backed by your capital.</p>
+                    <p class="clt-sub clt-in" style="--d:400ms">Stake your own money on a goal. Hit the deadline and you keep it &mdash; miss it, and it&rsquo;s gone.</p>
                     <div class="clt-cta clt-in" style="--d:520ms">
                         <button type="button" class="clt-btn"${onWriteContract ? ` onclick="${onWriteContract}"` : ''}>Create a contract <span class="clt-arrow">&rarr;</span></button>
-                        <button type="button" class="clt-link"${onWatchFlow ? ` onclick="${onWatchFlow}"` : ''}>Watch forfeiture flow &darr;</button>
+                        <button type="button" class="clt-link"${onWatchFlow ? ` onclick="${onWatchFlow}"` : ''}>See how it works &darr;</button>
                     </div>
                     <div class="clt-proof clt-mono clt-in" style="--d:600ms">
                         <span><b>${escapeHtml(heldInEscrow)}</b>HELD IN ESCROW</span>
