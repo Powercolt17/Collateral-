@@ -1374,20 +1374,17 @@ export function renderCollateralHero(options = {}) {
         .clt-logo-youtube .clt-mark svg{height:19px}
         .clt-logo-shopify .clt-mark svg{height:29px}
         .clt-logo-x       .clt-mark svg{height:20px}
+        /* Plaid's symbol is a filled SQUARE of diamonds, where the siblings are
+           open letterforms and glyphs. A square carries more ink per pixel of
+           height than an S or a play button, so it is set below Stripe's 23 to
+           keep the row reading at one weight. NOT optically confirmed — this
+           pane cannot screenshot, so 24 is the brief's suggested figure and the
+           reasoning for going near it rather than a measurement. Adjust by eye. */
+        .clt-logo-plaid   .clt-mark svg{height:24px}
 
-        /* PLACEHOLDER, and it is marked as one in the supplied sheet too. This
-           is a monogram tile, not Plaid's mark. It should be swapped for the
-           official SVG before this is considered finished — a hand-drawn letter
-           standing in for a brand is the kind of thing that reads as sloppy
-           rather than as pending. */
-        .clt-plaid-tile{
-          width:27px;height:27px;border-radius:7px;background:currentColor;
-          display:flex;align-items:center;justify-content:center;
-        }
-        .clt-plaid-tile span{
-          font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
-          font-weight:600;font-size:15px;color:#ECE1C7;line-height:1;
-        }
+        /* The placeholder monogram tile and its rules are GONE, replaced by
+           Plaid's own mark. See the note on the markup for where the file came
+           from and what was and was not changed. */
         .clt-fig{font-size:15px;letter-spacing:.02em;font-weight:600}
         .clt-ox{color:var(--ox)}
         .clt-gr{color:var(--green)}
@@ -1823,8 +1820,36 @@ export function renderCollateralHero(options = {}) {
                         <span class="clt-live"><span class="clt-dot" aria-hidden="true"></span> Live Oracles</span>
                         <span class="clt-vline" aria-hidden="true"></span>
                         <span class="clt-logos">
+                            <!-- PLAID MARK — official, unmodified, not redrawn.
+
+                                 SOURCE: the SVG plaid.com serves in its own page
+                                 header, aria-label="Plaid", which already
+                                 declares fill="currentColor". Their published
+                                 brand kit could not be reached: plaid.com/brand
+                                 404s and the press page carries no asset links.
+                                 So this is Plaid's own live file rather than a
+                                 media-kit download. If you obtain the kit it is
+                                 worth swapping, but the geometry is theirs
+                                 either way.
+
+                                 THEIR FILE IS A LOCKUP. It carries two paths —
+                                 the letterforms across x 33-77, and the symbol
+                                 across x 0-28. Only the symbol is used here, so
+                                 it matches the sibling icon marks and does not
+                                 repeat the PLAID caption sitting under it. The
+                                 viewBox is cropped from 0 0 77 29 to 0 0 28 29,
+                                 which frames the symbol exactly (x 0-28,
+                                 y 0.5-28.5). A crop, not a scale: the shape is
+                                 untouched.
+
+                                 The siblings are not from each brand's own kit
+                                 either — Stripe, YouTube and Shopify are
+                                 byte-identical to simple-icons, verified against
+                                 the upstream files. Simple Icons has no Plaid
+                                 entry, which is why this one had to come from
+                                 Plaid directly. -->
                             <span class="clt-logo clt-logo-plaid" title="Plaid">
-                                <span class="clt-mark"><span class="clt-plaid-tile" aria-hidden="true"><span>P</span></span></span>
+                                <span class="clt-mark"><svg viewBox="0 0 28 29" role="img" aria-label="Plaid"><path d="M25.7629 26.2628L28 17.5309L24.9691 14.5001L27.9999 11.4691L25.7628 2.73706L17.0309 0.5L14.0001 3.531L10.969 0.50014L2.23706 2.73734L0 11.4691L3.03128 14.4999L0.00014 17.531L2.2372 26.2629L10.9691 28.5L14.0001 25.469L17.031 28.4999L25.7629 26.2628ZM15.7321 23.7371L18.6186 20.8505L22.2912 24.5233L17.6956 25.7007L15.7321 23.7371ZM11.1136 9.88154L14.0003 6.99502L16.8868 9.8814L14.0001 12.7679L11.1136 9.88154ZM12.2682 14.5L9.38154 17.3865L6.49502 14.5L9.38154 11.6135L12.2682 14.5ZM18.6187 11.6133L21.5053 14.5L18.6186 17.3865L15.7321 14.5L18.6187 11.6133ZM16.8867 19.1186L14.0001 22.0051L11.1135 19.1185L14.0001 16.2319L16.8867 19.1186ZM10.3044 25.7007L5.70864 24.5233L9.38154 20.8504L12.2682 23.7371L10.3044 25.7007ZM4.76308 16.2319L7.6496 19.1185L3.9767 22.7914L2.7993 18.1957L4.76308 16.2319ZM3.9767 6.20836L7.64974 9.8814L4.76308 12.7681L2.7993 10.8041L3.9767 6.20836ZM12.2683 5.26294L9.38168 8.1496L5.70892 4.4767L10.3047 3.2993L12.2683 5.26294ZM17.6959 3.2993L22.2915 4.4767L18.6186 8.14946L15.7321 5.26294L17.6959 3.2993ZM23.2372 12.7681L20.3505 9.8814L24.0233 6.20878L25.2007 10.8046L23.2372 12.7681ZM24.0233 22.7914L20.3505 19.1186L23.2372 16.2321L25.2007 18.1957L24.0233 22.7914Z"/></svg></span>
                                 <span class="clt-name">Plaid</span>
                             </span>
                             <span class="clt-logo clt-logo-stripe" title="Stripe">
