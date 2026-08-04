@@ -593,12 +593,15 @@ export function renderCollateralHero(options = {}) {
            ambient, repeating, going nowhere. The product is about a date arriving
            and not waiting for you, and the visual equivalent of that is light that
            only ever travels one way and only passes once. So: a single broad band
-           of shade crossing the frame over six minutes, iteration count 1.
+           of shade crossing the frame, iteration count 1.
 
-           It is deliberately BELOW the threshold the cloud layer was tuned to
-           clear. Nobody is meant to catch it moving. It is the difference between
-           a scene that loops and a scene that is somewhere in its own afternoon —
-           felt on a second visit rather than seen on the first.
+           SUPERSEDED: .10 peak over 360s, on the theory that this layer should sit
+           below the threshold the clouds were tuned to clear and be "felt on a
+           second visit rather than seen on the first". That was wrong, and wrong
+           in a specific way worth recording — it was not subtlety, it was an
+           effect too small to exist, with a justification written around it. At
+           .0006 alpha per second nothing is felt on any visit. The tuning numbers
+           are in the background declaration below.
 
            STARTS AND ENDS OFF-FRAME, and that is a correctness requirement, not a
            style choice. --plate-grade carries a brightness that exists solely to
@@ -641,14 +644,34 @@ export function renderCollateralHero(options = {}) {
           /* 100deg, not 90 — a raking angle reads as a sun low in the sky rather
              than a wipe. The band spans 30% to 70% of a 300% layer, so the shade
              is about 1.2 hero widths across with nothing but feather either side.
-             There is no hard edge anywhere in it at any point in the sweep. */
+             There is no hard edge anywhere in it at any point in the sweep.
+
+             .28 PEAK, UP FROM .10, AND 105s, DOWN FROM 360s. The first pass was
+             specified so conservatively that it cancelled itself: .10 over 360s
+             is about .0006 alpha per second, roughly a thousandth of the rate the
+             cloud layer runs at — and the clouds needed several rounds of tuning
+             to become visible at all. "Felt rather than seen" was the intent and
+             it was not achievable at those numbers; it was an unobservable
+             effect with a rationale attached.
+
+             .28 peaks above the clouds' .16 deliberately. The clouds carry
+             structure — four octaves of noise, so some energy always lands where
+             vision is sensitive. This band is one very broad, very smooth ramp,
+             which is the spatial frequency the eye is worst at, so it needs more
+             amplitude to read at all. Same lesson the cloud layer already learned
+             and recorded above, applied the other way round.
+
+             Amplitude here is FREE of the contrast budget, which is the whole
+             reason the wrapper mask exists. The type column sees exactly zero of
+             this layer at any alpha, so this number can go as far as the artwork
+             tolerates without touching a single measured contrast figure. */
           background:linear-gradient(100deg,
             rgba(0,0,0,0) 30%,
-            rgba(0,0,0,.10) 50%,
+            rgba(0,0,0,.28) 50%,
             rgba(0,0,0,0) 70%);
           transform:translate3d(-33.333%,0,0);
           will-change:transform;
-          animation:clt-arc 360s linear 1 forwards;
+          animation:clt-arc 105s linear 1 forwards;
         }
         /* A third of a 300% layer is exactly one hero width, so the band centre
            travels from one frame-width left of the frame to one frame-width right
