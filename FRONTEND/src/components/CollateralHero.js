@@ -1584,40 +1584,63 @@ export function renderCollateralHero(options = {}) {
              element, so --plate-grade grades them in a single pass and they
              cannot drift apart. background-color is a fallback for a failed
              image load only. */
-          /* THE STRETCHED SKY LAYER IS GONE. IT WAS THE STREAKS.
-             The note above argues that stretching a second copy of the crop to
-             100000px beats a flat colour because a flat colour left ~10 levels
-             of low-frequency mismatch at the join. The reasoning about the join
-             is sound. The cost was not accounted for, and it is much worse than
-             the thing it fixed.
+          /* ══ SUPERSEDED: everything above about painting the file twice ══
 
-             At 100000px tall the visible 844px of a phone samples the top
-             844/100000 of the source — NINE rows of a 1024-row image. Those
-             nine rows are not flat: measured across the full width their luma
-             runs 194.6 to 220.2, a range of 25.5 levels with a standard
-             deviation of 4.07, which is ordinary paper grain plus JPEG block
-             boundaries. Stretched down the whole screen, every one of those
-             horizontal variations becomes a VERTICAL STREAK the full height of
-             the hero. Trading a 10-level horizontal step for a 25-level
-             vertical corduroy is a bad trade, and the streaks are what was
-             reported from the phone twice.
+             THE STRETCHED LAYER WAS THE VERTICAL STREAKS. Its analysis of the
+             JOIN is correct and is kept below; what it never measured is what
+             the layer does to the FIELD above the join.
 
-             A flat fill, and the join is handled by DERIVING the value instead
-             of guessing it: #E9CDA2 is the measured mean of the artwork's own
-             top three rows, rgb(233,205,162). The field and the artwork's first
-             row are therefore the same colour by construction, not by eye — the
-             low-frequency step the old note worried about is zero, and there is
-             no high-frequency texture left to smear.
+             At 100% 100000px the visible 844px of a phone samples the top
+             844/100000 of the source — NINE rows of a 1024-row image. The note
+             calls those rows "all open sky" and treats them as uniform. They
+             are not: measured across the full width their luma runs 194.6 to
+             220.2, a range of 25.5 levels, standard deviation 4.07 — ordinary
+             paper grain plus JPEG block boundaries. Stretched down the whole
+             screen every one of those becomes a VERTICAL STREAK the full height
+             of the hero. It optimised a 121px band at the join and paid for it
+             across the other 800px.
 
-             It sits on background-color, UNDER the artwork layer, so
-             --plate-grade transforms the field and the plate in one pass and
-             they cannot drift apart. */
+             A FLAT FILL IS ALSO WRONG, AND FOR THE REASON THE OLD NOTE GIVES.
+             Checked rather than assumed: the artwork's top edge is not one
+             colour, it runs rgb(239,214,175) at the left to rgb(231,202,159) at
+             the right. #E9CDA2, the mean of its top three rows, leaves 13.01
+             levels of low-frequency error at the worst column and 4.4 on
+             average. That is a visible horizontal step — the exact seam the old
+             note set out to remove.
+
+             SO: A SAMPLED HORIZONTAL GRADIENT. Seventeen stops taken from the
+             artwork's own top edge, smoothed over a 41px window so the stops
+             track its shape and not its grain. Measured against that edge it
+             leaves 2.15 levels at the worst column and 0.51 on average — six
+             times better than the flat fill at the join.
+
+             It cannot streak, and that is the structural point rather than a
+             lucky result: the gradient varies along X only and is constant down
+             Y, so there is nothing to smear vertically. The old layer failed
+             precisely because it stretched horizontal variation downward.
+
+             The gradient is a background LAYER under the artwork rather than a
+             background-color, so both are on this one element and --plate-grade
+             transforms them in a single pass; they cannot drift apart. The
+             colour underneath stays as a fallback for a failed image AND
+             gradient. */
           .clt-hero::before{
             background-image:
-              url(/assets/images/collateral-senate-mobile.jpg) !important;
-            background-size:100% auto;
-            background-position:center bottom;
-            background-repeat:no-repeat;
+              url(/assets/images/collateral-senate-mobile.jpg),
+              linear-gradient(90deg,
+                rgb(239,214,175) 0%,    rgb(237,213,173) 6.25%,
+                rgb(235,208,168) 12.5%, rgb(234,207,165) 18.75%,
+                rgb(234,207,164) 25%,   rgb(233,206,164) 31.25%,
+                rgb(232,205,162) 37.5%, rgb(232,203,160) 43.75%,
+                rgb(232,203,159) 50%,   rgb(232,204,160) 56.25%,
+                rgb(234,206,163) 62.5%, rgb(232,203,159) 68.75%,
+                rgb(232,204,160) 75%,   rgb(231,203,158) 81.25%,
+                rgb(229,199,153) 87.5%, rgb(228,199,153) 93.75%,
+                rgb(231,202,159) 100%) !important;
+            background-size:100% auto, 100% 100%;
+            background-position:center bottom, center top;
+            background-repeat:no-repeat, no-repeat;
+            /* Fallback only, for a failed image AND gradient. */
             background-color:#E9CDA2;
           }
           /* Clouds cover the whole hero, like desktop — but ATTENUATED OVER THE
