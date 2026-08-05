@@ -174,101 +174,101 @@ export function renderLedgerSection(options = {}) {
           font-family:var(--lg-serif);-webkit-font-smoothing:antialiased;
         }
         .lg *{box-sizing:border-box;margin:0;padding:0}
-        .lg-wrap{width:100%;max-width:1600px;margin:0 auto;padding:60px 60px 64px}
+        .lg-wrap{width:100%;max-width:1360px;margin:0 auto;padding:51px 51px 54.4px}
 
-        .lg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:60px;margin-bottom:20px}
+        .lg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:51px;margin-bottom:17px}
         .lg-head-l{min-width:0}
         .lg h2{font-family:var(--lg-display);font-weight:600;color:var(--lg-ox);
-          font-size:clamp(34px,3.9vw,56px);line-height:1;text-transform:uppercase;
-          font-variant:small-caps;letter-spacing:.01em;margin-bottom:18px}
-        .lg-lede{font-size:16.5px;line-height:1.6;color:var(--lg-ink-soft);max-width:620px}
+          font-size:clamp(28.9px,3.32vw,47.6px);line-height:1;text-transform:uppercase;
+          font-variant:small-caps;letter-spacing:.01em;margin-bottom:15.3px}
+        .lg-lede{font-size:14px;line-height:1.6;color:var(--lg-ink-soft);max-width:527px}
 
-        .lg-sum{padding-top:6px}
+        .lg-sum{padding-top:5.1px}
         .lg-stats{display:flex;gap:0}
-        .lg-stat{padding:0 30px;text-align:center;border-left:1px solid var(--lg-line)}
+        .lg-stat{padding:0 25.5px;text-align:center;border-left:1px solid var(--lg-line)}
         .lg-stat:first-child{border-left:0;padding-left:0}
-        .lg-sv{font-family:var(--lg-display);font-size:30px;font-weight:600;
+        .lg-sv{font-family:var(--lg-display);font-size:25.5px;font-weight:600;
           color:var(--lg-ink);line-height:1;font-variant-numeric:tabular-nums lining-nums}
         .lg-sl{font-family:var(--lg-mono);font-size:9px;letter-spacing:.16em;
-          text-transform:uppercase;color:var(--lg-muted);margin:8px 0 12px}
-        .lg-ic{width:26px;height:26px;color:var(--lg-muted);opacity:.8;margin:0 auto;display:block}
-        .lg-mkt{margin-top:20px;padding-top:14px;border-top:1px solid var(--lg-line);
-          text-align:right;font-family:var(--lg-mono);font-size:11px;letter-spacing:.22em;
+          text-transform:uppercase;color:var(--lg-muted);margin:6.8px 0 10.2px}
+        .lg-ic{width:22.1px;height:22.1px;color:var(--lg-muted);opacity:.8;margin:0 auto;display:block}
+        .lg-mkt{margin-top:17px;padding-top:11.9px;border-top:1px solid var(--lg-line);
+          text-align:right;font-family:var(--lg-mono);font-size:10px;letter-spacing:.22em;
           text-transform:uppercase;color:var(--lg-muted)}
         .lg-mkt b{color:var(--lg-ox);font-weight:500}
-        .lg-mdot{display:inline-block;width:8px;height:8px;border-radius:50%;
-          background:var(--lg-ox);margin-left:8px;vertical-align:middle;
+        .lg-mdot{display:inline-block;width:6.8px;height:6.8px;border-radius:50%;
+          background:var(--lg-ox);margin-left:6.8px;vertical-align:middle;
           animation:lg-pulse 2.4s ease-out infinite}
 
         /* ---- table ---- */
         .lg-cols,.lg-row{display:grid;
-          grid-template-columns:46px 250px minmax(230px,1fr) 210px 108px 232px 168px;
-          column-gap:26px;align-items:center}
-        .lg-table{margin-top:30px}
-        .lg-cols{padding:0 0 14px;border-bottom:1px solid var(--lg-ink)}
+          grid-template-columns:39.1px 212.5px minmax(195.5px,1fr) 178.5px 91.8px 197.2px 142.8px;
+          column-gap:22.1px;align-items:center}
+        .lg-table{margin-top:25.5px}
+        .lg-cols{padding:0 0 11.9px;border-bottom:1px solid var(--lg-ink)}
         .lg-cols span{font-family:var(--lg-mono);font-size:10px;letter-spacing:.2em;
           text-transform:uppercase;color:var(--lg-faint)}
 
-        .lg-row{padding:22px 0;border-bottom:1px solid var(--lg-line-soft);position:relative}
+        .lg-row{padding:18.7px 0;border-bottom:1px solid var(--lg-line-soft);position:relative}
         .lg-row::after{content:"";position:absolute;inset:0;background:rgba(124,29,43,.05);
           opacity:0;pointer-events:none}
         .lg-row.lg-flash::after{animation:lg-flash 1.1s ease-out}
 
-        .lg-n{font-family:var(--lg-mono);font-size:12px;color:var(--lg-muted)}
-        .lg-op{display:flex;align-items:center;gap:14px;min-width:0}
-        .lg-ava{width:40px;height:40px;border-radius:50%;flex:none;
+        .lg-n{font-family:var(--lg-mono);font-size:10.2px;color:var(--lg-muted)}
+        .lg-op{display:flex;align-items:center;gap:11.9px;min-width:0}
+        .lg-ava{width:34px;height:34px;border-radius:50%;flex:none;
           border:1px solid rgba(124,29,43,.3);display:flex;align-items:center;
-          justify-content:center;font-family:var(--lg-mono);font-size:12px;color:var(--lg-ox)}
-        .lg-op-name{display:block;font-family:var(--lg-display);font-size:22px;
+          justify-content:center;font-family:var(--lg-mono);font-size:10.2px;color:var(--lg-ox)}
+        .lg-op-name{display:block;font-family:var(--lg-display);font-size:18.7px;
           font-weight:600;color:var(--lg-ink);line-height:1.1}
         .lg-op-role{display:block;font-family:var(--lg-mono);font-size:9.5px;
-          letter-spacing:.14em;text-transform:uppercase;color:var(--lg-muted);margin-top:3px}
+          letter-spacing:.14em;text-transform:uppercase;color:var(--lg-muted);margin-top:2.6px}
 
-        .lg-g-title{display:block;font-family:var(--lg-display);font-size:21px;
+        .lg-g-title{display:block;font-family:var(--lg-display);font-size:17.8px;
           font-weight:600;color:var(--lg-ink);line-height:1.15}
         .lg-g-sub{display:block;font-family:var(--lg-mono);font-size:9.5px;
-          letter-spacing:.14em;text-transform:uppercase;color:var(--lg-muted);margin-top:5px}
+          letter-spacing:.14em;text-transform:uppercase;color:var(--lg-muted);margin-top:4.2px}
 
-        .lg-ver{display:flex;align-items:center;gap:12px;min-width:0}
-        .lg-badge{width:34px;height:34px;border-radius:50%;flex:none;
+        .lg-ver{display:flex;align-items:center;gap:10.2px;min-width:0}
+        .lg-badge{width:28.9px;height:28.9px;border-radius:50%;flex:none;
           border:1px solid var(--lg-line);display:flex;align-items:center;
           justify-content:center;color:var(--lg-logo)}
-        .lg-badge svg{height:15px;width:auto;fill:currentColor;display:block}
-        .lg-b-youtube svg{height:12px} .lg-b-github svg{height:16px}
-        .lg-b-shopify svg{height:16px} .lg-b-stripe svg{height:13px}
-        .lg-b-x svg{height:12px}
-        .lg-mono-mark{font-family:var(--lg-mono);font-weight:600;font-size:13px}
-        .lg-brand{display:block;font-family:var(--lg-mono);font-size:11px;
+        .lg-badge svg{height:12.8px;width:auto;fill:currentColor;display:block}
+        .lg-b-youtube svg{height:10.2px} .lg-b-github svg{height:13.6px}
+        .lg-b-shopify svg{height:13.6px} .lg-b-stripe svg{height:11px}
+        .lg-b-x svg{height:10.2px}
+        .lg-mono-mark{font-family:var(--lg-mono);font-weight:600;font-size:11px}
+        .lg-brand{display:block;font-family:var(--lg-mono);font-size:10px;
           letter-spacing:.1em;text-transform:uppercase;color:var(--lg-ink)}
-        .lg-vtag{display:flex;align-items:center;gap:5px;font-family:var(--lg-mono);
+        .lg-vtag{display:flex;align-items:center;gap:4.2px;font-family:var(--lg-mono);
           font-size:9px;letter-spacing:.12em;text-transform:uppercase;
-          color:var(--lg-muted);margin-top:4px}
-        .lg-shield{width:11px;height:11px;flex:none;color:var(--lg-win)}
+          color:var(--lg-muted);margin-top:3.4px}
+        .lg-shield{width:9.4px;height:9.4px;flex:none;color:var(--lg-win)}
 
-        .lg-st-v{display:block;font-family:var(--lg-mono);font-size:16px;color:var(--lg-ink)}
+        .lg-st-v{display:block;font-family:var(--lg-mono);font-size:13.6px;color:var(--lg-ink)}
         .lg-st-u{display:block;font-family:var(--lg-mono);font-size:9px;
-          letter-spacing:.14em;color:var(--lg-muted);margin-top:4px}
+          letter-spacing:.14em;color:var(--lg-muted);margin-top:3.4px}
 
         .lg-prog{display:flex;flex-direction:column;min-width:0}
-        .lg-pv{font-family:var(--lg-mono);font-size:18px;font-weight:500;color:var(--lg-ox);
+        .lg-pv{font-family:var(--lg-mono);font-size:15.3px;font-weight:500;color:var(--lg-ox);
           letter-spacing:.01em;transition:opacity .35s ease}
         .lg-pv.lg-tick{animation:lg-tick .55s ease}
         .lg-pt{font-family:var(--lg-mono);font-size:9.5px;letter-spacing:.14em;
-          text-transform:uppercase;color:var(--lg-muted);margin-top:5px}
+          text-transform:uppercase;color:var(--lg-muted);margin-top:4.2px}
         .lg-pbar{position:relative;height:2px;background:var(--lg-track);
-          margin:11px 0 8px;border-radius:2px;overflow:hidden}
+          margin:9.4px 0 6.8px;border-radius:2px;overflow:hidden}
         .lg-pfill{position:absolute;left:0;top:0;height:100%;width:0;background:var(--lg-ox);
           opacity:.55;border-radius:2px;transition:width .9s cubic-bezier(.22,1,.36,1)}
         .lg-pot{font-family:var(--lg-mono);font-size:9px;letter-spacing:.14em;
           text-transform:uppercase;color:var(--lg-faint)}
 
         .lg-status{display:flex;flex-direction:column}
-        .lg-s-top{display:flex;align-items:center;gap:8px}
-        .lg-sdot{width:7px;height:7px;border-radius:50%;background:var(--lg-muted);flex:none}
-        .lg-s1{font-family:var(--lg-mono);font-size:11px;letter-spacing:.16em;
+        .lg-s-top{display:flex;align-items:center;gap:6.8px}
+        .lg-sdot{width:6px;height:6px;border-radius:50%;background:var(--lg-muted);flex:none}
+        .lg-s1{font-family:var(--lg-mono);font-size:10px;letter-spacing:.16em;
           text-transform:uppercase;font-weight:500;color:var(--lg-ink-soft)}
         .lg-s2{font-family:var(--lg-mono);font-size:9.5px;letter-spacing:.12em;
-          text-transform:uppercase;color:var(--lg-muted);margin-top:6px;transition:opacity .4s ease}
+          text-transform:uppercase;color:var(--lg-muted);margin-top:5.1px;transition:opacity .4s ease}
         .lg-s-live .lg-sdot{background:var(--lg-ox);animation:lg-pulse 2.4s ease-out infinite}
         .lg-s-live .lg-s1{color:var(--lg-ox)}
         .lg-s-verifying .lg-sdot{background:var(--lg-ox);animation:lg-pulse 1.5s ease-out infinite}
@@ -277,34 +277,34 @@ export function renderLedgerSection(options = {}) {
         .lg-s2.lg-fade{opacity:0}
 
         @keyframes lg-pulse{0%{box-shadow:0 0 0 0 rgba(124,29,43,.45)}
-          70%{box-shadow:0 0 0 6px rgba(124,29,43,0)}100%{box-shadow:0 0 0 0 rgba(124,29,43,0)}}
+          70%{box-shadow:0 0 0 5.1px rgba(124,29,43,0)}100%{box-shadow:0 0 0 0 rgba(124,29,43,0)}}
         @keyframes lg-tick{0%{opacity:.35;transform:translateY(-1px)}100%{opacity:1;transform:none}}
         @keyframes lg-flash{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
 
-        .lg-foot{display:flex;justify-content:space-between;align-items:center;gap:24px;
-          margin-top:34px;padding-top:20px;border-top:1px solid var(--lg-line);
-          font-family:var(--lg-mono);font-size:10.5px;letter-spacing:.16em;
+        .lg-foot{display:flex;justify-content:space-between;align-items:center;gap:20.4px;
+          margin-top:28.9px;padding-top:17px;border-top:1px solid var(--lg-line);
+          font-family:var(--lg-mono);font-size:10px;letter-spacing:.16em;
           text-transform:uppercase;color:var(--lg-muted);flex-wrap:wrap}
         .lg-foot b{color:var(--lg-ink-soft);font-weight:500}
         .lg-link{background:none;border:0;cursor:pointer;font-family:var(--lg-mono);
-          font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--lg-ink);
-          font-weight:500;border-bottom:1.5px solid var(--lg-ox);padding-bottom:5px;
+          font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--lg-ink);
+          font-weight:500;border-bottom:1.5px solid var(--lg-ox);padding-bottom:4.2px;
           white-space:nowrap;transition:color .16s ease}
         .lg-link:hover{color:var(--lg-ox)}
-        .lg-link:focus-visible{outline:2px solid var(--lg-ox);outline-offset:3px}
-        .lg-arw{color:var(--lg-ox);margin-left:6px}
+        .lg-link:focus-visible{outline:2px solid var(--lg-ox);outline-offset:2.6px}
+        .lg-arw{color:var(--lg-ox);margin-left:5.1px}
 
         @media (max-width:1180px){
-          .lg-cols,.lg-row{grid-template-columns:40px 170px minmax(0,1fr) 150px 90px 170px 130px;
-            column-gap:16px}
-          .lg-op-name,.lg-g-title{font-size:18px}
-          .lg-ava{width:32px;height:32px}
+          .lg-cols,.lg-row{grid-template-columns:34px 144.5px minmax(0,1fr) 127.5px 76.5px 144.5px 110.5px;
+            column-gap:13.6px}
+          .lg-op-name,.lg-g-title{font-size:15.3px}
+          .lg-ava{width:27.2px;height:27.2px}
         }
         @media (max-width:900px){
-          .lg-wrap{padding:34px 20px 30px}
-          .lg-head{flex-direction:column;gap:26px}
-          .lg-stats{flex-wrap:wrap;gap:14px 0}
-          .lg-stat{flex:1 1 40%;padding:0 12px;text-align:left}
+          .lg-wrap{padding:28.9px 17px 25.5px}
+          .lg-head{flex-direction:column;gap:22.1px}
+          .lg-stats{flex-wrap:wrap;gap:11.9px 0}
+          .lg-stat{flex:1 1 40%;padding:0 10.2px;text-align:left}
           .lg-stat:first-child{padding-left:0}
           .lg-ic{margin:0}
           .lg-mkt{text-align:left}
@@ -313,12 +313,12 @@ export function renderLedgerSection(options = {}) {
              the register number drop — the oracle is named in the goal sub and
              the number is a filing detail, not something a phone reader needs. */
           .lg-cols{display:none}
-          .lg-row{grid-template-columns:minmax(0,1fr) 96px;column-gap:12px;
-            row-gap:12px;padding:16px 0}
+          .lg-row{grid-template-columns:minmax(0,1fr) 81.6px;column-gap:10.2px;
+            row-gap:10.2px;padding:13.6px 0}
           .lg-n,.lg-ver{display:none}
           .lg-op{grid-column:1/-1}
           .lg-goal{grid-column:1/-1}
-          .lg-op-name{font-size:17px} .lg-g-title{font-size:17px}
+          .lg-op-name{font-size:14.4px} .lg-g-title{font-size:14.4px}
           .lg-prog{grid-column:1;} .lg-status{grid-column:2;align-items:flex-end}
           .lg-stake{grid-row:3;grid-column:2;text-align:right}
         }

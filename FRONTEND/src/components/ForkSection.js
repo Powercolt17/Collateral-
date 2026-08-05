@@ -177,7 +177,7 @@ export function renderForkSection(options = {}) {
              leverage value in the file: 8.3:1 at no cost to the palette. */
           --fk-ink-soft:#4A4132;
           /* Was #8B7E64, which is 3.30:1 on the parchment and fails AA outright.
-             It now carries only the schedule, set at 12px, where 3.3:1 was the
+             It now carries only the schedule, set at 10.2px, where 3.3:1 was the
              single least readable thing in the section. #6B5F49 is 5.21:1 and
              still reads as the quiet voice. */
           --fk-muted:#6B5F49;
@@ -193,12 +193,12 @@ export function renderForkSection(options = {}) {
           -webkit-font-smoothing:antialiased;
         }
         .fk *{box-sizing:border-box;margin:0;padding:0}
-        .fk-wrap{width:100%;max-width:1536px;margin:0 auto;padding:72px 62px 56px}
+        .fk-wrap{width:100%;max-width:1305.6px;margin:0 auto;padding:61.2px 52.7px 47.6px}
 
         /* The section's one repeated ornament. Rotated square, not a glyph —
            a real diamond character sits differently in every serif we might
            fall back to. */
-        .fk-dia{width:7px;height:7px;background:var(--fk-ox);
+        .fk-dia{width:6px;height:6px;background:var(--fk-ox);
           transform:rotate(45deg);display:inline-block}
 
         /* ---- masthead and the four steps, one band ---- */
@@ -206,57 +206,57 @@ export function renderForkSection(options = {}) {
            columns of centred prose live or die on measure, and every pixel
            taken from here goes straight into theirs. */
         .fk-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.2fr);
-          gap:46px;align-items:start}
-        .fk-kicker{font-size:11.5px;letter-spacing:.3em;text-transform:uppercase;
-          color:var(--fk-ink-soft);font-weight:600;margin-bottom:20px}
+          gap:39.1px;align-items:start}
+        .fk-kicker{font-size:10px;letter-spacing:.3em;text-transform:uppercase;
+          color:var(--fk-ink-soft);font-weight:600;margin-bottom:17px}
         .fk h2{font-family:var(--fk-display);font-weight:600;color:var(--fk-ox);
-          font-size:clamp(38px,4.1vw,62px);line-height:.98;letter-spacing:.015em;
-          text-transform:uppercase;margin-bottom:20px}
-        .fk-mark{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-        .fk-mark i{height:1px;width:40px;background:var(--fk-ox);opacity:.7;display:block}
-        .fk-lede{font-size:17.5px;line-height:1.68;color:var(--fk-ink-soft);max-width:44ch}
+          font-size:clamp(32.3px,3.48vw,52.7px);line-height:.98;letter-spacing:.015em;
+          text-transform:uppercase;margin-bottom:17px}
+        .fk-mark{display:flex;align-items:center;gap:10.2px;margin-bottom:17px}
+        .fk-mark i{height:1px;width:34px;background:var(--fk-ox);opacity:.7;display:block}
+        .fk-lede{font-size:14.9px;line-height:1.68;color:var(--fk-ink-soft);max-width:44ch}
 
         /* Four columns divided by three hairlines. The rule is on the left of
            each step and suppressed on the first, so the band has no outer
            border and does not become a box. */
         .fk-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
-        .fk-step{text-align:center;padding:0 14px;border-left:1px solid var(--fk-line-soft)}
+        .fk-step{text-align:center;padding:0 11.9px;border-left:1px solid var(--fk-line-soft)}
         .fk-step:first-child{border-left:0}
-        .fk-num{font-family:var(--fk-display);font-size:26px;font-weight:600;
-          color:var(--fk-ox);line-height:1;margin-bottom:14px}
+        .fk-num{font-family:var(--fk-display);font-size:22.1px;font-weight:600;
+          color:var(--fk-ox);line-height:1;margin-bottom:11.9px}
         /* multiply, not a mask: the emblems are drawn on their own cream ground
            and this drops that ground into the parchment without an alpha
            channel to maintain. */
-        .fk-icon{height:74px;width:auto;display:block;margin:0 auto 16px;
+        .fk-icon{height:62.9px;width:auto;display:block;margin:0 auto 13.6px;
           mix-blend-mode:multiply}
-        .fk-step h3{font-family:var(--fk-display);font-weight:600;font-size:20px;
+        .fk-step h3{font-family:var(--fk-display);font-weight:600;font-size:17px;
           line-height:1.1;letter-spacing:.14em;text-transform:uppercase;
-          color:var(--fk-ink);margin-bottom:12px}
-        .fk-step-dia{width:6px;height:6px;opacity:.85;margin:0 auto 14px;display:block}
+          color:var(--fk-ink);margin-bottom:10.2px}
+        .fk-step-dia{width:5.1px;height:5.1px;opacity:.85;margin:0 auto 11.9px;display:block}
         /* Centred text has a ragged edge on BOTH sides, so it costs more per
            line than flush-left does and punishes a short measure twice over.
-           At 13.5px in 158px this ran five choppy lines per step. Bigger type
+           At 11.5px in 134.3px this ran five choppy lines per step. Bigger type
            in a wider column, on copy cut to about eleven words, lands each of
            them in three. */
-        .fk-step p{font-size:15.5px;line-height:1.68;color:var(--fk-ink-soft);
-          max-width:190px;margin:0 auto}
+        .fk-step p{font-size:13.2px;line-height:1.68;color:var(--fk-ink-soft);
+          max-width:161.5px;margin:0 auto}
 
         /* ---- the inscribed divider, which now names what follows ---- */
         /* Same knockout as .fk-close, and the same rule about it: the text sits
            on .fk-choose-t, never on a bare descendant selector, so the diamond
            below can never be caught by it. */
-        .fk-choose{position:relative;height:1px;background:var(--fk-line);margin:40px 0 0}
+        .fk-choose{position:relative;height:1px;background:var(--fk-line);margin:34px 0 0}
         .fk-choose-t{position:absolute;left:50%;top:50%;
-          transform:translate(-50%,-50%);background:var(--fk-parch);padding:0 20px;
-          font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;
+          transform:translate(-50%,-50%);background:var(--fk-parch);padding:0 17px;
+          font-size:10.6px;letter-spacing:.22em;text-transform:uppercase;
           color:var(--fk-ox);font-weight:600;white-space:nowrap}
-        .fk-choose-dia{text-align:center;margin:26px 0 44px}
-        .fk-choose-dia .fk-dia{width:10px;height:10px;opacity:.95}
+        .fk-choose-dia{text-align:center;margin:22.1px 0 37.4px}
+        .fk-choose-dia .fk-dia{width:8.5px;height:8.5px;opacity:.95}
 
         /* ---- solo / rivalry ---- */
         /* stretch, not start: the gutter column has to be as tall as the panels
            for its rule to run their full height. */
-        .fk-paths{display:grid;grid-template-columns:minmax(0,1fr) 96px minmax(0,1fr);
+        .fk-paths{display:grid;grid-template-columns:minmax(0,1fr) 81.6px minmax(0,1fr);
           align-items:stretch}
         .fk-path{text-align:center}
         /* ── A SELECTOR TRAP THAT COST THE WHOLE SECTION ITS SPACING ──────────
@@ -270,7 +270,7 @@ export function renderForkSection(options = {}) {
            bare class on a p, h3 or ul is (0,1,0) and LOSES to it, silently: the
            declaration is simply dropped and there is nothing in the source to
            suggest it. Four rules here were being zeroed — .fk-p-name asked for
-           24px and got 0, .fk-p-def 34 got 0, .fk-p-cap 30 got 0, .fk-p-feat 32
+           20.4px and got 0, .fk-p-def 34 got 0, .fk-p-cap 30 got 0, .fk-p-feat 32
            got 0 AND lost the auto margins that centre it, which is why the
            schedule sat flush left under a centred CTA.
 
@@ -284,7 +284,7 @@ export function renderForkSection(options = {}) {
 
            HIERARCHY. Name, definition, plate, statement, schedule, way in. The
            plate is the third thing, not the first — it reinforces a choice the
-           type has already made legible. Every gap below is in the 24-40px
+           type has already made legible. Every gap below is in the 24-34px
            band; the section should read as unhurried.
 
            A terms block used to sit between the definition and the plate,
@@ -294,11 +294,11 @@ export function renderForkSection(options = {}) {
            was meant to be. One list, and it is the one under the plate where it
            can be compared across the gutter. */
         .fk .fk-p-name{font-family:var(--fk-display);font-weight:600;
-          font-size:clamp(30px,2.7vw,40px);line-height:1;letter-spacing:.09em;
-          text-transform:uppercase;color:var(--fk-ox);margin-bottom:24px}
+          font-size:clamp(25.5px,2.3vw,34px);line-height:1;letter-spacing:.09em;
+          text-transform:uppercase;color:var(--fk-ox);margin-bottom:20.4px}
         .fk .fk-p-def{font-family:var(--fk-display);font-weight:500;
-          font-size:clamp(19px,1.6vw,22px);line-height:1.3;color:var(--fk-ink);
-          margin-bottom:34px}
+          font-size:clamp(16.2px,1.36vw,18.7px);line-height:1.3;color:var(--fk-ink);
+          margin-bottom:28.9px}
 
         /* THE PLATES DISSOLVE INTO THE PAPER. No box, no radius, no vignette,
            no feather. Two layers, each carrying a baked per-pixel alpha mask:
@@ -316,7 +316,7 @@ export function renderForkSection(options = {}) {
 
            The masks are generated, not drawn: per-edge base depths that differ
            by 3x, contrast-stretched long-period noise putting two or three
-           zones on each edge (some nearly crisp, some dissolving 120px), a
+           zones on each edge (some nearly crisp, some dissolving 102px), a
            displaced contour so the boundary itself wanders, mid-frequency
            mottling for pigment loss, low-frequency blooms that move the
            boundary rather than dim it, and high-frequency grit for dry-brush
@@ -327,7 +327,7 @@ export function renderForkSection(options = {}) {
         /* 90% of the column: the plates come down about a tenth and the paper
            around them goes up, which is most of what demotes them from hero to
            support. */
-        .fk-plate{position:relative;width:90%;margin:0 auto 36px}
+        .fk-plate{position:relative;width:90%;margin:0 auto 30.6px}
         .fk-plate img{display:block;width:100%;height:auto;position:relative;
           -webkit-mask-image:var(--pl-mask);mask-image:var(--pl-mask);
           -webkit-mask-size:100% 100%;mask-size:100% 100%;
@@ -335,7 +335,7 @@ export function renderForkSection(options = {}) {
           mix-blend-mode:multiply}
         .fk-plate::before{content:"";position:absolute;inset:0;
           background-image:var(--pl);background-size:100% 100%;
-          background-repeat:no-repeat;filter:blur(4px);
+          background-repeat:no-repeat;filter:blur(3.4px);
           -webkit-mask-image:var(--pl-edge);mask-image:var(--pl-edge);
           -webkit-mask-size:100% 100%;mask-size:100% 100%;
           -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
@@ -345,15 +345,15 @@ export function renderForkSection(options = {}) {
            rather than speaking in the operator's voice, and italic was doing
            the voice. */
         .fk .fk-p-cap{font-family:var(--fk-display);font-weight:500;
-          font-size:clamp(22px,2vw,27px);line-height:1.35;color:var(--fk-ink);
-          margin-bottom:30px}
+          font-size:clamp(18.7px,1.7vw,23px);line-height:1.35;color:var(--fk-ink);
+          margin-bottom:25.5px}
 
         /* The schedule. Two columns, mono, small and quiet — it is there to be
            compared across the gutter at a glance, not read as prose. The rules
            above and below hold it as one block without boxing it.
 
-           400px, not 330: the longest item is WINNER TAKES ESCROW, which needs
-           about 165px set like this. At 330 it wrapped to two lines, which made
+           340px, not 330: the longest item is WINNER TAKES ESCROW, which needs
+           about 140.2px set like this. At 330 it wrapped to two lines, which made
            the rivalry schedule a row taller than solo's and pushed the two CTAs
            out of line with each other — the one alignment in the section a
            reader is guaranteed to notice, because the buttons sit side by side.
@@ -364,28 +364,28 @@ export function renderForkSection(options = {}) {
            the auto margins are what centre this block. */
         .fk .fk-p-feat{list-style:none;display:grid;
           grid-template-columns:repeat(2,minmax(0,1fr));
-          gap:13px 22px;text-align:left;margin:0 auto 32px;max-width:400px;
-          padding:22px 0;border-top:1px solid var(--fk-line-soft);
+          gap:11px 18.7px;text-align:left;margin:0 auto 27.2px;max-width:340px;
+          padding:18.7px 0;border-top:1px solid var(--fk-line-soft);
           border-bottom:1px solid var(--fk-line-soft)}
-        /* 12px, not 10.5, and the tracking eased with it. This is the smallest
+        /* 10.2px, not 10.5, and the tracking eased with it. This is the smallest
            type in the section and it was set in the lowest-contrast colour;
            both of those are fixed rather than one. */
-        .fk .fk-p-feat li{font-family:var(--fk-mono);font-size:12px;
+        .fk .fk-p-feat li{font-family:var(--fk-mono);font-size:10.2px;
           letter-spacing:.06em;text-transform:uppercase;color:var(--fk-muted);
-          display:flex;align-items:baseline;gap:9px;line-height:1.45;
+          display:flex;align-items:baseline;gap:7.6px;line-height:1.45;
           white-space:nowrap}
         .fk .fk-p-feat li::before{content:"\\2713";color:var(--fk-ox);
           font-size:10px;flex:0 0 auto;opacity:.85}
 
         .fk-p-cta{background:none;border:0;cursor:pointer;padding:0;
-          font-family:var(--fk-mono);font-size:11px;letter-spacing:.2em;
+          font-family:var(--fk-mono);font-size:10px;letter-spacing:.2em;
           text-transform:uppercase;font-weight:500;color:var(--fk-ink);
-          display:inline-flex;align-items:center;gap:10px;
+          display:inline-flex;align-items:center;gap:8.5px;
           transition:color 200ms ease}
         .fk-arw{color:var(--fk-ox);display:inline-block;transition:transform 200ms ease}
         .fk-p-cta:hover{color:var(--fk-ox)}
-        .fk-p-cta:hover .fk-arw{transform:translateX(4px)}
-        .fk-p-cta:focus-visible{outline:2px solid var(--fk-ox);outline-offset:4px}
+        .fk-p-cta:hover .fk-arw{transform:translateX(3.4px)}
+        .fk-p-cta:focus-visible{outline:2px solid var(--fk-ox);outline-offset:3.4px}
 
         /* The gutter. A full-height rule dividing the two panels, with OR on
            the plates' centre line between two diamonds. It carries more weight
@@ -398,7 +398,7 @@ export function renderForkSection(options = {}) {
            Three previous passes hard-coded pixels here and all three went stale
            the next time the panels changed. syncGutter() measures instead. The
            values below are the no-JS fallback and only need to be plausible. */
-        .fk-or{position:relative;--or-drop:300px;--or-line-end:190px}
+        .fk-or{position:relative;--or-drop:255px;--or-line-end:161.5px}
         .fk-or::before{content:"";position:absolute;top:0;bottom:var(--or-line-end);
           left:50%;transform:translateX(-50%);width:2px;background:var(--fk-line)}
         /* .fk-or .fk-or-mark, not .fk-or-mark: the ornament is a bare <span>,
@@ -406,41 +406,41 @@ export function renderForkSection(options = {}) {
            exactly the rule this replaced. Two classes puts it out of reach. */
         .fk-or .fk-or-mark{position:absolute;left:50%;top:var(--or-drop);
           transform:translate(-50%,-50%);background:var(--fk-parch);
-          padding:14px 6px;display:flex;flex-direction:column;align-items:center;
-          gap:12px;margin:0}
-        .fk-or .fk-or-mark b{font-family:var(--fk-mono);font-size:11px;
+          padding:11.9px 5.1px;display:flex;flex-direction:column;align-items:center;
+          gap:10.2px;margin:0}
+        .fk-or .fk-or-mark b{font-family:var(--fk-mono);font-size:10px;
           letter-spacing:.22em;text-transform:uppercase;color:var(--fk-ox);
           font-weight:500}
-        .fk-or .fk-or-mark .fk-dia{width:8px;height:8px;opacity:.9}
+        .fk-or .fk-or-mark .fk-dia{width:6.8px;height:6.8px;opacity:.9}
 
         /* ---- the closing inscription, knocked out of a rule ---- */
         /* The knockout is on .fk-close-t, NOT on ".fk-close span". That
            descendant selector also matched the two .fk-dia spans INSIDE the
-           line: both were absolutely positioned to the same centre, given 22px
-           of padding and a parchment background, and painted a 44px block over
+           line: both were absolutely positioned to the same centre, given 18.7px
+           of padding and a parchment background, and painted a 37.4px block over
            the word VOTING. Anything nested here must not be reachable by the
            knockout's own selector. */
-        .fk-close{position:relative;height:1px;background:var(--fk-line);margin-top:42px}
+        .fk-close{position:relative;height:1px;background:var(--fk-line);margin-top:35.7px}
         .fk-close-t{position:absolute;left:50%;top:50%;
-          transform:translate(-50%,-50%);background:var(--fk-parch);padding:0 22px;
-          font-size:13px;letter-spacing:.17em;text-transform:uppercase;
+          transform:translate(-50%,-50%);background:var(--fk-parch);padding:0 18.7px;
+          font-size:11px;letter-spacing:.17em;text-transform:uppercase;
           color:var(--fk-ink);font-weight:600;white-space:nowrap;
-          display:flex;align-items:center;gap:16px}
+          display:flex;align-items:center;gap:13.6px}
 
         /* ---- motion: one fade and rise, nothing else ---- */
         @media (prefers-reduced-motion:no-preference){
-          .fk-step,.fk-path{opacity:0;transform:translateY(12px);
+          .fk-step,.fk-path{opacity:0;transform:translateY(10.2px);
             transition:opacity 700ms ease,transform 700ms cubic-bezier(.22,1,.36,1);
             transition-delay:calc(var(--i,0) * 90ms)}
           .fk-in .fk-step,.fk-in .fk-path{opacity:1;transform:none}
         }
 
         @media (max-width:1180px){
-          .fk-wrap{padding:64px 44px 52px}
-          .fk-top{grid-template-columns:minmax(0,1fr);gap:44px}
+          .fk-wrap{padding:54.4px 37.4px 44.2px}
+          .fk-top{grid-template-columns:minmax(0,1fr);gap:37.4px}
           .fk-lede{max-width:none}
-          .fk-step{padding:0 10px}
-          .fk-paths{grid-template-columns:minmax(0,1fr) 72px minmax(0,1fr)}
+          .fk-step{padding:0 8.5px}
+          .fk-paths{grid-template-columns:minmax(0,1fr) 61.2px minmax(0,1fr)}
           /* No gutter offsets here — syncGutter() measures them per breakpoint. */
         }
         /* Phone. Two by two rather than four across — a single column puts a
@@ -449,48 +449,48 @@ export function renderForkSection(options = {}) {
            row need their own top hairline, and the third step starts that row,
            so its left border is the one to drop. */
         @media (max-width:760px){
-          .fk-wrap{padding:52px 24px 44px}
-          .fk-steps{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:30px}
-          .fk-step{padding:0 12px}
+          .fk-wrap{padding:44.2px 20.4px 37.4px}
+          .fk-steps{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:25.5px}
+          .fk-step{padding:0 10.2px}
           .fk-step:nth-child(3){border-left:0}
-          .fk-step:nth-child(n+3){padding-top:30px;border-top:1px solid var(--fk-line-soft)}
-          .fk-icon{height:60px}
-          .fk-step h3{font-size:18px}
+          .fk-step:nth-child(n+3){padding-top:25.5px;border-top:1px solid var(--fk-line-soft)}
+          .fk-icon{height:51px}
+          .fk-step h3{font-size:15.3px}
           /* A half-width phone column is a wider measure than the desktop
              quarter, so this can hold full size rather than shrink. */
-          .fk-step p{font-size:15px;max-width:none}
-          .fk-choose{margin-top:32px}
-          .fk-choose-t{font-size:11px;letter-spacing:.16em;padding:0 14px}
-          .fk-choose-dia{margin:18px 0 24px}
+          .fk-step p{font-size:12.8px;max-width:none}
+          .fk-choose{margin-top:27.2px}
+          .fk-choose-t{font-size:10px;letter-spacing:.16em;padding:0 11.9px}
+          .fk-choose-dia{margin:15.3px 0 20.4px}
 
           /* The gutter cannot be a column once the paths stack, so it becomes a
              rule between them with OR on it — the same idea turned 90 degrees. */
           .fk-paths{grid-template-columns:minmax(0,1fr);row-gap:0}
-          .fk-or{margin:44px 0;height:2px;background:var(--fk-line);display:block;
+          .fk-or{margin:37.4px 0;height:2px;background:var(--fk-line);display:block;
             position:relative}
           .fk-or::before{display:none}
           .fk-or .fk-or-mark{position:absolute;left:50%;top:50%;
-            transform:translate(-50%,-50%);flex-direction:row;gap:14px;
-            padding:0 18px}
-          .fk .fk-p-name{margin-bottom:18px}
-          .fk .fk-p-def{margin-bottom:28px}
-          .fk-plate{width:100%;margin-bottom:28px}
-          .fk .fk-p-cap{margin-bottom:24px}
-          .fk .fk-p-feat{max-width:none;gap:10px 18px;padding:18px 0;margin-bottom:26px}
+            transform:translate(-50%,-50%);flex-direction:row;gap:11.9px;
+            padding:0 15.3px}
+          .fk .fk-p-name{margin-bottom:15.3px}
+          .fk .fk-p-def{margin-bottom:23.8px}
+          .fk-plate{width:100%;margin-bottom:23.8px}
+          .fk .fk-p-cap{margin-bottom:20.4px}
+          .fk .fk-p-feat{max-width:none;gap:8.5px 15.3px;padding:15.3px 0;margin-bottom:22.1px}
           /* nowrap exists to keep the two schedules the same height so the CTAs
              line up, and that only matters while the panels are side by side.
-             Stacked, a wrap costs nothing — and the longest item needs 166px in
-             a 166px column here, which is no margin at all if the mono face is
+             Stacked, a wrap costs nothing — and the longest item needs 141.1px in
+             a 141.1px column here, which is no margin at all if the mono face is
              slow and a fallback measures wider. */
-          .fk .fk-p-feat li{white-space:normal;letter-spacing:.03em;font-size:11.5px}
+          .fk .fk-p-feat li{white-space:normal;letter-spacing:.03em;font-size:10px}
           /* The knockout needs one unbroken line, and this one is 38 characters
              — it does not fit a phone at any size worth reading. So the rule
              goes and the inscription becomes plain centred text that may wrap,
-             rather than shrinking to 10px to defend a hairline nobody will
+             rather than shrinking to 8.5px to defend a hairline nobody will
              miss. */
-          .fk-close{margin-top:36px;height:auto;background:none}
+          .fk-close{margin-top:30.6px;height:auto;background:none}
           .fk-close-t{position:static;transform:none;display:block;
-            white-space:normal;padding:0;font-size:12px;letter-spacing:.1em;
+            white-space:normal;padding:0;font-size:10.2px;letter-spacing:.1em;
             line-height:1.7}
         }
         @media (max-width:768px){
