@@ -1,58 +1,74 @@
 /**
  * Collateral — "Who holds you to it".
  *
- * EDITORIAL PASS. The brief was to take roughly 40% of the visual noise out and
- * let the type and the plates do the work: no cards, no bordered boxes, no
- * timeline graphic, no connectors, no icons.
+ * Built to the supplied comp. The previous editorial pass stripped the section
+ * to type plus two plates; the comp puts a measured amount back, and every
+ * piece of it is doing a job:
  *
- * WHAT WAS REMOVED, which is most of what this file used to be:
- *
- *   the travelling node   four 13px discs on a hairline rail with a staggered
- *                         8s pulse. It was the most SaaS thing on the page — a
- *                         progress tracker for a process nobody is progressing
- *                         through while they read it.
- *   the rail              .fk-steps::before, the 1px line joining the steps.
- *   the two fork cards    panel background, 1px border, 2px top rule, hover lift
- *                         and a 40px shadow. Now two open columns.
- *   the clauses           three bulleted clauses per mode, each with a section
- *                         mark. Replaced by one line per mode.
- *
- * Step copy is cut to a single idea each; the longest is eleven words. Nothing
- * is bold — weight does no work here that size and space cannot do better.
+ *   the four icon plates   a small engraved emblem above each step — temple,
+ *                          signpost, safe, wax seal. They are the only pictures
+ *                          in the top band and they carry the sequence at a
+ *                          glance, before any of the copy is read.
+ *   the step hairlines     a 1px rule on the LEFT of each step, suppressed on
+ *                          the first. Four columns divided by three lines, not
+ *                          boxed by eight — the band still reads as one object.
+ *   the OR gutter          a real column, 66px, with a vertical hairline and the
+ *                          word sitting on it. Solo and Rivalry are alternatives
+ *                          and the layout should say so; a plain gap does not.
+ *   the two inscribed rules  the divider above the plates and the closing line
+ *                          both carry their text ON the rule, knocked out of it
+ *                          with a parchment-coloured pad. Same gesture twice.
  *
  * ── THE TWO PLATES ─────────────────────────────────────────────────────────
- * Purpose-drawn companions, supplied together:
  *
- *   plate-solo.jpg      one climber, one stair, the temple above him
- *   plate-rivalry.jpg   two climbers on separate stairs, the same temple
+ *   plate-solo.jpg      the lone figure climbing toward the temple
+ *   plate-rivalry.jpg   two rivals and an arbiter across one table
  *
- * The subject is the same climb either way, which is the whole argument of the
- * section — the rival does not change the summit, only who else is on the hill.
+ * Both encoded to an IDENTICAL 708x332 frame at q88. Two images sitting side by
+ * side must agree exactly on height or the pair reads as "slightly off" without
+ * being findable, so they match by construction rather than by CSS.
  *
- * Both are re-encoded to an IDENTICAL 1400x933 frame. The sources differed by a
- * pixel (1536x1024 against 1537x1023); left alone that lands as a half-pixel
- * disagreement in the height of two images sitting side by side, which is
- * exactly the kind of thing that reads as "slightly off" without being
- * findable. Same frame, same quality, so the pair matches by construction.
+ * Unlike the previous pass these do NOT bleed — the comp frames them as plates
+ * with a hard edge and a 2px radius. No mask, no shadow.
  *
- * The plates BLEED: no frame, no radius, no shadow. A radial mask dissolves the
- * edges into the parchment, the same gesture the hero uses where its artwork
- * meets the page.
+ * ── TYPE ────────────────────────────────────────────────────────────────────
+ * All of it is Garamond. The earlier pass set the small labels in IBM Plex Mono;
+ * the comp has no monospace anywhere. Letter-spacing and weight do that work.
  *
  * ── SCOPING ──────────────────────────────────────────────────────────────────
  * Everything is under .fk. h2 not h1 — the hero owns the page's h1.
  *
  * ── MOTION ───────────────────────────────────────────────────────────────────
- * One fade and rise on scroll: 700ms, 12px, staggered 90ms. No parallax, no
- * float, no hover gimmick — the links move their arrow 4px and nothing else.
- * Under prefers-reduced-motion everything is simply present.
+ * One fade and rise on scroll: 700ms, 12px, staggered 90ms. The links move their
+ * arrow 4px and nothing else. Under prefers-reduced-motion everything is simply
+ * present.
  */
 
 const STEPS = [
-    { n: '01', name: 'Connect', body: 'Live data, read straight from the source. Nothing you type.' },
-    { n: '02', name: 'Choose', body: 'Stake against your own record, or against someone else.' },
-    { n: '03', name: 'Lock', body: 'Capital sits in escrow until the deadline. No early exit.' },
-    { n: '04', name: 'Settle', body: 'The oracle reports. The record updates, permanently.' },
+    {
+        n: '01', name: 'Connect',
+        icon: '/assets/images/fork-step-01.png',
+        iconAlt: 'Engraved emblem: a temple front.',
+        body: 'We read live data directly from your business. Nothing you type, nothing you upload.',
+    },
+    {
+        n: '02', name: 'Choose',
+        icon: '/assets/images/fork-step-02.png',
+        iconAlt: 'Engraved emblem: a two-armed signpost.',
+        body: 'You decide the path: stake against your own record, or take on a rival.',
+    },
+    {
+        n: '03', name: 'Lock',
+        icon: '/assets/images/fork-step-03.png',
+        iconAlt: 'Engraved emblem: a strongbox.',
+        body: 'Your capital is placed in escrow for the full window. No early exit, no renegotiation.',
+    },
+    {
+        n: '04', name: 'Settle',
+        icon: '/assets/images/fork-step-04.png',
+        iconAlt: 'Engraved emblem: a wax seal.',
+        body: 'On the deadline, the oracle reports and the outcome settles automatically. The record is permanent.',
+    },
 ];
 
 const PATHS = [
@@ -65,7 +81,7 @@ const PATHS = [
     {
         key: 'rival', name: 'Rivalry', rule: 'Stake against someone else.',
         plate: '/assets/images/plate-rivalry.jpg',
-        alt: 'Engraving: two figures each carrying a purse up separate stone stairs toward the same temple.',
+        alt: 'Engraving: two rivals set their purses on a table while a magistrate seals the contract between them.',
         caption: 'We answer to the same rules.', cta: 'Learn more',
     },
 ];
@@ -86,7 +102,10 @@ function renderStep(step, i) {
     return `
                         <div class="fk-step" style="--i:${i}">
                             <div class="fk-num">${escapeHtml(step.n)}</div>
+                            <img class="fk-icon" src="${escapeHtml(step.icon)}" alt="${escapeHtml(step.iconAlt)}"
+                                 loading="lazy" decoding="async" width="128" height="128" />
                             <h3>${escapeHtml(step.name)}</h3>
+                            <span class="fk-dia fk-step-dia" aria-hidden="true"></span>
                             <p>${escapeHtml(step.body)}</p>
                         </div>`;
 }
@@ -99,7 +118,7 @@ function renderPath(path, onSelectPath, i) {
                             <p class="fk-p-rule">${escapeHtml(path.rule)}</p>
                             <div class="fk-plate">
                                 <img src="${escapeHtml(path.plate)}" alt="${escapeHtml(path.alt)}"
-                                     loading="lazy" decoding="async" width="1400" height="933" />
+                                     loading="lazy" decoding="async" width="708" height="332" />
                             </div>
                             <p class="fk-p-cap">${escapeHtml(path.caption)}</p>
                             <button type="button" class="fk-p-cta"${action ? ` onclick="${action}"` : ''}>${escapeHtml(path.cta)} <span class="fk-arw" aria-hidden="true">&rarr;</span></button>
@@ -118,15 +137,15 @@ export function renderForkSection(options = {}) {
     return `
         <style>
         .fk{
-          --fk-parch:#F1E8D3;
-          --fk-ink:#211B12;
+          --fk-parch:#F2E9D2;
+          --fk-ink:#2A2118;
           --fk-ink-soft:#5B5140;
-          --fk-muted:#9A8C6F;
+          --fk-muted:#8B7E64;
           --fk-ox:#7C1D2B;
-          --fk-line:rgba(60,48,30,.18);
+          --fk-line:rgba(70,55,35,.22);
+          --fk-line-soft:rgba(70,55,35,.14);
           --fk-serif:"EB Garamond",Georgia,serif;
           --fk-display:"Cormorant Garamond","EB Garamond",Georgia,serif;
-          --fk-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 
           background:var(--fk-parch);
           color:var(--fk-ink);
@@ -134,70 +153,98 @@ export function renderForkSection(options = {}) {
           -webkit-font-smoothing:antialiased;
         }
         .fk *{box-sizing:border-box;margin:0;padding:0}
-        /* Deliberately generous. Most of the noise reduction in this pass is
-           space rather than deletion. */
-        .fk-wrap{width:100%;max-width:1440px;margin:0 auto;padding:104px 90px 96px}
+        .fk-wrap{width:100%;max-width:1536px;margin:0 auto;padding:72px 62px 56px}
+
+        /* The section's one repeated ornament. Rotated square, not a glyph —
+           a real diamond character sits differently in every serif we might
+           fall back to. */
+        .fk-dia{width:7px;height:7px;background:var(--fk-ox);
+          transform:rotate(45deg);display:inline-block}
 
         /* ---- masthead and the four steps, one band ---- */
-        .fk-top{display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1.5fr);
-          gap:80px;align-items:start}
-        .fk-kicker{font-family:var(--fk-mono);font-size:10px;letter-spacing:.34em;
-          text-transform:uppercase;color:var(--fk-muted);margin-bottom:26px}
+        .fk-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);
+          gap:56px;align-items:start}
+        .fk-kicker{font-size:11px;letter-spacing:.34em;text-transform:uppercase;
+          color:var(--fk-ink-soft);font-weight:600;margin-bottom:20px}
         .fk h2{font-family:var(--fk-display);font-weight:600;color:var(--fk-ox);
-          font-size:clamp(34px,4.4vw,62px);line-height:1.02;letter-spacing:.008em;
-          text-transform:uppercase;font-variant:small-caps;margin-bottom:28px}
-        /* The only two rules in the section: this one reads as part of the
-           masthead, and .fk-div separates the explanation from the plates. */
-        .fk-mark{width:54px;height:1px;background:var(--fk-ox);opacity:.5;margin-bottom:26px}
-        .fk-lede{font-size:17.5px;line-height:1.62;color:var(--fk-ink-soft);max-width:44ch}
+          font-size:clamp(38px,4.1vw,62px);line-height:.98;letter-spacing:.015em;
+          text-transform:uppercase;margin-bottom:20px}
+        .fk-mark{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+        .fk-mark i{height:1px;width:40px;background:var(--fk-ox);opacity:.7;display:block}
+        .fk-lede{font-size:17px;line-height:1.62;color:var(--fk-ink-soft);max-width:44ch}
 
-        /* No rail, no nodes, no connectors — the columns are the sequence. */
-        .fk-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:44px}
-        .fk-step{padding-top:4px}
-        .fk-num{font-family:var(--fk-mono);font-size:11px;letter-spacing:.2em;
-          color:var(--fk-ox);opacity:.75;margin-bottom:14px}
-        .fk-step h3{font-family:var(--fk-display);font-weight:600;font-size:23px;
-          line-height:1.1;letter-spacing:.06em;text-transform:uppercase;
-          font-variant:small-caps;color:var(--fk-ink);margin-bottom:12px}
-        .fk-step p{font-size:14.5px;line-height:1.6;color:var(--fk-ink-soft);max-width:24ch}
+        /* Four columns divided by three hairlines. The rule is on the left of
+           each step and suppressed on the first, so the band has no outer
+           border and does not become a box. */
+        .fk-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+        .fk-step{text-align:center;padding:0 22px;border-left:1px solid var(--fk-line-soft)}
+        .fk-step:first-child{border-left:0}
+        .fk-num{font-family:var(--fk-display);font-size:26px;font-weight:600;
+          color:var(--fk-ox);line-height:1;margin-bottom:14px}
+        /* multiply, not a mask: the emblems are drawn on their own cream ground
+           and this drops that ground into the parchment without an alpha
+           channel to maintain. */
+        .fk-icon{height:74px;width:auto;display:block;margin:0 auto 16px;
+          mix-blend-mode:multiply}
+        .fk-step h3{font-family:var(--fk-display);font-weight:600;font-size:20px;
+          line-height:1.1;letter-spacing:.14em;text-transform:uppercase;
+          color:var(--fk-ink);margin-bottom:12px}
+        .fk-step-dia{width:6px;height:6px;opacity:.85;margin:0 auto 14px;display:block}
+        .fk-step p{font-size:13.5px;line-height:1.55;color:var(--fk-ink-soft);
+          max-width:158px;margin:0 auto}
 
-        .fk-div{height:1px;background:var(--fk-line);margin:88px 0 78px}
+        /* ---- the inscribed divider ---- */
+        .fk-div{position:relative;height:1px;background:var(--fk-line);margin:40px 0 36px}
+        .fk-div .fk-dia{position:absolute;left:50%;top:50%;
+          transform:translate(-50%,-50%) rotate(45deg);
+          box-shadow:0 0 0 8px var(--fk-parch)}
 
         /* ---- solo / rivalry ---- */
-        .fk-paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:88px}
-        .fk-path{display:flex;flex-direction:column;align-items:center;text-align:center}
+        .fk-paths{display:grid;grid-template-columns:minmax(0,1fr) 66px minmax(0,1fr);
+          align-items:start}
+        .fk-path{text-align:center}
         .fk-p-name{font-family:var(--fk-display);font-weight:600;
-          font-size:clamp(26px,2.4vw,34px);line-height:1;letter-spacing:.1em;
-          text-transform:uppercase;font-variant:small-caps;color:var(--fk-ink);
-          margin-bottom:10px}
-        .fk-rival .fk-p-name{color:var(--fk-ox)}
-        .fk-p-rule{font-family:var(--fk-mono);font-size:10px;letter-spacing:.22em;
-          text-transform:uppercase;color:var(--fk-muted);margin-bottom:30px}
+          font-size:clamp(30px,2.7vw,40px);line-height:1;letter-spacing:.09em;
+          text-transform:uppercase;color:var(--fk-ox);margin-bottom:12px}
+        .fk-p-rule{font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+          color:var(--fk-ink);font-weight:600;margin-bottom:24px}
 
-        /* THE PLATES BLEED. No box, no radius, no shadow — the mask dissolves
-           all four edges into the parchment. A frame would put the engraving
-           behind glass; the brief asked for the opposite. */
-        .fk-plate{width:100%;margin-bottom:26px}
-        .fk-plate img{display:block;width:100%;height:auto;
-          -webkit-mask-image:radial-gradient(118% 108% at 50% 46%,#000 52%,transparent 96%);
-          mask-image:radial-gradient(118% 108% at 50% 46%,#000 52%,transparent 96%)}
+        /* Framed, not bled. The comp gives these a hard edge; the 2px radius is
+           the only softening. */
+        .fk-plate{margin-bottom:24px}
+        .fk-plate img{display:block;width:100%;height:auto;border-radius:2px;
+          mix-blend-mode:multiply}
 
-        .fk-p-cap{font-family:var(--fk-display);font-style:italic;
-          font-size:clamp(19px,1.6vw,23px);line-height:1.35;color:var(--fk-ink);
-          margin-bottom:22px}
+        .fk-p-cap{font-family:var(--fk-display);font-style:italic;font-weight:500;
+          font-size:clamp(22px,2vw,27px);line-height:1.35;color:var(--fk-ink);
+          margin-bottom:18px}
         .fk-p-cta{background:none;border:0;cursor:pointer;padding:0;
-          font-family:var(--fk-mono);font-size:10.5px;letter-spacing:.24em;
-          text-transform:uppercase;color:var(--fk-ink-soft);transition:color 200ms ease}
-        .fk-arw{color:var(--fk-ox);display:inline-block;margin-left:8px;
-          transition:transform 200ms ease}
-        .fk-p-cta:hover{color:var(--fk-ink)}
+          font-family:var(--fk-serif);font-size:11px;letter-spacing:.24em;
+          text-transform:uppercase;font-weight:600;color:var(--fk-ink);
+          display:inline-flex;align-items:center;gap:10px;
+          transition:color 200ms ease}
+        .fk-arw{color:var(--fk-ox);display:inline-block;transition:transform 200ms ease}
+        .fk-p-cta:hover{color:var(--fk-ox)}
         .fk-p-cta:hover .fk-arw{transform:translateX(4px)}
         .fk-p-cta:focus-visible{outline:2px solid var(--fk-ox);outline-offset:4px}
 
-        /* ---- the inscription ---- */
-        .fk-close{margin-top:92px;text-align:center;font-family:var(--fk-mono);
-          font-size:10.5px;letter-spacing:.42em;text-transform:uppercase;
-          color:var(--fk-ox);opacity:.8}
+        /* The gutter. The hairline stops 120px short of the bottom so it spans
+           the plates and not the captions, and OR sits at the vertical middle
+           of the artwork rather than of the column. */
+        .fk-or{position:relative;display:flex;align-items:center;justify-content:center}
+        .fk-or::before{content:"";position:absolute;top:8px;bottom:120px;left:50%;
+          width:1px;background:var(--fk-line)}
+        .fk-or span{position:relative;z-index:1;background:var(--fk-parch);
+          padding:8px 0;margin-top:150px;font-size:11px;letter-spacing:.2em;
+          text-transform:uppercase;color:var(--fk-ox);font-weight:600}
+
+        /* ---- the closing inscription, knocked out of a rule ---- */
+        .fk-close{position:relative;height:1px;background:var(--fk-line);margin-top:42px}
+        .fk-close span{position:absolute;left:50%;top:50%;
+          transform:translate(-50%,-50%);background:var(--fk-parch);padding:0 22px;
+          font-size:12.5px;letter-spacing:.24em;text-transform:uppercase;
+          color:var(--fk-ink);font-weight:600;white-space:nowrap;
+          display:flex;align-items:center;gap:16px}
 
         /* ---- motion: one fade and rise, nothing else ---- */
         @media (prefers-reduced-motion:no-preference){
@@ -207,26 +254,39 @@ export function renderForkSection(options = {}) {
           .fk-in .fk-step,.fk-in .fk-path{opacity:1;transform:none}
         }
 
-        @media (max-width:1080px){
-          .fk-wrap{padding:76px 44px 72px}
-          .fk-top{grid-template-columns:minmax(0,1fr);gap:46px}
-          .fk-steps{gap:32px}
-          .fk-paths{gap:56px}
-        }
-        /* Phone. The section frame and heading sizes come from the shared mobile
-           pass in views/LandingMobile.js; only what is specific to this layout
-           is set here. Two by two rather than four across — a single column puts
-           a couple of hundred pixels of scrolling between CONNECT and SETTLE and
-           loses the sense that they are one sequence. */
-        @media (max-width:760px){
-          .fk-steps{grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 22px}
-          .fk-step h3{font-size:19px}
-          .fk-step p{font-size:13.5px;max-width:none}
+        @media (max-width:1180px){
+          .fk-wrap{padding:64px 44px 52px}
+          .fk-top{grid-template-columns:minmax(0,1fr);gap:44px}
           .fk-lede{max-width:none}
-          .fk-div{margin:44px 0 40px}
-          .fk-paths{grid-template-columns:minmax(0,1fr);gap:48px}
-          .fk-p-rule{margin-bottom:22px}
-          .fk-close{margin-top:48px;letter-spacing:.3em;font-size:9.5px}
+          .fk-step{padding:0 14px}
+          .fk-paths{grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr)}
+        }
+        /* Phone. Two by two rather than four across — a single column puts a
+           couple of hundred pixels of scrolling between CONNECT and SETTLE and
+           loses the sense that they are one sequence. The steps in the second
+           row need their own top hairline, and the third step starts that row,
+           so its left border is the one to drop. */
+        @media (max-width:760px){
+          .fk-wrap{padding:52px 24px 44px}
+          .fk-steps{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:30px}
+          .fk-step{padding:0 12px}
+          .fk-step:nth-child(3){border-left:0}
+          .fk-step:nth-child(n+3){padding-top:30px;border-top:1px solid var(--fk-line-soft)}
+          .fk-icon{height:60px}
+          .fk-step h3{font-size:18px}
+          .fk-step p{font-size:13px;max-width:none}
+          .fk-div{margin:32px 0 30px}
+
+          /* The gutter cannot be a column once the paths stack, so it becomes a
+             rule between them with OR on it — the same idea turned 90 degrees. */
+          .fk-paths{grid-template-columns:minmax(0,1fr);row-gap:0}
+          .fk-or{margin:36px 0;height:1px;background:var(--fk-line);display:block;
+            position:relative}
+          .fk-or::before{display:none}
+          .fk-or span{position:absolute;left:50%;top:50%;
+            transform:translate(-50%,-50%);margin-top:0;padding:0 18px}
+          .fk-close{margin-top:36px}
+          .fk-close span{font-size:10.5px;letter-spacing:.16em;gap:12px;padding:0 14px}
         }
         @media (max-width:768px){
           .fk{width:100vw;margin-left:calc(50% - 50vw)}
@@ -240,21 +300,24 @@ export function renderForkSection(options = {}) {
                     <div>
                         <div class="fk-kicker">How it settles</div>
                         <h2 id="fk-title">Who holds<br />you to it</h2>
-                        <div class="fk-mark" aria-hidden="true"></div>
+                        <div class="fk-mark" aria-hidden="true"><span class="fk-dia"></span><i></i></div>
                         <p class="fk-lede">Every contract runs the same four steps. Only one of them
-                            gives you a choice &mdash; whether you stake against your own record, or
-                            against someone who wants it as badly as you claim to.</p>
+                            gives you a choice &mdash; whether you're staking against your own record,
+                            or against someone who wants it as badly as you claim to.</p>
                     </div>
                     <div class="fk-steps">${STEPS.map(renderStep).join('')}
                     </div>
                 </div>
 
-                <div class="fk-div" aria-hidden="true"></div>
+                <div class="fk-div" aria-hidden="true"><span class="fk-dia"></span></div>
 
-                <div class="fk-paths">${PATHS.map((p, i) => renderPath(p, onSelectPath, i + 4)).join('')}
+                <div class="fk-paths">${renderPath(PATHS[0], onSelectPath, 4)}
+                        <div class="fk-or" aria-hidden="true"><span>Or</span></div>${renderPath(PATHS[1], onSelectPath, 5)}
                 </div>
 
-                <div class="fk-close">No judges. No voting. Only the record.</div>
+                <div class="fk-close">
+                    <span><span class="fk-dia" aria-hidden="true"></span> No judges. No voting. Only the record. <span class="fk-dia" aria-hidden="true"></span></span>
+                </div>
             </div>
         </section>
     `;
