@@ -8,6 +8,7 @@ import { renderCaseSection } from '../components/CaseSection.js';
 import { renderOracleSection } from '../components/OracleSection.js';
 import { renderRecordSection, initRecordSection } from '../components/RecordSection.js';
 import { renderFlowSection, initFlowSection } from '../components/FlowSection.js';
+import { renderPriceSection, initPriceSection } from '../components/PriceSection.js';
 import { renderLedgerSection, initLedgerSection } from '../components/LedgerSection.js';
 
 // Inject LandingCSS once into document head
@@ -52,110 +53,7 @@ export function renderLanding() {
             <!-- ═════ 5 · FORFEIT FLOW ═════ -->
             ${renderFlowSection()}
 
-            <!-- ═════ 6 · CALCULATOR + TIERS ═════ -->
-            <section class="section alt reveal" id="terms">
-                <span class="idx-mark" aria-hidden="true">07</span>
-                <div class="shell">
-                    <p class="eyebrow rise" style="--d:40ms">Price your own contract</p>
-                    <h2 class="title clip-wipe" style="--d:120ms">Name a number that would actually hurt to lose</h2>
-                    <p class="lede rise" style="--d:220ms">Too small and you'll shrug it off in week two. Too large and you'll talk
-                        yourself out of signing at all. The right number is the one you flinch at slightly.</p>
-
-                    <div class="calc plate card-rise" style="--d:320ms">
-                        <div class="calc-left">
-                            <div>
-                                <span class="mono">Contract parameters</span>
-                                <div class="field">
-                                    <div class="field-top">
-                                        <label class="mono" for="dep" style="color:var(--ink-2)">Deposit</label>
-                                        <span class="field-val" id="dep-out">$1,000</span>
-                                    </div>
-                                    <input type="range" id="dep" min="100" max="10000" step="50" value="1000">
-                                    <div class="scale"><span class="mono">$100</span><span class="mono">$10,000</span></div>
-                                </div>
-                                <div class="field" style="margin-top:30px">
-                                    <div class="field-top">
-                                        <span class="mono" style="color:var(--ink-2)">Execution window</span>
-                                    </div>
-                                    <div class="seg" id="seg" role="group" aria-label="Execution window">
-                                        <button type="button" data-days="14" aria-pressed="false">14 days</button>
-                                        <button type="button" data-days="30" aria-pressed="true">30 days</button>
-                                        <button type="button" data-days="60" aria-pressed="false">60 days</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="calc-left-foot">
-                                <span class="mono">Parameters lock on signature</span>
-                            </div>
-                        </div>
-
-                        <div class="calc-right">
-                            <span class="mono">Settlement outcomes</span>
-                            <div class="outcomes">
-                                <div class="outcome">
-                                    <span class="mono" style="color:var(--win)">If you hit target</span>
-                                    <p class="outcome-val" id="o-win">$2,500</p>
-                                    <p class="outcome-note">Stake plus matching payout</p>
-                                </div>
-                                <div class="outcome">
-                                    <span class="mono" style="color:var(--blood)">If you miss</span>
-                                    <p class="outcome-val" id="o-lose">&minus;$1,000</p>
-                                    <p class="outcome-note">Forfeited to match pool</p>
-                                </div>
-                            </div>
-                            <dl class="terms">
-                                <div class="t-row"><dt>Tier</dt><span class="dots"></span><dd id="t-tier">Stake</dd></div>
-                                <div class="t-row"><dt>Match multiplier</dt><span class="dots"></span><dd id="t-mult">2.5&times;</dd></div>
-                                <div class="t-row"><dt>Est. match on success</dt><span class="dots"></span><dd id="t-net">+$1,500</dd></div>
-                                <div class="t-row"><dt>On miss</dt><span class="dots"></span><dd id="t-miss">Full forfeit</dd></div>
-                            </dl>
-                            <div class="calc-cta">
-                                <button class="btn btn-fill" type="button" id="calc-go" onclick="if(window.app && window.app.openAccessModal){ window.app.openAccessModal('signup'); } else { window.router.navigate('/signin'); } return false;">Lock $1,000 for 30 days</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="tiers" id="tiers">
-                        <button type="button" class="tier card-rise" style="--d:400ms" data-tier="14">
-                            <span class="tier-tab">Your selection</span>
-                            <span class="mono">Schedule A &middot; All-in</span>
-                            <p class="tier-mult">4.0<small>&times;</small></p>
-                            <span class="mono">14-day window</span>
-                            <dl class="tier-rows">
-                                <div class="t-row"><dt>Deposit</dt><span class="dots"></span><dd>$500 &ndash; $10,000</dd></div>
-                                <div class="t-row"><dt>On miss</dt><span class="dots"></span><dd>Full forfeit</dd></div>
-                            </dl>
-                        </button>
-                        <button type="button" class="tier card-rise" style="--d:480ms" data-tier="30" data-active="true">
-                            <span class="tier-tab">Your selection</span>
-                            <span class="mono">Schedule A &middot; Stake</span>
-                            <p class="tier-mult">2.5<small>&times;</small></p>
-                            <span class="mono">30-day window</span>
-                            <dl class="tier-rows">
-                                <div class="t-row"><dt>Deposit</dt><span class="dots"></span><dd>$250 &ndash; $3,000</dd></div>
-                                <div class="t-row"><dt>On miss</dt><span class="dots"></span><dd>Full forfeit</dd></div>
-                            </dl>
-                        </button>
-                        <button type="button" class="tier card-rise" style="--d:560ms" data-tier="60">
-                            <span class="tier-tab">Your selection</span>
-                            <span class="mono">Schedule A &middot; Pledge</span>
-                            <p class="tier-mult">1.5<small>&times;</small></p>
-                            <span class="mono">60-day window</span>
-                            <dl class="tier-rows">
-                                <div class="t-row"><dt>Deposit</dt><span class="dots"></span><dd>$100 &ndash; $1,500</dd></div>
-                                <div class="t-row"><dt>On miss</dt><span class="dots"></span><dd>Grace period</dd></div>
-                            </dl>
-                        </button>
-                    </div>
-
-                    <div class="marg rise" style="--d:620ms; margin-top:34px">
-                        <span class="marg-mark">&sect; 6.2</span>
-                        <p>Shorter windows pay more because they are harder, not because we are being generous.
-                            Fourteen days is chosen by people who have already started.</p>
-                    </div>
-                </div>
-            </section>
+            ${renderPriceSection()}
 
             <!-- ═════ 7 · DUELS ═════ -->
             <section class="section reveal" id="duels">
@@ -375,6 +273,7 @@ export function initLanding() {
        rendered at build time stay on screen rather than the section emptying. */
     initLedgerSection();
     initFlowSection();
+    initPriceSection();
     initRecordSection();
 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -576,72 +475,6 @@ export function initLanding() {
     window._lpClockInterval = setInterval(tickClock, 1000);
     window._lpSettleInterval = setInterval(settleTop, 4200);
     setTimeout(settleTop, 2400);
-
-    /* ── 2 · Calculator Engine & Tiers Synchronizer ── */
-    var depEl = document.getElementById('dep');
-    var seg   = document.getElementById('seg');
-    var tiers = document.getElementById('tiers');
-    var days  = 30;
-    var TIERS = {
-        14:{name:'All-in', mult:4.0, miss:'Full forfeit'},
-        30:{name:'Stake',  mult:2.5, miss:'Full forfeit'},
-        60:{name:'Pledge', mult:1.5, miss:'Grace period'}
-    };
-
-    function calc(){
-        if (!depEl) return;
-        var dep = +depEl.value, t = TIERS[days], ret = dep * t.mult;
-        const depOut = document.getElementById('dep-out');
-        const winOut = document.getElementById('win-out');
-        const oWin = document.getElementById('o-win');
-        const oLose = document.getElementById('o-lose');
-        const tTier = document.getElementById('t-tier');
-        const tMult = document.getElementById('t-mult');
-        const tNet = document.getElementById('t-net');
-        const tMiss = document.getElementById('t-miss');
-        const calcGo = document.getElementById('calc-go');
-
-        if (depOut) depOut.textContent = money(dep);
-        if (winOut) winOut.textContent = days + 'd';
-        if (oWin) oWin.textContent   = money(ret);
-        if (oLose) oLose.textContent  = '\u2212' + money(dep);
-        if (tTier) tTier.textContent  = t.name;
-        if (tMult) tMult.textContent  = t.mult.toFixed(1) + '\u00D7';
-        if (tNet) tNet.textContent   = '+' + money(ret - dep);
-        if (tMiss) tMiss.textContent  = t.miss;
-        if (calcGo) calcGo.textContent = 'Lock ' + money(dep) + ' for ' + days + ' days';
-        
-        if (tiers) {
-            tiers.querySelectorAll('.tier').forEach(function(card){
-                card.dataset.active = (+card.dataset.tier === days) ? 'true' : 'false';
-            });
-        }
-    }
-
-    if (depEl) depEl.addEventListener('input', calc);
-    if (seg) {
-        seg.addEventListener('click', function(e){
-            var b = e.target.closest('button[data-days]'); if (!b) return;
-            days = +b.dataset.days;
-            seg.querySelectorAll('button').forEach(function(x){
-                x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
-            });
-            calc();
-        });
-    }
-    if (tiers) {
-        tiers.addEventListener('click', function(e){
-            var card = e.target.closest('.tier'); if (!card) return;
-            days = +card.dataset.tier;
-            if (seg) {
-                seg.querySelectorAll('button').forEach(function(x){
-                    x.setAttribute('aria-pressed', +x.dataset.days === days ? 'true' : 'false');
-                });
-            }
-            calc();
-        });
-    }
-    calc();
 
     /* ── 3 · Forfeit Recirculation Flow ── */
     var track   = document.getElementById('track');
