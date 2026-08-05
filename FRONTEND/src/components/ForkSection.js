@@ -20,18 +20,20 @@
  * Step copy is cut to a single idea each; the longest is eleven words. Nothing
  * is bold — weight does no work here that size and space cannot do better.
  *
- * ── THE TWO PLATES ARE ONE PLATE ─────────────────────────────────────────────
- * The brief asked for companion engravings: identical perspective, lighting,
- * engraving density and parchment tone, only the subject changing. Rather than
- * commission two images and hope they match, both are cut from the hero's own
- * senate plate, at the same 860x645 frame and the same y-band:
+ * ── THE TWO PLATES ─────────────────────────────────────────────────────────
+ * Purpose-drawn companions, supplied together:
  *
- *   plate-solo.jpg      x 40    the left figure, alone, hand on the purse
- *   plate-rivalry.jpg   x 676   the group, the scroll, the magistrate's seal
+ *   plate-solo.jpg      one climber, one stair, the temple above him
+ *   plate-rivalry.jpg   two climbers on separate stairs, the same temple
  *
- * They cannot drift apart because they were never apart, and they carry the
- * hero's tone exactly — it is literally the hero's paper. If purpose-drawn
- * plates arrive later, this is two filenames.
+ * The subject is the same climb either way, which is the whole argument of the
+ * section — the rival does not change the summit, only who else is on the hill.
+ *
+ * Both are re-encoded to an IDENTICAL 1400x933 frame. The sources differed by a
+ * pixel (1536x1024 against 1537x1023); left alone that lands as a half-pixel
+ * disagreement in the height of two images sitting side by side, which is
+ * exactly the kind of thing that reads as "slightly off" without being
+ * findable. Same frame, same quality, so the pair matches by construction.
  *
  * The plates BLEED: no frame, no radius, no shadow. A radial mask dissolves the
  * edges into the parchment, the same gesture the hero uses where its artwork
@@ -57,13 +59,13 @@ const PATHS = [
     {
         key: 'solo', name: 'Solo', rule: 'Stake against your own record.',
         plate: '/assets/images/plate-solo.jpg',
-        alt: 'Engraving: a lone figure at a stone table, his hand resting on a coin purse.',
+        alt: 'Engraving: a lone figure carrying a purse up a long stone stair toward a temple on the summit.',
         caption: 'I answer to myself.', cta: 'Learn more',
     },
     {
         key: 'rival', name: 'Rivalry', rule: 'Stake against someone else.',
         plate: '/assets/images/plate-rivalry.jpg',
-        alt: 'Engraving: two figures at the same table with a magistrate between them, setting the seal on the contract.',
+        alt: 'Engraving: two figures each carrying a purse up separate stone stairs toward the same temple.',
         caption: 'We answer to the same rules.', cta: 'Learn more',
     },
 ];
@@ -97,7 +99,7 @@ function renderPath(path, onSelectPath, i) {
                             <p class="fk-p-rule">${escapeHtml(path.rule)}</p>
                             <div class="fk-plate">
                                 <img src="${escapeHtml(path.plate)}" alt="${escapeHtml(path.alt)}"
-                                     loading="lazy" decoding="async" width="860" height="645" />
+                                     loading="lazy" decoding="async" width="1400" height="933" />
                             </div>
                             <p class="fk-p-cap">${escapeHtml(path.caption)}</p>
                             <button type="button" class="fk-p-cta"${action ? ` onclick="${action}"` : ''}>${escapeHtml(path.cta)} <span class="fk-arw" aria-hidden="true">&rarr;</span></button>
