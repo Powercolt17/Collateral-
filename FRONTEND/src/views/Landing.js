@@ -10,6 +10,7 @@ import { renderRecordSection, initRecordSection } from '../components/RecordSect
 import { renderFlowSection, initFlowSection } from '../components/FlowSection.js';
 import { renderPriceSection, initPriceSection } from '../components/PriceSection.js';
 import { renderDuelSection, initDuelSection } from '../components/DuelSection.js';
+import { renderScheduleSection, initScheduleSection } from '../components/ScheduleSection.js';
 import { renderLedgerSection, initLedgerSection } from '../components/LedgerSection.js';
 
 // Inject LandingCSS once into document head
@@ -58,149 +59,7 @@ export function renderLanding() {
 
             ${renderDuelSection()}
 
-                        <!-- ═════ 7b · FAQ / SCHEDULE OF COMMON QUESTIONS ═════ -->
-            <section class="faq reveal" id="terms" aria-labelledby="faq-h">
-                <div class="faq-grid">
-                    <div class="rail">
-                        <div class="eyebrow rise" style="--d:40ms">SCHEDULE OF COMMON QUESTIONS</div>
-                        <h2 id="faq-h" class="clip-wipe" style="--d:120ms">Everything a contract<br />does to your money</h2>
-                        <p class="rise" style="--d:220ms">Nine clauses covering custody, the window, settlement, and what Collateral can see on the accounts you connect.</p>
-                        <div class="note rise" style="--d:320ms">
-                            <b>CLERK'S NOTE</b>
-                            <span>If a question is not answered here, it is answered in the full terms. Nothing material is kept off this page.</span>
-                        </div>
-                    </div>
-
-                    <div class="sched" id="sched">
-                        <div class="group rise" style="--d:160ms">&sect; 1 &nbsp;CUSTODY</div>
-
-                        <div class="item open" style="--d:240ms">
-                            <button class="q" aria-expanded="true" aria-controls="a11">
-                                <span class="clause">&sect; 1.1</span>
-                                <span class="qt">What happens to my deposit?</span>
-                                <span class="sign" aria-hidden="true"></span>
-                            </button>
-                            <div class="a" style="margin:0 !important; padding:0 !important; border:none !important; min-height:0 !important;" id="a11" role="region">
-                                <div>
-                                    <p style="margin:0 !important; padding:0 44px 20px 78px !important; line-height:1.72 !important; display:block !important; text-align:left !important;">It moves to a third-party custodian on Stripe Connect the moment the contract opens. Collateral never holds it. Hit your target and it returns to your card with the matched payout. Miss, and it settles to the forfeiture pool.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="item" style="--d:320ms">
-                            <button class="q" aria-expanded="false" aria-controls="a12">
-                                <span class="clause">&sect; 1.2</span>
-                                <span class="qt">Who decides whether I hit the target?</span>
-                                <span class="sign" aria-hidden="true"></span>
-                            </button>
-                            <div class="a" style="margin:0 !important; padding:0 !important; border:none !important; min-height:0 !important;" id="a12" role="region">
-                                <div>
-                                    <p style="margin:0 !important; padding:0 44px 20px 78px !important; line-height:1.72 !important; display:block !important; text-align:left !important;">The API you named in the contract. Collateral reads the same numbers your platform already reports, on the cadence listed in the register, and settles on whatever it finds. Nobody here reviews your work, and neither you nor a counterparty gets a vote.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="item" style="--d:400ms">
-                            <button class="q" aria-expanded="false" aria-controls="a13">
-                                <span class="clause">&sect; 1.3</span>
-                                <span class="qt">What if the API is down at settlement?</span>
-                                <span class="sign" aria-hidden="true"></span>
-                            </button>
-                            <div class="a" style="margin:0 !important; padding:0 !important; border:none !important; min-height:0 !important;" id="a13" role="region">
-                                <div>
-                                    <p style="margin:0 !important; padding:0 44px 20px 78px !important; line-height:1.72 !important; display:block !important; text-align:left !important;">Settlement waits for the next successful read within a 72-hour grace window. If the platform still has not reported by then, the contract voids and your deposit returns in full. A broken oracle is never treated as a miss.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="group">&sect; 2 &nbsp;THE WINDOW</div>
-
-                        <div class="item">
-                            <button class="q" aria-expanded="false" aria-controls="a21">
-                                <span class="clause">&sect; 2.1</span>
-                                <span class="qt">Can I move the deadline?</span>
-                                <span class="sign" aria-hidden="true"></span>
-                            </button>
-                            <div class="a" style="margin:0 !important; padding:0 !important; border:none !important; min-height:0 !important;" id="a21" role="region">
-                                <div>
-                                    <p style="margin:0 !important; padding:0 44px 20px 78px !important; line-height:1.72 !important; display:block !important; text-align:left !important;">No. The date is fixed when the contract opens and cannot be extended, paused, or renegotiated by either party. That constraint is the product.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="item">
-                            <button class="q" aria-expanded="false" aria-controls="a22">
-                                <span class="clause">&sect; 2.2</span>
-                                <span class="qt">Can I cancel?</span>
-                                <span class="sign" aria-hidden="true"></span>
-                            </button>
-                            <div class="a" style="margin:0 !important; padding:0 !important; border:none !important; min-height:0 !important;" id="a22" role="region">
-                                <div>
-                                    <p style="margin:0 !important; padding:0 44px 20px 78px !important; line-height:1.72 !important; display:block !important; text-align:left !important;">Within one hour of opening, yes, in full. After that the deposit is committed until the window closes.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="group">&sect; 3 &nbsp;THE POOL</div>
-
-                        <div class="item">
-                            <button class="q" aria-expanded="false" aria-controls="a31">
-                                <span class="clause">&sect; 3.1</span>
-                                <span class="qt">Where does forfeited money go?</span>
-                                <span class="sign" aria-hidden="true"></span>
-                            </button>
-                            <div class="a" style="margin:0 !important; padding:0 !important; border:none !important; min-height:0 !important;" id="a31" role="region">
-                                <div>
-                                    <p style="margin:0 !important; padding:0 44px 20px 78px !important; line-height:1.72 !important; display:block !important; text-align:left !important;">Into the pool that funds matched payouts for people who hit their targets in the same period. Your miss pays someone else's win. Collateral takes a fee on settled contracts, disclosed before you sign, and takes nothing from the pool itself.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="item">
-                            <button class="q" aria-expanded="false" aria-controls="a32">
-                                <span class="clause">&sect; 3.2</span>
-                                <span class="qt">Is this gambling?</span>
-                                <span class="sign" aria-hidden="true"></span>
-                            </button>
-                            <div class="a" style="margin:0 !important; padding:0 !important; border:none !important; min-height:0 !important;" id="a32" role="region">
-                                <div>
-                                    <p style="margin:0 !important; padding:0 44px 20px 78px !important; line-height:1.72 !important; display:block !important; text-align:left !important;">The outcome depends on your own conduct against a target you set, measured by a source you nominate &mdash; not on chance or on an event outside your control. That is the distinction regulators draw, and it is why Collateral is not a broker, dealer, or exchange. It is also why we cannot promise you a return.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="group">&sect; 4 &nbsp;ACCESS</div>
-
-                        <div class="item">
-                            <button class="q" aria-expanded="false" aria-controls="a41">
-                                <span class="clause">&sect; 4.1</span>
-                                <span class="qt">What can Collateral see on my accounts?</span>
-                                <span class="sign" aria-hidden="true"></span>
-                            </button>
-                            <div class="a" style="margin:0 !important; padding:0 !important; border:none !important; min-height:0 !important;" id="a41" role="region">
-                                <div>
-                                    <p style="margin:0 !important; padding:0 44px 20px 78px !important; line-height:1.72 !important; display:block !important; text-align:left !important;">Read-only scopes on the specific metrics listed in your contract, and nothing else. Collateral cannot post, message, refund, or change a setting on any account you connect, and you can revoke the token at any time without affecting an open contract's settlement.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="item">
-                            <button class="q" aria-expanded="false" aria-controls="a42">
-                                <span class="clause">&sect; 4.2</span>
-                                <span class="qt">What if I disconnect the platform mid-contract?</span>
-                                <span class="sign" aria-hidden="true"></span>
-                            </button>
-                            <div class="a" style="margin:0 !important; padding:0 !important; border:none !important; min-height:0 !important;" id="a42" role="region">
-                                <div>
-                                    <p style="margin:0 !important; padding:0 44px 20px 78px !important; line-height:1.72 !important; display:block !important; text-align:left !important;">The contract settles as a miss at the end of its window. Disconnecting removes the only source of truth it has, and an unverifiable target is treated the same as an unmet one. Reconnect before the window closes and settlement proceeds normally.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tail">Full terms and settlement rules &mdash; <a href="/docs/terms">read the instrument</a></div>
-                    </div>
-                </div>
-            </section>
+            ${renderScheduleSection()}
 
             <!-- ═════ SITE FOOTER ═════ -->
             <footer class="site-footer" style="background:var(--bg, #FAF7F1); border-top:1px solid var(--rule, #D8D2C6); padding:64px 24px 72px; text-align:center; box-sizing:border-box; width:100%;">
@@ -227,6 +86,7 @@ export function initLanding() {
     initFlowSection();
     initPriceSection();
     initDuelSection();
+    initScheduleSection();
     initRecordSection();
 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
