@@ -120,13 +120,25 @@ export function renderHeader(currentRoute = '') {
                page. Matched to .cl-root so that when it does engage the bar
                does not announce itself.
 
-               WORTH KNOWING: this class is not currently being applied. Checked
-               on the live page at scrollY 900 — neither body nor .ch-header
-               carries nav-scrolled, so handleGlobalScroll in main.js is not
-               running on this route. The header has therefore never had a fill
-               at all, which is why unifying the page ground was the fix for the
-               white bar rather than this rule. Left correct so it behaves if
-               that handler is ever repaired. */
+               CORRECTION — THIS CLASS IS APPLIED, and the note that used to sit
+               here said it was not. That note reported checking the live page at
+               scrollY 900 and finding neither body nor .ch-header carrying
+               nav-scrolled, and concluded handleGlobalScroll was not running on
+               this route. The handler runs. It is dispatched inside
+               requestAnimationFrame, and rAF does not fire in the automation
+               browser while its pane is not compositing, so the class never gets
+               added THERE and only there. On a real device it applies normally —
+               confirmed by the reported phone screenshot, which shows the bar as
+               a flat lighter band over the artwork, which is this fill.
+
+               Anything measured through a frozen pane needs that ruled out
+               first: the same artifact has already produced a wrong "the drawer
+               is broken" call and a wrong "the scroll animation is dead" call in
+               this codebase.
+
+               main.js now gates the class on the HERO'S bottom edge rather than
+               scrollY > 20, so this fill cannot engage while the plate is still
+               behind the bar. */
             .ch-header.nav-scrolled {
                 background: #F1E8D3;
             }

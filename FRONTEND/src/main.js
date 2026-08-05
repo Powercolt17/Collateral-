@@ -2116,7 +2116,25 @@ function handleGlobalScroll() {
 
     const header = document.querySelector('.ch-header');
     if (header) {
-        if (isScrolled) {
+        /* THE BAR ONLY TAKES A FILL ONCE IT IS OVER CONTENT.
+           scrollY > 20 is the right threshold for every other route, but on a
+           page with a full-height hero it turns the bar into a flat panel 20px
+           into the scroll — while the artwork is still directly behind it. On
+           the phone that reads as a lighter band ruled across the plate, which
+           is the seam that was reported: the hero's ground is graded parchment
+           and the fill is a single flat value, so they cannot match.
+
+           Gated on the hero's own bottom edge instead. While any part of the
+           hero is still behind the bar it stays transparent and the artwork
+           runs straight up through it; once the hero has passed, the fill
+           engages and keeps the wordmark legible over the sections below.
+           Routes with no hero are unaffected and still use scrollY > 20. */
+        const hero = document.querySelector('.clt-hero');
+        const overContent = hero
+            ? hero.getBoundingClientRect().bottom <= header.getBoundingClientRect().height
+            : isScrolled;
+
+        if (overContent) {
             header.classList.add('nav-scrolled');
         } else {
             header.classList.remove('nav-scrolled');
