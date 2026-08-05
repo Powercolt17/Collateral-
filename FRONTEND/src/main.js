@@ -363,8 +363,24 @@ const routes = PRE_LAUNCH_MODE ? [
 const router = new Router(routes);
 window.router = router;
 
-// Dismiss loading screen after first render
+/* Dismiss loading screen after first render.
+ *
+ * The screen owns its own closing sequence now — it runs the progress rule to
+ * 100%, holds 250ms, then fades over 350ms and removes itself. So this hands
+ * off rather than yanking the element out. See the script inside
+ * #loading-screen in index.html; the direct path below stays as a fallback for
+ * the case where that script did not run.
+ *
+ * The 400ms that used to sit in front of every call is gone. The screen now
+ * enforces its own 900ms floor measured from first paint, which is the actual
+ * requirement; stacking a fixed delay on top of that only ever made a warm load
+ * slower than it needed to be.
+ *
+ * The safety timeout moves 1500 -> 4000. At 1500 it was racing the screen's own
+ * sequence on a cold load and could dismiss mid-progress. It is a backstop for
+ * a 'load' event that never fires, not a second scheduler. */
 const dismissLoadingScreen = () => {
+    if (typeof window.__clLoaderFinish === 'function') { window.__clLoaderFinish(); return; }
     const ls = document.getElementById('loading-screen');
     if (ls && !ls.classList.contains('loaded')) {
         ls.classList.add('loaded');
@@ -373,11 +389,11 @@ const dismissLoadingScreen = () => {
 };
 
 if (document.readyState === 'complete') {
-    setTimeout(dismissLoadingScreen, 400);
+    dismissLoadingScreen();
 } else {
-    window.addEventListener('load', () => setTimeout(dismissLoadingScreen, 400));
+    window.addEventListener('load', dismissLoadingScreen);
     // Fallback safety timeout
-    setTimeout(dismissLoadingScreen, 1500);
+    setTimeout(dismissLoadingScreen, 4000);
 }
 
 // Helper: check if user is currently on landing page

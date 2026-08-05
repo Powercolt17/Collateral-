@@ -155,6 +155,12 @@
     <link rel="preconnect" href="https://collateral-production.up.railway.app" crossorigin>
     <link rel="dns-prefetch" href="https://js.stripe.com">
     <link rel="dns-prefetch" href="https://unpkg.com">
+    <!-- The wordmark's own face, preloaded because the loading screen shows it
+         within the first frames. @font-face for it lives in src/index.css with
+         font-display:swap, which without this would render the mark in the
+         fallback and then swap it mid-display — a visible jump on something the
+         brief asks to keep perfectly still. 66KB. -->
+    <link rel="preload" as="font" type="font/otf" href="/trajan-pro-bold.otf" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Sora:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Sans:wght@500;600;700&display=swap"
         rel="stylesheet" media="print" onload="this.media='all'">
@@ -287,113 +293,233 @@
 <body class="min-h-screen flex flex-col font-sans relative text-[#1A1A1A] bg-white antialiased overflow-x-hidden"
     style="font-family: 'Sora', 'Inter', 'Helvetica Neue', sans-serif; font-feature-settings: 'zero' 0;">
 
-    <div id="loading-screen" style="
-        position: fixed; inset: 0; z-index: 100000;
-        background: #FFFFFF;
-        display: flex; align-items: center; justify-content: center;
-        transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s;
-    ">
+    <!-- ═════ LOADING SCREEN ═══════════════════════════════════════════════
+         A treasury preparing a contract for registration, not a website
+         loading. The whole thing is still except the progress rule.
+
+         NOTHING here fades, scales, pulses or spins. The previous version wiped
+         the wordmark in on a 1.8s keyframe and floated the tagline up on a
+         delay; both are gone. The only moving thing on screen is the fill and
+         the diamond riding its leading edge, and they move linearly — an eased
+         progress bar reads as decoration, a linear one reads as a mechanism.
+
+         The progress is REAL in the sense that matters: it advances through
+         deliberate stages while the app boots and completes the moment the app
+         says it is ready. It does not pretend to measure bytes. -->
+    <div id="loading-screen">
+        <div class="cl-ld-grain" aria-hidden="true"></div>
         <style>
+            #loading-screen {
+                position: fixed;
+                inset: 0;
+                z-index: 100000;
+                background: #F4EFE4;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                /* 350ms, opacity only. The old one also scaled to 1.05, which
+                   pushed the mark outward as it left and read as a transition
+                   effect rather than a page becoming ready. */
+                transition: opacity 350ms ease, visibility 350ms ease;
+            }
             #loading-screen.loaded {
                 opacity: 0;
                 visibility: hidden;
                 pointer-events: none;
-                transform: scale(1.05);
             }
-            .cl-loader-container {
+            /* The landing page's own grain, same noise and same treatment, so
+               the paper does not change texture when the screen lifts. */
+            .cl-ld-grain {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                opacity: .5;
+                mix-blend-mode: multiply;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.3'/%3E%3C/svg%3E");
+            }
+            .cl-ld {
+                position: relative;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 14px;
+                text-align: center;
+                padding: 0 24px;
             }
-            .cl-loader-wrapper {
-                position: relative;
-                display: inline-block;
+            /* Ink on transparency, not a picture with a light background — a
+               cream ground would multiply into a visible square. Generated from
+               the section emblem by FRONTEND/tools/make-loader-temple.ps1. */
+            .cl-ld-temple {
+                width: 136px;
+                height: auto;
+                display: block;
+                margin-bottom: 30px;
+                opacity: .85;
             }
-            .cl-loader-text {
-                font-family: 'Nevera', sans-serif;
-                font-size: 24px;
-                font-weight: normal;
-                letter-spacing: 0.15em;
-                text-transform: uppercase;
-                white-space: nowrap;
-                padding-left: 0.15em; /* offsets tracking-widest center bias */
-            }
-            .cl-text-bg {
-                color: rgba(17, 17, 17, 0.08);
-            }
-            .cl-loader-red-bg {
-                color: rgba(92, 20, 20, 0.08);
-            }
-            .cl-text-fg {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 0%;
-                height: 100%;
-                color: #111111;
-                overflow: hidden;
-                z-index: 2;
-                animation: cl-text-reveal 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-            }
-            .cl-loader-red-fg {
-                color: #5C1414;
-            }
-            .cl-progress-bar-bg {
-                width: 160px;
-                height: 2px;
-                background: rgba(92, 20, 20, 0.08);
-                border-radius: 2px;
-                overflow: hidden;
-            }
-            .cl-progress-bar-fill {
-                height: 100%;
-                width: 0%;
-                background: #5C1414;
-                animation: cl-progress-fill 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-            }
-            .cl-loader-tagline {
-                font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-                font-size: 10px;
+            .cl-ld-mark {
+                font-family: 'Trajan Pro', 'Nevera', 'Aquire', 'Cinzel', sans-serif;
+                font-size: 26px;
                 font-weight: 700;
+                font-synthesis: none;
+                letter-spacing: .154em;
                 text-transform: uppercase;
-                letter-spacing: 0.22em;
-                color: #5C1414;
-                opacity: 0;
-                transform: translateY(4px);
-                animation: cl-tagline-fade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                animation-delay: 1.0s;
+                color: #211B16;
+                /* Tracking is applied to the right of every glyph including the
+                   last, which pushes a centred line left by half of it. */
+                padding-left: .154em;
+                white-space: nowrap;
             }
-            @keyframes cl-text-reveal {
-                0% { width: 0%; }
-                100% { width: 100%; }
+            .cl-ld-rail {
+                position: relative;
+                width: 260px;
+                height: 2px;
+                background: rgba(0, 0, 0, .10);
+                margin: 38px 0 0;
             }
-            @keyframes cl-progress-fill {
-                0% { width: 0%; }
-                100% { width: 100%; }
+            /* Fill and marker are both driven off --p, so they cannot drift
+               apart the way two separately animated elements would. */
+            .cl-ld-fill {
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                width: calc(var(--p, 0) * 100%);
+                background: #7A2230;
+                transition: width 420ms linear;
             }
-            @keyframes cl-tagline-fade {
-                0% {
-                    opacity: 0;
-                    transform: translateY(4px);
-                }
-                100% {
-                    opacity: 0.75;
-                    transform: translateY(0);
-                }
+            .cl-ld-dia {
+                position: absolute;
+                top: 50%;
+                left: calc(var(--p, 0) * 100%);
+                width: 7px;
+                height: 7px;
+                background: #7A2230;
+                transform: translate(-50%, -50%) rotate(45deg);
+                transition: left 420ms linear;
+            }
+            .cl-ld-status {
+                font-family: 'IBM Plex Mono', ui-monospace, monospace;
+                font-size: 10px;
+                font-weight: 400;
+                letter-spacing: .30em;
+                text-transform: uppercase;
+                color: rgba(33, 27, 22, .62);
+                margin-top: 26px;
+                padding-left: .30em;
+            }
+            .cl-ld-wreath {
+                width: 24px;
+                height: 24px;
+                display: block;
+                margin-top: 26px;
+                opacity: .55;
+            }
+            .cl-ld-foot {
+                font-family: 'IBM Plex Mono', ui-monospace, monospace;
+                font-size: 9.5px;
+                font-weight: 400;
+                letter-spacing: .22em;
+                text-transform: uppercase;
+                color: rgba(0, 0, 0, .45);
+                margin-top: 44px;
+                padding-left: .22em;
+            }
+            @media (max-width: 480px) {
+                .cl-ld-temple { width: 112px; margin-bottom: 26px; }
+                .cl-ld-mark { font-size: 21px; }
+                .cl-ld-rail { width: 210px; margin-top: 32px; }
+                .cl-ld-status { font-size: 9px; letter-spacing: .24em; padding-left: .24em; }
+                .cl-ld-foot { font-size: 8.5px; letter-spacing: .14em; padding-left: .14em; margin-top: 36px; }
+            }
+            /* Nothing here animates on entry, so reduced motion only needs to
+               take the travel out of the one thing that moves. */
+            @media (prefers-reduced-motion: reduce) {
+                #loading-screen, .cl-ld-fill, .cl-ld-dia { transition: none !important; }
             }
         </style>
 
-        <div class="cl-loader-container" aria-label="Collateral Loading">
-            <div class="cl-loader-wrapper">
-                <div class="cl-loader-text cl-text-bg">COLLA<span class="cl-loader-red-bg">TERAL</span></div>
-                <div class="cl-loader-text cl-text-fg">COLLA<span class="cl-loader-red-fg">TERAL</span></div>
+        <div class="cl-ld" role="status" aria-label="Preparing your contract">
+            <img class="cl-ld-temple" src="/assets/images/loader-temple.png" alt=""
+                 width="272" height="234" decoding="async" />
+
+            <div class="cl-ld-mark">Collateral</div>
+
+            <div class="cl-ld-rail" id="cl-ld-rail">
+                <div class="cl-ld-fill"></div>
+                <span class="cl-ld-dia"></span>
             </div>
-            <div class="cl-progress-bar-bg">
-                <div class="cl-progress-bar-fill"></div>
-            </div>
-            <div class="cl-loader-tagline">Lock capital. Hit targets.</div>
+
+            <div class="cl-ld-status">Preparing your contract</div>
+
+            <!-- Laurel, drawn rather than fetched: at 24px an image is a
+                 request for something a dozen paths do exactly. -->
+            <svg class="cl-ld-wreath" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                <g stroke="#4A3A28" stroke-width="1.1" stroke-linecap="round" fill="none">
+                    <path d="M24 42.5C16.2 39.6 10.5 32.4 10 22.5" />
+                    <path d="M24 42.5C31.8 39.6 37.5 32.4 38 22.5" />
+                </g>
+                <g fill="#4A3A28" opacity=".9">
+                    <ellipse cx="19.6" cy="39.2" rx="3.5" ry="1.45" transform="rotate(-28 19.6 39.2)" />
+                    <ellipse cx="16.2" cy="35.4" rx="3.5" ry="1.45" transform="rotate(-40 16.2 35.4)" />
+                    <ellipse cx="13.4" cy="31.0" rx="3.4" ry="1.4"  transform="rotate(-54 13.4 31)" />
+                    <ellipse cx="11.5" cy="26.2" rx="3.2" ry="1.35" transform="rotate(-68 11.5 26.2)" />
+                    <ellipse cx="10.6" cy="21.4" rx="2.9" ry="1.25" transform="rotate(-82 10.6 21.4)" />
+                    <ellipse cx="28.4" cy="39.2" rx="3.5" ry="1.45" transform="rotate(28 28.4 39.2)" />
+                    <ellipse cx="31.8" cy="35.4" rx="3.5" ry="1.45" transform="rotate(40 31.8 35.4)" />
+                    <ellipse cx="34.6" cy="31.0" rx="3.4" ry="1.4"  transform="rotate(54 34.6 31)" />
+                    <ellipse cx="36.5" cy="26.2" rx="3.2" ry="1.35" transform="rotate(68 36.5 26.2)" />
+                    <ellipse cx="37.4" cy="21.4" rx="2.9" ry="1.25" transform="rotate(82 37.4 21.4)" />
+                </g>
+                <rect x="21.9" y="21.9" width="4.2" height="4.2" fill="#7A2230"
+                      transform="rotate(45 24 24)" />
+            </svg>
+
+            <div class="cl-ld-foot">Verified data &middot; Locked capital &middot; Automatic settlement</div>
         </div>
+
+        <script>
+            /* Drives the rule. Five deliberate stages while the app boots, then
+               main.js calls finish() and it closes to 100%.
+
+               The 900ms floor is the low end of the brief's own target window.
+               Without it a warm cache dismisses the screen in ~250ms, which
+               does not read as preparation — it reads as a flicker, which is
+               worse than no screen at all. Nothing waits longer than that: if
+               the app is slow, finish() simply arrives later and the stages
+               hold at 88% until it does. */
+            (function () {
+                var rail = document.getElementById('cl-ld-rail');
+                var screen = document.getElementById('loading-screen');
+                if (!rail || !screen) return;
+
+                var STOPS = [0.18, 0.36, 0.55, 0.72, 0.88];
+                var FLOOR = 900, HOLD = 250, FADE = 350;
+                var t0 = Date.now(), i = 0, done = false;
+
+                function set(p) { rail.style.setProperty('--p', p); }
+                set(STOPS[0]);
+
+                var tick = setInterval(function () {
+                    if (done) return;
+                    if (++i < STOPS.length) set(STOPS[i]); else clearInterval(tick);
+                }, 200);
+
+                window.__clLoaderFinish = function () {
+                    if (done) return;
+                    done = true;
+                    clearInterval(tick);
+                    var wait = Math.max(0, FLOOR - (Date.now() - t0));
+                    setTimeout(function () {
+                        set(1);
+                        setTimeout(function () {
+                            screen.classList.add('loaded');
+                            setTimeout(function () {
+                                if (screen && screen.parentNode) screen.parentNode.removeChild(screen);
+                            }, FADE + 60);
+                        }, HOLD);
+                    }, wait);
+                };
+            })();
+        </script>
     </div>
 
     <!-- Global Banner -->
