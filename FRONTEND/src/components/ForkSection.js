@@ -37,8 +37,11 @@
  * If the plate proportions change again, the two .fk-or offsets must be
  * re-derived. They are the only geometry in the file that does not follow.
  *
- * Unlike the previous pass these do NOT bleed — the comp frames them as plates
- * with a hard edge and a 2px radius. No mask, no shadow.
+ * They have no edge at all. Each is masked by a generated per-pixel alpha map
+ * that dissolves it irregularly into the parchment — see the note on .fk-plate
+ * for how the two layers work, and FRONTEND/tools/gen-plate-masks.ps1 for the
+ * generator. Re-run that script if either plate is replaced; the masks are
+ * sized to the 1000x666 frame and seeded per plate.
  *
  * ── TYPE ────────────────────────────────────────────────────────────────────
  * All of it is Garamond. The earlier pass set the small labels in IBM Plex Mono;
@@ -84,12 +87,16 @@ const PATHS = [
     {
         key: 'solo', name: 'Solo', rule: 'Stake against your own record.',
         plate: '/assets/images/plate-solo.jpg',
+        mask: '/assets/images/plate-solo-mask.png',
+        edge: '/assets/images/plate-solo-edge.png',
         alt: 'Engraving: a lone figure carrying a purse up a long stone stair toward a temple on the summit.',
         caption: 'I answer to myself.', cta: 'Learn more',
     },
     {
         key: 'rival', name: 'Rivalry', rule: 'Stake against someone else.',
         plate: '/assets/images/plate-rivalry.jpg',
+        mask: '/assets/images/plate-rivalry-mask.png',
+        edge: '/assets/images/plate-rivalry-edge.png',
         alt: 'Engraving: two rivals set their purses on a table while a magistrate seals the contract between them.',
         caption: 'We answer to the same rules.', cta: 'Learn more',
     },
@@ -125,7 +132,7 @@ function renderPath(path, onSelectPath, i) {
                         <div class="fk-path fk-${escapeHtml(path.key)}" style="--i:${i}">
                             <h3 class="fk-p-name">${escapeHtml(path.name)}</h3>
                             <p class="fk-p-rule">${escapeHtml(path.rule)}</p>
-                            <div class="fk-plate">
+                            <div class="fk-plate" style="--pl:url('${escapeHtml(path.plate)}');--pl-mask:url('${escapeHtml(path.mask)}');--pl-edge:url('${escapeHtml(path.edge)}')">
                                 <img src="${escapeHtml(path.plate)}" alt="${escapeHtml(path.alt)}"
                                      loading="lazy" decoding="async" width="1000" height="666" />
                             </div>
@@ -229,11 +236,43 @@ export function renderForkSection(options = {}) {
         .fk-p-rule{font-size:12px;letter-spacing:.16em;text-transform:uppercase;
           color:var(--fk-ink);font-weight:600;margin-bottom:24px}
 
-        /* Framed, not bled. The comp gives these a hard edge; the 2px radius is
-           the only softening. */
-        .fk-plate{margin-bottom:24px}
-        .fk-plate img{display:block;width:100%;height:auto;border-radius:2px;
+        /* THE PLATES DISSOLVE INTO THE PAPER. No box, no radius, no vignette,
+           no feather. Two layers, each carrying a baked per-pixel alpha mask:
+
+             img        the engraving at full sharpness, masked by *-mask.png.
+                        Alpha is exactly 1 across the whole interior, so nothing
+                        inside the plate is touched — no blur, no opacity loss.
+             ::before   the same file, blurred, masked by *-edge.png, which is a
+                        BUMP: zero where the plate is solid, zero where it is
+                        gone, non-zero only across the transition. That is what
+                        confines the blur to the outermost edge.
+
+           Both multiply, and the two masks are complementary, so ink density
+           never doubles up in the middle.
+
+           The masks are generated, not drawn: per-edge base depths that differ
+           by 3x, contrast-stretched long-period noise putting two or three
+           zones on each edge (some nearly crisp, some dissolving 120px), a
+           displaced contour so the boundary itself wanders, mid-frequency
+           mottling for pigment loss, low-frequency blooms that move the
+           boundary rather than dim it, and high-frequency grit for dry-brush
+           breakup at the extreme outside. Two different seeds, and different
+           corners opened on each, so the pair never reads as one stamp.
+
+           The three urls come from inline custom properties on .fk-plate. */
+        .fk-plate{position:relative;margin-bottom:24px}
+        .fk-plate img{display:block;width:100%;height:auto;position:relative;
+          -webkit-mask-image:var(--pl-mask);mask-image:var(--pl-mask);
+          -webkit-mask-size:100% 100%;mask-size:100% 100%;
+          -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
           mix-blend-mode:multiply}
+        .fk-plate::before{content:"";position:absolute;inset:0;
+          background-image:var(--pl);background-size:100% 100%;
+          background-repeat:no-repeat;filter:blur(4px);
+          -webkit-mask-image:var(--pl-edge);mask-image:var(--pl-edge);
+          -webkit-mask-size:100% 100%;mask-size:100% 100%;
+          -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+          mix-blend-mode:multiply;pointer-events:none}
 
         .fk-p-cap{font-family:var(--fk-display);font-style:italic;font-weight:500;
           font-size:clamp(22px,2vw,27px);line-height:1.35;color:var(--fk-ink);
