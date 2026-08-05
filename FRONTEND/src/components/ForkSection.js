@@ -96,7 +96,6 @@ const PATHS = [
     {
         key: 'solo', name: 'Solo',
         def: 'Compete against yourself.',
-        terms: ['One participant.', 'One deposit.', 'One deadline.'],
         plate: '/assets/images/plate-solo.jpg',
         mask: '/assets/images/plate-solo-mask.png',
         edge: '/assets/images/plate-solo-edge.png',
@@ -108,7 +107,6 @@ const PATHS = [
     {
         key: 'rival', name: 'Rivalry',
         def: 'Compete against another operator.',
-        terms: ['Two participants.', 'Equal stakes.', 'One winner.'],
         plate: '/assets/images/plate-rivalry.jpg',
         mask: '/assets/images/plate-rivalry-mask.png',
         edge: '/assets/images/plate-rivalry-edge.png',
@@ -145,13 +143,11 @@ function renderStep(step, i) {
 
 function renderPath(path, onSelectPath, i) {
     const action = onSelectPath ? onSelectPath(path.key) : DEFAULT_PATH_ACTION;
-    const terms = path.terms.map((t) => `<li>${escapeHtml(t)}</li>`).join('');
     const feats = path.feats.map((f) => `<li>${escapeHtml(f)}</li>`).join('');
     return `
                         <div class="fk-path fk-${escapeHtml(path.key)}" style="--i:${i}">
                             <h3 class="fk-p-name">${escapeHtml(path.name)}</h3>
                             <p class="fk-p-def">${escapeHtml(path.def)}</p>
-                            <ul class="fk-p-terms">${terms}</ul>
                             <div class="fk-plate" style="--pl:url('${escapeHtml(path.plate)}');--pl-mask:url('${escapeHtml(path.mask)}');--pl-edge:url('${escapeHtml(path.edge)}')">
                                 <img src="${escapeHtml(path.plate)}" alt="${escapeHtml(path.alt)}"
                                      loading="lazy" decoding="async" width="1000" height="666" />
@@ -259,18 +255,23 @@ export function renderForkSection(options = {}) {
         .fk-paths{display:grid;grid-template-columns:minmax(0,1fr) 96px minmax(0,1fr);
           align-items:stretch}
         .fk-path{text-align:center}
-        /* HIERARCHY. Name, definition, terms, plate, statement, schedule, way
-           in. The plate is the fourth thing, not the first — it reinforces a
-           choice that the type has already made legible. Every gap below is in
-           the 24-40px band; the section should read as unhurried. */
+        /* HIERARCHY. Name, definition, plate, statement, schedule, way in. The
+           plate is the third thing, not the first — it reinforces a choice the
+           type has already made legible. Every gap below is in the 24-40px
+           band; the section should read as unhurried.
+
+           A terms block used to sit between the definition and the plate,
+           stating the contract in three phrases. It repeated three of the four
+           schedule items almost verbatim a couple of hundred pixels away, which
+           read as repetition rather than as the summary/schedule convention it
+           was meant to be. One list, and it is the one under the plate where it
+           can be compared across the gutter. */
         .fk-p-name{font-family:var(--fk-display);font-weight:600;
           font-size:clamp(30px,2.7vw,40px);line-height:1;letter-spacing:.09em;
           text-transform:uppercase;color:var(--fk-ox);margin-bottom:24px}
         .fk-p-def{font-family:var(--fk-display);font-weight:500;
           font-size:clamp(19px,1.6vw,22px);line-height:1.3;color:var(--fk-ink);
-          margin-bottom:20px}
-        .fk-p-terms{list-style:none;font-size:15px;line-height:1.72;
-          color:var(--fk-ink-soft);margin-bottom:34px}
+          margin-bottom:34px}
 
         /* THE PLATES DISSOLVE INTO THE PAPER. No box, no radius, no vignette,
            no feather. Two layers, each carrying a baked per-pixel alpha mask:
@@ -322,15 +323,23 @@ export function renderForkSection(options = {}) {
 
         /* The schedule. Two columns, mono, small and quiet — it is there to be
            compared across the gutter at a glance, not read as prose. The rules
-           above and below hold it as one block without boxing it. */
+           above and below hold it as one block without boxing it.
+
+           380px, not 330: the longest item is WINNER TAKES ESCROW, which needs
+           about 160px set like this. At 330 it wrapped to two lines, which made
+           the rivalry schedule a row taller than solo's and pushed the two CTAs
+           out of line with each other — the one alignment in the section a
+           reader is guaranteed to notice, because the buttons sit side by side.
+           nowrap keeps that honest if the copy grows. */
         .fk-p-feat{list-style:none;display:grid;
           grid-template-columns:repeat(2,minmax(0,1fr));
-          gap:11px 22px;text-align:left;margin:0 auto 32px;max-width:330px;
+          gap:11px 22px;text-align:left;margin:0 auto 32px;max-width:380px;
           padding:20px 0;border-top:1px solid var(--fk-line-soft);
           border-bottom:1px solid var(--fk-line-soft)}
         .fk-p-feat li{font-family:var(--fk-mono);font-size:10.5px;
           letter-spacing:.09em;text-transform:uppercase;color:var(--fk-muted);
-          display:flex;align-items:baseline;gap:8px;line-height:1.4}
+          display:flex;align-items:baseline;gap:8px;line-height:1.4;
+          white-space:nowrap}
         .fk-p-feat li::before{content:"\\2713";color:var(--fk-ox);
           font-size:10px;flex:0 0 auto;opacity:.85}
 
@@ -430,10 +439,16 @@ export function renderForkSection(options = {}) {
             transform:translate(-50%,-50%);flex-direction:row;gap:14px;
             padding:0 18px}
           .fk-p-name{margin-bottom:18px}
-          .fk-p-terms{margin-bottom:28px}
+          .fk-p-def{margin-bottom:28px}
           .fk-plate{width:100%;margin-bottom:28px}
           .fk-p-cap{margin-bottom:24px}
           .fk-p-feat{max-width:none;gap:10px 18px;padding:18px 0;margin-bottom:26px}
+          /* nowrap exists to keep the two schedules the same height so the CTAs
+             line up, and that only matters while the panels are side by side.
+             Stacked, a wrap costs nothing — and the longest item needs 166px in
+             a 166px column here, which is no margin at all if the mono face is
+             slow and a fallback measures wider. */
+          .fk-p-feat li{white-space:normal;letter-spacing:.05em}
           /* The knockout needs one unbroken line, and this one is 38 characters
              — it does not fit a phone at any size worth reading. So the rule
              goes and the inscription becomes plain centred text that may wrap,
