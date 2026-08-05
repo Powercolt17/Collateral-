@@ -9,6 +9,7 @@ import { renderOracleSection } from '../components/OracleSection.js';
 import { renderRecordSection, initRecordSection } from '../components/RecordSection.js';
 import { renderFlowSection, initFlowSection } from '../components/FlowSection.js';
 import { renderPriceSection, initPriceSection } from '../components/PriceSection.js';
+import { renderDuelSection, initDuelSection } from '../components/DuelSection.js';
 import { renderLedgerSection, initLedgerSection } from '../components/LedgerSection.js';
 
 // Inject LandingCSS once into document head
@@ -55,56 +56,7 @@ export function renderLanding() {
 
             ${renderPriceSection()}
 
-            <!-- ═════ 7 · DUELS ═════ -->
-            <section class="section reveal" id="duels">
-                <span class="idx-mark" aria-hidden="true">08</span>
-                <div class="shell">
-                    <p class="eyebrow eyebrow--live rise" style="--d:40ms">Live rivalry duels</p>
-                    <h2 class="title clip-wipe" style="--d:120ms">Open right now, and somebody is behind</h2>
-                    <p class="lede rise" style="--d:220ms">Real capital, real clocks, updated every oracle poll. Open a duel to see
-                        the full position.</p>
-
-                    <div class="duels card-rise" style="--d:320ms">
-                        <button class="duel ticks" type="button" onclick="if(window.app && window.app.openAccessModal){ window.app.openAccessModal('login'); } else { window.router.navigate('/signin'); } return false;">
-                            <span class="duel-head">
-                                <span class="mono">Audience &middot; X API</span>
-                                <span class="duel-badge badge-live">Live &middot; 14d left</span>
-                            </span>
-                            <span class="duel-vs">
-                                <span class="duel-side"><span class="duel-handle">@jakevoss</span>
-                                    <span class="duel-delta lead">+12.4%</span></span>
-                                <span class="duel-mid">VS</span>
-                                <span class="duel-side r"><span class="duel-handle">@marcus</span>
-                                    <span class="duel-delta trail">+9.2%</span></span>
-                            </span>
-                            <span class="bar"><span class="a" style="width:57%"></span><span class="g"></span><span class="b"></span></span>
-                            <span class="duel-foot">
-                                <span>$5,000 pool</span>
-                                <span class="duel-cta">View duel <span>&rarr;</span></span>
-                            </span>
-                        </button>
-
-                        <button class="duel ticks" type="button" onclick="if(window.app && window.app.openAccessModal){ window.app.openAccessModal('login'); } else { window.router.navigate('/signin'); } return false;">
-                            <span class="duel-head">
-                                <span class="mono">Revenue &middot; Stripe API</span>
-                                <span class="duel-badge badge-settle">Settling</span>
-                            </span>
-                            <span class="duel-vs">
-                                <span class="duel-side"><span class="duel-handle">@revpilot</span>
-                                    <span class="duel-delta lead">+8.1%</span></span>
-                                <span class="duel-mid">VS</span>
-                                <span class="duel-side r"><span class="duel-handle">@quotaops</span>
-                                    <span class="duel-delta trail">+5.4%</span></span>
-                            </span>
-                            <span class="bar"><span class="a" style="width:60%"></span><span class="g"></span><span class="b"></span></span>
-                            <span class="duel-foot">
-                                <span>$2,000 pool</span>
-                                <span class="duel-cta">View results <span>&rarr;</span></span>
-                            </span>
-                        </button>
-                    </div>
-                </div>
-            </section>
+            ${renderDuelSection()}
 
                         <!-- ═════ 7b · FAQ / SCHEDULE OF COMMON QUESTIONS ═════ -->
             <section class="faq reveal" id="terms" aria-labelledby="faq-h">
@@ -274,6 +226,7 @@ export function initLanding() {
     initLedgerSection();
     initFlowSection();
     initPriceSection();
+    initDuelSection();
     initRecordSection();
 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
