@@ -7,7 +7,7 @@ import { renderForkSection } from '../components/ForkSection.js';
 import { renderCaseSection } from '../components/CaseSection.js';
 import { renderOracleSection } from '../components/OracleSection.js';
 import { renderRecordSection, initRecordSection } from '../components/RecordSection.js';
-import { renderFlowSection } from '../components/FlowSection.js';
+import { renderFlowSection, initFlowSection } from '../components/FlowSection.js';
 import { renderLedgerSection, initLedgerSection } from '../components/LedgerSection.js';
 
 // Inject LandingCSS once into document head
@@ -374,6 +374,7 @@ export function initLanding() {
        resolves on its own and never rejects into here, and if it fails the rows
        rendered at build time stay on screen rather than the section emptying. */
     initLedgerSection();
+    initFlowSection();
     initRecordSection();
 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
