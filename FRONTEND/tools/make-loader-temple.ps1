@@ -33,6 +33,13 @@ param(
     [double]$EdgeDepth = 0.05,
     [double]$Strength  = 0.82,
     [double]$Gamma     = 1.0,
+    # S-curve on ink density about a low pivot. >1 deepens the crosshatching
+    # WITHOUT lifting the paper: the pivot sits under the faint wash, so light
+    # hatching gets slightly lighter while the dark strokes go denser. A plain
+    # gamma or a higher strength would darken everything and turn the whole
+    # engraving muddy, which is the opposite of an engraved banknote.
+    [double]$Contrast  = 1.0,
+    [int]$InkR = 74, [int]$InkG = 58, [int]$InkB = 40,
     [switch]$CropToInk
 )
 
@@ -73,8 +80,8 @@ public class LoaderTemple
     static float Ramp(float d, float depth) { return depth <= 1f ? 1f : S(Clamp01(d / depth)); }
 
     public static string Go(string src, string dst, int W, double edgeDepth,
-                            double strength, double gamma, bool cropToInk,
-                            int inkR, int inkG, int inkB)
+                            double strength, double gamma, double contrast,
+                            bool cropToInk, int inkR, int inkG, int inkB)
     {
         var s = new Bitmap(src);
         int sx = 0, sy = 0, cw = s.Width, ch = s.Height;
@@ -141,7 +148,11 @@ public class LoaderTemple
 
                 float L = 0.2126f * a[i + 2] + 0.7152f * a[i + 1] + 0.0722f * a[i];
                 float t = Clamp01(L / paper);
-                float ink = (float)Math.Pow(1f - t, gamma) * (float)strength;
+                float u = 1f - t;
+                /* Pivot 0.30 sits under the faint wash, so the S-curve deepens
+                   the strokes and leaves the paper where it is. */
+                if (contrast != 1.0) u = Clamp01((u - 0.30f) * (float)contrast + 0.30f);
+                float ink = (float)Math.Pow(u, gamma) * (float)strength;
 
                 float edge = 1f;
                 if (baseD > 1f)
@@ -181,5 +192,6 @@ $img  = "$root\FRONTEND\public\assets\images"
 if (-not $Source) { $Source = "$img\fork-step-01.png"; $CropToInk = $true }
 
 Write-Output ([LoaderTemple]::Go($Source, "$img\loader-temple.png", $Width, $EdgeDepth,
-                                 $Strength, $Gamma, [bool]$CropToInk, 74, 58, 40))
+                                 $Strength, $Gamma, $Contrast, [bool]$CropToInk,
+                                 $InkR, $InkG, $InkB))
 Get-Item "$img\loader-temple.png" | Select-Object Name, Length

@@ -352,13 +352,17 @@
 
                168px rather than the emblem's 136: this is a facade with a
                colonnade, statuary and a C in the pediment, and at 136 the
-               columns close up into a grey band. */
+               columns close up into a grey band.
+
+               2px, down from 26. The asset has almost no transparent padding at
+               its base (measured: 1px), so the margin was the whole gap and the
+               temple read as floating above an unrelated wordmark. It now sits
+               on the name. */
             .cl-ld-temple {
                 width: 168px;
                 height: auto;
                 display: block;
-                margin-bottom: 26px;
-                opacity: .9;
+                margin-bottom: 2px;
             }
             .cl-ld-mark {
                 font-family: 'Trajan Pro', 'Nevera', 'Aquire', 'Cinzel', sans-serif;
@@ -381,7 +385,12 @@
                 margin: 38px 0 0;
             }
             /* Fill and marker are both driven off --p, so they cannot drift
-               apart the way two separately animated elements would. */
+               apart the way two separately animated elements would.
+
+               180ms, down from 420. The rule advances through six fixed stops
+               rather than gliding, and at 420 each step was a slow slide that
+               read as decoration. Short and linear reads as a mechanism
+               registering one check at a time. */
             .cl-ld-fill {
                 position: absolute;
                 left: 0;
@@ -389,7 +398,7 @@
                 height: 100%;
                 width: calc(var(--p, 0) * 100%);
                 background: #7A2230;
-                transition: width 420ms linear;
+                transition: width 180ms linear;
             }
             .cl-ld-dia {
                 position: absolute;
@@ -399,7 +408,37 @@
                 height: 7px;
                 background: #7A2230;
                 transform: translate(-50%, -50%) rotate(45deg);
-                transition: left 420ms linear;
+                transition: left 180ms linear,
+                            transform 90ms ease-in,
+                            opacity 110ms linear;
+            }
+            /* THE SEAL. At 100% the diamond presses down, then gives way to a
+               wax seal for a beat before the page arrives — the contract being
+               registered rather than a bar finishing. Both states sit on the
+               same --p, so the seal lands exactly where the diamond stopped. */
+            .cl-ld-rail.is-press .cl-ld-dia {
+                transform: translate(-50%, -50%) translateY(2px) rotate(45deg);
+            }
+            .cl-ld-rail.is-sealed .cl-ld-dia {
+                opacity: 0;
+                transform: translate(-50%, -50%) translateY(2px) rotate(45deg) scale(.5);
+            }
+            .cl-ld-seal {
+                position: absolute;
+                top: 50%;
+                left: calc(var(--p, 0) * 100%);
+                width: 22px;
+                height: 22px;
+                opacity: 0;
+                background: url('/assets/images/maroon-wax-seal.png') center / contain no-repeat;
+                transform: translate(-50%, -50%) scale(.4);
+                transition: transform 110ms cubic-bezier(.2, .8, .3, 1),
+                            opacity 110ms linear;
+                pointer-events: none;
+            }
+            .cl-ld-rail.is-sealed .cl-ld-seal {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
             }
             .cl-ld-status {
                 font-family: 'IBM Plex Mono', ui-monospace, monospace;
@@ -411,12 +450,17 @@
                 margin-top: 26px;
                 padding-left: .30em;
             }
-            .cl-ld-wreath {
-                width: 24px;
-                height: 24px;
-                display: block;
-                margin-top: 26px;
-                opacity: .55;
+            /* THE INK BREATHES. Roughly 1.5% over seven seconds, on the temple
+               and the mark only — an old certificate catching different light.
+               It is meant to be below the threshold of noticing; if it reads as
+               a pulse it is too strong. Nothing else on the screen moves. */
+            @keyframes cl-ld-ink {
+                0%, 100% { opacity: .985; }
+                50%      { opacity: 1; }
+            }
+            .cl-ld-temple,
+            .cl-ld-mark {
+                animation: cl-ld-ink 7s ease-in-out infinite;
             }
             .cl-ld-foot {
                 font-family: 'IBM Plex Mono', ui-monospace, monospace;
@@ -425,24 +469,26 @@
                 letter-spacing: .22em;
                 text-transform: uppercase;
                 color: rgba(0, 0, 0, .45);
-                margin-top: 44px;
+                margin-top: 40px;
                 padding-left: .22em;
             }
             @media (max-width: 480px) {
-                .cl-ld-temple { width: 138px; margin-bottom: 22px; }
+                .cl-ld-temple { width: 138px; margin-bottom: 0; }
                 .cl-ld-mark { font-size: 21px; }
                 .cl-ld-rail { width: 210px; margin-top: 32px; }
                 .cl-ld-status { font-size: 9px; letter-spacing: .24em; padding-left: .24em; }
-                .cl-ld-foot { font-size: 8.5px; letter-spacing: .14em; padding-left: .14em; margin-top: 36px; }
+                .cl-ld-foot { font-size: 8.5px; letter-spacing: .14em; padding-left: .14em; margin-top: 34px; }
             }
-            /* Nothing here animates on entry, so reduced motion only needs to
-               take the travel out of the one thing that moves. */
+            /* Reduced motion: the rule still advances and the seal still lands,
+               because both carry meaning — they are the status, not decoration.
+               What goes is the travel and the breathing. */
             @media (prefers-reduced-motion: reduce) {
-                #loading-screen, .cl-ld-fill, .cl-ld-dia { transition: none !important; }
+                #loading-screen, .cl-ld-fill, .cl-ld-dia, .cl-ld-seal { transition: none !important; }
+                .cl-ld-temple, .cl-ld-mark { animation: none !important; opacity: 1 !important; }
             }
         </style>
 
-        <div class="cl-ld" role="status" aria-label="Preparing your contract">
+        <div class="cl-ld" role="status" aria-live="polite" aria-label="Preparing your contract">
             <img class="cl-ld-temple" src="/assets/images/loader-temple.png" alt=""
                  width="336" height="325" decoding="async" />
 
@@ -451,77 +497,103 @@
             <div class="cl-ld-rail" id="cl-ld-rail">
                 <div class="cl-ld-fill"></div>
                 <span class="cl-ld-dia"></span>
+                <span class="cl-ld-seal" aria-hidden="true"></span>
             </div>
 
-            <div class="cl-ld-status">Preparing your contract</div>
-
-            <!-- Laurel, drawn rather than fetched: at 24px an image is a
-                 request for something a dozen paths do exactly. -->
-            <svg class="cl-ld-wreath" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-                <g stroke="#4A3A28" stroke-width="1.1" stroke-linecap="round" fill="none">
-                    <path d="M24 42.5C16.2 39.6 10.5 32.4 10 22.5" />
-                    <path d="M24 42.5C31.8 39.6 37.5 32.4 38 22.5" />
-                </g>
-                <g fill="#4A3A28" opacity=".9">
-                    <ellipse cx="19.6" cy="39.2" rx="3.5" ry="1.45" transform="rotate(-28 19.6 39.2)" />
-                    <ellipse cx="16.2" cy="35.4" rx="3.5" ry="1.45" transform="rotate(-40 16.2 35.4)" />
-                    <ellipse cx="13.4" cy="31.0" rx="3.4" ry="1.4"  transform="rotate(-54 13.4 31)" />
-                    <ellipse cx="11.5" cy="26.2" rx="3.2" ry="1.35" transform="rotate(-68 11.5 26.2)" />
-                    <ellipse cx="10.6" cy="21.4" rx="2.9" ry="1.25" transform="rotate(-82 10.6 21.4)" />
-                    <ellipse cx="28.4" cy="39.2" rx="3.5" ry="1.45" transform="rotate(28 28.4 39.2)" />
-                    <ellipse cx="31.8" cy="35.4" rx="3.5" ry="1.45" transform="rotate(40 31.8 35.4)" />
-                    <ellipse cx="34.6" cy="31.0" rx="3.4" ry="1.4"  transform="rotate(54 34.6 31)" />
-                    <ellipse cx="36.5" cy="26.2" rx="3.2" ry="1.35" transform="rotate(68 36.5 26.2)" />
-                    <ellipse cx="37.4" cy="21.4" rx="2.9" ry="1.25" transform="rotate(82 37.4 21.4)" />
-                </g>
-                <rect x="21.9" y="21.9" width="4.2" height="4.2" fill="#7A2230"
-                      transform="rotate(45 24 24)" />
-            </svg>
+            <div class="cl-ld-status" id="cl-ld-status">Verifying oracles</div>
 
             <div class="cl-ld-foot">Verified data &middot; Locked capital &middot; Automatic settlement</div>
         </div>
 
         <script>
-            /* Drives the rule. Five deliberate stages while the app boots, then
-               main.js calls finish() and it closes to 100%.
-
-               The 900ms floor is the low end of the brief's own target window.
-               Without it a warm cache dismisses the screen in ~250ms, which
-               does not read as preparation — it reads as a flicker, which is
-               worse than no screen at all. Nothing waits longer than that: if
-               the app is slow, finish() simply arrives later and the stages
-               hold at 88% until it does. */
+            /* Drives the rule and the seal.
+             *
+             * Five fixed stops while the app boots, each carrying the name of
+             * what is notionally being checked. The stops are uneven on purpose
+             * — 12, 25, 41, 63, 81 — because evenly spaced ones read as a timer
+             * and uneven ones read as work of differing size completing.
+             *
+             * The status line changes with the stops rather than on its own
+             * clock, so the words and the rule can never disagree. Text swaps
+             * instantly: a cross-fade would be the one soft thing on a screen
+             * whose whole argument is that it is mechanical.
+             *
+             * THE CLOSE. At 100% the diamond presses down, gives way to a wax
+             * seal, holds, and only then does the page arrive. That is the
+             * point of the screen — a contract registered, not a bar finished —
+             * so the ceremony is 580ms of the budget and everything else was
+             * trimmed to pay for it.
+             *
+             * The 700ms floor is measured from first paint, not added on top. A
+             * warm cache has the app ready in ~250-300ms, which dismisses the
+             * screen fast enough to read as a flicker rather than as
+             * preparation. Nothing waits longer: if the app is slow, finish()
+             * arrives later and the rule holds at 81% until it does. Floor plus
+             * ceremony puts a cached load at roughly 1.55s, inside the brief's
+             * 900-1600 window. */
             (function () {
                 var rail = document.getElementById('cl-ld-rail');
                 var screen = document.getElementById('loading-screen');
+                var status = document.getElementById('cl-ld-status');
                 if (!rail || !screen) return;
 
-                var STOPS = [0.18, 0.36, 0.55, 0.72, 0.88];
-                var FLOOR = 900, HOLD = 250, FADE = 350;
+                var STOPS = [
+                    { p: 0.12, t: 'Verifying oracles' },
+                    { p: 0.25, t: 'Verifying oracles' },
+                    { p: 0.41, t: 'Locking capital' },
+                    { p: 0.63, t: 'Locking capital' },
+                    { p: 0.81, t: 'Preparing contract' }
+                ];
+                var STEP = 160,   /* two stops a phase => ~320ms each, and all
+                                     five land inside the floor at 0/160/320/
+                                     480/640 */
+                    FLOOR = 660,
+                    FILL = 180,   /* must match the rule's own transition */
+                    PRESS = 90,
+                    SEAL = 110,
+                    HOLD = 200,
+                    FADE = 320;
+
                 var t0 = Date.now(), i = 0, done = false;
 
-                function set(p) { rail.style.setProperty('--p', p); }
-                set(STOPS[0]);
+                function at(s) {
+                    rail.style.setProperty('--p', s.p);
+                    if (status && status.textContent !== s.t) status.textContent = s.t;
+                }
+                at(STOPS[0]);
 
                 var tick = setInterval(function () {
-                    if (done) return;
-                    if (++i < STOPS.length) set(STOPS[i]); else clearInterval(tick);
-                }, 200);
+                    if (++i < STOPS.length) at(STOPS[i]); else clearInterval(tick);
+                }, STEP);
 
+                /* The stops are deliberately NOT cancelled here. A warm cache
+                   calls this at ~280ms, and cancelling then jumped the rule
+                   straight to Ready — so LOCKING CAPITAL and PREPARING CONTRACT
+                   were never shown at all, on exactly the loads most people
+                   get. The ticker runs out inside the floor instead, and only
+                   the wait's own callback stops it. */
                 window.__clLoaderFinish = function () {
                     if (done) return;
                     done = true;
-                    clearInterval(tick);
-                    var wait = Math.max(0, FLOOR - (Date.now() - t0));
+
                     setTimeout(function () {
-                        set(1);
+                        clearInterval(tick);
+                        at({ p: 1, t: 'Ready' });
                         setTimeout(function () {
-                            screen.classList.add('loaded');
+                            rail.classList.add('is-press');
                             setTimeout(function () {
-                                if (screen && screen.parentNode) screen.parentNode.removeChild(screen);
-                            }, FADE + 60);
-                        }, HOLD);
-                    }, wait);
+                                rail.classList.add('is-sealed');
+                                setTimeout(function () {
+                                    screen.classList.add('loaded');
+                                    setTimeout(function () {
+                                        if (screen && screen.parentNode) {
+                                            screen.parentNode.removeChild(screen);
+                                        }
+                                    }, FADE + 60);
+                                }, SEAL + HOLD);
+                            }, PRESS);
+                        }, FILL);
+                    }, Math.max(0, FLOOR - (Date.now() - t0)));
                 };
             })();
         </script>
