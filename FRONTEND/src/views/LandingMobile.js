@@ -170,8 +170,7 @@ export function renderMobileScale() {
           /* Ledger. 403px of head before a single row. */
           .lg-head{gap:18px !important}
           .lg-sum{gap:14px 22px !important}
-          .lg-sum dd{font-size:22px !important}
-          .lg-body{height:400px !important}
+          .lg-sum dd{font-size:22px !important}
 
           /* Flow, duels, and the two table sections. Row padding on a phone
              table is pure height once the columns are already narrowed. */
