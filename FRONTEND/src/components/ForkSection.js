@@ -22,11 +22,20 @@
  * ── THE TWO PLATES ─────────────────────────────────────────────────────────
  *
  *   plate-solo.jpg      the lone figure climbing toward the temple
- *   plate-rivalry.jpg   two rivals and an arbiter across one table
+ *   plate-rivalry.jpg   two chariots racing for the same temple steps
  *
- * Both encoded to an IDENTICAL 708x332 frame at q88. Two images sitting side by
- * side must agree exactly on height or the pair reads as "slightly off" without
- * being findable, so they match by construction rather than by CSS.
+ * Both encoded to an IDENTICAL 1000x666 frame at q88. Two images sitting side
+ * by side must agree exactly on height or the pair reads as "slightly off"
+ * without being findable, so they match by construction rather than by CSS.
+ *
+ * The frame is 3:2 because the rivalry plate is. It was 708x332 (2.13:1), and
+ * cropping the chariots into that would have taken 151px off the top — which
+ * decapitates the temple — and 151px off the bottom, which cuts the two "C"
+ * money bags. Both are the subject. Re-framing the PAIR to 3:2 crops neither by
+ * more than a pixel, since the solo source is natively 3:2 as well.
+ *
+ * If the plate proportions change again, the two .fk-or offsets must be
+ * re-derived. They are the only geometry in the file that does not follow.
  *
  * Unlike the previous pass these do NOT bleed — the comp frames them as plates
  * with a hard edge and a 2px radius. No mask, no shadow.
@@ -118,7 +127,7 @@ function renderPath(path, onSelectPath, i) {
                             <p class="fk-p-rule">${escapeHtml(path.rule)}</p>
                             <div class="fk-plate">
                                 <img src="${escapeHtml(path.plate)}" alt="${escapeHtml(path.alt)}"
-                                     loading="lazy" decoding="async" width="708" height="332" />
+                                     loading="lazy" decoding="async" width="1000" height="666" />
                             </div>
                             <p class="fk-p-cap">${escapeHtml(path.caption)}</p>
                             <button type="button" class="fk-p-cta"${action ? ` onclick="${action}"` : ''}>${escapeHtml(path.cta)} <span class="fk-arw" aria-hidden="true">&rarr;</span></button>
@@ -239,14 +248,26 @@ export function renderForkSection(options = {}) {
         .fk-p-cta:hover .fk-arw{transform:translateX(4px)}
         .fk-p-cta:focus-visible{outline:2px solid var(--fk-ox);outline-offset:4px}
 
-        /* The gutter. The hairline stops 120px short of the bottom so it spans
-           the plates and not the captions, and OR sits at the vertical middle
-           of the artwork rather than of the column. */
-        .fk-or{position:relative;display:flex;align-items:center;justify-content:center}
-        .fk-or::before{content:"";position:absolute;top:8px;bottom:120px;left:50%;
-          width:1px;background:var(--fk-line)}
+        /* The gutter. This column has no content of its own to size against —
+           it is as tall as the label plus whatever we push the label down by —
+           so both numbers are set explicitly and both have to be re-derived
+           whenever the plate's proportions change.
+
+           --or-drop     pushes OR to 20px ABOVE the plate's vertical middle.
+                         Dead centre reads as low, because the mass of type
+                         sits above the plate and nothing sits below it.
+           --or-line-end how far short of the bottom the hairline stops. Held at
+                         roughly 30% of the column height, which lands the line
+                         between the panel titles and the top of the plates —
+                         a stub marking the split, not a full divider.
+
+           Measured on the deployed page at 1440 and 1085. */
+        .fk-or{position:relative;display:flex;align-items:center;justify-content:center;
+          --or-drop:238px;--or-line-end:182px}
+        .fk-or::before{content:"";position:absolute;top:8px;bottom:var(--or-line-end);
+          left:50%;width:1px;background:var(--fk-line)}
         .fk-or span{position:relative;z-index:1;background:var(--fk-parch);
-          padding:8px 0;margin-top:150px;font-size:11px;letter-spacing:.2em;
+          padding:8px 0;margin-top:var(--or-drop);font-size:11px;letter-spacing:.2em;
           text-transform:uppercase;color:var(--fk-ox);font-weight:600}
 
         /* ---- the closing inscription, knocked out of a rule ---- */
@@ -277,6 +298,9 @@ export function renderForkSection(options = {}) {
           .fk-lede{max-width:none}
           .fk-step{padding:0 10px}
           .fk-paths{grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr)}
+          /* Narrower columns mean shorter plates, so both gutter offsets come
+             down with them. See the note on .fk-or. */
+          .fk-or{--or-drop:182px;--or-line-end:143px}
         }
         /* Phone. Two by two rather than four across — a single column puts a
            couple of hundred pixels of scrolling between CONNECT and SETTLE and
