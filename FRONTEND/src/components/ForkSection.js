@@ -90,15 +90,15 @@ const PATHS = [
         mask: '/assets/images/plate-solo-mask.png',
         edge: '/assets/images/plate-solo-edge.png',
         alt: 'Engraving: a lone figure carrying a purse up a long stone stair toward a temple on the summit.',
-        caption: 'I answer to myself.', cta: 'Learn more',
+        caption: 'You are the only participant.', cta: 'Learn more',
     },
     {
-        key: 'rival', name: 'Rivalry', rule: 'Stake against someone else.',
+        key: 'rival', name: 'Rivalry', rule: 'Stake against another operator.',
         plate: '/assets/images/plate-rivalry.jpg',
         mask: '/assets/images/plate-rivalry-mask.png',
         edge: '/assets/images/plate-rivalry-edge.png',
         alt: 'Engraving: two rivals set their purses on a table while a magistrate seals the contract between them.',
-        caption: 'We answer to the same rules.', cta: 'Learn more',
+        caption: 'Same metric. Same deadline. One winner.', cta: 'Learn more',
     },
 ];
 
@@ -220,15 +220,23 @@ export function renderForkSection(options = {}) {
         .fk-step p{font-size:15.5px;line-height:1.68;color:var(--fk-ink-soft);
           max-width:190px;margin:0 auto}
 
-        /* ---- the inscribed divider ---- */
-        .fk-div{position:relative;height:1px;background:var(--fk-line);margin:40px 0 36px}
-        .fk-div .fk-dia{position:absolute;left:50%;top:50%;
-          transform:translate(-50%,-50%) rotate(45deg);
-          box-shadow:0 0 0 8px var(--fk-parch)}
+        /* ---- the inscribed divider, which now names what follows ---- */
+        /* Same knockout as .fk-close, and the same rule about it: the text sits
+           on .fk-choose-t, never on a bare descendant selector, so the diamond
+           below can never be caught by it. */
+        .fk-choose{position:relative;height:1px;background:var(--fk-line);margin:40px 0 0}
+        .fk-choose-t{position:absolute;left:50%;top:50%;
+          transform:translate(-50%,-50%);background:var(--fk-parch);padding:0 20px;
+          font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;
+          color:var(--fk-ox);font-weight:600;white-space:nowrap}
+        .fk-choose-dia{text-align:center;margin:22px 0 30px}
+        .fk-choose-dia .fk-dia{width:6px;height:6px;opacity:.9}
 
         /* ---- solo / rivalry ---- */
+        /* stretch, not start: the gutter column has to be as tall as the panels
+           for its rule to run their full height. */
         .fk-paths{display:grid;grid-template-columns:minmax(0,1fr) 66px minmax(0,1fr);
-          align-items:start}
+          align-items:stretch}
         .fk-path{text-align:center}
         .fk-p-name{font-family:var(--fk-display);font-weight:600;
           font-size:clamp(30px,2.7vw,40px);line-height:1;letter-spacing:.09em;
@@ -274,7 +282,10 @@ export function renderForkSection(options = {}) {
           -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
           mix-blend-mode:multiply;pointer-events:none}
 
-        .fk-p-cap{font-family:var(--fk-display);font-style:italic;font-weight:500;
+        /* Roman, not italic. The captions state a fact about the contract now
+           rather than speaking in the operator's voice, and italic was doing
+           the voice. */
+        .fk-p-cap{font-family:var(--fk-display);font-weight:500;
           font-size:clamp(22px,2vw,27px);line-height:1.35;color:var(--fk-ink);
           margin-bottom:18px}
         .fk-p-cta{background:none;border:0;cursor:pointer;padding:0;
@@ -287,26 +298,25 @@ export function renderForkSection(options = {}) {
         .fk-p-cta:hover .fk-arw{transform:translateX(4px)}
         .fk-p-cta:focus-visible{outline:2px solid var(--fk-ox);outline-offset:4px}
 
-        /* The gutter. This column has no content of its own to size against —
-           it is as tall as the label plus whatever we push the label down by —
-           so both numbers are set explicitly and both have to be re-derived
-           whenever the plate's proportions change.
+        /* The gutter. A full-height rule dividing the two panels, with OR
+           knocked out of it on the plates' centre line. Both numbers are raw
+           pixels because nothing in this column can derive them — the rule has
+           to know where the plates end and the label has to know where their
+           middle is, and both of those live in the sibling columns.
 
-           --or-drop     pushes OR to 20px ABOVE the plate's vertical middle.
-                         Dead centre reads as low, because the mass of type
-                         sits above the plate and nothing sits below it.
-           --or-line-end how far short of the bottom the hairline stops. Held at
-                         roughly 30% of the column height, which lands the line
-                         between the panel titles and the top of the plates —
-                         a stub marking the split, not a full divider.
+           --or-drop     the plates' vertical centre, measured from the row top.
+           --or-line-end how much of the row sits BELOW the plates, which is
+                         where the rule stops: it divides the artwork, not the
+                         captions.
 
-           Measured on the deployed page at 1440 and 1085. */
-        .fk-or{position:relative;display:flex;align-items:center;justify-content:center;
-          --or-drop:238px;--or-line-end:182px}
-        .fk-or::before{content:"";position:absolute;top:8px;bottom:var(--or-line-end);
+           Measured on the deployed page at 1425 and 1085. Re-derive both if the
+           plate proportions or the caption block change. */
+        .fk-or{position:relative;--or-drop:275px;--or-line-end:76px}
+        .fk-or::before{content:"";position:absolute;top:0;bottom:var(--or-line-end);
           left:50%;width:1px;background:var(--fk-line)}
-        .fk-or span{position:relative;z-index:1;background:var(--fk-parch);
-          padding:8px 0;margin-top:var(--or-drop);font-size:11px;letter-spacing:.2em;
+        .fk-or span{position:absolute;left:50%;top:var(--or-drop);
+          transform:translate(-50%,-50%);background:var(--fk-parch);
+          padding:8px 4px;font-size:11px;letter-spacing:.2em;
           text-transform:uppercase;color:var(--fk-ox);font-weight:600}
 
         /* ---- the closing inscription, knocked out of a rule ---- */
@@ -339,7 +349,7 @@ export function renderForkSection(options = {}) {
           .fk-paths{grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr)}
           /* Narrower columns mean shorter plates, so both gutter offsets come
              down with them. See the note on .fk-or. */
-          .fk-or{--or-drop:182px;--or-line-end:143px}
+          .fk-or{--or-drop:219px;--or-line-end:69px}
         }
         /* Phone. Two by two rather than four across — a single column puts a
            couple of hundred pixels of scrolling between CONNECT and SETTLE and
@@ -357,7 +367,9 @@ export function renderForkSection(options = {}) {
           /* A half-width phone column is a wider measure than the desktop
              quarter, so this can hold full size rather than shrink. */
           .fk-step p{font-size:15px;max-width:none}
-          .fk-div{margin:32px 0 30px}
+          .fk-choose{margin-top:32px}
+          .fk-choose-t{font-size:11px;letter-spacing:.16em;padding:0 14px}
+          .fk-choose-dia{margin:18px 0 24px}
 
           /* The gutter cannot be a column once the paths stack, so it becomes a
              rule between them with OR on it — the same idea turned 90 degrees. */
@@ -398,7 +410,10 @@ export function renderForkSection(options = {}) {
                     </div>
                 </div>
 
-                <div class="fk-div" aria-hidden="true"><span class="fk-dia"></span></div>
+                <div class="fk-choose">
+                    <span class="fk-choose-t">Choose your contract</span>
+                </div>
+                <div class="fk-choose-dia" aria-hidden="true"><span class="fk-dia"></span></div>
 
                 <div class="fk-paths">${renderPath(PATHS[0], onSelectPath, 4)}
                         <div class="fk-or" aria-hidden="true"><span>Or</span></div>${renderPath(PATHS[1], onSelectPath, 5)}
