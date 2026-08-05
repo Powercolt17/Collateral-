@@ -28,6 +28,15 @@
  * by side must agree exactly on height or the pair reads as "slightly off"
  * without being findable, so they match by construction rather than by CSS.
  *
+ * Both are GRADED, not used as delivered — FRONTEND/tools/grade-plates.ps1.
+ * The sources are dark painterly washes whose highlights top out around L=195,
+ * so the paper inside the engraving read as dull tan and the plates sat on the
+ * page like photographs of drawings. The grade re-maps each onto a single ramp
+ * from warm ink to the EXACT --fk-parch value, which is what lets a third of
+ * each plate be literally the same colour as the page behind it. No mask can
+ * hide a background two shades off, so this is load-bearing for the dissolve as
+ * well as for the look.
+ *
  * The frame is 3:2 because the rivalry plate is. It was 708x332 (2.13:1), and
  * cropping the chariots into that would have taken 151px off the top — which
  * decapitates the temple — and 151px off the bottom, which cuts the two "C"
