@@ -99,6 +99,18 @@ function escapeHtml(value) {
         .replace(/"/g, '&quot;');
 }
 
+
+/* Oracle marks, drawn at the row scale. Same paths the oracle register and the
+   hero band use, so the four brands read identically wherever they appear. */
+const ORACLE_MARKS = {
+    stripe: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"/></svg>',
+    youtube: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>',
+    shopify: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.337 23.979l7.216-1.561s-2.604-17.613-2.625-17.73c-.018-.116-.114-.192-.211-.192s-1.929-.136-1.929-.136-1.275-1.274-1.439-1.411c-.045-.037-.075-.057-.121-.074l-.914 21.104h.023zM11.71 11.305s-.81-.424-1.774-.424c-1.447 0-1.504.906-1.504 1.141 0 1.232 3.24 1.715 3.24 4.629 0 2.295-1.44 3.76-3.406 3.76-2.354 0-3.54-1.465-3.54-1.465l.646-2.086s1.245 1.066 2.28 1.066c.675 0 .975-.545.975-.932 0-1.619-2.654-1.694-2.654-4.359-.034-2.237 1.571-4.416 4.827-4.416 1.257 0 1.875.361 1.875.361l-.945 2.715-.02.01zM11.17.83c.136 0 .271.038.405.135-.984.465-2.064 1.639-2.508 3.992-.656.213-1.293.405-1.889.578C7.697 3.75 8.951.84 11.17.84V.83zm1.235 2.949v.135c-.754.232-1.583.484-2.394.736.466-1.777 1.333-2.645 2.085-2.971.193.501.309 1.176.309 2.1zm.539-2.234c.694.074 1.141.867 1.429 1.755-.349.114-.735.231-1.158.366v-.252c0-.752-.096-1.371-.271-1.871v.002zm2.992 1.289c-.02 0-.06.021-.078.021s-.289.075-.714.21c-.423-1.233-1.176-2.37-2.508-2.37h-.115C12.135.209 11.669 0 11.265 0 8.159 0 6.675 3.877 6.21 5.846c-1.194.365-2.063.636-2.16.674-.675.213-.694.232-.772.87-.075.462-1.83 14.063-1.83 14.063L15.009 24l.927-21.166z"/></svg>',
+    x: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z"/></svg>',
+};
+
+const SHIELD = '<svg class="lg-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>';
+
 const usd = (n) => '$' + Number(n).toLocaleString('en-US');
 
 function renderRow(entry) {
@@ -165,13 +177,24 @@ function renderRow(entry) {
     const initials = named
         ? (handle[0] + (/(\d)/.exec(handle) ? /(\d)/.exec(handle)[1] : (handle[1] || ''))).toUpperCase()
         : '';
+    /* VERIFIED BY. The oracle's own mark in a bordered disc, its name, and a
+       shield reading READ-ONLY rather than VERIFIED.
+
+       "Verified" is the wrong word and the design sheet used it on every row.
+       Nothing has been verified on an open contract — the oracle has not read
+       anything yet, because the window has not closed. What is true today is the
+       scope: the connection is read-only, which is the claim the oracle section
+       already makes and the one that reassures. */
+    const brandKey = String(entry.oracle || '').toLowerCase().replace(/[^a-z]/g, '');
+    const mark = ORACLE_MARKS[brandKey]
+        || `<span class="lg-mono-mark">${escapeHtml((entry.oracle || '?').charAt(0).toUpperCase())}</span>`;
     const partyCell = named
         ? `<span class="lg-ava">${escapeHtml(initials)}</span>`
           + `<span class="lg-src-meta"><span class="lg-h">${escapeHtml(entry.party)}</span>`
           + `<span class="lg-o">${escapeHtml(entry.oracle)}</span></span>`
-        : `<span class="lg-ava lg-ava-src" aria-hidden="true">${escapeHtml((entry.oracle || '?').charAt(0).toUpperCase())}</span>`
-          + `<span class="lg-src-meta"><span class="lg-h lg-h-open">Open</span>`
-          + `<span class="lg-o">${escapeHtml(entry.oracle)}</span></span>`;
+        : `<span class="lg-badge lg-b-${escapeHtml(brandKey)}" aria-hidden="true">${mark}</span>`
+          + `<span class="lg-src-meta"><span class="lg-brand">${escapeHtml(entry.oracle)}</span>`
+          + `<span class="lg-scope">${SHIELD}Read-only</span></span>`;
 
     /* Sequential register number. A ledger numbers its entries in order; the
        sliced UUID that used to sit here read as random. seq is assigned over the
@@ -285,7 +308,7 @@ export function renderLedgerSection(options = {}) {
         /* ---- table ---- */
         .lg-cols,.lg-row{
           display:grid;
-          grid-template-columns:56px minmax(0,1fr) 240px 120px 110px 160px;
+          grid-template-columns:56px minmax(0,1fr) 190px 120px 110px 160px;
           align-items:center;column-gap:20px;
         }
         .lg-cols{border-bottom:1px solid var(--lg-line);padding:0 8px 12px;margin-top:52px;
@@ -295,7 +318,11 @@ export function renderLedgerSection(options = {}) {
         .lg-row{padding:20px 8px;border-bottom:1px solid var(--lg-line-soft)}
 
         .lg-no{font-family:var(--lg-mono);font-size:13px;color:var(--lg-muted);letter-spacing:.02em}
-        .lg-goal{font-size:19px;font-weight:600;color:var(--lg-ink);letter-spacing:.01em;min-width:0}
+        /* Cormorant at 21px, the sheet scale. The goal is the row - what someone
+           said they would do - and it was set in the same face and weight as the
+           labels around it. */
+        .lg-goal{font-family:var(--lg-display);font-size:21px;font-weight:600;
+          color:var(--lg-ink);letter-spacing:.01em;min-width:0;line-height:1.15}
         .lg-target{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
           color:var(--lg-muted);margin-top:5px;font-weight:500}
 
@@ -326,6 +353,35 @@ export function renderLedgerSection(options = {}) {
         .lg-h-open{color:var(--lg-muted);letter-spacing:.14em;
           text-transform:uppercase;font-size:11px}
 
+        /* VERIFIED-BY CELL. The oracle's own mark in a bordered disc, its name,
+           and the scope beneath it. This replaces a lettered token and the word
+           OPEN, which said nothing a reader wanted: the interesting fact about
+           an open contract is not that it is unclaimed, it is which API gets to
+           decide it. */
+        .lg-badge{
+          width:34px;height:34px;border-radius:50%;flex:none;
+          border:1px solid var(--lg-line);background:rgba(255,255,255,.28);
+          display:flex;align-items:center;justify-content:center;color:#2C2418;
+        }
+        .lg-badge svg{width:auto;height:15px;fill:currentColor;display:block}
+        /* Optically balanced per brand, the same values the oracle register uses
+           so the four marks read identically wherever they appear. */
+        .lg-b-stripe svg{height:13px}
+        .lg-b-youtube svg{height:12px}
+        .lg-b-shopify svg{height:16px}
+        .lg-b-x svg{height:12px}
+        .lg-mono-mark{font-family:var(--lg-mono);font-weight:600;font-size:12px;color:var(--lg-ox)}
+        .lg-brand{font-family:var(--lg-mono);font-size:11px;letter-spacing:.1em;
+          text-transform:uppercase;color:var(--lg-ink);white-space:nowrap}
+        /* READ-ONLY, not VERIFIED. The sheet stamped every row Verified, and on
+           an open contract nothing has been verified — the window has not closed
+           and the oracle has not read anything yet. The scope IS true today, and
+           it is the fact that reassures. */
+        .lg-scope{display:flex;align-items:center;gap:5px;font-family:var(--lg-mono);
+          font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+          color:var(--lg-muted);margin-top:4px}
+        .lg-shield{width:11px;height:11px;flex:none;color:var(--lg-win)}
+
         /* The site sets a 1.62 line-height globally and it lands on these cells,
            which is not what the design was drawn against — it inflated the goal
            cell from 23px to 31px and every row with it, about 11px per row over
@@ -350,7 +406,17 @@ export function renderLedgerSection(options = {}) {
         .lg-out{display:flex;align-items:center;justify-content:flex-end;gap:9px;
           font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
           color:var(--lg-ink-soft)}
-        .lg-sq{width:8px;height:8px;flex:none;background:var(--lg-muted)}
+        /* The status dot. It pulses only on rows inside the urgent window, which
+           is a real property of the row - daysLeft <= 5 - and not decoration
+           applied to every line to make the table look busy. */
+        .lg-sq{width:7px;height:7px;border-radius:50%;flex:none;background:var(--lg-muted)}
+        .lg-soon .lg-sq{animation:lg-pulse 2.4s ease-out infinite}
+        @keyframes lg-pulse{
+          0%{box-shadow:0 0 0 0 rgba(124,29,43,.45)}
+          70%{box-shadow:0 0 0 6px rgba(124,29,43,0)}
+          100%{box-shadow:0 0 0 0 rgba(124,29,43,0)}
+        }
+        @media (prefers-reduced-motion:reduce){.lg-soon .lg-sq{animation:none}}
         .lg-soon .lg-out{color:var(--lg-ox)}
         .lg-soon .lg-sq{background:var(--lg-ox)}
         .lg-out .lg-clock{font-family:var(--lg-mono);font-size:11px;letter-spacing:.06em}
@@ -478,11 +544,11 @@ export function renderLedgerSection(options = {}) {
                 <div id="lg-ratio-slot">${ratio}</div>
                 <div class="lg-cols">
                     <span>&#8470;</span>
-                    <span>GOAL</span>
-                    <span>PARTY &middot; ORACLE</span>
-                    <span>AT STAKE</span>
-                    <span>MULTIPLE</span>
-                    <span>OUTCOME</span>
+                    <span>Goal</span>
+                    <span>Verified By</span>
+                    <span>At Stake</span>
+                    <span>Multiple</span>
+                    <span>Status</span>
                 </div>
                 <div class="lg-body" id="lg-body">${rows}</div>
                 <div class="lg-foot">
