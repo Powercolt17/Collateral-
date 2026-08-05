@@ -3,7 +3,7 @@ import api from '../api.js';
 import { landingCSS } from './LandingStyles.js';
 import { motionController, animateValue, initEntranceObservers, revealStyles } from './LandingMotion.js';
 import { renderCollateralHero } from '../components/CollateralHero.js';
-import { renderForkSection } from '../components/ForkSection.js';
+import { renderForkSection, initForkSection } from '../components/ForkSection.js';
 import { renderCaseSection } from '../components/CaseSection.js';
 import { renderOracleSection } from '../components/OracleSection.js';
 import { renderRecordSection, initRecordSection } from '../components/RecordSection.js';
@@ -73,6 +73,7 @@ export function initLanding() {
        resolves on its own and never rejects into here, and if it fails the rows
        rendered at build time stay on screen rather than the section emptying. */
     initLedgerSection();
+    initForkSection();
     initFlowSection();
     initPriceSection();
     initDuelSection();

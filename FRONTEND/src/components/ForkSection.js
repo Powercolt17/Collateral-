@@ -1,96 +1,70 @@
 /**
  * Collateral — "Who holds you to it".
  *
- * REBUILT against a supplied design sheet. The layout it replaces threaded the
- * two paths INTO a single spine, with SOLO above step 02 and RIVALRY below it.
- * That is why the section rendered as overlapping blocks: the paths and the
- * shared steps were competing for the same grid rows, and at real content
- * lengths they collided.
+ * EDITORIAL PASS. The brief was to take roughly 40% of the visual noise out and
+ * let the type and the plates do the work: no cards, no bordered boxes, no
+ * timeline graphic, no connectors, no icons.
  *
- * The shape now separates the two ideas. A four-step timeline runs across the
- * top — every contract does all four, in order — and the fork sits underneath as
- * two cards, which is the one step that has a choice in it. Nothing has to be
- * explained by a footnote because the structure says it.
+ * WHAT WAS REMOVED, which is most of what this file used to be:
  *
- * This frontend has no React, so supplied sheets cannot ship as authored. Same
- * convention as Header.js, CollateralHero.js and LedgerSection.js: a named
- * render function returning an HTML string with a scoped <style> block.
+ *   the travelling node   four 13px discs on a hairline rail with a staggered
+ *                         8s pulse. It was the most SaaS thing on the page — a
+ *                         progress tracker for a process nobody is progressing
+ *                         through while they read it.
+ *   the rail              .fk-steps::before, the 1px line joining the steps.
+ *   the two fork cards    panel background, 1px border, 2px top rule, hover lift
+ *                         and a 40px shadow. Now two open columns.
+ *   the clauses           three bulleted clauses per mode, each with a section
+ *                         mark. Replaced by one line per mode.
  *
- * SCOPING. Every selector is namespaced under .fk. The sheet styles bare *,
- * body, h1, .card, .step, .steps, .clause and .foot — this ships in the same
- * document as the hero, the ledger and the oracle band, so pasted as authored
- * it would restyle all three. The keyframes are prefixed too: nodeCycle and
- * numCycle are generic enough to collide with anything.
+ * Step copy is cut to a single idea each; the longest is eleven words. Nothing
+ * is bold — weight does no work here that size and space cannot do better.
  *
- * It is an h2, not the sheet's h1. The hero owns the page's h1.
+ * ── THE TWO PLATES ARE ONE PLATE ─────────────────────────────────────────────
+ * The brief asked for companion engravings: identical perspective, lighting,
+ * engraving density and parchment tone, only the subject changing. Rather than
+ * commission two images and hope they match, both are cut from the hero's own
+ * senate plate, at the same 860x645 frame and the same y-band:
  *
- * ── DO NOT "SIMPLIFY" THESE ──────────────────────────────────────────────────
- * Do not give RIVALRY a filled oxblood panel. The two cards differ by the 2px
- * top rule and the name colour only. A filled panel makes them read as one
- * product and its evil twin rather than two options, and it puts four
- * background values in one section.
+ *   plate-solo.jpg      x 40    the left figure, alone, hand on the purse
+ *   plate-rivalry.jpg   x 676   the group, the scroll, the magistrate's seal
  *
- * The travelling node is a pure CSS stagger: one 8s animation on all four
- * steps with a negative delay per step, so they light in sequence without any
- * JS and without a timer to fall out of sync. Do not convert it to setInterval.
+ * They cannot drift apart because they were never apart, and they carry the
+ * hero's tone exactly — it is literally the hero's paper. If purpose-drawn
+ * plates arrive later, this is two filenames.
  *
- * The CTAs are buttons, not links: they trigger a flow, not a navigation. If
- * they ever become links, give them real hrefs rather than href="#".
- * ─────────────────────────────────────────────────────────────────────────────
+ * The plates BLEED: no frame, no radius, no shadow. A radial mask dissolves the
+ * edges into the parchment, the same gesture the hero uses where its artwork
+ * meets the page.
  *
- * Content is data, not markup. Adding a clause or a fifth step is an array edit
- * below, not a markup edit. Clauses carry an optional "b" - the substring to
- * emphasise — which is applied AFTER escaping, so the emphasis cannot be used
- * to inject markup.
+ * ── SCOPING ──────────────────────────────────────────────────────────────────
+ * Everything is under .fk. h2 not h1 — the hero owns the page's h1.
+ *
+ * ── MOTION ───────────────────────────────────────────────────────────────────
+ * One fade and rise on scroll: 700ms, 12px, staggered 90ms. No parallax, no
+ * float, no hover gimmick — the links move their arrow 4px and nothing else.
+ * Under prefers-reduced-motion everything is simply present.
  */
 
 const STEPS = [
-    {
-        num: '01 · Connect',
-        title: 'The oracle reads you',
-        body: 'Stripe, Shopify, YouTube — live data straight from the source. Nothing you type, nothing you upload.',
-    },
-    {
-        num: '02 · Choose',
-        title: "Who's on the other side?",
-        body: "Stake against your own record, or against a rival. This is the only step that's yours to decide.",
-    },
-    {
-        num: '03 · Lock',
-        title: 'The capital is held',
-        body: 'Escrowed for the full window. No early exit, no renegotiating once the clock starts.',
-    },
-    {
-        num: '04 · Settle',
-        title: 'The date decides',
-        body: 'On the closing date the oracle reports and the outcome is set. Nobody adjudicates.',
-    },
+    { n: '01', name: 'Connect', body: 'Live data, read straight from the source. Nothing you type.' },
+    { n: '02', name: 'Choose', body: 'Stake against your own record, or against someone else.' },
+    { n: '03', name: 'Lock', body: 'Capital sits in escrow until the deadline. No early exit.' },
+    { n: '04', name: 'Settle', body: 'The oracle reports. The record updates, permanently.' },
 ];
 
 const PATHS = [
     {
-        key: 'solo',
-        name: 'Solo',
-        vsLeft: 'You',
-        vsRight: 'You',
-        clauses: [
-            { t: "You set the target. You don't get to move it." },
-            { t: 'Hit it and every dollar comes back — with a matching payout.', b: 'with a matching payout' },
-            { t: "Miss, and your deposit funds someone who didn't." },
-        ],
-        cta: 'Write a Solo Contract',
+        key: 'solo', name: 'Solo', rule: 'Stake against your own record.',
+        plate: '/assets/images/plate-solo.jpg',
+        alt: 'Engraving: a lone figure at a stone table, his hand resting on a coin purse.',
+        caption: 'I answer to myself.', cta: 'Learn more',
     },
     {
-        key: 'rival',
-        name: 'Rivalry',
-        vsLeft: 'You',
-        vsRight: 'Them',
-        clauses: [
-            { t: 'Equal capital, same metric, same clock.' },
-            { t: 'The escrow goes to the winner. There is no draw.', b: 'There is no draw.' },
-            { t: 'Neither of you gets a vote on the result.' },
-        ],
-        cta: 'Find a Counterparty',
+        key: 'rival', name: 'Rivalry', rule: 'Stake against someone else.',
+        plate: '/assets/images/plate-rivalry.jpg',
+        alt: 'Engraving: two figures at the same table with a magistrate between them, setting the seal on the contract.',
+        caption: 'We answer to the same rules.', cta: 'Learn more',
     },
 ];
 
@@ -102,44 +76,32 @@ function escapeHtml(value) {
         .replace(/"/g, '&quot;');
 }
 
-/* Emphasis is applied to the ESCAPED string, and the needle is escaped the same
-   way before it is searched for. A clause can therefore never introduce markup
-   through its "b" field — the only tags that reach the page are the ones this
-   function writes. */
-function renderClause(clause) {
-    const safe = escapeHtml(clause.t);
-    const body = clause.b
-        ? safe.replace(escapeHtml(clause.b), `<b>${escapeHtml(clause.b)}</b>`)
-        : safe;
-    return `
-                        <div class="fk-clause"><span class="fk-mark" aria-hidden="true">&sect;</span><span>${body}</span></div>`;
-}
-
-/** The landing page's existing CTA behaviour: gate on auth before contract creation. */
+/** The landing page's existing behaviour: gate on auth before contract creation. */
 const DEFAULT_PATH_ACTION =
     "if(window.app &amp;&amp; window.app.openAccessModal){ window.app.openAccessModal('signup'); } else { window.router.navigate('/signin'); } return false;";
 
 function renderStep(step, i) {
     return `
-                    <div class="fk-step" style="--d:${[0, -6, -4, -2][i]}s">
-                        <div class="fk-num">${escapeHtml(step.num)}</div>
-                        <h3>${escapeHtml(step.title)}</h3>
-                        <p>${escapeHtml(step.body)}</p>
-                    </div>`;
+                        <div class="fk-step" style="--i:${i}">
+                            <div class="fk-num">${escapeHtml(step.n)}</div>
+                            <h3>${escapeHtml(step.name)}</h3>
+                            <p>${escapeHtml(step.body)}</p>
+                        </div>`;
 }
 
-function renderPath(path, onSelectPath) {
+function renderPath(path, onSelectPath, i) {
     const action = onSelectPath ? onSelectPath(path.key) : DEFAULT_PATH_ACTION;
-    const clauses = path.clauses.map(renderClause).join('');
     return `
-                    <div class="fk-card fk-${escapeHtml(path.key)}">
-                        <div class="fk-c-head">
-                            <div class="fk-c-name">${escapeHtml(path.name)}</div>
-                            <div class="fk-c-vs"><b>${escapeHtml(path.vsLeft)}</b> vs <b>${escapeHtml(path.vsRight)}</b></div>
-                        </div>
-                        <div class="fk-c-rule"></div>${clauses}
-                        <button type="button" class="fk-c-cta"${action ? ` onclick="${action}"` : ''}>${escapeHtml(path.cta)} <span class="fk-arw" aria-hidden="true">&rarr;</span></button>
-                    </div>`;
+                        <div class="fk-path fk-${escapeHtml(path.key)}" style="--i:${i}">
+                            <h3 class="fk-p-name">${escapeHtml(path.name)}</h3>
+                            <p class="fk-p-rule">${escapeHtml(path.rule)}</p>
+                            <div class="fk-plate">
+                                <img src="${escapeHtml(path.plate)}" alt="${escapeHtml(path.alt)}"
+                                     loading="lazy" decoding="async" width="860" height="645" />
+                            </div>
+                            <p class="fk-p-cap">${escapeHtml(path.caption)}</p>
+                            <button type="button" class="fk-p-cta"${action ? ` onclick="${action}"` : ''}>${escapeHtml(path.cta)} <span class="fk-arw" aria-hidden="true">&rarr;</span></button>
+                        </div>`;
 }
 
 /**
@@ -155,13 +117,11 @@ export function renderForkSection(options = {}) {
         <style>
         .fk{
           --fk-parch:#F1E8D3;
-          --fk-card:#F6EFDE;
           --fk-ink:#211B12;
           --fk-ink-soft:#5B5140;
           --fk-muted:#9A8C6F;
-          --fk-faint:#B4A98C;
           --fk-ox:#7C1D2B;
-          --fk-line:rgba(60,48,30,.16);
+          --fk-line:rgba(60,48,30,.18);
           --fk-serif:"EB Garamond",Georgia,serif;
           --fk-display:"Cormorant Garamond","EB Garamond",Georgia,serif;
           --fk-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -172,191 +132,158 @@ export function renderForkSection(options = {}) {
           -webkit-font-smoothing:antialiased;
         }
         .fk *{box-sizing:border-box;margin:0;padding:0}
-        .fk-wrap{max-width:1440px;margin:0 auto;padding:64px 90px 56px}
+        /* Deliberately generous. Most of the noise reduction in this pass is
+           space rather than deletion. */
+        .fk-wrap{width:100%;max-width:1440px;margin:0 auto;padding:104px 90px 96px}
 
-        /* ---- header ---- */
-        .fk-kicker{font-size:11px;letter-spacing:.4em;text-transform:uppercase;
-          color:var(--fk-muted);font-weight:600;margin-bottom:20px}
-        .fk h2{
-          font-family:var(--fk-display);font-weight:600;color:var(--fk-ox);
-          font-size:clamp(34px,3.6vw,52px);line-height:1;letter-spacing:.005em;
-          text-transform:uppercase;font-variant:small-caps;margin-bottom:20px;
-        }
-        .fk-head p{font-size:18px;line-height:1.55;color:var(--fk-ink-soft);max-width:600px}
+        /* ---- masthead and the four steps, one band ---- */
+        .fk-top{display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1.5fr);
+          gap:80px;align-items:start}
+        .fk-kicker{font-family:var(--fk-mono);font-size:10px;letter-spacing:.34em;
+          text-transform:uppercase;color:var(--fk-muted);margin-bottom:26px}
+        .fk h2{font-family:var(--fk-display);font-weight:600;color:var(--fk-ox);
+          font-size:clamp(34px,4.4vw,62px);line-height:1.02;letter-spacing:.008em;
+          text-transform:uppercase;font-variant:small-caps;margin-bottom:28px}
+        /* The only two rules in the section: this one reads as part of the
+           masthead, and .fk-div separates the explanation from the plates. */
+        .fk-mark{width:54px;height:1px;background:var(--fk-ox);opacity:.5;margin-bottom:26px}
+        .fk-lede{font-size:17.5px;line-height:1.62;color:var(--fk-ink-soft);max-width:44ch}
 
-        /* ---- four-step timeline ---- */
-        .fk-steps{position:relative;display:grid;grid-template-columns:repeat(4,1fr);
-          gap:34px;margin-top:60px}
-        /* The rail the nodes sit on. Inset 6px each end so it starts and stops
-           under the first and last node rather than running off the grid. */
-        .fk-steps::before{content:"";position:absolute;top:6px;left:6px;right:6px;
-          height:1px;background:var(--fk-line);z-index:0}
+        /* No rail, no nodes, no connectors — the columns are the sequence. */
+        .fk-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:44px}
+        .fk-step{padding-top:4px}
+        .fk-num{font-family:var(--fk-mono);font-size:11px;letter-spacing:.2em;
+          color:var(--fk-ox);opacity:.75;margin-bottom:14px}
+        .fk-step h3{font-family:var(--fk-display);font-weight:600;font-size:23px;
+          line-height:1.1;letter-spacing:.06em;text-transform:uppercase;
+          font-variant:small-caps;color:var(--fk-ink);margin-bottom:12px}
+        .fk-step p{font-size:14.5px;line-height:1.6;color:var(--fk-ink-soft);max-width:24ch}
 
-        .fk-step{position:relative;padding-top:30px}
-        .fk-step::before{
-          content:"";position:absolute;top:0;left:0;width:13px;height:13px;border-radius:50%;
-          background:var(--fk-parch);border:2px solid var(--fk-muted);z-index:1;
-        }
-        .fk-num{
-          font-family:var(--fk-mono);font-size:12px;letter-spacing:.16em;
-          text-transform:uppercase;color:var(--fk-muted);margin-bottom:12px;
-        }
-        .fk-step h3{font-family:var(--fk-display);font-size:24px;font-weight:600;
-          letter-spacing:.01em;margin-bottom:9px;color:var(--fk-ink);line-height:1.15}
-        .fk-step p{font-size:15px;line-height:1.5;color:var(--fk-ink-soft);max-width:250px}
+        .fk-div{height:1px;background:var(--fk-line);margin:88px 0 78px}
 
-        /* THE TRAVELLING NODE IS A STAGGER, NOT A TIMER.
-           One 8s animation on all four steps, each given a negative delay so it
-           starts part-way through its own cycle: 0, -6, -4, -2. Each node is lit
-           for the first 25% of the cycle, so exactly one is lit at a time and
-           the light appears to walk 01 -> 02 -> 03 -> 04.
+        /* ---- solo / rivalry ---- */
+        .fk-paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:88px}
+        .fk-path{display:flex;flex-direction:column;align-items:center;text-align:center}
+        .fk-p-name{font-family:var(--fk-display);font-weight:600;
+          font-size:clamp(26px,2.4vw,34px);line-height:1;letter-spacing:.1em;
+          text-transform:uppercase;font-variant:small-caps;color:var(--fk-ink);
+          margin-bottom:10px}
+        .fk-rival .fk-p-name{color:var(--fk-ox)}
+        .fk-p-rule{font-family:var(--fk-mono);font-size:10px;letter-spacing:.22em;
+          text-transform:uppercase;color:var(--fk-muted);margin-bottom:30px}
 
-           Negative delays matter — a positive delay would leave every node dark
-           until its first turn came round. There is no JS and no interval, so
-           nothing can drift out of step or keep running after the section
-           scrolls away. */
+        /* THE PLATES BLEED. No box, no radius, no shadow — the mask dissolves
+           all four edges into the parchment. A frame would put the engraving
+           behind glass; the brief asked for the opposite. */
+        .fk-plate{width:100%;margin-bottom:26px}
+        .fk-plate img{display:block;width:100%;height:auto;
+          -webkit-mask-image:radial-gradient(118% 108% at 50% 46%,#000 52%,transparent 96%);
+          mask-image:radial-gradient(118% 108% at 50% 46%,#000 52%,transparent 96%)}
+
+        .fk-p-cap{font-family:var(--fk-display);font-style:italic;
+          font-size:clamp(19px,1.6vw,23px);line-height:1.35;color:var(--fk-ink);
+          margin-bottom:22px}
+        .fk-p-cta{background:none;border:0;cursor:pointer;padding:0;
+          font-family:var(--fk-mono);font-size:10.5px;letter-spacing:.24em;
+          text-transform:uppercase;color:var(--fk-ink-soft);transition:color 200ms ease}
+        .fk-arw{color:var(--fk-ox);display:inline-block;margin-left:8px;
+          transition:transform 200ms ease}
+        .fk-p-cta:hover{color:var(--fk-ink)}
+        .fk-p-cta:hover .fk-arw{transform:translateX(4px)}
+        .fk-p-cta:focus-visible{outline:2px solid var(--fk-ox);outline-offset:4px}
+
+        /* ---- the inscription ---- */
+        .fk-close{margin-top:92px;text-align:center;font-family:var(--fk-mono);
+          font-size:10.5px;letter-spacing:.42em;text-transform:uppercase;
+          color:var(--fk-ox);opacity:.8}
+
+        /* ---- motion: one fade and rise, nothing else ---- */
         @media (prefers-reduced-motion:no-preference){
-          .fk-step::before{animation:fk-node 8s linear infinite;animation-delay:var(--d)}
-          .fk-num{animation:fk-numlit 8s linear infinite;animation-delay:var(--d)}
-        }
-        @keyframes fk-node{
-          0%  {background:var(--fk-ox);border-color:var(--fk-ox);transform:scale(1.18);
-               box-shadow:0 0 0 4px rgba(124,29,43,.16)}
-          16% {background:var(--fk-ox);border-color:var(--fk-ox);transform:scale(1.18);
-               box-shadow:0 0 0 9px rgba(124,29,43,0)}
-          25% {background:var(--fk-parch);border-color:var(--fk-muted);transform:scale(1);
-               box-shadow:0 0 0 0 rgba(124,29,43,0)}
-          100%{background:var(--fk-parch);border-color:var(--fk-muted);transform:scale(1);
-               box-shadow:0 0 0 0 rgba(124,29,43,0)}
-        }
-        @keyframes fk-numlit{
-          0%{color:var(--fk-ox)} 16%{color:var(--fk-ox)}
-          25%{color:var(--fk-muted)} 100%{color:var(--fk-muted)}
-        }
-        /* Nothing cycles for a reader who asked for that. Step 02 stays lit,
-           because it is the one the fork below belongs to — a dark rail would
-           leave the section with no visible relationship between the two. */
-        @media (prefers-reduced-motion:reduce){
-          .fk-step:nth-child(2)::before{background:var(--fk-ox);border-color:var(--fk-ox)}
-          .fk-step:nth-child(2) .fk-num{color:var(--fk-ox)}
-          .fk *{transition:none !important}
+          .fk-step,.fk-path{opacity:0;transform:translateY(12px);
+            transition:opacity 700ms ease,transform 700ms cubic-bezier(.22,1,.36,1);
+            transition-delay:calc(var(--i,0) * 90ms)}
+          .fk-in .fk-step,.fk-in .fk-path{opacity:1;transform:none}
         }
 
-        /* ---- the fork ---- */
-        .fk-fork{margin-top:56px}
-        .fk-forklabel{display:flex;align-items:center;gap:16px;margin-bottom:22px}
-        .fk-forklabel .fk-t{font-family:var(--fk-mono);font-size:12px;letter-spacing:.2em;
-          text-transform:uppercase;color:var(--fk-ox);font-weight:500}
-        .fk-forklabel .fk-l{flex:1;height:1px;background:var(--fk-line)}
-
-        .fk-cards{display:grid;grid-template-columns:1fr 1fr;gap:26px}
-        .fk-card{
-          position:relative;background:var(--fk-card);border:1px solid var(--fk-line);
-          padding:32px 34px 30px;overflow:hidden;
-          transition:transform .25s cubic-bezier(.22,1,.36,1),
-                     box-shadow .25s cubic-bezier(.22,1,.36,1),border-color .25s;
+        @media (max-width:1080px){
+          .fk-wrap{padding:76px 44px 72px}
+          .fk-top{grid-template-columns:minmax(0,1fr);gap:46px}
+          .fk-steps{gap:32px}
+          .fk-paths{gap:56px}
         }
-        /* The ONLY things separating the two modes: this rule and the name
-           colour. See the note at the top of the file before changing it. */
-        .fk-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;
-          background:var(--fk-muted)}
-        .fk-rival::before{background:var(--fk-ox)}
-        .fk-card:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(60,40,20,.10);
-          border-color:rgba(124,29,43,.3)}
-
-        .fk-c-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:16px}
-        .fk-c-name{font-family:var(--fk-display);font-size:30px;font-weight:600;
-          text-transform:uppercase;font-variant:small-caps;letter-spacing:.03em;color:var(--fk-ink)}
-        .fk-rival .fk-c-name{color:var(--fk-ox)}
-        .fk-c-vs{font-family:var(--fk-mono);font-size:11px;letter-spacing:.18em;
-          text-transform:uppercase;color:var(--fk-faint);font-weight:500;white-space:nowrap}
-        .fk-c-vs b{color:var(--fk-ink-soft);font-weight:500}
-        .fk-c-rule{height:1px;background:var(--fk-line);margin:18px 0 20px}
-
-        .fk-clause{display:flex;gap:14px;padding:9px 0;font-size:16px;line-height:1.45;
-          color:var(--fk-ink-soft)}
-        .fk-mark{font-family:var(--fk-mono);color:var(--fk-ox);font-size:15px;flex:none;
-          opacity:.8;padding-top:1px}
-        .fk-clause b{color:var(--fk-ink);font-weight:600}
-
-        .fk-c-cta{
-          background:none;border:0;cursor:pointer;
-          display:inline-flex;align-items:center;gap:9px;margin-top:20px;
-          font-family:var(--fk-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
-          color:var(--fk-ink);font-weight:500;border-bottom:1.5px solid var(--fk-ox);
-          padding-bottom:6px;
-          transition:gap .25s cubic-bezier(.22,1,.36,1),color .25s;
+        /* Phone. The section frame and heading sizes come from the shared mobile
+           pass in views/LandingMobile.js; only what is specific to this layout
+           is set here. Two by two rather than four across — a single column puts
+           a couple of hundred pixels of scrolling between CONNECT and SETTLE and
+           loses the sense that they are one sequence. */
+        @media (max-width:760px){
+          .fk-steps{grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 22px}
+          .fk-step h3{font-size:19px}
+          .fk-step p{font-size:13.5px;max-width:none}
+          .fk-lede{max-width:none}
+          .fk-div{margin:44px 0 40px}
+          .fk-paths{grid-template-columns:minmax(0,1fr);gap:48px}
+          .fk-p-rule{margin-bottom:22px}
+          .fk-close{margin-top:48px;letter-spacing:.3em;font-size:9.5px}
         }
-        .fk-arw{color:var(--fk-ox);transition:transform .25s cubic-bezier(.22,1,.36,1)}
-        .fk-card:hover .fk-c-cta{gap:13px}
-        .fk-card:hover .fk-arw{transform:translateX(4px)}
-        .fk-c-cta:focus-visible{outline:2px solid var(--fk-ox);outline-offset:3px}
-
-        /* ---- footer ---- */
-        .fk-foot{display:flex;align-items:center;gap:14px;margin-top:44px;padding-top:22px;
-          border-top:1px solid var(--fk-line);flex-wrap:wrap}
-        .fk-foot .fk-t{font-size:11px;letter-spacing:.24em;text-transform:uppercase;
-          color:var(--fk-muted);font-weight:600}
-        .fk-foot b{color:var(--fk-ink-soft);font-weight:600}
-        .fk-foot .fk-sep{color:var(--fk-faint);margin:0 8px}
-
-        /* Narrow. The four-across timeline becomes a vertical rail with the
-           nodes down the left, and the two cards stack. */
-        @media (max-width:900px){
-          .fk-wrap{padding-block:clamp(40px,8vw,64px);padding-inline:clamp(20px,5.5vw,90px)}
-          .fk-head p{font-size:clamp(1rem,4.2vw,1.125rem)}
-          .fk-step p{font-size:clamp(.9rem,3.8vw,15px)}
-          .fk-steps{grid-template-columns:1fr;gap:0;margin-top:40px}
-          .fk-steps::before{top:6px;bottom:6px;left:6px;right:auto;width:1px;height:auto}
-          .fk-step{padding:0 0 30px 30px}
-          .fk-step::before{top:4px}
-          .fk-step p{max-width:none}
-          .fk-fork{margin-top:40px}
-          .fk-cards{grid-template-columns:1fr;gap:18px}
-          .fk-card{padding:26px 22px 24px}
-          .fk-c-name{font-size:24px}
-          .fk-foot{margin-top:32px}
-        }
-        /* FULL BLEED BELOW 768. mobile.css forces padding-left/right:16px on .lp
-           at exactly this width, so the section stopped 16px short of both edges
-           and its own parchment never reached them. Those two strips were the
-           white side margins - the page ground showing past the section, not the
-           section itself. 100vw plus the negative margin escapes the gutter, the
-           same technique the hero already documents. Pinned to 768 deliberately:
-           above it there is no gutter to escape. */
         @media (max-width:768px){
           .fk{width:100vw;margin-left:calc(50% - 50vw)}
         }
+        @media (prefers-reduced-motion:reduce){.fk *{transition:none !important}}
         </style>
 
-        <section class="fk" aria-labelledby="fk-title">
+        <section class="fk" id="fk-section" aria-labelledby="fk-title">
             <div class="fk-wrap">
-                <div class="fk-head">
-                    <div class="fk-kicker">How It Settles</div>
-                    <h2 id="fk-title">Who holds you to it</h2>
-                    <p>
-                        Every contract runs the same four steps. Only one of them gives you a choice
-                        &mdash; whether you're staking against your own record, or against someone who
-                        wants it as badly as you claim to.
-                    </p>
-                </div>
-
-                <div class="fk-steps">${STEPS.map(renderStep).join('')}
-                </div>
-
-                <div class="fk-fork">
-                    <div class="fk-forklabel">
-                        <span class="fk-t">02 &middot; Choose your side</span>
-                        <span class="fk-l" aria-hidden="true"></span>
+                <div class="fk-top">
+                    <div>
+                        <div class="fk-kicker">How it settles</div>
+                        <h2 id="fk-title">Who holds<br />you to it</h2>
+                        <div class="fk-mark" aria-hidden="true"></div>
+                        <p class="fk-lede">Every contract runs the same four steps. Only one of them
+                            gives you a choice &mdash; whether you stake against your own record, or
+                            against someone who wants it as badly as you claim to.</p>
                     </div>
-                    <div class="fk-cards">${PATHS.map((p) => renderPath(p, onSelectPath)).join('')}
+                    <div class="fk-steps">${STEPS.map(renderStep).join('')}
                     </div>
                 </div>
 
-                <div class="fk-foot">
-                    <div class="fk-t"><b>Verification is automatic</b><span class="fk-sep">&middot;</span>No appeals<span class="fk-sep">&middot;</span>No extensions<span class="fk-sep">&middot;</span>Custody <b>Stripe Connect</b></div>
+                <div class="fk-div" aria-hidden="true"></div>
+
+                <div class="fk-paths">${PATHS.map((p, i) => renderPath(p, onSelectPath, i + 4)).join('')}
                 </div>
+
+                <div class="fk-close">No judges. No voting. Only the record.</div>
             </div>
         </section>
     `;
+}
+
+/**
+ * Reveals the steps and plates when the section is reached. Safe to call when
+ * the section is absent.
+ *
+ * IntersectionObserver rather than a scroll handler, and it disconnects on the
+ * first hit — this fires once and then costs nothing. With no observer, or when
+ * the reader has asked for reduced motion, the class goes on immediately and
+ * everything is simply present.
+ */
+export function initForkSection() {
+    const section = document.getElementById('fk-section');
+    if (!section) return;
+
+    const reduce = window.matchMedia
+        && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (reduce || !('IntersectionObserver' in window)) {
+        section.classList.add('fk-in');
+        return;
+    }
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            section.classList.add('fk-in');
+            io.disconnect();
+        });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    io.observe(section);
 }

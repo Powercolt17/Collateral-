@@ -75,7 +75,6 @@ export function renderMobileScale() {
           .dl-grid{margin-top:24px}
           .rec-cards{margin-top:24px !important;gap:12px !important}
           .rec-totals{margin-top:28px !important}
-          .fk-fork,.fk-steps{margin-top:26px !important}
 
           /* Nine rows at 20px of vertical padding is 360px of padding alone.
              16px keeps a 44px touch target on the row while returning ~72px. */
@@ -89,8 +88,6 @@ export function renderMobileScale() {
              carrying desktop padding and desktop display figures on a 358px
              screen. Measured before touching: .fk-card 26/22/24, .rec-top
              24/26/26, .prc-otile 20/22, and a 46px tier multiple. */
-          .fk-card{padding:18px !important}
-          .fk-cards{gap:12px !important}
           .rec-top{padding:18px !important}
           .rec-card{padding:0 !important}
           .prc-otile{padding:16px !important}
@@ -153,12 +150,6 @@ export function renderMobileScale() {
           .sch-qrow{padding-top:13px !important;padding-bottom:13px !important}
           .sch-note{margin-top:20px !important;padding-top:14px !important}
 
-          .fk-step{padding-bottom:18px !important}
-          .fk-card{padding:14px !important}
-          .fk-cards{gap:10px !important}
-          .fk-steps,.fk-fork{margin-top:20px !important}
-          .fk-foot{margin-top:22px !important}
-
           /* Price — the tallest section on the page at 2,067. */
           .prc-pane{padding:16px 14px !important}
           .prc-tier{padding:14px !important}
@@ -170,7 +161,7 @@ export function renderMobileScale() {
           /* Ledger. 403px of head before a single row. */
           .lg-head{gap:18px !important}
           .lg-sum{gap:14px 22px !important}
-          .lg-sum dd{font-size:22px !important}
+          .lg-sum dd{font-size:22px !important}
 
           /* Flow, duels, and the two table sections. Row padding on a phone
              table is pure height once the columns are already narrowed. */
@@ -209,21 +200,18 @@ export function renderMobileScale() {
           .lg h2,.fk h2,.cs h2,.orc h2,.rec h2,.flw h2,.prc h2,.dl h2,.sch h2{
             font-size:23px !important;line-height:1.1 !important}
 
-          .lg-head-l p,.fk-head p,.cs-body,.orc-body,.rec-body,
+          .lg-head-l p,.fk-lede,.cs-body,.orc-body,.rec-body,
           .flw-lede,.prc-lede,.dl-lede,.sch-lede{
             font-size:15px !important;line-height:1.45 !important}
 
           /* Sub-heads step back so the section heading leads again. */
           .fk-step h3{font-size:18px !important;line-height:1.2 !important}
-          .fk-c-name{font-size:20px !important}
           .orc-pname{font-size:17px !important}
           .rec-title{font-size:15px !important}
           .prc-tm{font-size:22px !important}
 
           /* Body copy inside the blocks, and the row text in the tables. */
           .fk-step p{font-size:14px !important;line-height:1.45 !important}
-          .fk-clause{font-size:15px !important;line-height:1.4 !important;
-            padding:6px 0 !important}
           .orc-metrics{font-size:14px !important}
           .cs-void,.cs-under{font-size:14px !important}
           .lg-goal{font-size:15px !important}
