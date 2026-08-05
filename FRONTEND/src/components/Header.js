@@ -139,15 +139,40 @@ export function renderHeader(currentRoute = '') {
                main.js now gates the class on the HERO'S bottom edge rather than
                scrollY > 20, so this fill cannot engage while the plate is still
                behind the bar. */
+            /* THE BAR ONLY FILLS ONCE THE PAGE HAS MOVED. At the top it stays
+               transparent so the hero's gold runs up through it, which is
+               deliberate and was asked for. Past 24px it takes a ground, because
+               a fixed transparent bar over a scrolling page is two sets of type
+               occupying the same 64 pixels — the wordmark and whatever line of
+               the hero happens to be passing under it.
+
+               Solid parchment is the BASE, not the preferred state: an unblurred
+               translucent bar over engraving is the worst of both, so a browser
+               without backdrop-filter gets an opaque bar it can definitely
+               render. The @supports block below then trades opacity for blur
+               where the capability exists. This is the fallback the old note
+               said had been removed along with the blur it covered for — the
+               blur is back, so its fallback is back with it. */
             .ch-header.nav-scrolled {
                 background: #F1E8D3;
+                border-bottom: 1px solid rgba(60, 48, 30, 0.12);
             }
-
-            /* No backdrop-filter, no blur to hide behind — fall back to a solid
-               bar rather than leaving dark artwork under dark type. */
-            /* The @supports fallback for missing backdrop-filter went with the
-               blur it was covering for. Nothing here uses backdrop-filter now,
-               so there is no capability left to branch on. */
+            @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+                .ch-header.nav-scrolled {
+                    background: rgba(241, 232, 211, 0.72);
+                    -webkit-backdrop-filter: blur(14px) saturate(1.06);
+                    backdrop-filter: blur(14px) saturate(1.06);
+                }
+            }
+            /* Fades rather than snapping. The class flips on a single scroll
+               frame, and without this the bar appears mid-gesture. */
+            .ch-header {
+                transition: background 220ms ease, border-color 220ms ease,
+                            -webkit-backdrop-filter 220ms ease, backdrop-filter 220ms ease;
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .ch-header { transition: none; }
+            }
 
             /* Full-Bleed Viewport Layout: Wordmark and Menu sit flush to edge gutters */
             .ch-header-inner {
@@ -1611,7 +1636,53 @@ export function renderHeader(currentRoute = '') {
     `;
 }
 
+/* Attached once for the life of the page. initScrollEffects runs on every route
+   render, and binding per render would stack another callback on every
+   navigation. */
+let _headerFillBound = false;
+
+/**
+ * Toggles .nav-scrolled on the bar once the page has moved off the top.
+ *
+ * THIS DOES NOT LIVE IN main.js, AND THAT IS THE POINT. handleGlobalScroll
+ * there already sets this exact class, and it has never worked on the landing
+ * route — checked on the live page at scrollY 600 and again at 900, with a
+ * delay between the scroll and the read to rule out racing its rAF callback:
+ * neither body nor .ch-header carried the class either time. The CSS for it has
+ * been sitting in this file unreachable. Rather than debug a handler that spans
+ * several views, the header now drives its own state from a hook that
+ * demonstrably runs — initScrollEffects is called after every header render.
+ *
+ * 24px rather than 0: the bar stays clear while the reader is still at the top,
+ * where the hero's gold is meant to show through it, and 24 is past an
+ * accidental trackpad nudge without waiting for real scrolling.
+ */
+function bindHeaderFill() {
+    if (_headerFillBound) return;
+    _headerFillBound = true;
+
+    let ticking = false;
+    const apply = () => {
+        ticking = false;
+        const bar = document.querySelector('.ch-header');
+        if (!bar) return;
+        const y = window.scrollY || document.documentElement.scrollTop || 0;
+        bar.classList.toggle('nav-scrolled', y > 24);
+    };
+    window.addEventListener('scroll', () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(apply);
+    }, { passive: true });
+    /* Once now, too: a reload part-way down the page starts already scrolled,
+       and waiting for the first scroll event would leave the bar clear over
+       text until the reader happened to move. */
+    apply();
+}
+
 export function initScrollEffects() {
+    bindHeaderFill();
+
     const revealEls = document.querySelectorAll('[data-reveal]');
     if (revealEls.length) {
         const observer = new IntersectionObserver((entries) => {
