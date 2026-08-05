@@ -64,19 +64,6 @@ export function renderLanding() {
 
             ${renderMobileScale()}
 
-            <!-- ═════ SITE FOOTER ═════ -->
-            <footer class="site-footer" style="background:var(--bg, #FAF7F1); border-top:1px solid var(--rule, #D8D2C6); padding:64px 24px 72px; text-align:center; box-sizing:border-box; width:100%;">
-                <div class="footer-inner" style="max-width:720px; margin:0 auto;">
-                    <p class="footer-disclaimer" style="margin:0 0 28px; color:#55534E; font-family:ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size:12px; line-height:1.75; letter-spacing:0.01em; text-align:center;">
-                        Deposits are held by a third-party custodian via Stripe Connect and are not held by Collateral. Outcomes are determined solely by read-only telemetry from the connected platform API named in the contract. Matching payouts are funded from forfeited deposits and sponsor contributions, is not interest, and is not guaranteed. Collateral is not a broker, dealer, exchange, investment adviser, or deposit institution. Forfeited capital is not recoverable. The settlement feed shows recently settled contracts and may be delayed. Figures shown are book totals as of 25 July 2026.
-                    </p>
-                    <div class="footer-meta mono" style="font-family:ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size:11px; letter-spacing:0.12em; color:#6B6862; text-transform:uppercase; display:flex; justify-content:center; align-items:center; gap:24px; flex-wrap:wrap;">
-                        <span>&copy; 2026 COLLATERAL INC.</span>
-                        <span>ALL RIGHTS RESERVED</span>
-                        <a href="/docs/terms" style="color:#7A1F2B; text-decoration:none; border-bottom:1px solid currentColor; padding-bottom:1px;">TERMS OF SERVICE</a>
-                    </div>
-                </div>
-            </footer>
         </div>
     `;
 }
