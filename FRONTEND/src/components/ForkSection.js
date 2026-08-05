@@ -94,20 +94,28 @@ const STEPS = [
 
 const PATHS = [
     {
-        key: 'solo', name: 'Solo', rule: 'Stake against your own record.',
+        key: 'solo', name: 'Solo',
+        def: 'Compete against yourself.',
+        terms: ['One participant.', 'One deposit.', 'One deadline.'],
         plate: '/assets/images/plate-solo.jpg',
         mask: '/assets/images/plate-solo-mask.png',
         edge: '/assets/images/plate-solo-edge.png',
         alt: 'Engraving: a lone figure carrying a purse up a long stone stair toward a temple on the summit.',
-        caption: 'You are the only participant.', cta: 'Learn more',
+        caption: 'Only your execution decides the outcome.',
+        feats: ['One participant', 'One deposit', 'One deadline', 'Oracle settlement'],
+        cta: 'Choose Solo',
     },
     {
-        key: 'rival', name: 'Rivalry', rule: 'Stake against another operator.',
+        key: 'rival', name: 'Rivalry',
+        def: 'Compete against another operator.',
+        terms: ['Two participants.', 'Equal stakes.', 'One winner.'],
         plate: '/assets/images/plate-rivalry.jpg',
         mask: '/assets/images/plate-rivalry-mask.png',
         edge: '/assets/images/plate-rivalry-edge.png',
-        alt: 'Engraving: two rivals set their purses on a table while a magistrate seals the contract between them.',
-        caption: 'Same metric. Same deadline. One winner.', cta: 'Learn more',
+        alt: 'Engraving: two chariots racing abreast up a paved course toward a temple, each with a purse lashed to the car.',
+        caption: 'Better execution takes the escrow.',
+        feats: ['Two participants', 'Equal deposits', 'Same deadline', 'Winner takes escrow'],
+        cta: 'Choose Rivalry',
     },
 ];
 
@@ -137,15 +145,19 @@ function renderStep(step, i) {
 
 function renderPath(path, onSelectPath, i) {
     const action = onSelectPath ? onSelectPath(path.key) : DEFAULT_PATH_ACTION;
+    const terms = path.terms.map((t) => `<li>${escapeHtml(t)}</li>`).join('');
+    const feats = path.feats.map((f) => `<li>${escapeHtml(f)}</li>`).join('');
     return `
                         <div class="fk-path fk-${escapeHtml(path.key)}" style="--i:${i}">
                             <h3 class="fk-p-name">${escapeHtml(path.name)}</h3>
-                            <p class="fk-p-rule">${escapeHtml(path.rule)}</p>
+                            <p class="fk-p-def">${escapeHtml(path.def)}</p>
+                            <ul class="fk-p-terms">${terms}</ul>
                             <div class="fk-plate" style="--pl:url('${escapeHtml(path.plate)}');--pl-mask:url('${escapeHtml(path.mask)}');--pl-edge:url('${escapeHtml(path.edge)}')">
                                 <img src="${escapeHtml(path.plate)}" alt="${escapeHtml(path.alt)}"
                                      loading="lazy" decoding="async" width="1000" height="666" />
                             </div>
                             <p class="fk-p-cap">${escapeHtml(path.caption)}</p>
+                            <ul class="fk-p-feat">${feats}</ul>
                             <button type="button" class="fk-p-cta"${action ? ` onclick="${action}"` : ''}>${escapeHtml(path.cta)} <span class="fk-arw" aria-hidden="true">&rarr;</span></button>
                         </div>`;
 }
@@ -238,20 +250,27 @@ export function renderForkSection(options = {}) {
           transform:translate(-50%,-50%);background:var(--fk-parch);padding:0 20px;
           font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;
           color:var(--fk-ox);font-weight:600;white-space:nowrap}
-        .fk-choose-dia{text-align:center;margin:22px 0 30px}
-        .fk-choose-dia .fk-dia{width:6px;height:6px;opacity:.9}
+        .fk-choose-dia{text-align:center;margin:26px 0 44px}
+        .fk-choose-dia .fk-dia{width:10px;height:10px;opacity:.95}
 
         /* ---- solo / rivalry ---- */
         /* stretch, not start: the gutter column has to be as tall as the panels
            for its rule to run their full height. */
-        .fk-paths{display:grid;grid-template-columns:minmax(0,1fr) 66px minmax(0,1fr);
+        .fk-paths{display:grid;grid-template-columns:minmax(0,1fr) 96px minmax(0,1fr);
           align-items:stretch}
         .fk-path{text-align:center}
+        /* HIERARCHY. Name, definition, terms, plate, statement, schedule, way
+           in. The plate is the fourth thing, not the first — it reinforces a
+           choice that the type has already made legible. Every gap below is in
+           the 24-40px band; the section should read as unhurried. */
         .fk-p-name{font-family:var(--fk-display);font-weight:600;
           font-size:clamp(30px,2.7vw,40px);line-height:1;letter-spacing:.09em;
-          text-transform:uppercase;color:var(--fk-ox);margin-bottom:12px}
-        .fk-p-rule{font-size:12px;letter-spacing:.16em;text-transform:uppercase;
-          color:var(--fk-ink);font-weight:600;margin-bottom:24px}
+          text-transform:uppercase;color:var(--fk-ox);margin-bottom:24px}
+        .fk-p-def{font-family:var(--fk-display);font-weight:500;
+          font-size:clamp(19px,1.6vw,22px);line-height:1.3;color:var(--fk-ink);
+          margin-bottom:20px}
+        .fk-p-terms{list-style:none;font-size:15px;line-height:1.72;
+          color:var(--fk-ink-soft);margin-bottom:34px}
 
         /* THE PLATES DISSOLVE INTO THE PAPER. No box, no radius, no vignette,
            no feather. Two layers, each carrying a baked per-pixel alpha mask:
@@ -277,7 +296,10 @@ export function renderForkSection(options = {}) {
            corners opened on each, so the pair never reads as one stamp.
 
            The three urls come from inline custom properties on .fk-plate. */
-        .fk-plate{position:relative;margin-bottom:24px}
+        /* 90% of the column: the plates come down about a tenth and the paper
+           around them goes up, which is most of what demotes them from hero to
+           support. */
+        .fk-plate{position:relative;width:90%;margin:0 auto 36px}
         .fk-plate img{display:block;width:100%;height:auto;position:relative;
           -webkit-mask-image:var(--pl-mask);mask-image:var(--pl-mask);
           -webkit-mask-size:100% 100%;mask-size:100% 100%;
@@ -296,10 +318,25 @@ export function renderForkSection(options = {}) {
            the voice. */
         .fk-p-cap{font-family:var(--fk-display);font-weight:500;
           font-size:clamp(22px,2vw,27px);line-height:1.35;color:var(--fk-ink);
-          margin-bottom:18px}
+          margin-bottom:30px}
+
+        /* The schedule. Two columns, mono, small and quiet — it is there to be
+           compared across the gutter at a glance, not read as prose. The rules
+           above and below hold it as one block without boxing it. */
+        .fk-p-feat{list-style:none;display:grid;
+          grid-template-columns:repeat(2,minmax(0,1fr));
+          gap:11px 22px;text-align:left;margin:0 auto 32px;max-width:330px;
+          padding:20px 0;border-top:1px solid var(--fk-line-soft);
+          border-bottom:1px solid var(--fk-line-soft)}
+        .fk-p-feat li{font-family:var(--fk-mono);font-size:10.5px;
+          letter-spacing:.09em;text-transform:uppercase;color:var(--fk-muted);
+          display:flex;align-items:baseline;gap:8px;line-height:1.4}
+        .fk-p-feat li::before{content:"\\2713";color:var(--fk-ox);
+          font-size:10px;flex:0 0 auto;opacity:.85}
+
         .fk-p-cta{background:none;border:0;cursor:pointer;padding:0;
-          font-family:var(--fk-serif);font-size:12px;letter-spacing:.2em;
-          text-transform:uppercase;font-weight:600;color:var(--fk-ink);
+          font-family:var(--fk-mono);font-size:11px;letter-spacing:.2em;
+          text-transform:uppercase;font-weight:500;color:var(--fk-ink);
           display:inline-flex;align-items:center;gap:10px;
           transition:color 200ms ease}
         .fk-arw{color:var(--fk-ox);display:inline-block;transition:transform 200ms ease}
@@ -307,26 +344,31 @@ export function renderForkSection(options = {}) {
         .fk-p-cta:hover .fk-arw{transform:translateX(4px)}
         .fk-p-cta:focus-visible{outline:2px solid var(--fk-ox);outline-offset:4px}
 
-        /* The gutter. A full-height rule dividing the two panels, with OR
-           knocked out of it on the plates' centre line. Both numbers are raw
-           pixels because nothing in this column can derive them — the rule has
-           to know where the plates end and the label has to know where their
-           middle is, and both of those live in the sibling columns.
+        /* The gutter. A full-height rule dividing the two panels, with OR on
+           the plates' centre line between two diamonds. It carries more weight
+           than it did — 2px rather than 1, a wider column, and the ornament —
+           because it is the moment the section is actually about.
 
-           --or-drop     the plates' vertical centre, measured from the row top.
-           --or-line-end how much of the row sits BELOW the plates, which is
-                         where the rule stops: it divides the artwork, not the
-                         captions.
-
-           Measured on the deployed page at 1425 and 1085. Re-derive both if the
-           plate proportions or the caption block change. */
-        .fk-or{position:relative;--or-drop:275px;--or-line-end:76px}
+           THE TWO OFFSETS ARE SET BY JS, not by hand. Nothing in this column
+           can derive where the plates start and stop: that lives in the sibling
+           columns, and it moves with the copy, the breakpoint and the fonts.
+           Three previous passes hard-coded pixels here and all three went stale
+           the next time the panels changed. syncGutter() measures instead. The
+           values below are the no-JS fallback and only need to be plausible. */
+        .fk-or{position:relative;--or-drop:300px;--or-line-end:190px}
         .fk-or::before{content:"";position:absolute;top:0;bottom:var(--or-line-end);
-          left:50%;width:1px;background:var(--fk-line)}
-        .fk-or span{position:absolute;left:50%;top:var(--or-drop);
+          left:50%;transform:translateX(-50%);width:2px;background:var(--fk-line)}
+        /* .fk-or .fk-or-mark, not .fk-or-mark: the ornament is a bare <span>,
+           and a single class loses to any ".fk-or span" style — which is
+           exactly the rule this replaced. Two classes puts it out of reach. */
+        .fk-or .fk-or-mark{position:absolute;left:50%;top:var(--or-drop);
           transform:translate(-50%,-50%);background:var(--fk-parch);
-          padding:8px 4px;font-size:11px;letter-spacing:.2em;
-          text-transform:uppercase;color:var(--fk-ox);font-weight:600}
+          padding:14px 6px;display:flex;flex-direction:column;align-items:center;
+          gap:12px;margin:0}
+        .fk-or .fk-or-mark b{font-family:var(--fk-mono);font-size:11px;
+          letter-spacing:.22em;text-transform:uppercase;color:var(--fk-ox);
+          font-weight:500}
+        .fk-or .fk-or-mark .fk-dia{width:8px;height:8px;opacity:.9}
 
         /* ---- the closing inscription, knocked out of a rule ---- */
         /* The knockout is on .fk-close-t, NOT on ".fk-close span". That
@@ -355,10 +397,8 @@ export function renderForkSection(options = {}) {
           .fk-top{grid-template-columns:minmax(0,1fr);gap:44px}
           .fk-lede{max-width:none}
           .fk-step{padding:0 10px}
-          .fk-paths{grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr)}
-          /* Narrower columns mean shorter plates, so both gutter offsets come
-             down with them. See the note on .fk-or. */
-          .fk-or{--or-drop:219px;--or-line-end:69px}
+          .fk-paths{grid-template-columns:minmax(0,1fr) 72px minmax(0,1fr)}
+          /* No gutter offsets here — syncGutter() measures them per breakpoint. */
         }
         /* Phone. Two by two rather than four across — a single column puts a
            couple of hundred pixels of scrolling between CONNECT and SETTLE and
@@ -383,11 +423,17 @@ export function renderForkSection(options = {}) {
           /* The gutter cannot be a column once the paths stack, so it becomes a
              rule between them with OR on it — the same idea turned 90 degrees. */
           .fk-paths{grid-template-columns:minmax(0,1fr);row-gap:0}
-          .fk-or{margin:36px 0;height:1px;background:var(--fk-line);display:block;
+          .fk-or{margin:44px 0;height:2px;background:var(--fk-line);display:block;
             position:relative}
           .fk-or::before{display:none}
-          .fk-or span{position:absolute;left:50%;top:50%;
-            transform:translate(-50%,-50%);margin-top:0;padding:0 18px}
+          .fk-or .fk-or-mark{position:absolute;left:50%;top:50%;
+            transform:translate(-50%,-50%);flex-direction:row;gap:14px;
+            padding:0 18px}
+          .fk-p-name{margin-bottom:18px}
+          .fk-p-terms{margin-bottom:28px}
+          .fk-plate{width:100%;margin-bottom:28px}
+          .fk-p-cap{margin-bottom:24px}
+          .fk-p-feat{max-width:none;gap:10px 18px;padding:18px 0;margin-bottom:26px}
           /* The knockout needs one unbroken line, and this one is 38 characters
              — it does not fit a phone at any size worth reading. So the rule
              goes and the inscription becomes plain centred text that may wrap,
@@ -425,7 +471,7 @@ export function renderForkSection(options = {}) {
                 <div class="fk-choose-dia" aria-hidden="true"><span class="fk-dia"></span></div>
 
                 <div class="fk-paths">${renderPath(PATHS[0], onSelectPath, 4)}
-                        <div class="fk-or" aria-hidden="true"><span>Or</span></div>${renderPath(PATHS[1], onSelectPath, 5)}
+                        <div class="fk-or" aria-hidden="true"><span class="fk-or-mark"><i class="fk-dia"></i><b>Or</b><i class="fk-dia"></i></span></div>${renderPath(PATHS[1], onSelectPath, 5)}
                 </div>
 
                 <div class="fk-close">
@@ -445,9 +491,60 @@ export function renderForkSection(options = {}) {
  * the reader has asked for reduced motion, the class goes on immediately and
  * everything is simply present.
  */
+/**
+ * Puts the gutter's rule and its OR ornament onto the plates.
+ *
+ * The gutter is its own grid column and cannot see where the plates begin or
+ * end — that lives in the sibling columns, and it moves with the copy, the
+ * breakpoint, the plate proportions and whether the webfonts have landed. Three
+ * passes hard-coded pixels here and all three went stale the next time the
+ * panels changed, so it measures now.
+ *
+ * --or-drop     the plates' vertical centre, from the top of the row.
+ * --or-line-end how much of the row sits BELOW the plates, which is where the
+ *               rule stops: it divides the artwork, not the schedules.
+ *
+ * Above the stacking breakpoint only. Once the paths stack the gutter is a
+ * horizontal rule and the CSS handles it.
+ */
+function syncGutter(section) {
+    const or = section.querySelector('.fk-or');
+    const plate = section.querySelector('.fk-plate');
+    if (!or || !plate) return;
+
+    if (window.matchMedia && window.matchMedia('(max-width: 760px)').matches) {
+        or.style.removeProperty('--or-drop');
+        or.style.removeProperty('--or-line-end');
+        return;
+    }
+    const o = or.getBoundingClientRect();
+    const p = plate.getBoundingClientRect();
+    if (!o.height || !p.height) return;
+
+    or.style.setProperty('--or-drop', `${Math.round(p.top + p.height / 2 - o.top)}px`);
+    or.style.setProperty('--or-line-end', `${Math.round(o.bottom - p.bottom)}px`);
+}
+
 export function initForkSection() {
     const section = document.getElementById('fk-section');
     if (!section) return;
+
+    syncGutter(section);
+    /* The plates are lazy and the webfonts are swapped in, and both change the
+       row height after first paint. Re-measure when either lands. */
+    section.querySelectorAll('.fk-plate img').forEach((img) => {
+        if (img.complete) return;
+        img.addEventListener('load', () => syncGutter(section), { once: true });
+    });
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => syncGutter(section)).catch(() => {});
+    }
+    if ('ResizeObserver' in window) {
+        const ro = new ResizeObserver(() => syncGutter(section));
+        ro.observe(section);
+    } else {
+        window.addEventListener('resize', () => syncGutter(section));
+    }
 
     const reduce = window.matchMedia
         && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
