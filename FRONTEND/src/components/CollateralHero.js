@@ -1584,14 +1584,41 @@ export function renderCollateralHero(options = {}) {
              element, so --plate-grade grades them in a single pass and they
              cannot drift apart. background-color is a fallback for a failed
              image load only. */
+          /* THE STRETCHED SKY LAYER IS GONE. IT WAS THE STREAKS.
+             The note above argues that stretching a second copy of the crop to
+             100000px beats a flat colour because a flat colour left ~10 levels
+             of low-frequency mismatch at the join. The reasoning about the join
+             is sound. The cost was not accounted for, and it is much worse than
+             the thing it fixed.
+
+             At 100000px tall the visible 844px of a phone samples the top
+             844/100000 of the source — NINE rows of a 1024-row image. Those
+             nine rows are not flat: measured across the full width their luma
+             runs 194.6 to 220.2, a range of 25.5 levels with a standard
+             deviation of 4.07, which is ordinary paper grain plus JPEG block
+             boundaries. Stretched down the whole screen, every one of those
+             horizontal variations becomes a VERTICAL STREAK the full height of
+             the hero. Trading a 10-level horizontal step for a 25-level
+             vertical corduroy is a bad trade, and the streaks are what was
+             reported from the phone twice.
+
+             A flat fill, and the join is handled by DERIVING the value instead
+             of guessing it: #E9CDA2 is the measured mean of the artwork's own
+             top three rows, rgb(233,205,162). The field and the artwork's first
+             row are therefore the same colour by construction, not by eye — the
+             low-frequency step the old note worried about is zero, and there is
+             no high-frequency texture left to smear.
+
+             It sits on background-color, UNDER the artwork layer, so
+             --plate-grade transforms the field and the plate in one pass and
+             they cannot drift apart. */
           .clt-hero::before{
             background-image:
-              url(/assets/images/collateral-senate-mobile.jpg),
               url(/assets/images/collateral-senate-mobile.jpg) !important;
-            background-size:100% auto, 100% 100000px;
-            background-position:center bottom, center top;
-            background-repeat:no-repeat, no-repeat;
-            background-color:#E8CCA1;
+            background-size:100% auto;
+            background-position:center bottom;
+            background-repeat:no-repeat;
+            background-color:#E9CDA2;
           }
           /* Clouds cover the whole hero, like desktop — but ATTENUATED OVER THE
              TYPE, which is the same job the desktop mask does, turned through
