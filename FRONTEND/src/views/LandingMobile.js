@@ -112,7 +112,76 @@ export function renderMobileScale() {
              Height only. The scroll DURATION is computed from the track's own
              height, not the viewport's, so the rows keep travelling at the same
              90px/s they do everywhere else. */
-          .lg-body{height:496px !important}
+          /* ══ SECOND PASS ═══════════════════════════════════════════════════
+             Still reported too big. Re-measured at 390x844: the page below the
+             hero was 11,960px against a 941px hero. Type was not the problem a
+             second time either — the headings were already 26px. What the first
+             pass did not reach:
+
+               .sch-grid    1456   nine rows at 61px is only 549 of it; the rest
+                                   is a 26px grid gap plus 30px between groups
+               .rec-cards   1177   three cards at 345, and .rec-stub was never
+                                   touched: 22/26/24 padding on a card whose top
+                                   had already come down to 18, so the two
+                                   halves of one card disagreed
+               .prc-calc     949   two panes, one of them 615
+               .fk-fork      695   two cards at 332
+               .fk-steps     570   four steps at 142, each with 30px beneath it
+               .lg-head      403   the summary block, not the standfirst
+
+             Everything below is padding, gap and display-figure size. No content
+             is removed, nothing is scaled by a blanket transform, and the hero
+             is still absent from every selector. */
+
+          /* Section frame again. 34/30 -> 26/22 over nine sections is ~150px. */
+          .lg-wrap,.fk-wrap,.cs-wrap,.orc-wrap,.rec-wrap{
+            padding-top:26px !important;padding-bottom:22px !important}
+          .flw,.prc,.dl,.sch{padding-top:26px;padding-bottom:22px}
+
+          .rec-stub{padding:14px 18px !important}
+          .rec-line{padding:4px 0 !important}
+          .rec-head{margin-bottom:12px !important}
+          .rec-sub{margin-bottom:14px !important}
+          .rec-amt{font-size:21px !important}
+          .rec-cards{gap:10px !important}
+          .rec-totals{margin-top:22px !important;gap:18px 26px !important}
+          .rec-tv{font-size:20px !important}
+
+          /* Schedule. The rows are not the problem; the space between them is. */
+          .sch-grid{gap:14px !important}
+          .sch-group + .sch-group{margin-top:18px !important}
+          .sch-qrow{padding-top:13px !important;padding-bottom:13px !important}
+          .sch-note{margin-top:20px !important;padding-top:14px !important}
+
+          .fk-step{padding-bottom:18px !important}
+          .fk-card{padding:14px !important}
+          .fk-cards{gap:10px !important}
+          .fk-steps,.fk-fork{margin-top:20px !important}
+          .fk-foot{margin-top:22px !important}
+
+          /* Price — the tallest section on the page at 2,067. */
+          .prc-pane{padding:16px 14px !important}
+          .prc-tier{padding:14px !important}
+          .prc-tiers{gap:10px !important;margin-top:16px !important}
+          .prc-calc{margin-top:18px !important}
+          .prc-note{margin-top:18px !important}
+          .prc-tm{font-size:28px !important}
+
+          /* Ledger. 403px of head before a single row. */
+          .lg-head{gap:18px !important}
+          .lg-sum{gap:14px 22px !important}
+          .lg-sum dd{font-size:22px !important}
+          .lg-body{height:400px !important}
+
+          /* Flow, duels, and the two table sections. Row padding on a phone
+             table is pure height once the columns are already narrowed. */
+          .flw-col,.flw-card{padding:14px !important}
+          .flw-amt{font-size:21px !important}
+          .flw-panel{margin-top:18px !important}
+          .cs-tbl tr{padding:10px 4px !important}
+          .orc-tbl tr{padding:11px 4px !important}
+          .dl-duel{padding:14px !important}
+          .dl-grid{margin-top:18px !important}
         }
 
         /* Below 380 the gutter comes in again — at 360 and 320 a 20px inset on
