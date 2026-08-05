@@ -11,6 +11,7 @@ import { renderFlowSection, initFlowSection } from '../components/FlowSection.js
 import { renderPriceSection, initPriceSection } from '../components/PriceSection.js';
 import { renderDuelSection, initDuelSection } from '../components/DuelSection.js';
 import { renderScheduleSection, initScheduleSection } from '../components/ScheduleSection.js';
+import { renderMobileScale } from './LandingMobile.js';
 import { renderLedgerSection, initLedgerSection } from '../components/LedgerSection.js';
 
 // Inject LandingCSS once into document head
@@ -60,6 +61,8 @@ export function renderLanding() {
             ${renderDuelSection()}
 
             ${renderScheduleSection()}
+
+            ${renderMobileScale()}
 
             <!-- ═════ SITE FOOTER ═════ -->
             <footer class="site-footer" style="background:var(--bg, #FAF7F1); border-top:1px solid var(--rule, #D8D2C6); padding:64px 24px 72px; text-align:center; box-sizing:border-box; width:100%;">
