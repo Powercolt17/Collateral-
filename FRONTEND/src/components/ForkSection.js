@@ -49,25 +49,25 @@ const STEPS = [
         n: '01', name: 'Connect',
         icon: '/assets/images/fork-step-01.png',
         iconAlt: 'Engraved emblem: a temple front.',
-        body: 'We read live data directly from your business. Nothing you type, nothing you upload.',
+        body: 'We read your business data live. Nothing to type, nothing to upload.',
     },
     {
         n: '02', name: 'Choose',
         icon: '/assets/images/fork-step-02.png',
         iconAlt: 'Engraved emblem: a two-armed signpost.',
-        body: 'You decide the path: stake against your own record, or take on a rival.',
+        body: 'You pick the path: your own record, or a rival.',
     },
     {
         n: '03', name: 'Lock',
         icon: '/assets/images/fork-step-03.png',
         iconAlt: 'Engraved emblem: a strongbox.',
-        body: 'Your capital is placed in escrow for the full window. No early exit, no renegotiation.',
+        body: 'Capital sits in escrow for the full window. No early exit.',
     },
     {
         n: '04', name: 'Settle',
         icon: '/assets/images/fork-step-04.png',
         iconAlt: 'Engraved emblem: a wax seal.',
-        body: 'On the deadline, the oracle reports and the outcome settles automatically. The record is permanent.',
+        body: 'The oracle reports on the deadline. The record is permanent.',
     },
 ];
 
@@ -139,7 +139,10 @@ export function renderForkSection(options = {}) {
         .fk{
           --fk-parch:#F2E9D2;
           --fk-ink:#2A2118;
-          --fk-ink-soft:#5B5140;
+          /* Was #5B5140, which measured 6.1:1 on the parchment. Every piece of
+             body copy in this section is set in it, so it is the single highest
+             leverage value in the file: 8.3:1 at no cost to the palette. */
+          --fk-ink-soft:#4A4132;
           --fk-muted:#8B7E64;
           --fk-ox:#7C1D2B;
           --fk-line:rgba(70,55,35,.22);
@@ -162,22 +165,25 @@ export function renderForkSection(options = {}) {
           transform:rotate(45deg);display:inline-block}
 
         /* ---- masthead and the four steps, one band ---- */
-        .fk-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);
-          gap:56px;align-items:start}
-        .fk-kicker{font-size:11px;letter-spacing:.34em;text-transform:uppercase;
+        /* The masthead gives up width to the steps and the gap narrows. Four
+           columns of centred prose live or die on measure, and every pixel
+           taken from here goes straight into theirs. */
+        .fk-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.2fr);
+          gap:46px;align-items:start}
+        .fk-kicker{font-size:11.5px;letter-spacing:.3em;text-transform:uppercase;
           color:var(--fk-ink-soft);font-weight:600;margin-bottom:20px}
         .fk h2{font-family:var(--fk-display);font-weight:600;color:var(--fk-ox);
           font-size:clamp(38px,4.1vw,62px);line-height:.98;letter-spacing:.015em;
           text-transform:uppercase;margin-bottom:20px}
         .fk-mark{display:flex;align-items:center;gap:12px;margin-bottom:20px}
         .fk-mark i{height:1px;width:40px;background:var(--fk-ox);opacity:.7;display:block}
-        .fk-lede{font-size:17px;line-height:1.62;color:var(--fk-ink-soft);max-width:44ch}
+        .fk-lede{font-size:17.5px;line-height:1.68;color:var(--fk-ink-soft);max-width:44ch}
 
         /* Four columns divided by three hairlines. The rule is on the left of
            each step and suppressed on the first, so the band has no outer
            border and does not become a box. */
         .fk-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
-        .fk-step{text-align:center;padding:0 22px;border-left:1px solid var(--fk-line-soft)}
+        .fk-step{text-align:center;padding:0 14px;border-left:1px solid var(--fk-line-soft)}
         .fk-step:first-child{border-left:0}
         .fk-num{font-family:var(--fk-display);font-size:26px;font-weight:600;
           color:var(--fk-ox);line-height:1;margin-bottom:14px}
@@ -190,8 +196,13 @@ export function renderForkSection(options = {}) {
           line-height:1.1;letter-spacing:.14em;text-transform:uppercase;
           color:var(--fk-ink);margin-bottom:12px}
         .fk-step-dia{width:6px;height:6px;opacity:.85;margin:0 auto 14px;display:block}
-        .fk-step p{font-size:13.5px;line-height:1.55;color:var(--fk-ink-soft);
-          max-width:158px;margin:0 auto}
+        /* Centred text has a ragged edge on BOTH sides, so it costs more per
+           line than flush-left does and punishes a short measure twice over.
+           At 13.5px in 158px this ran five choppy lines per step. Bigger type
+           in a wider column, on copy cut to about eleven words, lands each of
+           them in three. */
+        .fk-step p{font-size:15.5px;line-height:1.68;color:var(--fk-ink-soft);
+          max-width:190px;margin:0 auto}
 
         /* ---- the inscribed divider ---- */
         .fk-div{position:relative;height:1px;background:var(--fk-line);margin:40px 0 36px}
@@ -206,7 +217,7 @@ export function renderForkSection(options = {}) {
         .fk-p-name{font-family:var(--fk-display);font-weight:600;
           font-size:clamp(30px,2.7vw,40px);line-height:1;letter-spacing:.09em;
           text-transform:uppercase;color:var(--fk-ox);margin-bottom:12px}
-        .fk-p-rule{font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+        .fk-p-rule{font-size:12px;letter-spacing:.16em;text-transform:uppercase;
           color:var(--fk-ink);font-weight:600;margin-bottom:24px}
 
         /* Framed, not bled. The comp gives these a hard edge; the 2px radius is
@@ -219,7 +230,7 @@ export function renderForkSection(options = {}) {
           font-size:clamp(22px,2vw,27px);line-height:1.35;color:var(--fk-ink);
           margin-bottom:18px}
         .fk-p-cta{background:none;border:0;cursor:pointer;padding:0;
-          font-family:var(--fk-serif);font-size:11px;letter-spacing:.24em;
+          font-family:var(--fk-serif);font-size:12px;letter-spacing:.2em;
           text-transform:uppercase;font-weight:600;color:var(--fk-ink);
           display:inline-flex;align-items:center;gap:10px;
           transition:color 200ms ease}
@@ -239,10 +250,16 @@ export function renderForkSection(options = {}) {
           text-transform:uppercase;color:var(--fk-ox);font-weight:600}
 
         /* ---- the closing inscription, knocked out of a rule ---- */
+        /* The knockout is on .fk-close-t, NOT on ".fk-close span". That
+           descendant selector also matched the two .fk-dia spans INSIDE the
+           line: both were absolutely positioned to the same centre, given 22px
+           of padding and a parchment background, and painted a 44px block over
+           the word VOTING. Anything nested here must not be reachable by the
+           knockout's own selector. */
         .fk-close{position:relative;height:1px;background:var(--fk-line);margin-top:42px}
-        .fk-close span{position:absolute;left:50%;top:50%;
+        .fk-close-t{position:absolute;left:50%;top:50%;
           transform:translate(-50%,-50%);background:var(--fk-parch);padding:0 22px;
-          font-size:12.5px;letter-spacing:.24em;text-transform:uppercase;
+          font-size:13px;letter-spacing:.17em;text-transform:uppercase;
           color:var(--fk-ink);font-weight:600;white-space:nowrap;
           display:flex;align-items:center;gap:16px}
 
@@ -258,7 +275,7 @@ export function renderForkSection(options = {}) {
           .fk-wrap{padding:64px 44px 52px}
           .fk-top{grid-template-columns:minmax(0,1fr);gap:44px}
           .fk-lede{max-width:none}
-          .fk-step{padding:0 14px}
+          .fk-step{padding:0 10px}
           .fk-paths{grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr)}
         }
         /* Phone. Two by two rather than four across — a single column puts a
@@ -274,7 +291,9 @@ export function renderForkSection(options = {}) {
           .fk-step:nth-child(n+3){padding-top:30px;border-top:1px solid var(--fk-line-soft)}
           .fk-icon{height:60px}
           .fk-step h3{font-size:18px}
-          .fk-step p{font-size:13px;max-width:none}
+          /* A half-width phone column is a wider measure than the desktop
+             quarter, so this can hold full size rather than shrink. */
+          .fk-step p{font-size:15px;max-width:none}
           .fk-div{margin:32px 0 30px}
 
           /* The gutter cannot be a column once the paths stack, so it becomes a
@@ -285,8 +304,15 @@ export function renderForkSection(options = {}) {
           .fk-or::before{display:none}
           .fk-or span{position:absolute;left:50%;top:50%;
             transform:translate(-50%,-50%);margin-top:0;padding:0 18px}
-          .fk-close{margin-top:36px}
-          .fk-close span{font-size:10.5px;letter-spacing:.16em;gap:12px;padding:0 14px}
+          /* The knockout needs one unbroken line, and this one is 38 characters
+             — it does not fit a phone at any size worth reading. So the rule
+             goes and the inscription becomes plain centred text that may wrap,
+             rather than shrinking to 10px to defend a hairline nobody will
+             miss. */
+          .fk-close{margin-top:36px;height:auto;background:none}
+          .fk-close-t{position:static;transform:none;display:block;
+            white-space:normal;padding:0;font-size:12px;letter-spacing:.1em;
+            line-height:1.7}
         }
         @media (max-width:768px){
           .fk{width:100vw;margin-left:calc(50% - 50vw)}
@@ -316,7 +342,7 @@ export function renderForkSection(options = {}) {
                 </div>
 
                 <div class="fk-close">
-                    <span><span class="fk-dia" aria-hidden="true"></span> No judges. No voting. Only the record. <span class="fk-dia" aria-hidden="true"></span></span>
+                    <span class="fk-close-t"><span class="fk-dia" aria-hidden="true"></span> No judges. No voting. Only the record. <span class="fk-dia" aria-hidden="true"></span></span>
                 </div>
             </div>
         </section>
