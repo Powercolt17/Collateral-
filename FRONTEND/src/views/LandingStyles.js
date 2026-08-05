@@ -3419,4 +3419,43 @@ html.js-motion-active .reveal.is-in .r-rule {
     }
   }
 
+  /* ═════ SECTION RHYTHM ═══════════════════════════════════════════════════
+     Every section on this page is the same parchment as every other one AND as
+     .lp behind them — measured, all nine are rgb(241,232,211) give or take a
+     single value on .fk. Nothing marks where one section ends and the next
+     begins, so the page reads as one continuous column. This is the separation.
+
+     MARGIN, NOT PADDING, and the distinction matters. Each section already
+     carries its own internal spacing, and it is not uniform: .flw, .prc, .dl
+     and .sch put 76/72 on the section element itself, while .lg, .fk, .cs, .orc
+     and .rec put theirs on an inner wrap and sit at 0 outside. A padding rule
+     here is (0,1,1) and would REPLACE all of that rather than add to it,
+     flattening every section's own proportions in a single line. Margin adds.
+
+     TOP ONLY, so there is nothing to collapse against and every boundary gets
+     exactly this and no more.
+
+     The longhand is deliberate too: .fk goes full-bleed under 768px with
+     margin-left:calc(50% - 50vw), and a margin SHORTHAND here would wipe that
+     out and break the phone layout. (No backticks in this comment, either --
+     the whole file is one template literal and one stray backtick ends it.)
+
+     The gap is invisible AS a gap — .lp is the same colour underneath — so it
+     reads as breathing room rather than as a seam. If the sections still run
+     together after this, the honest fix is a delimiter rather than more space:
+     they are all one colour, and no amount of distance changes that. */
+  .lp > section {
+    margin-top: 88px;
+  }
+  @media (max-width: 900px) {
+    .lp > section {
+      margin-top: 60px;
+    }
+  }
+  @media (max-width: 600px) {
+    .lp > section {
+      margin-top: 44px;
+    }
+  }
+
 `;
