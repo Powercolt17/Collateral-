@@ -182,6 +182,57 @@ export function renderMobileScale() {
           .orc-tbl tr{padding:11px 4px !important}
           .dl-duel{padding:14px !important}
           .dl-grid{margin-top:18px !important}
+
+          /* ══ THIRD PASS — TYPE ═════════════════════════════════════════════
+             Padding was exhausted: pass two returned 911px, 8%. The remaining
+             height is set by type, and measuring the sub-heads against their
+             own section heading showed the hierarchy had gone flat on a phone:
+
+               .prc-tm       28   LARGER than the 26px section heading
+               .fk-step h3   24   against a 26px heading
+               .fk-c-name    24   against a 26px heading
+               .orc-pname    20
+               .rec-amt      21
+               .lg-amt       19
+
+             A 24px sub-head under a 26px head is not a hierarchy, it is two
+             headings. These were all sized for a 1440px column where 26 and 24
+             sit far apart; at 390 they collapse into each other and each one
+             costs a line.
+
+             Line-height is the other half. The ledes ran 1.59 — right for a
+             470px measure, loose for a 350px one where the same paragraph takes
+             more lines. 1.45 is still comfortable and returns a line or two per
+             block across ten sections.
+
+             The hero stays 41/16. Cutting section heads to 23 widens the gap to
+             it, which is the correct direction: the hero should dominate. */
+          .lg h2,.fk h2,.cs h2,.orc h2,.rec h2,.flw h2,.prc h2,.dl h2,.sch h2{
+            font-size:23px !important;line-height:1.1 !important}
+
+          .lg-head-l p,.fk-head p,.cs-body,.orc-body,.rec-body,
+          .flw-lede,.prc-lede,.dl-lede,.sch-lede{
+            font-size:15px !important;line-height:1.45 !important}
+
+          /* Sub-heads step back so the section heading leads again. */
+          .fk-step h3{font-size:18px !important;line-height:1.2 !important}
+          .fk-c-name{font-size:20px !important}
+          .orc-pname{font-size:17px !important}
+          .rec-title{font-size:15px !important}
+          .prc-tm{font-size:22px !important}
+
+          /* Body copy inside the blocks, and the row text in the tables. */
+          .fk-step p{font-size:14px !important;line-height:1.45 !important}
+          .fk-clause{font-size:15px !important;line-height:1.4 !important;
+            padding:6px 0 !important}
+          .orc-metrics{font-size:14px !important}
+          .cs-void,.cs-under{font-size:14px !important}
+          .lg-goal{font-size:15px !important}
+          .sch-qrow{font-size:15px !important}
+
+          /* Display figures, one more step down. */
+          .rec-amt{font-size:19px !important}
+          .lg-amt{font-size:17px !important}
         }
 
         /* Below 380 the gutter comes in again — at 360 and 320 a 20px inset on
