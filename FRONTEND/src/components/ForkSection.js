@@ -176,7 +176,11 @@ export function renderForkSection(options = {}) {
              body copy in this section is set in it, so it is the single highest
              leverage value in the file: 8.3:1 at no cost to the palette. */
           --fk-ink-soft:#4A4132;
-          --fk-muted:#8B7E64;
+          /* Was #8B7E64, which is 3.30:1 on the parchment and fails AA outright.
+             It now carries only the schedule, set at 12px, where 3.3:1 was the
+             single least readable thing in the section. #6B5F49 is 5.21:1 and
+             still reads as the quiet voice. */
+          --fk-muted:#6B5F49;
           --fk-ox:#7C1D2B;
           --fk-line:rgba(70,55,35,.22);
           --fk-line-soft:rgba(70,55,35,.14);
@@ -255,7 +259,30 @@ export function renderForkSection(options = {}) {
         .fk-paths{display:grid;grid-template-columns:minmax(0,1fr) 96px minmax(0,1fr);
           align-items:stretch}
         .fk-path{text-align:center}
-        /* HIERARCHY. Name, definition, plate, statement, schedule, way in. The
+        /* ── A SELECTOR TRAP THAT COST THE WHOLE SECTION ITS SPACING ──────────
+           The page's global stylesheet carries
+
+             .cl-root h1, .cl-root h2, .cl-root h3, .cl-root p, .cl-root dl,
+             .cl-root dd, .cl-root figure, .cl-root blockquote, .cl-root ul
+               { margin: 0 }
+
+           at specificity (0,1,1), and this section renders inside .cl-root. A
+           bare class on a p, h3 or ul is (0,1,0) and LOSES to it, silently: the
+           declaration is simply dropped and there is nothing in the source to
+           suggest it. Four rules here were being zeroed — .fk-p-name asked for
+           24px and got 0, .fk-p-def 34 got 0, .fk-p-cap 30 got 0, .fk-p-feat 32
+           got 0 AND lost the auto margins that centre it, which is why the
+           schedule sat flush left under a centred CTA.
+
+           So every rule in this block that targets a p, h3 or ul is written
+           ".fk .fk-x" — (0,2,0), which outranks it. .fk-step h3 and .fk-step p
+           were always fine because they were already descendant selectors; that
+           is why only the panel styles were affected.
+
+           Check computed margins against the live page, not the source, when
+           adding anything here. ───────────────────────────────────────────────
+
+           HIERARCHY. Name, definition, plate, statement, schedule, way in. The
            plate is the third thing, not the first — it reinforces a choice the
            type has already made legible. Every gap below is in the 24-40px
            band; the section should read as unhurried.
@@ -266,10 +293,10 @@ export function renderForkSection(options = {}) {
            read as repetition rather than as the summary/schedule convention it
            was meant to be. One list, and it is the one under the plate where it
            can be compared across the gutter. */
-        .fk-p-name{font-family:var(--fk-display);font-weight:600;
+        .fk .fk-p-name{font-family:var(--fk-display);font-weight:600;
           font-size:clamp(30px,2.7vw,40px);line-height:1;letter-spacing:.09em;
           text-transform:uppercase;color:var(--fk-ox);margin-bottom:24px}
-        .fk-p-def{font-family:var(--fk-display);font-weight:500;
+        .fk .fk-p-def{font-family:var(--fk-display);font-weight:500;
           font-size:clamp(19px,1.6vw,22px);line-height:1.3;color:var(--fk-ink);
           margin-bottom:34px}
 
@@ -317,7 +344,7 @@ export function renderForkSection(options = {}) {
         /* Roman, not italic. The captions state a fact about the contract now
            rather than speaking in the operator's voice, and italic was doing
            the voice. */
-        .fk-p-cap{font-family:var(--fk-display);font-weight:500;
+        .fk .fk-p-cap{font-family:var(--fk-display);font-weight:500;
           font-size:clamp(22px,2vw,27px);line-height:1.35;color:var(--fk-ink);
           margin-bottom:30px}
 
@@ -325,22 +352,29 @@ export function renderForkSection(options = {}) {
            compared across the gutter at a glance, not read as prose. The rules
            above and below hold it as one block without boxing it.
 
-           380px, not 330: the longest item is WINNER TAKES ESCROW, which needs
-           about 160px set like this. At 330 it wrapped to two lines, which made
+           400px, not 330: the longest item is WINNER TAKES ESCROW, which needs
+           about 165px set like this. At 330 it wrapped to two lines, which made
            the rivalry schedule a row taller than solo's and pushed the two CTAs
            out of line with each other — the one alignment in the section a
            reader is guaranteed to notice, because the buttons sit side by side.
-           nowrap keeps that honest if the copy grows. */
-        .fk-p-feat{list-style:none;display:grid;
+           nowrap keeps that honest if the copy grows.
+
+           SELECTOR: .fk .fk-p-feat, not .fk-p-feat. See the note at the top of
+           the panel styles — a bare class on a ul loses its margins here, and
+           the auto margins are what centre this block. */
+        .fk .fk-p-feat{list-style:none;display:grid;
           grid-template-columns:repeat(2,minmax(0,1fr));
-          gap:11px 22px;text-align:left;margin:0 auto 32px;max-width:380px;
-          padding:20px 0;border-top:1px solid var(--fk-line-soft);
+          gap:13px 22px;text-align:left;margin:0 auto 32px;max-width:400px;
+          padding:22px 0;border-top:1px solid var(--fk-line-soft);
           border-bottom:1px solid var(--fk-line-soft)}
-        .fk-p-feat li{font-family:var(--fk-mono);font-size:10.5px;
-          letter-spacing:.09em;text-transform:uppercase;color:var(--fk-muted);
-          display:flex;align-items:baseline;gap:8px;line-height:1.4;
+        /* 12px, not 10.5, and the tracking eased with it. This is the smallest
+           type in the section and it was set in the lowest-contrast colour;
+           both of those are fixed rather than one. */
+        .fk .fk-p-feat li{font-family:var(--fk-mono);font-size:12px;
+          letter-spacing:.06em;text-transform:uppercase;color:var(--fk-muted);
+          display:flex;align-items:baseline;gap:9px;line-height:1.45;
           white-space:nowrap}
-        .fk-p-feat li::before{content:"\\2713";color:var(--fk-ox);
+        .fk .fk-p-feat li::before{content:"\\2713";color:var(--fk-ox);
           font-size:10px;flex:0 0 auto;opacity:.85}
 
         .fk-p-cta{background:none;border:0;cursor:pointer;padding:0;
@@ -438,17 +472,17 @@ export function renderForkSection(options = {}) {
           .fk-or .fk-or-mark{position:absolute;left:50%;top:50%;
             transform:translate(-50%,-50%);flex-direction:row;gap:14px;
             padding:0 18px}
-          .fk-p-name{margin-bottom:18px}
-          .fk-p-def{margin-bottom:28px}
+          .fk .fk-p-name{margin-bottom:18px}
+          .fk .fk-p-def{margin-bottom:28px}
           .fk-plate{width:100%;margin-bottom:28px}
-          .fk-p-cap{margin-bottom:24px}
-          .fk-p-feat{max-width:none;gap:10px 18px;padding:18px 0;margin-bottom:26px}
+          .fk .fk-p-cap{margin-bottom:24px}
+          .fk .fk-p-feat{max-width:none;gap:10px 18px;padding:18px 0;margin-bottom:26px}
           /* nowrap exists to keep the two schedules the same height so the CTAs
              line up, and that only matters while the panels are side by side.
              Stacked, a wrap costs nothing — and the longest item needs 166px in
              a 166px column here, which is no margin at all if the mono face is
              slow and a fallback measures wider. */
-          .fk-p-feat li{white-space:normal;letter-spacing:.05em}
+          .fk .fk-p-feat li{white-space:normal;letter-spacing:.03em;font-size:11.5px}
           /* The knockout needs one unbroken line, and this one is 38 characters
              — it does not fit a phone at any size worth reading. So the rule
              goes and the inscription becomes plain centred text that may wrap,
