@@ -2085,16 +2085,24 @@ export function renderCollateralHero(options = {}) {
           /* Warmed ~4%: #F8F2E6 -> #F9F2E3 -> #FAF2DF. The card should be the
              warmest paper on the page — it is the object nearest the viewer
              and the one the light is falling on. */
-          --doc-bg:#FBF2DC;
+          /* AGED STOCK. #FBF2DC -> #F9EFD6: deeper and more amber, because
+             paper yellows as its lignin oxidises and a bright ivory is a sheet
+             made this year. The ageing texture on ::after does the uneven part;
+             this is the base it discolours from. */
+          --doc-bg:#F9EFD6;
           /* Border +13% contrast. At #D7C9AE the edge dissolved into the
              parchment behind it and the card lost its outline at a glance,
              which is most of why it read as light rather than substantial. */
           --doc-edge:#CBBA97;
           --doc-rule:#DFD2B6;
           --doc-ink:#241F19;
-          /* #7A7060 measured 4.31:1 at 9px. #6B6152 is 5.24:1 and still reads
-             as the muted voice against the ink. */
-          --doc-soft:#6B6152;
+          /* #7A7060 was 4.31:1 and #6B6152 was 5.31:1 — both fine on clean
+             stock. But the ageing texture MULTIPLIES under the type, and on the
+             worst ground it makes (224,207,175 where foxing and edge toning
+             overlap) #6B6152 falls to 3.97:1, under AA. #5F5647 holds 4.71:1
+             there and 6.31:1 on clean paper. Age must not cost the document its
+             readability, so the muted voice deepens to pay for it. */
+          --doc-soft:#5F5647;
           --doc-ox:#6D1F2D;
           --doc-sage-bg:#EFF1E6;
           --doc-ox-bg:#F8EDEA;
@@ -2268,11 +2276,14 @@ export function renderCollateralHero(options = {}) {
              Sizes differ per layer so nothing tiles in step with anything else
              and no repeat becomes visible at any zoom. */
           background-image:
+            /* AGE, generated — foxing, mottle and edge oxidation. See
+               tools/make-card-age.ps1 for why these three cannot be gradients. */
+            url("/assets/images/card-age.png"),
             url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='90'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04 0.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='90' filter='url(%23f)' opacity='0.16'/%3E%3C/svg%3E"),
             radial-gradient(120% 80% at 18% 22%, rgba(120,96,54,.026), rgba(120,96,54,0) 70%),
             radial-gradient(110% 90% at 82% 78%, rgba(120,96,54,.022), rgba(120,96,54,0) 68%),
             url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='0.26'/%3E%3C/svg%3E");
-          background-size:220px 90px, 100% 100%, 100% 100%, 160px 160px;
+          background-size:100% 100%, 220px 90px, 100% 100%, 100% 100%, 160px 160px;
         }
         .clt .clt-doc:hover{
           transform:translateY(-6px);
