@@ -182,6 +182,10 @@ export function renderForkSection(options = {}) {
              still reads as the quiet voice. */
           --fk-muted:#6B5F49;
           --fk-ox:#7C1D2B;
+          /* Hover state for the filled CTAs. The button darkens in place
+             rather than lifting or shadowing — the section has no depth
+             anywhere else and one floating element would break it. */
+          --fk-ox-deep:#651522;
           --fk-line:rgba(70,55,35,.22);
           --fk-line-soft:rgba(70,55,35,.14);
           --fk-serif:"EB Garamond",Georgia,serif;
@@ -258,7 +262,12 @@ export function renderForkSection(options = {}) {
            for its rule to run their full height. */
         .fk-paths{display:grid;grid-template-columns:minmax(0,1fr) 81.6px minmax(0,1fr);
           align-items:stretch}
-        .fk-path{text-align:center}
+        /* A column, so the CTA can be pinned to the foot with margin-top:auto.
+           The panels are already equal height (.fk-paths is align-items:stretch)
+           but their contents were not bottom-aligned, so a schedule that wrapped
+           to an extra row pushed only that side's button down. Harmless when the
+           CTA was a text link; glaring now that it is a solid field. */
+        .fk-path{display:flex;flex-direction:column;text-align:center}
         /* ── A SELECTOR TRAP THAT COST THE WHOLE SECTION ITS SPACING ──────────
            The page's global stylesheet carries
 
@@ -383,15 +392,44 @@ export function renderForkSection(options = {}) {
         .fk .fk-p-feat li::before{content:"\\2713";color:var(--fk-ox);
           font-size:11.5px;flex:0 0 auto;opacity:.85}
 
-        .fk-p-cta{background:none;border:0;cursor:pointer;padding:0;
+        /* THE WAY IN, and it now looks like one. These were bare text links,
+           which read as a footnote under a schedule rather than as the thing
+           the whole section is asking you to do.
+
+           A solid oxblood field, parchment lettering, square but for a 2px
+           relief. No gradient, no shadow, no lift on hover — this is a stamped
+           plate, not a chip. The colour is already the section's accent, so the
+           button asserts itself by mass rather than by introducing anything.
+
+           Width matches the schedule above it exactly (340px, same max-width),
+           so the two blocks share an edge and the panel reads as one column
+           instead of three stacked widths.
+
+           11.5px at .18em, carried over from the legibility pass rather than
+           reset to the 11/.2em this arrived with — the button got bigger, which
+           is no reason for its lettering to get smaller.
+
+           margin-top:auto pins it to the foot of the panel. The schedules wrap
+           now and the two can differ by a row, which a text link absorbed
+           quietly and a pair of solid buttons would not: one sitting a line
+           lower than the other is the most visible misalignment the section
+           could have. See .fk-path.
+
+           Hover darkens the field rather than moving the button. The arrow
+           still travels 4px, which is the only motion either of them had. */
+        .fk .fk-p-cta{background:var(--fk-ox);border:0;border-radius:2px;
+          cursor:pointer;padding:15px 24px;width:100%;max-width:340px;
+          margin:auto auto 0;
           font-family:var(--fk-mono);font-size:11.5px;letter-spacing:.18em;
-          text-transform:uppercase;font-weight:500;color:var(--fk-ink);
-          display:inline-flex;align-items:center;gap:8.5px;
-          transition:color 200ms ease}
-        .fk-arw{color:var(--fk-ox);display:inline-block;transition:transform 200ms ease}
-        .fk-p-cta:hover{color:var(--fk-ox)}
-        .fk-p-cta:hover .fk-arw{transform:translateX(3.4px)}
-        .fk-p-cta:focus-visible{outline:2px solid var(--fk-ox);outline-offset:3.4px}
+          text-transform:uppercase;font-weight:500;color:var(--fk-parch);
+          display:inline-flex;align-items:center;justify-content:center;gap:12px;
+          transition:background-color 200ms ease}
+        .fk .fk-arw{color:var(--fk-parch);display:inline-block;
+          transition:transform 200ms ease}
+        .fk .fk-p-cta:hover{background:var(--fk-ox-deep)}
+        .fk .fk-p-cta:hover .fk-arw{transform:translateX(4px)}
+        .fk .fk-p-cta:active{background:var(--fk-ox-deep)}
+        .fk .fk-p-cta:focus-visible{outline:2px solid var(--fk-ink);outline-offset:3px}
 
         /* The gutter. A full-height rule dividing the two panels, with OR on
            the plates' centre line between two diamonds. It carries more weight
@@ -489,6 +527,9 @@ export function renderForkSection(options = {}) {
              a 141.1px column here, which is no margin at all if the mono face is
              slow and a fallback measures wider. */
           .fk .fk-p-feat li{white-space:normal;letter-spacing:.03em;font-size:12px}
+          /* Full width on a phone, and a taller tap target — 16px of padding
+             on an 11.5px line clears the 44px floor for a thumb. */
+          .fk .fk-p-cta{max-width:none;padding:16px 20px;letter-spacing:.16em}
           /* The knockout needs one unbroken line, and this one is 38 characters
              — it does not fit a phone at any size worth reading. So the rule
              goes and the inscription becomes plain centred text that may wrap,
