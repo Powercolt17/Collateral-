@@ -207,14 +207,14 @@ export function renderForkSection(options = {}) {
            taken from here goes straight into theirs. */
         .fk-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.2fr);
           gap:39.1px;align-items:start}
-        .fk-kicker{font-size:10px;letter-spacing:.3em;text-transform:uppercase;
+        .fk-kicker{font-size:11.5px;letter-spacing:.26em;text-transform:uppercase;
           color:var(--fk-ink-soft);font-weight:600;margin-bottom:17px}
         .fk h2{font-family:var(--fk-display);font-weight:600;color:var(--fk-ox);
           font-size:clamp(32.3px,3.48vw,52.7px);line-height:.98;letter-spacing:.015em;
           text-transform:uppercase;margin-bottom:17px}
         .fk-mark{display:flex;align-items:center;gap:10.2px;margin-bottom:17px}
         .fk-mark i{height:1px;width:34px;background:var(--fk-ox);opacity:.7;display:block}
-        .fk-lede{font-size:14.9px;line-height:1.68;color:var(--fk-ink-soft);max-width:44ch}
+        .fk-lede{font-size:17.5px;line-height:1.62;color:var(--fk-ink-soft);max-width:44ch}
 
         /* Four columns divided by three hairlines. The rule is on the left of
            each step and suppressed on the first, so the band has no outer
@@ -229,7 +229,7 @@ export function renderForkSection(options = {}) {
            channel to maintain. */
         .fk-icon{height:62.9px;width:auto;display:block;margin:0 auto 13.6px;
           mix-blend-mode:multiply}
-        .fk-step h3{font-family:var(--fk-display);font-weight:600;font-size:17px;
+        .fk-step h3{font-family:var(--fk-display);font-weight:600;font-size:18.5px;
           line-height:1.1;letter-spacing:.14em;text-transform:uppercase;
           color:var(--fk-ink);margin-bottom:10.2px}
         .fk-step-dia{width:5.1px;height:5.1px;opacity:.85;margin:0 auto 11.9px;display:block}
@@ -238,7 +238,7 @@ export function renderForkSection(options = {}) {
            At 11.5px in 134.3px this ran five choppy lines per step. Bigger type
            in a wider column, on copy cut to about eleven words, lands each of
            them in three. */
-        .fk-step p{font-size:13.2px;line-height:1.68;color:var(--fk-ink-soft);
+        .fk-step p{font-size:16px;line-height:1.62;color:var(--fk-ink-soft);
           max-width:161.5px;margin:0 auto}
 
         /* ---- the inscribed divider, which now names what follows ---- */
@@ -248,7 +248,7 @@ export function renderForkSection(options = {}) {
         .fk-choose{position:relative;height:1px;background:var(--fk-line);margin:34px 0 0}
         .fk-choose-t{position:absolute;left:50%;top:50%;
           transform:translate(-50%,-50%);background:var(--fk-parch);padding:0 17px;
-          font-size:10.6px;letter-spacing:.22em;text-transform:uppercase;
+          font-size:12px;letter-spacing:.2em;text-transform:uppercase;
           color:var(--fk-ox);font-weight:600;white-space:nowrap}
         .fk-choose-dia{text-align:center;margin:22.1px 0 37.4px}
         .fk-choose-dia .fk-dia{width:8.5px;height:8.5px;opacity:.95}
@@ -297,7 +297,7 @@ export function renderForkSection(options = {}) {
           font-size:clamp(25.5px,2.3vw,34px);line-height:1;letter-spacing:.09em;
           text-transform:uppercase;color:var(--fk-ox);margin-bottom:20.4px}
         .fk .fk-p-def{font-family:var(--fk-display);font-weight:500;
-          font-size:clamp(16.2px,1.36vw,18.7px);line-height:1.3;color:var(--fk-ink);
+          font-size:clamp(17.5px,1.5vw,21px);line-height:1.35;color:var(--fk-ink);
           margin-bottom:28.9px}
 
         /* THE PLATES DISSOLVE INTO THE PAPER. No box, no radius, no vignette,
@@ -370,15 +370,21 @@ export function renderForkSection(options = {}) {
         /* 10.2px, not 10.5, and the tracking eased with it. This is the smallest
            type in the section and it was set in the lowest-contrast colour;
            both of those are fixed rather than one. */
-        .fk .fk-p-feat li{font-family:var(--fk-mono);font-size:10.2px;
+        .fk .fk-p-feat li{font-family:var(--fk-mono);font-size:13px;line-height:1.6;
           letter-spacing:.06em;text-transform:uppercase;color:var(--fk-muted);
-          display:flex;align-items:baseline;gap:7.6px;line-height:1.45;
-          white-space:nowrap}
+          display:flex;align-items:baseline;gap:7.6px;
+          /* WRAPS NOW, and that is the trade for the larger size. These sat at
+             10.2px with nowrap, which fitted the 161px column exactly and was
+             the least readable text in the section. At 13px the longest label
+             measures 183px against that column, so holding one line would mean
+             going back to a size nobody can read. Wrapping to a second line at
+             1.6 leading costs a few pixels of card height and nothing else. */
+          white-space:normal}
         .fk .fk-p-feat li::before{content:"\\2713";color:var(--fk-ox);
-          font-size:10px;flex:0 0 auto;opacity:.85}
+          font-size:11.5px;flex:0 0 auto;opacity:.85}
 
         .fk-p-cta{background:none;border:0;cursor:pointer;padding:0;
-          font-family:var(--fk-mono);font-size:10px;letter-spacing:.2em;
+          font-family:var(--fk-mono);font-size:11.5px;letter-spacing:.18em;
           text-transform:uppercase;font-weight:500;color:var(--fk-ink);
           display:inline-flex;align-items:center;gap:8.5px;
           transition:color 200ms ease}
@@ -423,7 +429,7 @@ export function renderForkSection(options = {}) {
         .fk-close{position:relative;height:1px;background:var(--fk-line);margin-top:35.7px}
         .fk-close-t{position:absolute;left:50%;top:50%;
           transform:translate(-50%,-50%);background:var(--fk-parch);padding:0 18.7px;
-          font-size:11px;letter-spacing:.17em;text-transform:uppercase;
+          font-size:13.5px;letter-spacing:.15em;text-transform:uppercase;
           color:var(--fk-ink);font-weight:600;white-space:nowrap;
           display:flex;align-items:center;gap:13.6px}
 
@@ -455,12 +461,12 @@ export function renderForkSection(options = {}) {
           .fk-step:nth-child(3){border-left:0}
           .fk-step:nth-child(n+3){padding-top:25.5px;border-top:1px solid var(--fk-line-soft)}
           .fk-icon{height:51px}
-          .fk-step h3{font-size:15.3px}
+          .fk-step h3{font-size:16.5px}
           /* A half-width phone column is a wider measure than the desktop
              quarter, so this can hold full size rather than shrink. */
-          .fk-step p{font-size:12.8px;max-width:none}
+          .fk-step p{font-size:15px;max-width:none}
           .fk-choose{margin-top:27.2px}
-          .fk-choose-t{font-size:10px;letter-spacing:.16em;padding:0 11.9px}
+          .fk-choose-t{font-size:11.5px;letter-spacing:.14em;padding:0 11.9px}
           .fk-choose-dia{margin:15.3px 0 20.4px}
 
           /* The gutter cannot be a column once the paths stack, so it becomes a
@@ -482,7 +488,7 @@ export function renderForkSection(options = {}) {
              Stacked, a wrap costs nothing — and the longest item needs 141.1px in
              a 141.1px column here, which is no margin at all if the mono face is
              slow and a fallback measures wider. */
-          .fk .fk-p-feat li{white-space:normal;letter-spacing:.03em;font-size:10px}
+          .fk .fk-p-feat li{white-space:normal;letter-spacing:.03em;font-size:12px}
           /* The knockout needs one unbroken line, and this one is 38 characters
              — it does not fit a phone at any size worth reading. So the rule
              goes and the inscription becomes plain centred text that may wrap,
@@ -490,7 +496,7 @@ export function renderForkSection(options = {}) {
              miss. */
           .fk-close{margin-top:30.6px;height:auto;background:none}
           .fk-close-t{position:static;transform:none;display:block;
-            white-space:normal;padding:0;font-size:10.2px;letter-spacing:.1em;
+            white-space:normal;padding:0;font-size:11.5px;letter-spacing:.1em;
             line-height:1.7}
         }
         @media (max-width:768px){

@@ -54,7 +54,10 @@ export function renderMobileScale() {
            as each one paints. The values are the measured heights from the
            mobile pass — 1676, 967, 1089, 1699, 1226, 2067, 512, 1520 — so the
            placeholder is the size of the real thing and the bar does not move. */
-        .fk{content-visibility:auto;contain-intrinsic-size:auto 1676px}
+        /* 1676 -> 2025. The fork's type was raised for legibility and the
+           section grew with it; leaving the old estimate here would have the
+           browser reserve 349px too little and jog the scrollbar as it paints. */
+        .fk{content-visibility:auto;contain-intrinsic-size:auto 2025px}
         .cs{content-visibility:auto;contain-intrinsic-size:auto 967px}
         .orc{content-visibility:auto;contain-intrinsic-size:auto 1089px}
         .rec{content-visibility:auto;contain-intrinsic-size:auto 1699px}
@@ -90,6 +93,11 @@ export function renderMobileScale() {
           .lg h2,.fk h2,.cs h2,.orc h2,.rec h2,.flw h2,.prc h2,.dl h2,.sch h2{
             font-size:26px !important;line-height:1.08}
           .flw-lede,.prc-lede,.dl-lede,.sch-lede{font-size:15px;line-height:1.55}
+
+          /* The fork's sizes are set ONCE, further down with the rest of the
+             mobile type scale — putting them here as well meant two rules in
+             this same file fighting, and the later one silently won. */
+          .fk .fk-p-feat li{font-size:12.5px !important;line-height:1.6}
 
           /* ── the blocks that actually carry the height ───────────────────
              Panels and cards were carrying desktop padding on a 358px card,
@@ -231,9 +239,13 @@ export function renderMobileScale() {
           .lg h2,.fk h2,.cs h2,.orc h2,.rec h2,.flw h2,.prc h2,.dl h2,.sch h2{
             font-size:23px !important;line-height:1.1 !important}
 
-          .lg-head-l p,.fk-lede,.cs-body,.orc-body,.rec-body,
+          /* .fk-lede is NOT in this group any more. The fork's copy was
+             reported as the hardest to read on the page, so it takes its own
+             larger size below rather than the shared 15px. */
+          .lg-head-l p,.cs-body,.orc-body,.rec-body,
           .flw-lede,.prc-lede,.dl-lede,.sch-lede{
             font-size:15px !important;line-height:1.45 !important}
+          .fk-lede{font-size:16.5px !important;line-height:1.6 !important}
 
           /* Sub-heads step back so the section heading leads again. */
           .fk-step h3{font-size:18px !important;line-height:1.2 !important}
@@ -242,7 +254,9 @@ export function renderMobileScale() {
           .prc-tm{font-size:22px !important}
 
           /* Body copy inside the blocks, and the row text in the tables. */
-          .fk-step p{font-size:14px !important;line-height:1.45 !important}
+          /* 14 -> 15.5. This is the four-step explainer, and at 14px with 1.45
+             leading it was the least readable block in the section. */
+          .fk-step p{font-size:15.5px !important;line-height:1.6 !important}
           .orc-metrics{font-size:14px !important}
           .cs-void,.cs-under{font-size:14px !important}
           .lg-goal{font-size:15px !important}
