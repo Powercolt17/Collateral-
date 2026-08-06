@@ -595,9 +595,15 @@ export function renderHeader(currentRoute = '') {
                 transition: opacity 250ms ease, visibility 250ms ease;
             }
             .pnl-overlay.open { opacity: 1; visibility: visible; }
-            @media (min-width: 768px) {
-                .pnl-overlay { display: none !important; }
-            }
+            /* THE DESKTOP `display: none !important` IS GONE. It hid the scrim
+               above 768px, from back when the drawer was a phone-only sheet and
+               desktop got a non-modal panel. The drawer is now the single
+               navigation surface at every width, and the museum-glass backdrop
+               below is the whole point of opening it — leaving this rule in
+               place would have meant no backdrop at all on the one breakpoint
+               the design is being reviewed at. It also makes click-outside close
+               the drawer on desktop, which is what a layer above the page should
+               do. */
 
             /* ════════ RIGHT-ANCHORED SINGLE-SURFACE DRAWER ════════ */
             .pnl-drawer {
@@ -1039,12 +1045,80 @@ export function renderHeader(currentRoute = '') {
            do that; and a drawer that replaces the page with different artwork
            reads as a destination rather than as a layer over where you already
            are. It also drops a 3.2KB request and a composited scale(1.06). */
+        /* ---------- MUSEUM GLASS ----------
+           A sheet of frosted glass between the page and the drawer, not a
+           dark wash over it. The difference is which direction the page moves:
+           a black scrim DIMS the page toward nothing, so the reader loses the
+           hero; a blur DEFOCUSES it, so every shape stays exactly where it was
+           and simply stops being readable. Continuity survives, competition
+           does not.
+
+           WHY THE TINT IS WARM AND NOT BLACK. Blur alone averages colour toward
+           grey, and grey over parchment reads as cold and slightly dirty.
+           rgba(245,239,225,.18) is a lighter, warmer value than the page beneath
+           it, so the glass frosts the page toward its own light rather than away
+           from it — which is what glass in front of a lit room actually does.
+           brightness(92%) then takes back just enough that the drawer stays the
+           brightest thing on screen.
+
+           THIS SUPERSEDES AN EARLIER DECISION, deliberately. backdrop-filter was
+           removed from here once because the overlay used to carry a blurred
+           photograph of the hero plate, and sampling the live page underneath
+           made the backdrop change as the reader scrolled — below the hero it
+           turned body copy into grey mush. That was an argument against blurring
+           in service of a fixed IMAGE. With no image, sampling the live page is
+           precisely the requirement: the backdrop is meant to be wherever you
+           actually are.
+
+           EVERYTHING BEHIND SOFTENS EQUALLY, and that is a z-index fact rather
+           than a hope. The overlay is z-index 90; the header bar is 50 and every
+           section below it is lower, so the nav, the hero, the contract card,
+           the artwork and the type are all inside the backdrop. Only the drawer,
+           at 100, sits in front of the glass. */
         .pnl-overlay {
-            background: rgba(26, 19, 11, .28);
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
+            background: rgba(245, 239, 225, 0);
+            backdrop-filter: blur(0px) saturate(100%) brightness(100%);
+            -webkit-backdrop-filter: blur(0px) saturate(100%) brightness(100%);
+            /* CLOSING: no delay, and slower than the open. The page sharpens as
+               the drawer retreats rather than snapping back the instant the
+               class comes off — visibility is held for the full duration so the
+               glass is still there to animate out of. */
+            transition: opacity 300ms cubic-bezier(.22,.8,.22,1),
+                        background-color 300ms cubic-bezier(.22,.8,.22,1),
+                        backdrop-filter 300ms cubic-bezier(.22,.8,.22,1),
+                        -webkit-backdrop-filter 300ms cubic-bezier(.22,.8,.22,1),
+                        visibility 0s linear 300ms;
+        }
+        /* OPENING, TIMED AGAINST THE PANEL. The drawer starts at 0 and unfolds
+           over 380ms. The glass waits 60ms — long enough that the panel is
+           visibly the thing that moved first — then frosts over 160ms, so it is
+           roughly half strength around 120ms and full at 220ms, well before the
+           drawer settles. Frosting that lands with the panel reads as a state
+           change; frosting that trails it reads as the panel casting the
+           effect. */
+        .pnl-overlay.open {
+            background: rgba(245, 239, 225, .18);
+            backdrop-filter: blur(12px) saturate(85%) brightness(92%);
+            -webkit-backdrop-filter: blur(12px) saturate(85%) brightness(92%);
+            transition: opacity 160ms cubic-bezier(.4,.5,.2,1) 60ms,
+                        background-color 160ms cubic-bezier(.4,.5,.2,1) 60ms,
+                        backdrop-filter 160ms cubic-bezier(.4,.5,.2,1) 60ms,
+                        -webkit-backdrop-filter 160ms cubic-bezier(.4,.5,.2,1) 60ms,
+                        visibility 0s linear 0s;
         }
         .pnl-overlay::before, .pnl-overlay::after { content: none; }
+        /* No blur where the reader has asked for no motion: a 12px defocus
+           appearing under the page is motion whether or not anything slides.
+           The warm tint stays, so the layer separation survives. */
+        @media (prefers-reduced-motion: reduce) {
+            .pnl-overlay, .pnl-overlay.open {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                transition-duration: .01ms !important;
+                transition-delay: 0ms !important;
+            }
+            .pnl-overlay.open { background: rgba(245, 239, 225, .55); }
+        }
 
         /* ---------- drawer: solid warm parchment, anchored right ----------
            RIGHT, NOT LEFT, and this is a change of side. The trigger that opens
@@ -1056,14 +1130,39 @@ export function renderHeader(currentRoute = '') {
             border-right: none;
             border-left: 1px solid rgba(122, 29, 43, .18);
             background: #F3EADB;
-            box-shadow: -18px 0 48px rgba(40, 28, 14, 0);
+            /* Same three layers at zero alpha, so the shadow GROWS with the
+               unfold instead of appearing when the class lands. A box-shadow
+               that switches from none to a value cannot interpolate — the layer
+               counts have to match at both ends. */
+            box-shadow: inset 1px 0 0 rgba(255, 252, 244, 0),
+                        -12px 0 28px -8px rgba(60, 44, 24, 0),
+                        -48px 0 110px -24px rgba(60, 44, 24, 0);
             transition: transform 380ms cubic-bezier(.22,.8,.22,1),
                         box-shadow 380ms cubic-bezier(.22,.8,.22,1);
         }
-        /* Extremely light, per the brief — enough to lift the sheet off the page
-           behind it and no more. The old one was 24px/60px at .38 alpha, which
-           is a modal's shadow, not a page's. */
-        .pnl-drawer.open { box-shadow: -18px 0 48px rgba(40, 28, 14, .22); }
+        /* ELEVATION IN THREE PARTS, none of them dramatic. A single big blur is
+           what makes a panel look like a modal; a real object on glass casts
+           three different things at three different distances:
+
+             CONTACT     -12px/28px at .16 — the tight, dark edge immediately
+                         left of the panel. This is the shadow that says the
+                         sheet has a thickness.
+             AMBIENT     -48px/110px at .13 — a very wide, very faint fall
+                         across the frosted page. Almost invisible alone; it is
+                         what stops the panel looking cut out.
+             HIGHLIGHT   inset 1px of warm white down the left edge. Light
+                         catching the leading edge of the sheet. It is the
+                         cheapest of the three and does the most work, because
+                         a lit edge is the one cue that cannot be faked by a
+                         darker background.
+
+           The shadows are warm (60,44,24), not neutral. A grey shadow on a
+           parchment page reads as dirt. */
+        .pnl-drawer.open {
+            box-shadow: inset 1px 0 0 rgba(255, 252, 244, .55),
+                        -12px 0 28px -8px rgba(60, 44, 24, .16),
+                        -48px 0 110px -24px rgba(60, 44, 24, .13);
+        }
 
         /* GRAIN, NOT PATTERN. The dotted 4px radial grid this replaces was the
            single loudest thing in the drawer: a visible, regular, machine-made
