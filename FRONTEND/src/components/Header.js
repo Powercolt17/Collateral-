@@ -595,7 +595,7 @@ export function renderHeader(currentRoute = '') {
                 transition: opacity 250ms ease, visibility 250ms ease;
             }
             .pnl-overlay.open { opacity: 1; visibility: visible; }
-            /* THE DESKTOP `display: none !important` IS GONE. It hid the scrim
+            /* THE DESKTOP "display: none !important" IS GONE. It hid the scrim
                above 768px, from back when the drawer was a phone-only sheet and
                desktop got a non-modal panel. The drawer is now the single
                navigation surface at every width, and the museum-glass backdrop
