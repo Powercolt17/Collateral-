@@ -817,7 +817,13 @@
                holds: typed text is #2B2117 at 13:1, which reads as several
                steps darker than a 4.6:1 hint. The separation was never coming
                from the placeholder being ILLEGIBLE. */
-            --ap-muted:#786A50; --ap-faint:#796B4E;
+            /* --ap-faint is deeper than --ap-muted even though they look like
+               the same job, because they sit on DIFFERENT grounds: labels are on
+               the sheet (#F4EFE3), placeholders are inside the inset field
+               (#ECE2CD), which is darker. Checked against the sheet the
+               placeholder measured 4.60 and passed; measured where it actually
+               renders it was 4.06. It is 4.71 on the field now. */
+            --ap-muted:#786A50; --ap-faint:#6F6146;
             --ap-wine:#6A1F2D; --ap-wine-deep:#551824;
             --ap-sepia:#D3C6AF; --ap-edge:#C7B79B;
             font-family:"EB Garamond",Georgia,"Times New Roman",serif;
