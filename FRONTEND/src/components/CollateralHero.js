@@ -104,6 +104,102 @@ function escapeHtml(value) {
 }
 
 /**
+ * The contract document that floats over the engraving.
+ *
+ * THE ICONS ARE DRAWN HERE, not imported. Every icon set on the shelf —
+ * Lucide, Feather, Heroicons — is a 2px-stroke grotesque geometry built to sit
+ * next to a sans-serif UI, and dropping one into this card is the single
+ * fastest way to make an heirloom document look like a settings page. These are
+ * cut for the card: 1.4 stroke on a 17px glyph inside a 38px ring, drawn in
+ * oxblood, each with a hairline inner ring so the medallion has TWO edges the
+ * way struck metal does rather than the one edge a filled circle has.
+ *
+ * The temple is the same facade as the section emblems, reduced to the lines
+ * that survive at 17px: pediment, entablature, four columns, stylobate. The
+ * target is a dial with four cardinal ticks rather than a bullseye. Shield,
+ * link and clock are conventional because those three ideas have conventional
+ * signs and inventing new ones would cost comprehension for nothing.
+ *
+ * Values are literal on purpose. This is a specimen contract — a worked
+ * example on the page, not a live figure — and wiring it to data would imply
+ * otherwise.
+ */
+function renderContractDoc() {
+    const corner = '<span class="clt-doc-corner clt-doc-c{N}" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M.8 6.2V.8h5.4"/><path d="M3.2 3.2h2.4M3.2 3.2v2.4"/></svg></span>';
+    const corners = [1, 2, 3, 4].map((n) => corner.replace('{N}', String(n))).join('');
+
+    return `
+                <aside class="clt-doc-wrap" aria-label="Specimen performance contract">
+                    <article class="clt-doc">
+                        ${corners}
+                        <div class="clt-doc-in">
+                            <div class="clt-doc-head">
+                                <div class="clt-doc-kicker">Performance Contract</div>
+                                <div class="clt-doc-live"><i aria-hidden="true"></i>Live</div>
+                            </div>
+
+                            <div class="clt-doc-div" aria-hidden="true">
+                                <span><i></i><b></b><i></i></span>
+                            </div>
+
+                            <h3 class="clt-doc-title">Stripe Revenue Growth</h3>
+                            <div class="clt-doc-verified">
+                                Verified by <b>Stripe API</b>
+                                <span class="clt-doc-stripe" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"/></svg></span>
+                            </div>
+
+                            <div class="clt-doc-rows">
+                                <div class="clt-doc-row">
+                                    <span class="clt-doc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.2 3.8 8.4h16.4z"/><path d="M4.8 10.4h14.4"/><path d="M6.8 10.4v6.8M10.27 10.4v6.8M13.73 10.4v6.8M17.2 10.4v6.8"/><path d="M4.8 17.2h14.4M3.4 19.8h17.2"/></svg></span>
+                                    <span class="clt-doc-lab">Stake</span>
+                                    <span class="clt-doc-val">$250.00</span>
+                                </div>
+                                <div class="clt-doc-row">
+                                    <span class="clt-doc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.4"/><circle cx="12" cy="12" r="3.6"/><circle cx="12" cy="12" r="1.05" fill="currentColor" stroke="none"/><path d="M12 2.2V4M12 20v1.8M2.2 12H4M20 12h1.8"/></svg></span>
+                                    <span class="clt-doc-lab">Target</span>
+                                    <span class="clt-doc-val">+20%<small>in 30 days</small></span>
+                                </div>
+                                <div class="clt-doc-row">
+                                    <span class="clt-doc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l6.4 2.3v5.1c0 4.1-2.7 7.2-6.4 8.6-3.7-1.4-6.4-4.5-6.4-8.6V5.3z"/><path d="M12 6.4l3.9 1.4v3.3c0 2.6-1.6 4.6-3.9 5.5-2.3-.9-3.9-2.9-3.9-5.5V7.8z"/></svg></span>
+                                    <span class="clt-doc-lab">Multiplier</span>
+                                    <span class="clt-doc-val">4.0&times;</span>
+                                </div>
+                                <div class="clt-doc-row">
+                                    <span class="clt-doc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10.4 13.6a3.7 3.7 0 0 0 5.3 0l2.5-2.5a3.7 3.7 0 1 0-5.3-5.3l-1.4 1.4"/><path d="M13.6 10.4a3.7 3.7 0 0 0-5.3 0l-2.5 2.5a3.7 3.7 0 1 0 5.3 5.3l1.4-1.4"/></svg></span>
+                                    <span class="clt-doc-lab">Verification</span>
+                                    <span class="clt-doc-val is-mono">Stripe API</span>
+                                </div>
+                                <div class="clt-doc-row">
+                                    <span class="clt-doc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.6"/><path d="M12 7.4V12l3.1 1.9"/></svg></span>
+                                    <span class="clt-doc-lab">Settlement</span>
+                                    <span class="clt-doc-val">Auto<small>on deadline</small></span>
+                                </div>
+                            </div>
+
+                            <div class="clt-doc-out">
+                                <div class="clt-doc-o clt-doc-o-win">
+                                    <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 18V7"/><path d="M7.4 11.6 12 7l4.6 4.6"/></svg></i>
+                                    <span class="clt-doc-o-t">Hit target<small>You get</small></span>
+                                    <span class="clt-doc-o-v">+$1,000.00</span>
+                                </div>
+                                <div class="clt-doc-o clt-doc-o-lose">
+                                    <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6v11"/><path d="M16.6 12.4 12 17l-4.6-4.6"/></svg></i>
+                                    <span class="clt-doc-o-t">Miss target<small>You lose</small></span>
+                                    <span class="clt-doc-o-v">&minus;$250.00</span>
+                                </div>
+                            </div>
+
+                            <div class="clt-doc-foot">
+                                <span><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.2 10.5V7.6a3.8 3.8 0 0 1 7.6 0v2.9"/></svg> Funds held in escrow</span>
+                                <em aria-hidden="true"></em>
+                                <span><svg viewBox="0 0 24 24"><path d="M4 12.6 9.4 18 20 6.6"/></svg> Auto-settled</span>
+                            </div>
+                        </div>
+                    </article>
+                </aside>`;
+}
+
+/**
  * @param {object} [options]
  * @param {string} [options.plateSrc]      Engraving URL.
  * @param {string} [options.heldInEscrow]  Pre-formatted currency string.
@@ -1900,12 +1996,199 @@ export function renderCollateralHero(options = {}) {
             opacity:1 !important;
           }
         }
+        /* ═════ THE CONTRACT DOCUMENT ══════════════════════════════════════════
+           The card the three figures in the plate are signing, in its modern
+           form. It is deliberately a DOCUMENT and not a dashboard panel: no
+           glass, no gradient fills, no elevation stack, no bright UI colour.
+           What holds it together is a hairline border, a paper ground half a
+           shade off the hero's, and the same oxblood family as the headline.
+
+           SCOPED --doc-* TOKENS. The hero's palette is tuned against the
+           engraving and runs cooler (--paper #F1EEE8, --ox #781C22). This is a
+           separate object lying ON the hero, so it carries its own warmer ivory
+           and its own accent. Sharing the hero's tokens is what would make it
+           read as part of the page rather than as a thing resting on it. */
+        .clt .clt-doc-wrap{
+          --doc-bg:#F8F2E6;
+          --doc-edge:#D7C9AE;
+          --doc-rule:#E2D7BF;
+          --doc-ink:#2A2622;
+          --doc-soft:#7A7060;
+          --doc-ox:#6D1F2D;
+          --doc-sage-bg:#EDF0E6;
+          --doc-ox-bg:#F6EAE9;
+          --doc-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+
+          position:absolute;z-index:3;
+          right:5cqw;top:50%;
+          transform:translateY(-50%);
+          width:min(520px,40cqw);
+        }
+        .clt .clt-doc{
+          position:relative;
+          background:var(--doc-bg);
+          border:1px solid var(--doc-edge);
+          border-radius:9px;
+          padding:26px 30px 16px;
+          /* Two shadows, both nearly invisible: a tight one that reads as the
+             sheet's own thickness, and a wide soft one that lifts it off the
+             plate. No glow, no colour in either. */
+          box-shadow:0 1px 2px rgba(60,46,28,.06),
+                     0 18px 40px -14px rgba(60,46,28,.20);
+          transition:transform 220ms cubic-bezier(.2,.8,.2,1),
+                     box-shadow 220ms cubic-bezier(.2,.8,.2,1);
+        }
+        /* The bevel: 1px of inset highlight top-left, matching shade
+           bottom-right. It is the whole difference between "printed sheet" and
+           "rectangle with a border". */
+        .clt .clt-doc::before{
+          content:"";position:absolute;inset:0;border-radius:8px;pointer-events:none;
+          box-shadow:inset 1px 1px 0 rgba(255,255,255,.7),
+                     inset -1px -1px 0 rgba(120,100,70,.07);
+        }
+        /* Paper grain, finer and fainter than the section's — this is a better
+           sheet than the ground it lies on. */
+        .clt .clt-doc::after{
+          content:"";position:absolute;inset:0;border-radius:8px;pointer-events:none;
+          opacity:.34;mix-blend-mode:multiply;
+          background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='.26'/%3E%3C/svg%3E");
+        }
+        .clt .clt-doc:hover{
+          transform:translateY(-6px);
+          box-shadow:0 1px 2px rgba(60,46,28,.06),
+                     0 30px 56px -16px rgba(60,46,28,.26);
+        }
+
+        /* Engraved corner brackets. Half opacity so they are found rather than
+           noticed. */
+        .clt .clt-doc-corner{position:absolute;width:15px;height:15px;opacity:.5;
+          color:var(--doc-edge);pointer-events:none;z-index:2}
+        .clt .clt-doc-corner svg{width:100%;height:100%;display:block;
+          fill:none;stroke:currentColor;stroke-width:1.2}
+        .clt .clt-doc-c1{top:9px;left:9px}
+        .clt .clt-doc-c2{top:9px;right:9px;transform:scaleX(-1)}
+        .clt .clt-doc-c3{bottom:9px;left:9px;transform:scaleY(-1)}
+        .clt .clt-doc-c4{bottom:9px;right:9px;transform:scale(-1,-1)}
+
+        .clt .clt-doc-in{position:relative;z-index:1}
+        .clt .clt-doc-head{display:flex;align-items:center;justify-content:space-between;gap:14px}
+        .clt .clt-doc-kicker{font-family:var(--roman);font-size:11px;font-weight:700;
+          letter-spacing:.25em;text-transform:uppercase;color:var(--doc-ink);
+          padding-left:.25em}
+        /* Olive border, muted dot. Never the stock #22C55E — a bright green is
+           the single fastest way to make a document look like a status page. */
+        .clt .clt-doc-live{display:inline-flex;align-items:center;gap:6px;
+          background:#F3F5EC;border:1px solid #C3CBB0;border-radius:3px;
+          padding:4px 9px;font-family:var(--doc-mono);
+          font-size:9.5px;font-weight:500;letter-spacing:.16em;
+          text-transform:uppercase;color:#5C6B4F}
+        .clt .clt-doc-live i{width:5px;height:5px;border-radius:50%;
+          background:#4E7A4A;display:block;flex:0 0 auto}
+
+        /* The rule, with its ornament knocked out of the middle. */
+        .clt .clt-doc-div{position:relative;height:1px;background:var(--doc-rule);
+          margin:18px 0 22px}
+        .clt .clt-doc-div span{position:absolute;left:50%;top:50%;
+          transform:translate(-50%,-50%);background:var(--doc-bg);
+          padding:0 9px;display:flex;align-items:center;gap:5px}
+        .clt .clt-doc-div b{width:4.5px;height:4.5px;background:var(--doc-ox);
+          opacity:.55;transform:rotate(45deg);display:block}
+        .clt .clt-doc-div i{width:13px;height:1px;background:var(--doc-edge);display:block}
+
+        .clt .clt-doc-title{font-family:var(--text-serif);font-weight:500;
+          font-size:31px;line-height:1.14;color:var(--doc-ink);
+          letter-spacing:-.005em;
+          /* One pixel of white under the glyphs — what a letterpress bite looks
+             like viewed straight on. */
+          text-shadow:0 1px 0 rgba(255,255,255,.85)}
+        .clt .clt-doc-verified{display:flex;align-items:center;gap:7px;margin-top:11px;
+          font-family:var(--doc-mono);font-size:9.5px;
+          letter-spacing:.15em;text-transform:uppercase;color:var(--doc-soft)}
+        .clt .clt-doc-verified b{color:var(--doc-ink);font-weight:500}
+        .clt .clt-doc-stripe{width:15px;height:15px;border-radius:50%;background:#635BFF;
+          display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+        .clt .clt-doc-stripe svg{width:8px;height:8px;fill:#fff;display:block}
+
+        .clt .clt-doc-rows{margin-top:26px}
+        .clt .clt-doc-row{display:flex;align-items:center;gap:15px;padding:16px 0;
+          border-top:1px solid var(--doc-rule)}
+        .clt .clt-doc-row:first-child{border-top:0;padding-top:4px}
+        /* THE MEDALLIONS. A ring, a hairline inner ring, an oxblood glyph. The
+           inner ring is the detail that stops these reading as app icons —
+           struck metal has two edges, a filled circle has one. */
+        .clt .clt-doc-ico{width:38px;height:38px;border-radius:50%;flex:0 0 auto;
+          border:1px solid var(--doc-edge);background:#FCF8EF;
+          display:flex;align-items:center;justify-content:center;
+          box-shadow:inset 0 0 0 3px var(--doc-bg),
+                     inset 0 0 0 3.9px rgba(190,170,135,.55)}
+        .clt .clt-doc-ico svg{width:17px;height:17px;display:block;
+          fill:none;stroke:var(--doc-ox);stroke-width:1.4;
+          stroke-linecap:round;stroke-linejoin:round}
+        .clt .clt-doc-lab{font-family:var(--doc-mono);
+          font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
+          color:var(--doc-ink);flex:1 1 auto}
+        .clt .clt-doc-val{text-align:right;font-family:var(--text-serif);
+          font-size:21px;line-height:1.1;color:var(--doc-ink);white-space:nowrap}
+        .clt .clt-doc-val small{display:block;margin-top:3px;
+          font-family:var(--doc-mono);font-size:9px;
+          letter-spacing:.14em;text-transform:uppercase;color:var(--doc-soft)}
+        .clt .clt-doc-val.is-mono{font-family:var(--doc-mono);font-size:15px}
+
+        /* The two outcomes, and the reason the card exists. */
+        .clt .clt-doc-out{margin-top:22px;display:flex;flex-direction:column;gap:9px}
+        .clt .clt-doc-o{display:flex;align-items:center;gap:13px;padding:16px;
+          border-radius:6px;border:1px solid transparent}
+        .clt .clt-doc-o-win{background:var(--doc-sage-bg);border-color:#CBD5B8}
+        .clt .clt-doc-o-lose{background:var(--doc-ox-bg);border-color:#E3C7C4}
+        .clt .clt-doc-o i{width:30px;height:30px;border-radius:50%;flex:0 0 auto;
+          display:flex;align-items:center;justify-content:center;
+          border:1px solid currentColor}
+        .clt .clt-doc-o i svg{width:13px;height:13px;fill:none;stroke:currentColor;
+          stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;display:block}
+        .clt .clt-doc-o-win i{color:#5C7A4E}
+        .clt .clt-doc-o-lose i{color:#8E4340}
+        .clt .clt-doc-o-t{flex:1 1 auto;font-family:var(--doc-mono);
+          font-size:11.5px;font-weight:500;letter-spacing:.14em;
+          text-transform:uppercase;color:var(--doc-ink)}
+        .clt .clt-doc-o-t small{display:block;margin-top:3px;font-size:9.5px;
+          font-weight:400;letter-spacing:.13em;color:var(--doc-soft)}
+        .clt .clt-doc-o-v{font-family:var(--text-serif);font-size:23px;white-space:nowrap}
+        .clt .clt-doc-o-win .clt-doc-o-v{color:#3F6B3A}
+        .clt .clt-doc-o-lose .clt-doc-o-v{color:#8E2B27}
+
+        .clt .clt-doc-foot{display:flex;align-items:center;justify-content:center;
+          gap:14px;margin-top:18px;padding-top:14px;
+          border-top:1px solid var(--doc-rule);
+          font-family:var(--doc-mono);font-size:9px;
+          letter-spacing:.13em;text-transform:uppercase;color:var(--doc-soft)}
+        .clt .clt-doc-foot span{display:inline-flex;align-items:center;gap:5px}
+        .clt .clt-doc-foot svg{width:9px;height:9px;fill:none;stroke:currentColor;
+          stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;display:block}
+        .clt .clt-doc-foot em{width:1px;height:9px;background:var(--doc-edge);display:block}
+
+        /* The card is a desktop object. Below 821 the hero is a stack whose
+           three measurements are tuned to the crop, and dropping a 520px
+           document into it would rebuild that layout — out of scope here. */
+        @media (max-width:820px){ .clt .clt-doc-wrap{display:none} }
+        /* Short desktop windows scale rather than reflow, so the document keeps
+           its proportions. Anchored right so it never crosses the lockup. */
+        @media (min-width:821px) and (max-height:880px){
+          .clt .clt-doc-wrap{transform:translateY(-50%) scale(.88);transform-origin:100% 50%}
+        }
+        @media (min-width:821px) and (max-height:780px){
+          .clt .clt-doc-wrap{transform:translateY(-50%) scale(.78);transform-origin:100% 50%}
+        }
+        @media (prefers-reduced-motion:reduce){
+          .clt .clt-doc{transition:none !important}
+          .clt .clt-doc:hover{transform:none !important}
+        }
         </style>
 
         <div class="clt">
             <section class="clt-hero" data-plate="${PLATE_W}x${PLATE_H}">
                 <div class="clt-sky" aria-hidden="true"><i></i></div>
                 <div class="clt-press" aria-hidden="true"><i></i></div>
+                ${renderContractDoc()}
                 <div class="clt-lockup">
                     <div class="clt-eyebrow clt-mono clt-in" style="--d:60ms">SELF-ENFORCING PERFORMANCE CONTRACTS</div>
                     <h1><span class="clt-line" style="--d:150ms">Put money</span><br /><span class="clt-line" style="--d:240ms">on your own</span><br /><span class="clt-line" style="--d:330ms"><span class="clt-accent">deadline</span></span></h1>
