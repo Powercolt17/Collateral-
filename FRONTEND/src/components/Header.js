@@ -1002,378 +1002,508 @@ export function renderHeader(currentRoute = '') {
                 }
             }
         /* ══════════════════════════════════════════════════════════════════
-           PORTED FROM THE SUPPLIED CollateralMenu.jsx
+           THE DRAWER, RESTYLED AS A PRINTED INDEX
 
-           This codebase has no React and no react-dom, so the component could
-           not ship as authored. It is applied here as a restyle of the drawer
-           that already exists rather than as a replacement for it, and that is
-           a deliberate choice, not a shortcut:
+           This block replaces an earlier port of a supplied CollateralMenu.jsx.
+           It keeps that port's two correct instincts — serif type instead of the
+           terminal mono, and an oxblood edge marker instead of a filled active
+           row — and undoes everything else, because the drawer had accumulated
+           the vocabulary of an admin panel: a dotted ground, white sticky
+           accordion bars, six horizontal rules, a two-column metrics grid and
+           two stacked filled buttons in a tinted well.
 
-             - The supplied NAV array is the nav this drawer ALREADY has —
-               Market with Solo and Rivalry beneath it, Active, Ledger, Sources,
-               Protocol with children. The difference is that the supplied one
-               points at "#market", "#solo", "#how" placeholders while this one
-               is wired to window.router.navigate with the real routes and marks
-               the current page with aria-current. Replacing the markup would
-               have traded working navigation for hrefs that go nowhere.
+           EVERY ONE OF THOSE IS A BOX, AND THAT IS THE DIAGNOSIS. A printed
+           index separates with SPACE; interfaces separate with BORDERS AND
+           FILLS. The drawer had eleven separating elements and almost no air, so
+           it read as a control panel no matter what typeface it was set in. What
+           follows deletes ten of the eleven — one hairline under the header
+           survives — and spends the recovered room on spacing.
 
-             - The drawer carries auth state by ID. #mobile-user-section,
-               #mobile-capital-summary, #mobile-account-links,
-               #mobile-connect-section, #pnl-signout-btn, #mobile-menu-initial,
-               #mobile-menu-username and #btn-auth-mobile are all written to by
-               updateMobileAuthUI. Swapping the markup deletes those IDs, and
-               because that function guards every lookup with "if (el)" it would
-               have failed SILENTLY — a signed-in user would simply have lost
-               their account links and sign-out with nothing logged.
+           WHAT IS PRESERVED, DELIBERATELY. Every id the auth layer writes to:
+           #mobile-user-section, #mobile-capital-summary, #mobile-account-links,
+           #mobile-connect-section, #pnl-signout-btn, #mobile-menu-initial,
+           #mobile-menu-username, #btn-auth-mobile, #btn-get-started-mobile,
+           #pnl-footer-meta, #pnl-body-scroll, #pnl-scroll-mask. updateMobileAuthUI
+           guards every lookup with "if (el)", so deleting one of these would
+           fail SILENTLY — a signed-in user would lose their account links with
+           nothing logged. Nothing here changes markup that carries state; it
+           changes how that markup looks.
 
-             - The component renders its own fixed .cm-burger at top right. The
-               standing instruction on this header is that the hamburger stays,
-               and there is already one wired to window.app.toggleMobileMenu. The
-               supplied file's own note says to delete .cm-burger and drive it
-               from the existing button, which is what happens here.
+           FONTS: Cormorant Garamond and EB Garamond, both already in the
+           existing Google Fonts link. No new request. ══════════════════════ */
 
-           WHAT IS DELIBERATELY NOT PORTED: the status footer's figures. The
-           supplied markup hardcodes "All Systems Operational", "Mainnet", "USD"
-           and "Uptime 99.9%". Those are claims about a running system, none of
-           them is fed by anything, and this project has spent real effort this
-           week removing exactly that kind of unbacked assertion from the
-           homepage. They can come back the moment something measures them.
-
-           FONTS: the supplied file injects Cormorant Garamond and EB Garamond
-           from Google Fonts. Not done. This site's display face is Trajan Pro
-           and its text serif is Newsreader, both already loaded, and the header
-           beside this drawer was set in Trajan two commits ago. Adding two more
-           families would cost a render-blocking request to a third party and put
-           the drawer in a different voice from the bar that opens it.
-           ══════════════════════════════════════════════════════════════════ */
-
-        /* ---------- blurred artwork backdrop ---------- */
-        /* The overlay was a flat ink wash with a 4px blur of whatever happened
-           to be under it. It now carries the hero plate itself, blurred and
-           dimmed, with a scrim that is dark at the drawer edge and clears
-           toward the opposite side — the supplied design's defining feature.
-
-           The artwork is a real image rather than backdrop-filter on purpose:
-           backdrop-filter samples the page beneath, so the backdrop changed
-           depending on how far the user had scrolled, and below the hero it
-           blurred body copy into grey mush. A fixed plate looks the same from
-           anywhere on the page. */
+        /* ---------- backdrop: flat, warm, and the page still visible ----------
+           This used to be a blurred copy of the hero plate under a left-to-right
+           scrim. Two reasons it goes: the brief asks for the page to stay
+           faintly visible behind the drawer, and a full-bleed photograph cannot
+           do that; and a drawer that replaces the page with different artwork
+           reads as a destination rather than as a layer over where you already
+           are. It also drops a 3.2KB request and a composited scale(1.06). */
         .pnl-overlay {
-            background: transparent;
+            background: rgba(26, 19, 11, .28);
             backdrop-filter: none;
             -webkit-backdrop-filter: none;
         }
-        /* PRE-BLURRED, TINY, AND NOT LOADED UNTIL THE DRAWER OPENS.
+        .pnl-overlay::before, .pnl-overlay::after { content: none; }
 
-           This rule used to point at collateral-senate-frame.jpg — the 406KB
-           full desktop plate — and because the overlay is in the DOM from first
-           paint, EVERY page load fetched it. On a phone that was 406KB of a
-           741KB image payload, downloaded for a drawer that was shut, and it
-           was the single largest asset on the page. Measured on the live page:
-           initiatorType css, 406KB, while the hero's own computed background
-           resolved to the mobile crop alone.
-
-           Two changes, and each fixes a different cost:
-
-           THE BYTES. collateral-menu-backdrop.jpg is the same artwork at 160px
-           wide — 3.2KB against 406KB. It is upscaled to fill the overlay, and
-           that upscale is what produces the blur, which is why blur(7px) is
-           gone from the filter below. A GPU blur across a full-viewport element
-           is the most expensive thing that was on this page; a browser
-           stretching a 160px bitmap is free. brightness and saturate stay
-           because they are per-pixel arithmetic, not a convolution, and
-           dropping them would change the tone.
-
-           THE TIMING. The URL now sits on .pnl-overlay.open::before, so nothing
-           is requested until the menu is actually opened. At 3.2KB the first
-           open is imperceptible. */
-        .pnl-overlay::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-position: center;
-            background-size: cover;
-            background-repeat: no-repeat;
-            filter: brightness(.78) saturate(.95);
-            /* Scaled up so the soft edge is pushed off-screen rather than
-               showing a pale border where the upscale runs out of pixels. */
-            transform: scale(1.06);
-        }
-        .pnl-overlay.open::before {
-            background-image: url(/assets/images/collateral-menu-backdrop.jpg);
-        }
-        /* Dark at the LEFT, where the drawer is, clearing to the right. */
-        .pnl-overlay::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg,
-                rgba(20, 14, 8, .60) 0%,
-                rgba(20, 14, 8, .30) 34%,
-                rgba(20, 14, 8, .12) 60%,
-                rgba(20, 14, 8, 0) 100%);
-        }
-
-        /* ---------- drawer: left-anchored parchment ---------- */
+        /* ---------- drawer: solid warm parchment, anchored right ----------
+           RIGHT, NOT LEFT, and this is a change of side. The trigger that opens
+           it sits at the top right of the bar, so a panel that flies in from the
+           left leaves the finger that summoned it pointing at nothing. */
         .pnl-drawer {
-            left: 0;
-            right: auto;
-            border-left: none;
-            border-right: 1px solid rgba(124, 29, 43, .25);
-            box-shadow: 24px 0 60px rgba(0, 0, 0, 0);
-            background:
-                radial-gradient(120% 60% at 80% 0%, rgba(255,255,255,.28), transparent 60%),
-                linear-gradient(180deg, #EFE5CE 0%, #E7DBBF 100%);
-            transition: transform 550ms cubic-bezier(.22,1,.36,1),
-                        box-shadow 550ms cubic-bezier(.22,1,.36,1);
+            right: 0;
+            left: auto;
+            border-right: none;
+            border-left: 1px solid rgba(122, 29, 43, .18);
+            background: #F3EADB;
+            box-shadow: -18px 0 48px rgba(40, 28, 14, 0);
+            transition: transform 320ms cubic-bezier(.22,.8,.22,1),
+                        box-shadow 320ms cubic-bezier(.22,.8,.22,1);
         }
-        .pnl-drawer.open { box-shadow: 24px 0 60px rgba(0, 0, 0, .38); }
-        /* Laid paper. Sits above the gradient and below the content. */
+        /* Extremely light, per the brief — enough to lift the sheet off the page
+           behind it and no more. The old one was 24px/60px at .38 alpha, which
+           is a modal's shadow, not a page's. */
+        .pnl-drawer.open { box-shadow: -18px 0 48px rgba(40, 28, 14, .22); }
+
+        /* GRAIN, NOT PATTERN. The dotted 4px radial grid this replaces was the
+           single loudest thing in the drawer: a visible, regular, machine-made
+           texture, which is the opposite of paper. Fractal turbulence at .05
+           alpha has no period at all — it reads as tooth in the sheet and
+           disappears the moment you stop looking for it. */
         .pnl-drawer::before {
             content: "";
             position: absolute;
             inset: 0;
             pointer-events: none;
             opacity: .5;
-            background-image: radial-gradient(rgba(90,70,40,.05) 1px, transparent 1px);
-            background-size: 4px 4px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.1'/%3E%3C/svg%3E");
+            background-size: 180px 180px;
         }
-        /* The slide direction has to be flipped at BOTH breakpoints, because
-           each declares its own transform. Overriding only the base rule leaves
-           the drawer parked off the right edge and it never appears. */
+        /* Both breakpoints declare their own transform, so the side has to be
+           flipped in both — overriding only the base rule parks the drawer off
+           the opposite edge and it never appears. */
         @media (max-width: 767px) {
-            .pnl-drawer { transform: translateX(-102%); width: 88vw; max-width: 404px; }
+            .pnl-drawer { transform: translateX(102%); width: 90vw; max-width: 420px; }
             .pnl-drawer.open { transform: translateX(0); }
         }
         @media (min-width: 768px) {
-            .pnl-drawer { transform: translateX(-102%); width: 404px; }
+            .pnl-drawer { transform: translateX(102%); width: 420px; }
             .pnl-drawer.open { transform: translateX(0); }
         }
 
         /* ---------- staggered reveal ---------- */
         /* --i is set per row in the markup; the delay only applies while open,
-           so closing collapses everything together instead of unwinding. */
+           so closing collapses everything together instead of unwinding. The
+           offset now comes FROM the right, with the drawer. */
         .pnl-drawer .pnl-nav-group,
         .pnl-drawer #drawer-nav-group > .pnl-nav-link {
             opacity: 0;
-            transform: translateX(-14px);
-            transition: opacity 500ms cubic-bezier(.22,1,.36,1),
-                        transform 500ms cubic-bezier(.22,1,.36,1);
+            transform: translateX(16px);
+            transition: opacity 420ms cubic-bezier(.22,.8,.22,1),
+                        transform 420ms cubic-bezier(.22,.8,.22,1);
         }
         .pnl-drawer.open .pnl-nav-group,
         .pnl-drawer.open #drawer-nav-group > .pnl-nav-link {
             opacity: 1;
             transform: translateX(0);
-            transition-delay: calc(var(--i, 0) * 55ms + 140ms);
+            transition-delay: calc(var(--i, 0) * 45ms + 120ms);
         }
 
-        /* ---------- oxblood marker on hover ---------- */
+        /* ---------- HEADER: one row, one line under it ---------- */
+        .pnl-drawer .pnl-header {
+            height: 58px;
+            padding: 0 26px;
+            background: transparent;
+            border-bottom: 1px solid rgba(122, 29, 43, .28);
+        }
+        .pnl-drawer .pnl-header-title {
+            font-family: "IBM Plex Mono", ui-monospace, monospace !important;
+            font-size: 9.5px;
+            font-weight: 500;
+            letter-spacing: .30em;
+            text-transform: uppercase;
+            color: #7A1C29;
+        }
+        /* The close control loses its box. A bordered 32px square in the corner
+           of a drawer whose whole premise is "no boxes" was the first thing that
+           contradicted it; the glyph alone is unambiguous. */
+        .pnl-drawer .pnl-close {
+            width: 34px; height: 34px;
+            border: none;
+            background: transparent;
+            color: #6B5F4C;
+            transition: color 220ms cubic-bezier(.22,.8,.22,1),
+                        transform 320ms cubic-bezier(.22,.8,.22,1);
+        }
+        .pnl-drawer .pnl-close:hover {
+            background: transparent;
+            border-color: transparent;
+            color: #7A1C29;
+            transform: rotate(90deg);
+        }
+
+        /* ---------- BODY ---------- */
+        .pnl-drawer .pnl-body { padding: 26px 0 0; }
+        .pnl-drawer .pnl-body::-webkit-scrollbar-thumb { background: rgba(90,72,45,.18); }
+        /* The fade at the bottom of the scroll area has to be the drawer's own
+           colour or it shows as a pale bar over parchment. It was still
+           #FFFDF9. */
+        .pnl-drawer .pnl-scroll-mask {
+            height: 40px;
+            background: linear-gradient(to bottom, rgba(243,234,219,0), #F3EADB);
+        }
+
+        /* THE "NAVIGATION" LABEL IS GONE FROM THE MARKUP. It labelled the only navigation in the
+           drawer, which is a label that carries no information — and the brief's
+           complaint about competing labels is exactly this. The ACCOUNT label
+           below it stays, because that one distinguishes two groups from each
+           other, which is what a label is for. */
+        .pnl-drawer .pnl-section-label {
+            font-family: "IBM Plex Mono", ui-monospace, monospace !important;
+            font-size: 8.5px;
+            font-weight: 500;
+            letter-spacing: .26em;
+            color: #7C6E58;
+            padding: 30px 26px 12px;
+        }
+        /* The rule after Custody Terminal is removed rather than restyled. It
+           was cutting the last primary item away from the five above it, which
+           is why Custody Terminal read as an orphan bolted onto the nav — it was
+           on the far side of a line from everything it belongs with. */
+
+        /* ---------- PRIMARY NAVIGATION ---------- */
+        /* THE WHITE BARS WERE A STICKY HEADER. .pnl-nav-group-header carried
+           position:sticky with an opaque #FFFDF9 fill and a bottom rule, so
+           MARKET and PROTOCOL sat in white blocks while ACTIVE, LEDGER and
+           SOURCES sat on parchment — five identical links, two of them boxed,
+           purely because two of them can expand. Sticky headers earn their fill
+           in a long scrolling list; six items is not that list. */
+        .pnl-drawer .pnl-nav-group-header {
+            position: static;
+            background: transparent;
+            border-bottom: none;
+        }
+        .pnl-drawer .pnl-nav-link {
+            font-family: "Cormorant Garamond", Georgia, serif !important;
+            font-size: 20px !important;
+            font-weight: 600;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            color: #2A2118;
+            min-height: 0 !important;
+            padding: 14px 26px !important;
+            border-right: none !important;
+            transition: color 220ms cubic-bezier(.22,.8,.22,1);
+        }
+        /* No letter-spacing animation. It reflowed the row on every hover, and
+           on a touch device — which is the whole target here — hover fires on
+           tap and the label visibly grows as you leave the page. */
+        .pnl-drawer .pnl-nav-link:hover { color: #7A1C29; }
+
+        /* ---------- ACTIVE: an edge mark, no fill, no right border ----------
+           The original active state was a tinted fill plus a 3px rule down the
+           RIGHT edge; both were set with !important, so these have to be. */
+        .pnl-drawer .pnl-nav-link.active,
+        .pnl-drawer .pnl-acct-link.active {
+            background: transparent !important;
+            border-right: none !important;
+            border-left: none !important;
+            color: #7A1C29 !important;
+        }
+        @media (hover: hover) {
+            .pnl-drawer .pnl-nav-link:hover,
+            .pnl-drawer .pnl-acct-link:hover { background: transparent; }
+        }
         .pnl-drawer .pnl-nav-link,
         .pnl-drawer .pnl-nav-group-header { position: relative; }
         .pnl-drawer .pnl-nav-link::before,
         .pnl-drawer .pnl-nav-group-header::before {
             content: "";
             position: absolute;
-            left: -14px; top: 8px; bottom: 8px;
-            width: 3px;
-            background: var(--blood, #7A1C29);
+            left: 10px; top: 15px; bottom: 15px;
+            width: 2px;
+            background: #7A1C29;
             transform: scaleY(0);
-            transform-origin: top;
+            transform-origin: center;
             opacity: 0;
-            transition: transform 350ms cubic-bezier(.22,1,.36,1),
-                        opacity 350ms cubic-bezier(.22,1,.36,1);
+            transition: transform 320ms cubic-bezier(.22,.8,.22,1),
+                        opacity 320ms cubic-bezier(.22,.8,.22,1);
         }
-        .pnl-drawer .pnl-nav-link:hover::before,
         .pnl-drawer .pnl-nav-link.active::before,
         .pnl-drawer .pnl-nav-group.expanded .pnl-nav-group-header::before {
             transform: scaleY(1);
             opacity: 1;
         }
+        @media (hover: hover) {
+            .pnl-drawer .pnl-nav-link:hover::before,
+            .pnl-drawer .pnl-nav-group-header:hover::before { transform: scaleY(1); opacity: .45; }
+        }
+        /* ONE MARKER PER ROW. A group's button sits inside .pnl-nav-group-header
+           and both carry ::before at the same offset, so an expanded MARKET drew
+           the mark twice in the same place — invisible while they matched, and a
+           2px-wide bug waiting for the day they stop matching. The wrapper owns
+           it, since the wrapper is what "expanded" is a state of. */
+        .pnl-drawer .pnl-nav-group-header .pnl-nav-link::before { content: none; }
 
-        /* ---------- accordion ---------- */
+        /* The chevron stays ONLY where something expands. It is smaller and
+           much quieter than the ink beside it: it answers "is there more here",
+           it does not announce itself. */
+        .pnl-drawer .pnl-chevron {
+            color: #9A8B72;
+            margin-right: 0;
+            transition: transform 320ms cubic-bezier(.22,.8,.22,1);
+        }
+
+        /* ---------- SUB-NAVIGATION ---------- */
         /* grid-template-rows 0fr -> 1fr animates to the content's real height
            without anyone having to know what that height is. The rule it
-           replaces was display:none/flex, which cannot transition at all — the
-           sub-nav simply appeared. */
+           replaces was display:none/flex, which cannot transition at all.
+
+           NO VERTICAL PADDING ON EITHER BOX, and the first attempt at this was
+           wrong in an instructive way: padding on the grid ITEM is no better
+           than padding on the container, because the row track going to zero
+           drives the item's HEIGHT to zero while padding is added outside that
+           height and survives. Only content inside the item is clipped. Both
+           boxes are flat; the air comes from the links' own padding, which is
+           inside the clip and collapses with it. */
         .pnl-drawer .pnl-subnav {
             display: grid !important;
             grid-template-rows: 0fr;
-            transition: grid-template-rows 450ms cubic-bezier(.22,1,.36,1);
+            background: transparent;
+            padding-top: 0; padding-bottom: 0;
+            transition: grid-template-rows 380ms cubic-bezier(.22,.8,.22,1);
         }
         .pnl-drawer .pnl-nav-group.expanded .pnl-subnav { grid-template-rows: 1fr; }
         .pnl-drawer .pnl-subnav > * { min-height: 0; }
-        /* NO VERTICAL PADDING ON EITHER BOX, and the first attempt at this was
-           wrong in an instructive way. The sub-nav collapsed to 8px rather than
-           0 — exactly its own 4px top and bottom — so the padding was moved off
-           the grid container and onto the wrapper. It measured 8px again.
-
-           Padding on the grid ITEM is no better than padding on the container:
-           the row track goes to zero, which drives the item's HEIGHT to zero,
-           but padding is added outside that height and survives. Only content
-           inside the item is clipped. Both boxes are therefore flat, and the
-           breathing room comes from the links' own padding, which is inside the
-           clip and collapses with it. */
-        .pnl-drawer .pnl-subnav { padding-top: 0; padding-bottom: 0; }
         .pnl-drawer .pnl-subnav-inner {
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            padding-top: 0;
-            padding-bottom: 0;
+            padding-top: 0; padding-bottom: 0;
         }
-
-        /* ---------- close button ---------- */
-        .pnl-drawer .pnl-close {
-            transition: background 250ms cubic-bezier(.22,1,.36,1),
-                        color 250ms cubic-bezier(.22,1,.36,1),
-                        border-color 250ms cubic-bezier(.22,1,.36,1),
-                        transform 400ms cubic-bezier(.22,1,.36,1);
-        }
-        .pnl-drawer .pnl-close:hover {
-            background: var(--blood, #7A1C29);
-            color: #EFE5CE;
-            border-color: var(--blood, #7A1C29);
-            transform: rotate(90deg);
-        }
-
-        /* ---------- primary action ---------- */
-        /* ---------- TYPE: SERIF, NOT THE TERMINAL MONO ---------- */
-        /* This is the change that makes it read as the supplied component. The
-           drawer inherited the mono stack the rest of the panel UI uses, and
-           mono was the single loudest tell that the old aesthetic was still in
-           place — every other fix is invisible next to it.
-
-           Cormorant Garamond for the nav and figures, EB Garamond for labels
-           and body, both added to the EXISTING Google Fonts link in index.html
-           rather than a second request or a runtime injection. Georgia falls
-           behind them, so a failed load degrades to a serif and never back to
-           fixed-width. */
-        .pnl-drawer, .pnl-drawer .pnl-body, .pnl-drawer .pnl-legal {
-            font-family: "EB Garamond", Georgia, "Times New Roman", serif;
-            color: #211B12;
-        }
-        .pnl-drawer .pnl-nav-link,
-        .pnl-drawer .pnl-header-title,
-        .pnl-drawer .pnl-meta-value,
-        .pnl-drawer .pnl-connect-btn,
-        .pnl-drawer .pnl-cta-primary {
-            font-family: "Cormorant Garamond", Georgia, serif !important;
-            font-synthesis: none;
-        }
-        .pnl-drawer .pnl-nav-link {
-            font-size: 17px !important;
-            font-weight: 600;
-            letter-spacing: .14em;
-            transition: color 250ms cubic-bezier(.22,1,.36,1),
-                        letter-spacing 300ms cubic-bezier(.22,1,.36,1);
-        }
-        .pnl-drawer .pnl-nav-link:hover { letter-spacing: .18em; }
-        .pnl-drawer .pnl-section-label,
-        .pnl-drawer .pnl-meta-label,
-        .pnl-drawer .pnl-status-text {
-            font-family: "EB Garamond", Georgia, serif !important;
-            letter-spacing: .30em;
-        }
+        /* SUBORDINATE, WHICH MEANS SMALLER AND QUIETER, NOT FURTHER RIGHT. The
+           sub-links were 13px Archivo — a sans, at almost the size of the nav
+           above them, hanging off a vertical rule. The rule is gone (it was one
+           more border doing a job indentation already does), the face matches
+           the rest of the drawer, and the size drops to 14.5 against 20. */
         .pnl-drawer .pnl-subnav-link {
             font-family: "EB Garamond", Georgia, serif !important;
-            font-size: 15px !important;
-            letter-spacing: .06em;
+            font-size: 14.5px !important;
+            font-weight: 400;
+            letter-spacing: .05em;
             text-transform: none !important;
-            display: flex; align-items: center; gap: 10px;
+            color: #5D5241;
+            min-height: 0;
+            padding: 7px 26px 7px 44px;
+            margin-left: 0;
+            border-left: none !important;
+            border-right: none !important;
+            display: flex; align-items: center; gap: 11px;
+            transition: color 220ms cubic-bezier(.22,.8,.22,1);
         }
-        /* Rotated square bullet, as in the supplied sub-nav. */
+        .pnl-drawer .pnl-subnav-link:first-child { padding-top: 4px; }
+        .pnl-drawer .pnl-subnav-link:last-child { padding-bottom: 14px; }
+        .pnl-drawer .pnl-subnav-link.active {
+            color: #7A1C29 !important;
+            font-weight: 600 !important;
+            border-left: none !important;
+            background: transparent !important;
+        }
+        @media (hover: hover) {
+            .pnl-drawer .pnl-subnav-link:hover { color: #7A1C29; border-left-color: transparent; }
+        }
+        /* A filled burgundy diamond, not an outlined one: at 5px an outline is
+           two hairlines and a hole, which renders as a grey smudge on a phone. */
         .pnl-drawer .pnl-subnav-link::before {
             content: "";
             width: 5px; height: 5px;
-            border: 1px solid var(--blood, #7A1C29);
+            background: #7A1C29;
+            border: none;
             transform: rotate(45deg);
-            opacity: .55;
+            opacity: .5;
             flex: 0 0 auto;
-            transition: opacity 200ms cubic-bezier(.22,1,.36,1);
+            transition: opacity 200ms cubic-bezier(.22,.8,.22,1);
         }
-        .pnl-drawer .pnl-subnav-link:hover::before { opacity: 1; }
+        .pnl-drawer .pnl-subnav-link:hover::before,
+        .pnl-drawer .pnl-subnav-link.active::before { opacity: 1; }
 
-        /* ---------- ACTIVE: LEFT MARKER, NO FILL ---------- */
-        /* The old active state was a tinted fill plus a rule down the RIGHT
-           edge. The supplied design marks the left edge and leaves the row
-           clear, so the fill and the right rule are both removed — they were
-           set with !important, so these have to be too. */
-        .pnl-drawer .pnl-nav-link.active,
-        .pnl-drawer .pnl-acct-link.active {
-            background: transparent !important;
+        /* ---------- ACCOUNT LINKS (signed in) ---------- */
+        .pnl-drawer .pnl-acct-link {
+            font-family: "EB Garamond", Georgia, serif !important;
+            font-size: 14px !important;
+            letter-spacing: .16em;
+            color: #3A3126;
+            min-height: 0 !important;
+            padding: 10px 26px !important;
             border-right: none !important;
-            border-left: none !important;
         }
-        @media (hover: hover) {
-            .pnl-drawer .pnl-nav-link:hover,
-            .pnl-drawer .pnl-acct-link:hover { background: transparent; }
-        }
+        .pnl-drawer .pnl-signout-row { color: #8A7C64; }
 
-        /* ---------- ACTIONS: OXBLOOD PRIMARY, GHOST SIGN IN ---------- */
+        /* ---------- ACTIONS ---------- */
+        /* THE TINTED WELL IS GONE. .pnl-connect-section was a #E7E1D4 block with
+           a rule across the top holding two full-width buttons — a footer
+           toolbar, which is a dashboard's way of ending a menu. On parchment,
+           with 34px of air above it, one burgundy button is already the loudest
+           thing in the drawer and needs nothing behind it. */
+        .pnl-drawer .pnl-connect-section {
+            padding: 34px 26px 4px;
+            background: transparent;
+            border-top: none;
+        }
         .pnl-drawer .pnl-cta-primary {
             display: flex; align-items: center; justify-content: center; gap: 12px;
-            width: 100%; min-height: 52px;
-            background: var(--blood, #7A1C29);
-            color: #EFE5CE;
-            border: 1px solid #651522;
+            width: 100%; min-height: 54px;
+            background: #7A1C29;
+            color: #F3EADB;
+            border: none;
             border-radius: 2px;
-            font-size: 12px; font-weight: 600;
-            letter-spacing: .28em; text-transform: uppercase;
+            font-family: "Cormorant Garamond", Georgia, serif !important;
+            font-size: 13px; font-weight: 600;
+            letter-spacing: .26em; text-transform: uppercase;
             cursor: pointer; text-decoration: none;
-            transition: background 300ms cubic-bezier(.22,1,.36,1),
-                        transform 300ms cubic-bezier(.22,1,.36,1),
-                        box-shadow 300ms cubic-bezier(.22,1,.36,1);
+            transition: background 280ms cubic-bezier(.22,.8,.22,1),
+                        box-shadow 280ms cubic-bezier(.22,.8,.22,1);
         }
         .pnl-drawer .pnl-cta-primary:hover {
-            background: #651522; transform: translateY(-1px);
-            box-shadow: 0 10px 24px rgba(101,21,34,.28);
+            background: #651522;
+            box-shadow: 0 8px 20px rgba(101,21,34,.22);
         }
-        /* #btn-auth-mobile KEEPS its id and its onclick — only its skin changes,
-           from the black block to the ghost. Restyling rather than replacing is
-           what keeps updateMobileAuthUI working. */
+        .pnl-drawer .pnl-cta-primary .pnl-arrow {
+            display: inline-block;
+            transition: transform 280ms cubic-bezier(.22,.8,.22,1);
+        }
+        .pnl-drawer .pnl-cta-primary:hover .pnl-arrow { transform: translateX(4px); }
+
+        /* SIGN IN IS A LINK NOW, NOT A SECOND BUTTON. Two full-width controls
+           stacked in a well read as two equal choices; they are not equal, and
+           the outlined one was drawing as much attention as the filled one
+           purely by being the same size and shape. #btn-auth-mobile keeps its id
+           and its onclick — updateMobileAuthUI still finds it — and only its
+           skin changes. */
         .pnl-drawer .pnl-connect-btn {
-            position: relative;
+            display: block;
+            width: 100%;
+            min-height: 0 !important;
+            margin-top: 16px;
+            padding: 6px 0 !important;
             background: transparent !important;
-            color: #211B12 !important;
-            border: 1px solid rgba(60,48,30,.28) !important;
-            min-height: 52px;
-            font-size: 12px !important;
-            letter-spacing: .28em !important;
-            font-weight: 600 !important;
-            transition: border-color 300ms cubic-bezier(.22,1,.36,1),
-                        transform 300ms cubic-bezier(.22,1,.36,1);
+            border: none !important;
+            color: #6B5F4C !important;
+            font-family: "IBM Plex Mono", ui-monospace, monospace !important;
+            font-size: 10px !important;
+            font-weight: 500 !important;
+            letter-spacing: .26em !important;
+            text-transform: uppercase;
+            text-align: center;
+            transition: color 220ms cubic-bezier(.22,.8,.22,1);
         }
         .pnl-drawer .pnl-connect-btn:hover {
             background: transparent !important;
-            border-color: #211B12 !important;
-            transform: translateY(-1px);
+            border: none !important;
+            color: #7A1C29 !important;
+            transform: none;
         }
 
-        /* ---------- FOOTER ---------- */
+        /* ---------- FOOTER: two lines, one hairline ---------- */
+        /* The panel this replaces was a clickable status bar with a chevron, a
+           dotted rule, a two-column grid of Network / Settlement / Uptime with
+           labels above values, another rule, and a legal row — about 150px of
+           dashboard for three facts nobody opens a menu to read. It is now the
+           status line and one run-on line of the same three facts. The chevron
+           went with it: nothing expands any more, and a chevron on something
+           that does not expand is a promise the interface does not keep. */
+        .pnl-drawer .pnl-footer {
+            padding: 14px 26px 16px;
+            background: transparent;
+            border-top: 1px solid rgba(90, 72, 45, .16);
+        }
+        .pnl-drawer .pnl-status-bar { cursor: default; }
+        .pnl-drawer .pnl-status-left { gap: 9px; }
         .pnl-drawer .pnl-status-dot {
-            width: 8px; height: 8px;
-            box-shadow: 0 0 0 0 rgba(95,125,79,.35);
-            animation: pnl-pulse 2.4s ease-out infinite;
+            width: 6px; height: 6px;
+            background: #5F7D4F;
+            box-shadow: 0 0 0 0 rgba(95,125,79,.4);
+            animation: pnl-pulse 2.6s ease-out infinite;
         }
         @keyframes pnl-pulse {
-            0%   { box-shadow: 0 0 0 0 rgba(95,125,79,.35); }
-            70%  { box-shadow: 0 0 0 7px rgba(95,125,79,0); }
+            0%   { box-shadow: 0 0 0 0 rgba(95,125,79,.4); }
+            70%  { box-shadow: 0 0 0 6px rgba(95,125,79,0); }
             100% { box-shadow: 0 0 0 0 rgba(95,125,79,0); }
         }
-        .pnl-drawer .pnl-meta-value {
-            font-size: 17px; font-weight: 600; letter-spacing: .03em;
+        .pnl-drawer .pnl-status-text {
+            font-family: "IBM Plex Mono", ui-monospace, monospace !important;
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: .22em;
+            color: #3A3126;
         }
+        /* One line, always shown. It keeps the id #pnl-footer-meta because
+           toggleMobileMenu still strips .collapsed from it on desktop; with no
+           .collapsed rule left that call is simply a no-op, which is the quiet
+           way to retire a behaviour without touching main.js. */
+        .pnl-drawer .pnl-meta {
+            display: block;
+            margin: 7px 0 0;
+            padding: 0 0 0 15px;
+            border-top: none;
+            font-family: "IBM Plex Mono", ui-monospace, monospace;
+            font-size: 8.5px;
+            font-weight: 400;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: #7C6E58;
+        }
+        .pnl-drawer .pnl-legal {
+            gap: 16px;
+            margin-top: 12px;
+            padding-top: 0;
+            border-top: none;
+        }
+        .pnl-drawer .pnl-legal a {
+            font-family: "IBM Plex Mono", ui-monospace, monospace;
+            font-size: 8.5px;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: #8A7C64;
+            transition: color 200ms cubic-bezier(.22,.8,.22,1);
+        }
+        .pnl-drawer .pnl-legal a:hover { color: #7A1C29; }
+
+        /* ---------- TYPE BASE ---------- */
+        .pnl-drawer, .pnl-drawer .pnl-body, .pnl-drawer .pnl-legal {
+            font-family: "EB Garamond", Georgia, "Times New Roman", serif;
+            color: #2A2118;
+        }
+
+        /* ---------- signed-in blocks, brought onto the same paper ----------
+           These only render for a signed-in user, so they were never in the
+           screenshot — but they are the two remaining tinted panels in the
+           drawer, and leaving them would mean the menu changes character the
+           moment someone logs in. */
+        .pnl-drawer .pnl-user,
+        .pnl-drawer .pnl-capital-summary {
+            background: transparent;
+            border-bottom: 1px solid rgba(90, 72, 45, .14);
+            padding-left: 26px; padding-right: 26px;
+        }
+        .pnl-drawer .pnl-user-badge { background: #7A1C29; border-radius: 2px; }
+        .pnl-drawer .pnl-user-name {
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 16px; font-weight: 600; letter-spacing: .04em;
+        }
+        .pnl-drawer .pnl-user-role,
+        .pnl-drawer .pnl-cap-lbl {
+            font-family: "IBM Plex Mono", ui-monospace, monospace;
+            letter-spacing: .18em; color: #7C6E58;
+        }
+        .pnl-drawer .pnl-cap-val {
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 16px; font-weight: 600;
+        }
+        .pnl-drawer .pnl-capital-summary:hover { background: rgba(122,28,41,.03); }
+
         @media (prefers-reduced-motion: reduce) {
             .pnl-drawer .pnl-status-dot { animation: none; }
-        }
-
-        .pnl-drawer .pnl-connect-btn .pnl-arrow {
-            display: inline-block;
-            transition: transform 300ms cubic-bezier(.22,1,.36,1);
-        }
-        .pnl-drawer .pnl-connect-btn:hover .pnl-arrow { transform: translateX(5px); }
-
-        @media (prefers-reduced-motion: reduce) {
             .pnl-drawer .pnl-nav-group,
             .pnl-drawer #drawer-nav-group > .pnl-nav-link {
                 opacity: 1 !important;
@@ -1531,7 +1661,10 @@ export function renderHeader(currentRoute = '') {
                         
                         <!-- NAVIGATION Group (Single surface across ALL screen sizes) -->
                         <div id="drawer-nav-group">
-                            <div class="pnl-section-label">NAVIGATION</div>
+                            <!-- No "NAVIGATION" label: it named the only
+                                 navigation in the drawer, so it carried no
+                                 information and competed with the six links it
+                                 was introducing. -->
 
                             <!-- MARKET Group -->
                             <div class="pnl-nav-group ${isMarket ? 'expanded' : ''}" style="--i:0">
@@ -1585,7 +1718,12 @@ export function renderHeader(currentRoute = '') {
                             </div>
 
                             <a href="#" onclick="window.app.closeMobileMenu(); window.router.navigate('/protocol?tab=terminal'); return false;" style="--i:5" class="pnl-nav-link ${isCustodyTerminal ? 'active' : ''}" ${isCustodyTerminal ? 'aria-current="page"' : ''}>CUSTODY TERMINAL</a>
-                            <div class="pnl-divider"></div>
+                            <!-- The rule that used to close this group is gone.
+                                 It cut the last primary item away from the five
+                                 above it, which is the whole reason Custody
+                                 Terminal read as an orphan bolted onto the nav:
+                                 it sat on the far side of a line from everything
+                                 it belongs with. -->
                         </div>
 
                         <!-- ACCOUNT Group -->
@@ -1627,30 +1765,25 @@ export function renderHeader(currentRoute = '') {
 
             <!-- Footer -->
             <div class="pnl-footer">
-                <div class="pnl-status-bar" onclick="window.app.toggleFooterMeta()">
+                <!-- NOT CLICKABLE, AND NO CHEVRON. Nothing expands here any
+                     more, and a chevron on something that does not expand is a
+                     promise the interface does not keep. window.app.toggleFooterMeta
+                     survives in main.js and is simply no longer called; it
+                     guards its own lookup, so nothing breaks. -->
+                <div class="pnl-status-bar">
                     <div class="pnl-status-left">
                         <div class="pnl-status-dot"></div>
                         <span class="pnl-status-text">ALL SYSTEMS OPERATIONAL</span>
                     </div>
-                    <svg id="pnl-footer-chevron" class="pnl-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
                 </div>
 
-                <div id="pnl-footer-meta" class="pnl-meta collapsed">
-                    <!-- The Protocol v1.0 row is removed: the supplied footer is
-                         Network / Settlement / Uptime and nothing else. -->
-                    <div class="pnl-meta-item">
-                        <span class="pnl-meta-label">Network</span>
-                        <span class="pnl-meta-value">Mainnet</span>
-                    </div>
-                    <div class="pnl-meta-item">
-                        <span class="pnl-meta-label">Settlement</span>
-                        <span class="pnl-meta-value">USD</span>
-                    </div>
-                    <div class="pnl-meta-item">
-                        <span class="pnl-meta-label">Uptime</span>
-                        <span class="pnl-meta-value">99.9%</span>
-                    </div>
-                </div>
+                <!-- The same three facts the two-column grid held, set as one
+                     run-on line. A grid of label-over-value tiles is how a
+                     dashboard reports; a document states its terms in a line and
+                     moves on. #pnl-footer-meta is kept because toggleMobileMenu
+                     still strips .collapsed from it on desktop — with no
+                     .collapsed rule left, that call is a no-op. -->
+                <div id="pnl-footer-meta" class="pnl-meta">Mainnet &middot; USD Settlement &middot; 99.9% Uptime</div>
 
                 <div class="pnl-legal">
                     <a href="/terms" onclick="window.app.closeMobileMenu()">Terms</a>
