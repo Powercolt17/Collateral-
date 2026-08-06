@@ -1112,7 +1112,7 @@ export function renderHeader(currentRoute = '') {
            BOTH BREAKPOINTS, since each declares its own transform — overriding
            only one parks the drawer off the opposite edge and it never
            appears. */
-        .pnl-drawer { transform-origin: 100% 50%; will-change: transform; }
+        .pnl-drawer { transform-origin: 100% 50%; }
         @media (max-width: 767px) {
             .pnl-drawer {
                 width: 90vw; max-width: 420px;
@@ -1514,7 +1514,11 @@ export function renderHeader(currentRoute = '') {
             font-weight: 400;
             letter-spacing: .16em;
             text-transform: uppercase;
-            color: #7C6E58;
+            /* #74674F, not the #7C6E58 the other muted labels use. Measured on
+               the live drawer: that colour lands at 4.16:1 on #F3EADB, and at
+               9px this is body-size text needing 4.5. Two steps deeper takes it
+               to 4.66 and still reads as the quietest thing in the panel. */
+            color: #74674F;
         }
 
         /* ---------- TYPE BASE ---------- */
