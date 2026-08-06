@@ -538,35 +538,7 @@ export function renderCollateralHero(options = {}) {
              on .clt-hero instead and the ungraded fill meets the graded plate
              at a visible vertical seam down the middle of the hero. Same value
              and same reasoning as the mobile panel. */
-          /* ── RECOMPOSED: THE SCENE SLIDES RIGHT ────────────────────────────
-             The card was landing on the standing figure instead of the table,
-             so the artwork moves out from under it. 12cqw, NOT the 18-22% the
-             brief asked for, and the number is set by the wax seal.
-
-             MEASURED off collateral-senate-frame.jpg (1767x1024): the seal sits
-             at x=1496, which is 271px from the image's right edge. At 1512x945
-             cover scales the plate by .923 and anchors it right, so the seal
-             renders at screen x=1262. A 20% shift is 302px and puts it at
-             1564 — past a 1512 viewport, gone. The same brief requires the seal
-             to stay visible, so 20% cannot be right; it was written without the
-             image's geometry to hand.
-
-             13cqw is 195px at 1497 and lands the seal at 1441, clear of the
-             card's right edge by 19px — it reads as peeking out from behind the
-             document rather than being buried by it. That is the largest shift
-             this composition affords.
-
-             cqw and not px, so the shift is the same fraction of the hero at
-             every width. A fixed offset would let the seal drift back under the
-             card on wide screens.
-
-             Sliding right exposes fill down the LEFT — 89px at 1512 — and that
-             costs nothing. The plate's left third is blank paper, measured at
-             #EBD3AB against this fill's #EED6AF: three values apart per
-             channel. Both sit under --plate-grade on this element, so they are
-             graded together and meet without a seam. That is the same reason
-             the fill was put here in the first place. */
-          background-position:calc(100% + 13cqw) top;
+          background-position:right top;
           background-size:cover;
           background-color:#EED6AF;
           background-repeat:no-repeat;
@@ -2074,12 +2046,17 @@ export function renderCollateralHero(options = {}) {
            backing plate. Detail stays sharp everywhere it is not needed. */
         .clt .clt-doc-wrap::before{
           content:"";position:absolute;z-index:-1;pointer-events:none;
-          inset:-16% -14% -18% -20%;
+          /* TUNED DOWN HARD. At .90/.86/.82 over a -16%/-20% inset this was a
+             fog bank across the whole centre-right: it did not soften the art
+             under the card, it bleached the standing figure out of the picture.
+             The card is opaque, so nothing beneath it needs hiding — the only
+             job is to take the hard competition out of the inch around it. */
+          inset:-7% -6% -8% -9%;
           background:
-            radial-gradient(58% 46% at 40% 34%, rgba(241,238,232,.90), rgba(241,238,232,0) 72%),
-            radial-gradient(54% 56% at 70% 60%, rgba(241,238,232,.86), rgba(241,238,232,0) 74%),
-            radial-gradient(48% 42% at 28% 76%, rgba(241,238,232,.82), rgba(241,238,232,0) 70%);
-          filter:blur(16px);
+            radial-gradient(58% 46% at 40% 34%, rgba(241,238,232,.34), rgba(241,238,232,0) 72%),
+            radial-gradient(54% 56% at 70% 60%, rgba(241,238,232,.30), rgba(241,238,232,0) 74%),
+            radial-gradient(48% 42% at 28% 76%, rgba(241,238,232,.26), rgba(241,238,232,0) 70%);
+          filter:blur(14px);
         }
         .clt .clt-doc{
           position:relative;
