@@ -2100,11 +2100,11 @@ export function renderCollateralHero(options = {}) {
           --doc-ink:#241F19;
           /* #7A7060 was 4.31:1 and #6B6152 was 5.31:1 — both fine on clean
              stock. But the ageing texture MULTIPLIES under the type, and on the
-             worst ground it makes (224,207,175 where foxing and edge toning
-             overlap) #6B6152 falls to 3.97:1, under AA. #5F5647 holds 4.71:1
-             there and 6.31:1 on clean paper. Age must not cost the document its
+             worst ground it makes — now (214,193,159), where foxing and edge
+             toning overlap at the .34 cap — #6B6152 falls to 3.4:1 and even
+             #5F5647 only reaches 4.14:1. #524A3A holds 5.01:1 there. Age must not cost the document its
              readability, so the muted voice deepens to pay for it. */
-          --doc-soft:#5F5647;
+          --doc-soft:#524A3A;
           --doc-ox:#6D1F2D;
           --doc-sage-bg:#EFF1E6;
           --doc-ox-bg:#F8EDEA;

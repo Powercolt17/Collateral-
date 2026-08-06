@@ -21,18 +21,20 @@
 #                deckle THINS before it ends — the last fraction of a millimetre
 #                is translucent fibre, not a cliff.
 #
-# AMPLITUDE IS DELIBERATELY SMALL: base 3.4px with about 2.6px of wander on a
-# 500px-wide mask, so roughly 1% of the card's width. At the size this renders
-# it is felt rather than seen, which is the standard every other pass on this
-# card has been held to. Turn it up and it stops being a document.
+# AMPLITUDE, RAISED AFTER THE FIRST BUILD SHIPPED INVISIBLE. Base 3.4 -> 9.5px,
+# wander 2.6 -> 7.0, fibre 1.15 -> 2.4. At the original values the edge moved by
+# under 1% of the card width — about three device pixels against a soft shadow,
+# which is indistinguishable from a straight edge. A deckle nobody can see is
+# not a subtle deckle, it is a rectangle. These values put the boundary between
+# roughly 4px and 24px in, which reads as handmade at 100% zoom.
 
 param(
     [int]$W = 500,
     [int]$H = 820,
     [int]$Seed = 7714,
-    [double]$Depth = 3.4,
-    [double]$Wander = 2.6,
-    [double]$Fibre = 1.15,
+    [double]$Depth = 9.5,
+    [double]$Wander = 7.0,
+    [double]$Fibre = 2.4,
     [double]$Ramp = 2.4
 )
 

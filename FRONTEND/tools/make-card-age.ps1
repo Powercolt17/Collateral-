@@ -20,18 +20,21 @@
 # mix-blend-mode:multiply exactly like the existing grain and it tints rather
 # than paints. Nothing here is a colour the card does not already have.
 #
-# RESTRAINT IS ENFORCED BY THE NUMBERS, not by taste: peak foxing alpha is .17,
-# mottle .085, edge toning .20. At those levels the sheet reads as old on
-# inspection and as clean at a glance, which is the brief every other pass on
-# this card has been held to.
+# STRENGTH WAS RAISED AFTER THE FIRST BUILD SHIPPED INVISIBLE. Foxing .17 ->
+# .30, mottle .085 -> .145, edge toning .20 -> .34, spot density up ~65%, and
+# the alpha cap .24 -> .34. The first pass was calibrated to "if a refinement is
+# noticeable immediately it is too strong", which is the right rule for a craft
+# pass and the wrong one when the ask is literally "make it look old" — at a
+# mean alpha of 6% it was not visible at all, which is not restraint, it is
+# nothing. The cap is still a hard legibility limit; see the note on it below.
 
 param(
     [int]$W = 500,
     [int]$H = 820,
     [int]$Seed = 20641,
-    [double]$Foxing = 0.17,
-    [double]$Mottle = 0.085,
-    [double]$EdgeTone = 0.20,
+    [double]$Foxing = 0.30,
+    [double]$Mottle = 0.145,
+    [double]$EdgeTone = 0.34,
     [int]$InkR = 150, [int]$InkG = 112, [int]$InkB = 62
 )
 
@@ -84,7 +87,7 @@ public class CardAge
            whatever size this is generated at. Placement is biased toward the
            edges — air reaches the perimeter first — by rejecting a proportion
            of the draws that land centrally. */
-        int spots = (int)(W * H / 5200.0);
+        int spots = (int)(W * H / 3100.0);
         var sx = new float[spots]; var sy = new float[spots];
         var sr = new float[spots]; var sa = new float[spots];
         for (int i = 0; i < spots; i++)
@@ -150,7 +153,7 @@ public class CardAge
                    readability. */
                 int o = y * d.Stride + x * 4;
                 a[o + 2] = (byte)ir; a[o + 1] = (byte)ig; a[o] = (byte)ib;
-                a[o + 3] = (byte)(Math.Min(C01(al), 0.24f) * 255f + 0.5f);
+                a[o + 3] = (byte)(Math.Min(C01(al), 0.34f) * 255f + 0.5f);
             }
 
         Marshal.Copy(a, 0, d.Scan0, a.Length);
