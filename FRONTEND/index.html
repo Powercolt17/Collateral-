@@ -828,6 +828,61 @@
             --ap-sepia:#D3C6AF; --ap-edge:#C7B79B;
             font-family:"EB Garamond",Georgia,"Times New Roman",serif;
             color:var(--ap-ink);
+
+            /* ── THE VERTICAL RHYTHM, AS VARIABLES ──────────────────────────
+               Every height and gap that contributes to the dialog's total comes
+               from here, so the short-viewport steps at the bottom of this block
+               can compress the whole thing by overriding eleven values instead
+               of restating twenty rules.
+
+               THE PROBLEM THIS SOLVES: at the reference's proportions the dialog
+               was 820px tall. With max-height:92vh that meant it scrolled on
+               ANY window under about 890px — which is most laptops — and the
+               Apple button sat below the fold on first open. A sign-in form
+               where the reader has to scroll to find out how else they could
+               sign in is a broken form, however good it looks.
+
+               The base numbers below bring it to roughly 670px, which clears a
+               740px window. Two max-height steps take it down again from there.
+               Nothing is scaled by transform: type stays on the pixel grid and
+               the hairlines stay one pixel. */
+            --ap-pad-t:32px; --ap-pad-x:44px; --ap-pad-b:28px;
+            --ap-mark:36px;      /* wordmark */
+            --ap-eyebrow-b:12px; /* under SIGN IN */
+            --ap-hr-t:14px; --ap-hr-b:20px;
+            --ap-lab-b:7px;      /* label to field */
+            --ap-inp:50px;       /* input height */
+            --ap-field-b:14px;   /* field to field */
+            --ap-btn:52px;       /* primary */
+            --ap-or-t:18px; --ap-or-b:15px;
+            --ap-obtn:46px; --ap-obtn-gap:10px;
+            --ap-foot-t:18px;
+        }
+        /* A LAPTOP WITH BROWSER CHROME. ~600px, which clears a 660px window. */
+        @media (max-height: 740px){
+            #modal-access{
+                --ap-pad-t:24px; --ap-pad-b:22px;
+                --ap-mark:31px; --ap-eyebrow-b:9px;
+                --ap-hr-t:10px; --ap-hr-b:15px;
+                --ap-inp:46px; --ap-field-b:11px; --ap-lab-b:6px;
+                --ap-btn:48px; --ap-or-t:13px; --ap-or-b:11px;
+                --ap-obtn:42px; --ap-obtn-gap:8px; --ap-foot-t:13px;
+            }
+        }
+        /* A SHORT LAPTOP OR A LANDSCAPE PHONE. ~525px, which clears 580px.
+           Past this the honest answer is the scroll that is still in place as a
+           backstop — compressing further would start taking the dialog below
+           the sizes that make it readable, and an unreadable form that fits is
+           not better than a readable one that scrolls. */
+        @media (max-height: 640px){
+            #modal-access{
+                --ap-pad-t:18px; --ap-pad-b:16px;
+                --ap-mark:26px; --ap-eyebrow-b:7px;
+                --ap-hr-t:7px; --ap-hr-b:11px;
+                --ap-inp:42px; --ap-field-b:9px; --ap-lab-b:5px;
+                --ap-btn:44px; --ap-or-t:10px; --ap-or-b:9px;
+                --ap-obtn:38px; --ap-obtn-gap:7px; --ap-foot-t:10px;
+            }
         }
         /* The engraved inner hairline and the paper tooth. Both are pointer-
            events:none so neither can eat a click meant for a field. */
@@ -857,7 +912,7 @@
            would have slid off the top of its own dialog on a short window.
            Scrolling the inner block keeps the border fixed around it. */
         #modal-access .ap-in{
-            position:relative;z-index:1;padding:44px 52px 40px;
+            position:relative;z-index:1;padding:var(--ap-pad-t) var(--ap-pad-x) var(--ap-pad-b);
             max-height:calc(92vh - 2px);overflow-y:auto;
         }
         #modal-access .ap-in::-webkit-scrollbar{width:4px}
@@ -865,23 +920,23 @@
         #modal-access .ap-in::-webkit-scrollbar-thumb{background:rgba(90,72,45,.2)}
         #modal-access .ap-eyebrow{
             text-align:center;font-size:10px;letter-spacing:.34em;text-transform:uppercase;
-            color:var(--ap-wine);font-weight:600;margin-bottom:18px;
+            color:var(--ap-wine);font-weight:600;margin-bottom:var(--ap-eyebrow-b);
             font-family:"EB Garamond",Georgia,serif;
         }
         #modal-access .ap-wordmark{
-            font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:44px;
+            font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:var(--ap-mark);
             letter-spacing:.14em;text-transform:uppercase;text-align:center;
             color:var(--ap-ink);line-height:1;
         }
         #modal-access .ap-tag{text-align:center;font-size:15px;color:var(--ap-ink-soft);margin:8px 0 0;font-weight:400}
-        #modal-access .ap-hr{display:flex;align-items:center;justify-content:center;gap:12px;margin:18px 0 28px}
+        #modal-access .ap-hr{display:flex;align-items:center;justify-content:center;gap:12px;margin:var(--ap-hr-t) 0 var(--ap-hr-b)}
         #modal-access .ap-hr i{height:1px;width:70px;background:var(--ap-sepia);display:block}
         #modal-access .ap-hr b{width:6px;height:6px;background:var(--ap-wine);transform:rotate(45deg);display:block}
 
-        #modal-access .ap-field{display:flex;flex-direction:column;margin-bottom:18px}
+        #modal-access .ap-field{display:flex;flex-direction:column;margin-bottom:var(--ap-field-b)}
         #modal-access .ap-label{
             font-size:11px;letter-spacing:.18em;text-transform:uppercase;
-            color:var(--ap-muted);font-weight:600;margin-bottom:9px;
+            color:var(--ap-muted);font-weight:600;margin-bottom:var(--ap-lab-b);
             font-family:"EB Garamond",Georgia,serif;
         }
         #modal-access .ap-inp{position:relative}
@@ -890,7 +945,7 @@
            A white field on parchment is the single strongest tell that a form
            was styled by a UI kit. */
         #modal-access input{
-            width:100%;height:56px;background:var(--ap-field);
+            width:100%;height:var(--ap-inp);background:var(--ap-field);
             border:1px solid var(--ap-edge);border-radius:8px;padding:0 18px;
             font-family:"EB Garamond",Georgia,serif;font-size:16px;color:var(--ap-ink);
             outline:none;box-sizing:border-box;
@@ -908,7 +963,7 @@
         }
         #modal-access .ap-eye:hover{color:var(--ap-wine)}
         #modal-access .ap-eye svg{width:18px;height:18px}
-        #modal-access .ap-forgot{display:block;text-align:right;margin-top:9px;font-size:13px;color:var(--ap-wine);text-decoration:none}
+        #modal-access .ap-forgot{display:block;text-align:right;margin-top:7px;font-size:13px;color:var(--ap-wine);text-decoration:none}
         #modal-access .ap-forgot:hover{text-decoration:underline}
 
         /* The error is a ruled note, not a red alert panel. A tinted box with a
@@ -920,7 +975,7 @@
         }
 
         #modal-access .ap-primary{
-            width:100%;height:56px;background:var(--ap-wine);color:var(--ap-cream);
+            width:100%;height:var(--ap-btn);background:var(--ap-wine);color:var(--ap-cream);
             border:1px solid var(--ap-wine-deep);border-radius:8px;
             font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:15px;
             letter-spacing:.24em;text-transform:uppercase;cursor:pointer;margin-top:8px;
@@ -933,19 +988,19 @@
            shadow instead of lifting further. */
         #modal-access .ap-primary:active{transform:translateY(0);box-shadow:inset 0 2px 6px rgba(40,10,16,.35)}
 
-        #modal-access .ap-or{display:flex;align-items:center;justify-content:center;gap:14px;margin:24px 0 20px}
+        #modal-access .ap-or{display:flex;align-items:center;justify-content:center;gap:14px;margin:var(--ap-or-t) 0 var(--ap-or-b)}
         #modal-access .ap-or i{height:1px;flex:1;background:var(--ap-sepia);display:block}
         #modal-access .ap-or span{font-size:11px;letter-spacing:.2em;color:var(--ap-muted);display:flex;align-items:center;gap:10px}
         #modal-access .ap-or span b{width:5px;height:5px;background:var(--ap-wine);transform:rotate(45deg);display:block}
 
-        #modal-access .ap-oauth{display:flex;flex-direction:column;gap:12px}
+        #modal-access .ap-oauth{display:flex;flex-direction:column;gap:var(--ap-obtn-gap)}
         /* THE MARK IS ABSOLUTE AND THE LABEL IS CENTRED, which is the detail
            that makes these read as a set. Icon-then-label in a flex row centres
            the PAIR, so three different icon widths give three different label
            positions. Anchoring the mark at 18px puts all three labels on the
            same axis. */
         #modal-access .ap-obtn{
-            position:relative;height:52px;width:100%;
+            position:relative;height:var(--ap-obtn);width:100%;
             background:var(--ap-cream);border:1px solid var(--ap-sepia);border-radius:8px;
             font-family:"EB Garamond",Georgia,serif;font-size:13px;letter-spacing:.14em;
             text-transform:uppercase;font-weight:600;color:var(--ap-ink);
@@ -956,7 +1011,7 @@
         #modal-access .ap-obtn .ap-ic{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:18px;height:18px;display:flex}
         #modal-access .ap-obtn .ap-ic svg{width:100%;height:100%}
 
-        #modal-access .ap-foot{text-align:center;margin-top:26px;font-size:14px;color:var(--ap-ink-soft)}
+        #modal-access .ap-foot{text-align:center;margin-top:var(--ap-foot-t);font-size:14px;color:var(--ap-ink-soft)}
         #modal-access .ap-foot button,
         #modal-access .ap-foot a{
             color:var(--ap-wine);text-decoration:none;font-weight:600;
@@ -973,10 +1028,18 @@
         }
         #modal-access .ap-reftoggle:hover{color:var(--ap-wine)}
 
+        /* NARROW SCREENS TOUCH ONLY THE HORIZONTAL VARIABLE. This block used to
+           hardcode the padding shorthand and the wordmark size, which would now
+           overwrite whichever max-height step is in play — a phone in landscape
+           matches both, and the width rule would have silently undone the height
+           one. Setting only the axis it cares about lets the two compose. */
         @media (max-width:520px){
-            #modal-access .ap-in{padding:34px 26px 30px}
-            #modal-access .ap-wordmark{font-size:34px}
+            #modal-access{--ap-pad-x:24px}
             #modal-access .ap-corner{width:16px;height:16px}
+            #modal-access .ap-corner.tl,#modal-access .ap-corner.tr{top:12px}
+            #modal-access .ap-corner.bl,#modal-access .ap-corner.br{bottom:12px}
+            #modal-access .ap-corner.tl,#modal-access .ap-corner.bl{left:12px}
+            #modal-access .ap-corner.tr,#modal-access .ap-corner.br{right:12px}
         }
     </style>
 
