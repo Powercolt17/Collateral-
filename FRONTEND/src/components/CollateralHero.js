@@ -538,7 +538,24 @@ export function renderCollateralHero(options = {}) {
              on .clt-hero instead and the ungraded fill meets the graded plate
              at a visible vertical seam down the middle of the hero. Same value
              and same reasoning as the mobile panel. */
-          background-position:right top;
+          /* THE SCENE COMES RIGHT 9cqw, and the card goes left to meet it — see
+             the note on .clt-doc-wrap. The three figures are, left to right:
+             the standing man with the coin bag (44-68% of the plate), the
+             writing man with the quill (65-82%), the stamping man with the seal
+             press (78-100%), and the wax seal itself at 88%.
+
+             At "right top" with the card at right:5cqw the card landed on
+             screen 902-1422, which is the WRITING and STAMPING men — and left
+             the standing man in the clear. Exactly inverted from what the
+             composition wants.
+
+             The standing man is the LEFTMOST figure, so no amount of moving the
+             artwork left brings him under a card that lives on the right; it
+             drags him further away and pushes the other two out of frame. He
+             has to come right and the card has to come left. 9cqw is 135px at
+             1497 and puts the plate's left edge at +1px, so the fill strip that
+             appears is a single pixel. */
+          background-position:calc(100% + 9cqw) top;
           background-size:cover;
           background-color:#EED6AF;
           background-repeat:no-repeat;
@@ -2027,7 +2044,15 @@ export function renderCollateralHero(options = {}) {
              92-853 and its top edge sat above the tallest head (88). At +36 it
              runs 128-889: the head clears it by 40px, and 156px of card now
              overlaps the table slab rather than torsos. */
-          right:5cqw;top:calc(50% + 36px);
+          /* 27cqw from the right, not 5. The card has to sit OVER the standing
+             man to leave the writing and stamping men clear, and he is the
+             leftmost of the three — so the card comes off the right edge and
+             into the middle of the frame. Measured at 1497x945 with the 9cqw
+             plate shift: card 573-1093; standing man 718-1110, so all but a
+             17px sliver of him is behind it; writing man 1062-1338, 89% of him
+             clear of it; stamping man and the seal both fully clear at 1273+
+             and 1436. */
+          right:27cqw;top:calc(50% + 36px);
           transform:translateY(-50%);
           width:min(520px,40cqw);
         }
