@@ -509,6 +509,7 @@ window.app = {
         const referralToggle = document.getElementById('auth-referral-toggle-wrapper');
         const referralField = document.getElementById('auth-referral-field');
         const toggleText = document.getElementById('auth-toggle-text');
+        const eyebrow = document.getElementById('auth-eyebrow');
 
         if (isSignup) {
             if (title) title.innerHTML = 'Lock capital. Force the outcome.';
@@ -529,14 +530,27 @@ window.app = {
                 const toggleBtn = document.getElementById('auth-referral-toggle-btn');
                 if (toggleBtn) toggleBtn.textContent = '+ Have a referral code?';
             }
-            if (toggleText) toggleText.innerHTML = 'Already have an account? <button onclick="window.app.toggleAuthMode()" class="text-[#111] font-medium hover:underline bg-transparent border-none cursor-pointer p-0">Sign in</button>';
+            if (eyebrow) eyebrow.textContent = 'Create Account';
+            if (toggleText) toggleText.innerHTML = 'Already registered? <button onclick="window.app.toggleAuthMode()">Sign In</button>';
         } else {
             if (title) title.innerHTML = 'Lock capital. Force the outcome.';
             if (btn) btn.textContent = 'Sign In';
             if (referralToggle) { referralToggle.classList.add('hidden'); referralToggle.style.display = 'none'; }
             if (referralField) { referralField.classList.add('hidden'); referralField.style.display = 'none'; }
-            if (toggleText) toggleText.innerHTML = 'New here? <button onclick="window.app.toggleAuthMode()" class="text-[#111] font-medium hover:underline bg-transparent border-none cursor-pointer p-0">Create account</button>';
+            if (eyebrow) eyebrow.textContent = 'Sign In';
+            if (toggleText) toggleText.innerHTML = 'First contract? <button onclick="window.app.toggleAuthMode()">Create Account</button>';
         }
+    },
+    /* The password reveal. It lives here rather than inline in index.html
+       because every other control in that modal calls through window.app, and a
+       lone inline function would have been the one thing in the dialog that
+       breaks if the markup is ever moved into a component. */
+    toggleAuthPassword: function (btn) {
+        const input = btn.parentElement && btn.parentElement.querySelector('input');
+        if (!input) return;
+        const showing = input.type === 'text';
+        input.type = showing ? 'password' : 'text';
+        btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
     },
     handleAuthSubmit: async function () {
         window.app._hideAuthError();

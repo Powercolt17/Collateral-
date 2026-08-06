@@ -771,150 +771,288 @@
         }
     </style>
 
+    <!-- ══════════════════════════════════════════════════════════════════
+         AUTH MODAL — THE PARCHMENT DEED
+
+         A RESTYLE, NOT A REPLACEMENT, and that is the whole reason this works.
+         The supplied reference is a standalone page with its own onclick="seal()"
+         demo handlers and no back end. Every id here is written to by main.js —
+         auth-modal-title, auth-error, auth-error-text, auth-signin-form,
+         auth-email, auth-password, auth-forgot-pw, auth-referral-toggle-wrapper,
+         auth-referral-toggle-btn, auth-referral-field, auth-referral-code,
+         btn-auth-submit, btn-wallet-signin, btn-google-signin, btn-apple-signin,
+         auth-toggle-text — and toggleAuthMode/_showAuthError/handleAuthSubmit all
+         guard their lookups, so swapping the markup for the reference file would
+         have failed SILENTLY: a working sign-in replaced by a form that posts
+         nowhere, with nothing logged.
+
+         WHAT CAME FROM THE REFERENCE: the parchment ground, the engraved inner
+         hairline, the four Roman corner brackets, the wordmark and diamond rule,
+         tracked small-caps labels over inset fields, the oxblood primary, the
+         diamond "or" divider, and the outline OAuth row with left-anchored marks.
+
+         WHAT DID NOT: the reference's inline base64 seal (~30KB of markup for an
+         asset this repo already ships as a file), its Google Fonts link (both
+         faces are already in the existing request), and its confirm-password
+         field — this modal is ONE form toggled between modes by main.js, and a
+         third input would have needed a validation path that does not exist.
+
+         THE REFERRAL FIELD IS KEPT, and the reference has no equivalent. It is
+         wired to api.getReferralCode and pre-fills from a stored code; deleting
+         it to match a comp would have quietly broken referral attribution.
+         ══════════════════════════════════════════════════════════════════ -->
+    <style>
+        /* Scoped to #modal-access so nothing here can reach the rest of the app. */
+        #modal-access{
+            --ap-parch:#F4EFE3; --ap-field:#ECE2CD; --ap-cream:#F8F3E8;
+            --ap-ink:#2B2117; --ap-ink-soft:#6B5C46; --ap-muted:#8A7A5E;
+            --ap-faint:#A6977A; --ap-wine:#6A1F2D; --ap-wine-deep:#551824;
+            --ap-sepia:#D3C6AF; --ap-edge:#C7B79B;
+            font-family:"EB Garamond",Georgia,"Times New Roman",serif;
+            color:var(--ap-ink);
+        }
+        /* The engraved inner hairline and the paper tooth. Both are pointer-
+           events:none so neither can eat a click meant for a field. */
+        #modal-access .ap-rule{
+            position:absolute;inset:10px;border:1px solid var(--ap-sepia);
+            border-radius:6px;pointer-events:none;opacity:.8;
+        }
+        /* MULTIPLY, for the same reason the drawer's grain is: a grey noise
+           layer at normal blend lightens as often as it darkens and washes a
+           warm ground toward grey. Paper fibre can only ever darken. */
+        #modal-access .ap-grain{
+            position:absolute;inset:0;border-radius:10px;pointer-events:none;
+            opacity:.5;mix-blend-mode:multiply;
+            background-image:radial-gradient(rgba(90,70,40,.055) 1px,transparent 1px);
+            background-size:4px 4px;
+        }
+        #modal-access .ap-corner{position:absolute;width:20px;height:20px;color:var(--ap-wine);opacity:.55;z-index:2;pointer-events:none}
+        #modal-access .ap-corner.tl{top:16px;left:16px}
+        #modal-access .ap-corner.tr{top:16px;right:16px;transform:scaleX(-1)}
+        #modal-access .ap-corner.bl{bottom:16px;left:16px;transform:scaleY(-1)}
+        #modal-access .ap-corner.br{bottom:16px;right:16px;transform:scale(-1)}
+
+        /* THE FRAME STAYS PUT, THE CONTENT SCROLLS. Overflow was on the modal
+           itself first, which is wrong: the hairline and the four corner
+           brackets are absolutely positioned children, and on a scrolling
+           container those scroll away with the content — the engraved frame
+           would have slid off the top of its own dialog on a short window.
+           Scrolling the inner block keeps the border fixed around it. */
+        #modal-access .ap-in{
+            position:relative;z-index:1;padding:44px 52px 40px;
+            max-height:calc(92vh - 2px);overflow-y:auto;
+        }
+        #modal-access .ap-in::-webkit-scrollbar{width:4px}
+        #modal-access .ap-in::-webkit-scrollbar-track{background:transparent}
+        #modal-access .ap-in::-webkit-scrollbar-thumb{background:rgba(90,72,45,.2)}
+        #modal-access .ap-eyebrow{
+            text-align:center;font-size:10px;letter-spacing:.34em;text-transform:uppercase;
+            color:var(--ap-wine);font-weight:600;margin-bottom:18px;
+            font-family:"EB Garamond",Georgia,serif;
+        }
+        #modal-access .ap-wordmark{
+            font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:44px;
+            letter-spacing:.14em;text-transform:uppercase;text-align:center;
+            color:var(--ap-ink);line-height:1;
+        }
+        #modal-access .ap-tag{text-align:center;font-size:15px;color:var(--ap-ink-soft);margin:8px 0 0;font-weight:400}
+        #modal-access .ap-hr{display:flex;align-items:center;justify-content:center;gap:12px;margin:18px 0 28px}
+        #modal-access .ap-hr i{height:1px;width:70px;background:var(--ap-sepia);display:block}
+        #modal-access .ap-hr b{width:6px;height:6px;background:var(--ap-wine);transform:rotate(45deg);display:block}
+
+        #modal-access .ap-field{display:flex;flex-direction:column;margin-bottom:18px}
+        #modal-access .ap-label{
+            font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+            color:var(--ap-muted);font-weight:600;margin-bottom:9px;
+            font-family:"EB Garamond",Georgia,serif;
+        }
+        #modal-access .ap-inp{position:relative}
+        /* INSET, NOT OUTLINED. The field is a shade DEEPER than the sheet, so it
+           reads as an area pressed into the paper rather than a box drawn on it.
+           A white field on parchment is the single strongest tell that a form
+           was styled by a UI kit. */
+        #modal-access input{
+            width:100%;height:56px;background:var(--ap-field);
+            border:1px solid var(--ap-edge);border-radius:8px;padding:0 18px;
+            font-family:"EB Garamond",Georgia,serif;font-size:16px;color:var(--ap-ink);
+            outline:none;box-sizing:border-box;
+            transition:border-color .2s ease, box-shadow .2s ease;
+        }
+        #modal-access input::placeholder{color:var(--ap-faint)}
+        #modal-access input:focus{
+            border-color:var(--ap-wine);
+            box-shadow:inset 0 0 0 1px rgba(106,31,45,.5), 0 0 0 3px rgba(106,31,45,.08);
+        }
+        #modal-access .ap-eye{
+            position:absolute;right:14px;top:50%;transform:translateY(-50%);
+            background:none;border:0;cursor:pointer;color:var(--ap-muted);
+            display:flex;padding:6px;transition:color .2s ease;
+        }
+        #modal-access .ap-eye:hover{color:var(--ap-wine)}
+        #modal-access .ap-eye svg{width:18px;height:18px}
+        #modal-access .ap-forgot{display:block;text-align:right;margin-top:9px;font-size:13px;color:var(--ap-wine);text-decoration:none}
+        #modal-access .ap-forgot:hover{text-decoration:underline}
+
+        /* The error is a ruled note, not a red alert panel. A tinted box with a
+           red border is the vocabulary of a dashboard; a document underlines the
+           line that is wrong. */
+        #modal-access .ap-err{
+            margin-bottom:16px;font-size:13px;color:var(--ap-wine);
+            border-bottom:1px solid rgba(106,31,45,.4);padding-bottom:3px;
+        }
+
+        #modal-access .ap-primary{
+            width:100%;height:56px;background:var(--ap-wine);color:var(--ap-cream);
+            border:1px solid var(--ap-wine-deep);border-radius:8px;
+            font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:15px;
+            letter-spacing:.24em;text-transform:uppercase;cursor:pointer;margin-top:8px;
+            display:flex;align-items:center;justify-content:center;
+            box-shadow:0 6px 16px rgba(85,24,36,.22);
+            transition:transform .18s ease, background .2s ease, box-shadow .2s ease;
+        }
+        #modal-access .ap-primary:hover{background:var(--ap-wine-deep);transform:translateY(-1px);box-shadow:0 10px 22px rgba(85,24,36,.28)}
+        /* Pressed reads as the seal being struck: the button sinks into its own
+           shadow instead of lifting further. */
+        #modal-access .ap-primary:active{transform:translateY(0);box-shadow:inset 0 2px 6px rgba(40,10,16,.35)}
+
+        #modal-access .ap-or{display:flex;align-items:center;justify-content:center;gap:14px;margin:24px 0 20px}
+        #modal-access .ap-or i{height:1px;flex:1;background:var(--ap-sepia);display:block}
+        #modal-access .ap-or span{font-size:11px;letter-spacing:.2em;color:var(--ap-muted);display:flex;align-items:center;gap:10px}
+        #modal-access .ap-or span b{width:5px;height:5px;background:var(--ap-wine);transform:rotate(45deg);display:block}
+
+        #modal-access .ap-oauth{display:flex;flex-direction:column;gap:12px}
+        /* THE MARK IS ABSOLUTE AND THE LABEL IS CENTRED, which is the detail
+           that makes these read as a set. Icon-then-label in a flex row centres
+           the PAIR, so three different icon widths give three different label
+           positions. Anchoring the mark at 18px puts all three labels on the
+           same axis. */
+        #modal-access .ap-obtn{
+            position:relative;height:52px;width:100%;
+            background:var(--ap-cream);border:1px solid var(--ap-sepia);border-radius:8px;
+            font-family:"EB Garamond",Georgia,serif;font-size:13px;letter-spacing:.14em;
+            text-transform:uppercase;font-weight:600;color:var(--ap-ink);
+            display:flex;align-items:center;justify-content:center;cursor:pointer;
+            transition:transform .18s ease,border-color .2s ease,box-shadow .2s ease;
+        }
+        #modal-access .ap-obtn:hover{transform:translateY(-1px);border-color:var(--ap-edge);box-shadow:0 5px 12px rgba(60,40,20,.1)}
+        #modal-access .ap-obtn .ap-ic{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:18px;height:18px;display:flex}
+        #modal-access .ap-obtn .ap-ic svg{width:100%;height:100%}
+
+        #modal-access .ap-foot{text-align:center;margin-top:26px;font-size:14px;color:var(--ap-ink-soft)}
+        #modal-access .ap-foot button,
+        #modal-access .ap-foot a{
+            color:var(--ap-wine);text-decoration:none;font-weight:600;
+            background:none;border:none;cursor:pointer;padding:0;
+            font-family:"EB Garamond",Georgia,serif;font-size:14px;
+        }
+        #modal-access .ap-foot button:hover,
+        #modal-access .ap-foot a:hover{text-decoration:underline}
+
+        #modal-access .ap-refnote{font-size:11px;color:var(--ap-muted);margin:6px 0 0}
+        #modal-access .ap-reftoggle{
+            background:none;border:none;color:var(--ap-muted);font-size:12.5px;cursor:pointer;padding:0;
+            font-family:"EB Garamond",Georgia,serif;outline:none;transition:color .2s ease;
+        }
+        #modal-access .ap-reftoggle:hover{color:var(--ap-wine)}
+
+        @media (max-width:520px){
+            #modal-access .ap-in{padding:34px 26px 30px}
+            #modal-access .ap-wordmark{font-size:34px}
+            #modal-access .ap-corner{width:16px;height:16px}
+        }
+    </style>
+
     <!-- Auth Modal (Sign In / Sign Up) -->
     <div id="modal-access-backdrop" class="fixed inset-0 z-[60] hidden transition-opacity duration-300 opacity-0"
-        style="background:rgba(0,0,0,0.35);backdrop-filter:blur(6px);" onclick="window.app.closeAccessModal()"></div>
+        style="background:rgba(245,239,225,.30);backdrop-filter:blur(12px) saturate(.85) brightness(.92);-webkit-backdrop-filter:blur(12px) saturate(.85) brightness(.92);" onclick="window.app.closeAccessModal()"></div>
     <div id="modal-access"
-        class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[420px] z-[70] hidden transition-all duration-300 scale-95 opacity-0"
-        style="background:#FFFFFF;border:1px solid #EAEAEA;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.06);">
+        class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[70] hidden transition-all duration-300 scale-95 opacity-0"
+        style="width:min(520px, calc(100vw - 32px));background:#F4EFE3;border:1px solid #D3C6AF;border-radius:10px;box-shadow:0 40px 90px rgba(50,35,18,.28), 0 4px 14px rgba(50,35,18,.14);max-height:92vh;">
 
-        <div style="padding:36px;width:100%;display:flex;flex-direction:column;">
+        <div class="ap-rule" aria-hidden="true"></div>
+        <div class="ap-grain" aria-hidden="true"></div>
+        <svg class="ap-corner tl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M2 10V2h8M2 2l7 7"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/></svg>
+        <svg class="ap-corner tr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M2 10V2h8M2 2l7 7"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/></svg>
+        <svg class="ap-corner bl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M2 10V2h8M2 2l7 7"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/></svg>
+        <svg class="ap-corner br" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M2 10V2h8M2 2l7 7"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/></svg>
 
-            <!-- Header -->
-            <div style="margin-bottom:28px;text-align:center;">
-                <div style="margin-bottom:6px;">
-                    <span class="logo-wordmark" style="display:block;text-align:center;color:#5C1414;font-size:22px;" aria-label="Collateral Logo">COLLATERAL</span>
-                </div>
-                <h3 id="auth-modal-title"
-                    style="font-family:'Inter Tight',sans-serif;font-size:14px;font-weight:500;color:#111;margin:0;letter-spacing:0.3px;line-height:1.3;">
-                    Lock capital. Force the outcome.</h3>
-            </div>
+        <div class="ap-in">
+
+            <!-- Header. #auth-modal-title keeps its id and is still the line
+                 toggleAuthMode writes to. -->
+            <div class="ap-eyebrow" id="auth-eyebrow">Sign In</div>
+            <div class="ap-wordmark" aria-label="Collateral">Collateral</div>
+            <h3 id="auth-modal-title" class="ap-tag">Lock capital. Force the outcome.</h3>
+            <div class="ap-hr" aria-hidden="true"><i></i><b></b><i></i></div>
 
             <!-- Error message -->
-            <div id="auth-error" class="hidden"
-                style="margin-bottom:16px;padding:10px 14px;background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;">
-                <p id="auth-error-text" style="font-size:13px;color:#DC2626;margin:0;"></p>
+            <div id="auth-error" class="hidden ap-err">
+                <p id="auth-error-text" style="margin:0;"></p>
             </div>
 
             <!-- Email + Password Form -->
-            <div id="auth-signin-form" style="display:flex;flex-direction:column;gap:16px;">
-                <div style="display:flex;flex-direction:column;gap:6px;">
-                    <label
-                        style="font-size:12px;font-weight:500;color:#6B6B6B;font-family:'Sora','IBM Plex Sans',sans-serif;">Email
-                        address</label>
-                    <input type="email" id="auth-email"
-                        style="width:100%;height:44px;background:#FFF;border:1px solid #E5E5E5;border-radius:8px;padding:0 14px;font-size:14px;color:#1A1A1A;outline:none;transition:border-color 0.15s,box-shadow 0.15s;font-family:'Sora','IBM Plex Sans',sans-serif;box-sizing:border-box;"
-                        onfocus="this.style.borderColor='#3B0001';this.style.boxShadow='0 0 0 2px rgba(59,0,1,0.08)';"
-                        onblur="this.style.borderColor='#E5E5E5';this.style.boxShadow='none';"
-                        placeholder="you@example.com">
+            <div id="auth-signin-form">
+                <div class="ap-field">
+                    <label class="ap-label" for="auth-email">Email Address</label>
+                    <div class="ap-inp">
+                        <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email">
+                    </div>
                 </div>
-                <div style="display:flex;flex-direction:column;gap:6px;">
-                    <label
-                        style="font-size:12px;font-weight:500;color:#6B6B6B;font-family:'Sora','IBM Plex Sans',sans-serif;">Password</label>
-                    <input type="password" id="auth-password"
-                        style="width:100%;height:44px;background:#FFF;border:1px solid #E5E5E5;border-radius:8px;padding:0 14px;font-size:14px;color:#1A1A1A;outline:none;transition:border-color 0.15s,box-shadow 0.15s;font-family:'Sora','IBM Plex Sans',sans-serif;box-sizing:border-box;"
-                        onfocus="this.style.borderColor='#3B0001';this.style.boxShadow='0 0 0 2px rgba(59,0,1,0.08)';"
-                        onblur="this.style.borderColor='#E5E5E5';this.style.boxShadow='none';"
-                        placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;">
-                    <div id="auth-forgot-pw" style="text-align:right;margin-top:2px;">
-                        <a href="/#/forgot-password" onclick="window.app.closeAccessModal();"
-                            style="font-size:12px;color:#9CA3AF;text-decoration:none;transition:color 0.15s;font-family:'Sora','IBM Plex Sans',sans-serif;"
-                            onmouseover="this.style.color='#3B0001'" onmouseout="this.style.color='#9CA3AF'">Forgot
-                            password?</a>
+                <div class="ap-field">
+                    <label class="ap-label" for="auth-password">Password</label>
+                    <div class="ap-inp">
+                        <input type="password" id="auth-password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password">
+                        <button type="button" class="ap-eye" aria-label="Show password" onclick="window.app.toggleAuthPassword(this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                    <div id="auth-forgot-pw">
+                        <a class="ap-forgot" href="/#/forgot-password" onclick="window.app.closeAccessModal();">Forgot password?</a>
                     </div>
                 </div>
 
                 <!-- Referral Code toggle -->
-                <div id="auth-referral-toggle-wrapper" class="hidden" style="display:none;margin-top:2px;">
-                    <button type="button" id="auth-referral-toggle-btn" onclick="window.app.toggleReferralInput()"
-                        style="background:none;border:none;color:#9CA3AF;font-size:12px;cursor:pointer;padding:0;font-family:'Sora','IBM Plex Sans',sans-serif;outline:none;"
-                        onmouseover="this.style.color='#3B0001'" onmouseout="this.style.color='#9CA3AF'">
+                <div id="auth-referral-toggle-wrapper" class="hidden" style="display:none;margin-bottom:14px;">
+                    <button type="button" id="auth-referral-toggle-btn" class="ap-reftoggle" onclick="window.app.toggleReferralInput()">
                         + Have a referral code?
                     </button>
                 </div>
 
                 <!-- Sign Up Only: Referral Code field (hidden by default) -->
-                <div id="auth-referral-field" class="hidden" style="display:none;flex-direction:column;gap:6px;">
-                    <label
-                        style="font-size:12px;font-weight:500;color:#6B6B6B;font-family:'Sora','IBM Plex Sans',sans-serif;">Referral
-                        Code <span style="color:#9CA3AF;font-weight:400;">(optional)</span></label>
-                    <input type="text" id="auth-referral-code"
-                        style="width:100%;height:44px;background:#FFF;border:1px solid #E5E5E5;border-radius:8px;padding:0 14px;font-size:14px;color:#1A1A1A;outline:none;transition:border-color 0.15s,box-shadow 0.15s;font-family:'Sora','IBM Plex Sans',sans-serif;box-sizing:border-box;"
-                        onfocus="this.style.borderColor='#3B0001';this.style.boxShadow='0 0 0 2px rgba(59,0,1,0.08)';"
-                        onblur="this.style.borderColor='#E5E5E5';this.style.boxShadow='none';"
-                        placeholder="friend's username" maxlength="20">
-                    <p style="font-size:10px;color:#9CA3AF;margin:2px 0 0;">Enter a friend's code to get +5% bonus on
-                        your first contract.</p>
+                <div id="auth-referral-field" class="hidden ap-field" style="display:none;">
+                    <label class="ap-label" for="auth-referral-code">Referral Code <span style="letter-spacing:.12em;font-weight:400;">(optional)</span></label>
+                    <div class="ap-inp">
+                        <input type="text" id="auth-referral-code" placeholder="friend&#39;s username" maxlength="20">
+                    </div>
+                    <p class="ap-refnote">Enter a friend&#39;s code to get +5% bonus on your first contract.</p>
                 </div>
 
                 <!-- Submit Button -->
-                <button onclick="window.app.handleAuthSubmit()" id="btn-auth-submit"
-                    style="width:100%;height:46px;margin-top:4px;background:#111111;color:#FFF;font-size:14px;font-weight:500;letter-spacing:0.02em;border:none;border-radius:8px;cursor:pointer;transition:background 0.15s;font-family:'Sora','IBM Plex Sans',sans-serif;display:flex;align-items:center;justify-content:center;"
-                    onmouseover="this.style.background='#000'" onmouseout="this.style.background='#111111'">
-                    Sign In
-                </button>
+                <button onclick="window.app.handleAuthSubmit()" id="btn-auth-submit" class="ap-primary">Sign In</button>
             </div>
 
             <!-- Divider -->
-            <div style="display:flex;align-items:center;gap:16px;margin:20px 0;">
-                <div style="flex:1;height:1px;background:#E6E6E6;"></div>
-                <span
-                    style="font-size:12px;color:#8A8A8A;letter-spacing:0.12em;text-transform:uppercase;font-family:'JetBrains Mono', monospace;">OR</span>
-                <div style="flex:1;height:1px;background:#E6E6E6;"></div>
-            </div>
+            <div class="ap-or" aria-hidden="true"><i></i><span><b></b> Or <b></b></span><i></i></div>
 
             <!-- OAuth Buttons -->
-            <div style="display:flex;flex-direction:column;gap:10px;">
-                <button onclick="window.app.signInWithWallet()" id="btn-wallet-signin"
-                    style="width:100%;height:44px;display:flex;align-items:center;justify-content:center;gap:10px;background:#FFF;color:#111;font-size:14px;font-weight:600;border:1px solid #E5E5E5;border-radius:8px;cursor:pointer;transition:background 0.15s;font-family:'Sora','IBM Plex Sans',sans-serif;"
-                    onmouseover="this.style.background='#FAFAFA'" onmouseout="this.style.background='#FFF'">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wallet">
-                        <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
-                        <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
-                        <path d="M16 12a2 2 0 0 0 0 4h5v-4z"/>
-                    </svg>
+            <div class="ap-oauth">
+                <button onclick="window.app.signInWithWallet()" id="btn-wallet-signin" class="ap-obtn">
+                    <span class="ap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M16 14.5h2"/></svg></span>
                     Connect Wallet
                 </button>
-                <button onclick="window.app.signInWithGoogle()" id="btn-google-signin"
-                    style="width:100%;height:44px;display:flex;align-items:center;justify-content:center;gap:10px;background:#FFF;color:#111;font-size:14px;font-weight:500;border:1px solid #E5E5E5;border-radius:8px;cursor:pointer;transition:background 0.15s;font-family:'Sora','IBM Plex Sans',sans-serif;"
-                    onmouseover="this.style.background='#FAFAFA'" onmouseout="this.style.background='#FFF'">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path
-                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
-                            fill="#4285F4" />
-                        <path
-                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                            fill="#34A853" />
-                        <path
-                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                            fill="#FBBC05" />
-                        <path
-                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                            fill="#EA4335" />
-                    </svg>
+                <button onclick="window.app.signInWithGoogle()" id="btn-google-signin" class="ap-obtn">
+                    <span class="ap-ic"><svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg></span>
                     Continue with Google
                 </button>
-                <button onclick="window.app.signInWithApple()" id="btn-apple-signin"
-                    style="width:100%;height:44px;display:flex;align-items:center;justify-content:center;gap:10px;background:#FFF;color:#111;font-size:14px;font-weight:500;border:1px solid #E5E5E5;border-radius:8px;cursor:pointer;transition:background 0.15s;font-family:'Sora','IBM Plex Sans',sans-serif;"
-                    onmouseover="this.style.background='#FAFAFA'" onmouseout="this.style.background='#FFF'">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#111">
-                        <path
-                            d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-                    </svg>
+                <button onclick="window.app.signInWithApple()" id="btn-apple-signin" class="ap-obtn">
+                    <span class="ap-ic"><svg viewBox="0 0 24 24" fill="#2B2117"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg></span>
                     Continue with Apple
                 </button>
             </div>
 
             <!-- Toggle Sign In / Sign Up -->
-            <div style="margin-top:24px;padding-top:16px;border-top:1px solid #F0F0F0;text-align:center;">
-                <p id="auth-toggle-text"
-                    style="font-size:13px;color:#666666;margin:0;font-family:'Sora','IBM Plex Sans',sans-serif;">
-                    New here?
-                    <button onclick="window.app.toggleAuthMode()"
-                        style="color:#111;font-weight:500;background:none;border:none;cursor:pointer;padding:0;font-size:13px;font-family:'Sora','IBM Plex Sans',sans-serif;"
-                        onmouseover="this.style.textDecoration='underline'"
-                        onmouseout="this.style.textDecoration='none'">Create account</button>
-                </p>
+            <div class="ap-foot">
+                <p id="auth-toggle-text" style="margin:0;">First contract? <button onclick="window.app.toggleAuthMode()">Create Account</button></p>
             </div>
         </div>
     </div>
