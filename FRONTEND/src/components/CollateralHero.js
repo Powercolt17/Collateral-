@@ -128,6 +128,23 @@ function renderContractDoc() {
     const corner = '<span class="clt-doc-corner clt-doc-c{N}" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M.8 6.2V.8h5.4"/><path d="M3.2 3.2h2.4M3.2 3.2v2.4"/></svg></span>';
     const corners = [1, 2, 3, 4].map((n) => corner.replace('{N}', String(n))).join('');
 
+    const ICO = {
+        stake: '<svg viewBox="0 0 24 24"><path d="M12 3.2 3.8 8.4h16.4z"/><path d="M4.8 10.4h14.4"/><path d="M6.8 10.4v6.8M10.27 10.4v6.8M13.73 10.4v6.8M17.2 10.4v6.8"/><path d="M4.8 17.2h14.4M3.4 19.8h17.2"/></svg>',
+        target: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.4"/><circle cx="12" cy="12" r="3.6"/><circle cx="12" cy="12" r="1.05" fill="currentColor" stroke="none"/><path d="M12 2.2V4M12 20v1.8M2.2 12H4M20 12h1.8"/></svg>',
+        multiplier: '<svg viewBox="0 0 24 24"><path d="M12 3l6.4 2.3v5.1c0 4.1-2.7 7.2-6.4 8.6-3.7-1.4-6.4-4.5-6.4-8.6V5.3z"/><path d="M12 6.4l3.9 1.4v3.3c0 2.6-1.6 4.6-3.9 5.5-2.3-.9-3.9-2.9-3.9-5.5V7.8z"/></svg>',
+        deadline: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.6"/><path d="M12 7.4V12l3.1 1.9"/></svg>',
+    };
+
+    const row = (icon, label, value, sub) => `
+                                <div class="clt-doc-row">
+                                    <span class="clt-doc-ico" aria-hidden="true">${ICO[icon]}</span>
+                                    <span class="clt-doc-lab">${label}</span>
+                                    <span class="clt-doc-val">${value}${sub ? `<small>${sub}</small>` : ''}</span>
+                                </div>`;
+
+    const reg = (label, value) => `
+                                <dt>${label}</dt><dd>${value}</dd>`;
+
     return `
                 <aside class="clt-doc-wrap" aria-label="Specimen performance contract">
                     <article class="clt-doc">
@@ -143,70 +160,26 @@ function renderContractDoc() {
                             </div>
 
                             <h3 class="clt-doc-title">Stripe Revenue Growth</h3>
-                            <div class="clt-doc-verified">
-                                Verified by <b>Stripe API</b>
-                                <span class="clt-doc-stripe" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"/></svg></span>
+
+                            <!-- ── 1 · COMMITMENT ── what is being staked and against what -->
+                            <div class="clt-doc-sec">Commitment</div>
+                            <div class="clt-doc-rows">${row("stake", "Stake", "$250.00")}${row("target", "Target", "+20%")}${row("deadline", "Deadline", "31 August", "in 30 days")}
                             </div>
 
-                            <!-- The register. Two facts a real agreement carries on its face and
-                                 an app panel never does: what this contract is CALLED and
-                                 when it comes due.
-
-                                 Two rows, not the four sketched. Escrow status was cut
-                                 because the footer already says FUNDS HELD IN ESCROW, and
-                                 a document that states the same fact twice in 300px reads
-                                 as padding rather than as rigour. The verified-by line
-                                 above already carries the third. -->
-                            <dl class="clt-doc-reg">
-                                <dt>Contract ID</dt><dd>CM-01942</dd>
-                                <dt>Settlement</dt><dd>31 August</dd>
+                            <!-- ── 2 · VERIFICATION ── who says so, and on what authority.
+                                 A register rather than medallion rows: this is the part of a
+                                 contract that gets SET DOWN, not illustrated, and four more
+                                 icon rows would have read as more settings. -->
+                            <div class="clt-doc-sec">Verification</div>
+                            <dl class="clt-doc-reg">${reg('Source', 'Stripe API <b class="clt-doc-ok">&#10003;</b>')}${reg('Contract ID', 'CM-01942')}${reg('Escrow', 'Active')}${reg('Settlement', 'Automatic')}
                             </dl>
 
-
-
-                            <!-- Second rule: identity above, terms below. The card had one
-                                 break, under the header, so the title and the first row
-                                 ran together as a single block. This is the same knockout
-                                 and ornament as that one — a repeated gesture, not a new
-                                 device. -->
-                            <div class="clt-doc-div clt-doc-div2" aria-hidden="true">
-                                <span><i></i><b></b><i></i></span>
-                            </div>
-
-
-
-                            <div class="clt-doc-rows">
-                                <div class="clt-doc-row">
-                                    <span class="clt-doc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.2 3.8 8.4h16.4z"/><path d="M4.8 10.4h14.4"/><path d="M6.8 10.4v6.8M10.27 10.4v6.8M13.73 10.4v6.8M17.2 10.4v6.8"/><path d="M4.8 17.2h14.4M3.4 19.8h17.2"/></svg></span>
-                                    <span class="clt-doc-lab">Stake</span>
-                                    <span class="clt-doc-val">$250.00</span>
-                                </div>
-                                <div class="clt-doc-row">
-                                    <span class="clt-doc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.4"/><circle cx="12" cy="12" r="3.6"/><circle cx="12" cy="12" r="1.05" fill="currentColor" stroke="none"/><path d="M12 2.2V4M12 20v1.8M2.2 12H4M20 12h1.8"/></svg></span>
-                                    <span class="clt-doc-lab">Target</span>
-                                    <span class="clt-doc-val">+20%<small>in 30 days</small></span>
-                                </div>
-                                <div class="clt-doc-row">
-                                    <span class="clt-doc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l6.4 2.3v5.1c0 4.1-2.7 7.2-6.4 8.6-3.7-1.4-6.4-4.5-6.4-8.6V5.3z"/><path d="M12 6.4l3.9 1.4v3.3c0 2.6-1.6 4.6-3.9 5.5-2.3-.9-3.9-2.9-3.9-5.5V7.8z"/></svg></span>
-                                    <span class="clt-doc-lab">Multiplier</span>
-                                    <span class="clt-doc-val">4.0&times;</span>
-                                </div>
-                                <div class="clt-doc-row">
-                                    <span class="clt-doc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10.4 13.6a3.7 3.7 0 0 0 5.3 0l2.5-2.5a3.7 3.7 0 1 0-5.3-5.3l-1.4 1.4"/><path d="M13.6 10.4a3.7 3.7 0 0 0-5.3 0l-2.5 2.5a3.7 3.7 0 1 0 5.3 5.3l1.4-1.4"/></svg></span>
-                                    <span class="clt-doc-lab">Verification</span>
-                                    <span class="clt-doc-val is-mono">Stripe API</span>
-                                </div>
-                                <div class="clt-doc-row">
-                                    <span class="clt-doc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.6"/><path d="M12 7.4V12l3.1 1.9"/></svg></span>
-                                    <span class="clt-doc-lab">Settlement</span>
-                                    <span class="clt-doc-val">Auto<small>on deadline</small></span>
-                                </div>
-                            </div>
-
+                            <!-- ── 3 · OUTCOME ── the two ways this ends. The climax. -->
+                            <div class="clt-doc-sec">Outcome</div>
                             <div class="clt-doc-out">
                                 <div class="clt-doc-o clt-doc-o-win">
                                     <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 18V7"/><path d="M7.4 11.6 12 7l4.6 4.6"/></svg></i>
-                                    <span class="clt-doc-o-t">Hit target<small>You get</small></span>
+                                    <span class="clt-doc-o-t">Hit target<small>You get &middot; 4.0&times;</small></span>
                                     <span class="clt-doc-o-v">+$1,000.00</span>
                                 </div>
                                 <div class="clt-doc-o clt-doc-o-lose">
@@ -2200,7 +2173,7 @@ export function renderCollateralHero(options = {}) {
              needs its outline back or it reads as a flat fill. */
           border:1px solid var(--doc-edge);
           border-radius:9px;
-          padding:26px 26px 12px;
+          padding:22px 26px 10px;
           /* ALL WARM, ALL SHALLOW. Every value here was a cool brown-black
              (60,46,28) which is the shadow a grey studio throws, not the one a
              lit parchment room throws. 120,92,52 is the warm brown the plate's
@@ -2390,6 +2363,21 @@ export function renderCollateralHero(options = {}) {
         /* Tighter than the first rule: it separates two parts of one
            document rather than the header from the body. */
         .clt .clt-doc-div2{margin:19px 0 0}
+        /* SECTION HEADERS. Three of them, and they are what turns a settings
+           panel into a lifecycle: commitment, then verification, then outcome.
+           The eye gets a beginning, a middle and an end instead of nine equal
+           fields.
+
+           A hairline ABOVE each one rather than a box around it. The rule is
+           structural — it is the section boundary — where a box would be
+           decoration, and the brief rules decoration out. The first header has
+           no rule because the title above it is already the boundary. */
+        .clt .clt-doc-sec{font-family:var(--doc-mono);font-size:9px;
+          letter-spacing:.24em;text-transform:uppercase;color:var(--doc-soft);
+          margin:11px 0 7px;padding-top:8px;
+          border-top:1px solid var(--doc-rule)}
+        .clt .clt-doc-sec:first-of-type{border-top:0;padding-top:0;margin-top:12px}
+
         /* The register. Label left, value right, hairline between — the way a
            legal header sets a term, not the way a UI sets a field. */
         /* TYPESET, NOT LAID OUT. Three things separate a legal register from a
@@ -2408,19 +2396,24 @@ export function renderCollateralHero(options = {}) {
            different widths. tabular-nums is the difference between typeset and
            typed. */
         .clt .clt-doc-reg{display:grid;grid-template-columns:auto 1fr;
-          gap:6px 18px;margin-top:13px;font-family:var(--doc-mono);
+          gap:5px 18px;margin:0;font-family:var(--doc-mono);
           font-size:9px;text-transform:uppercase;line-height:1.6;
           font-variant-numeric:tabular-nums}
         .clt .clt-doc-reg dt{color:var(--doc-soft);letter-spacing:.16em}
         .clt .clt-doc-reg dd{color:var(--doc-ink);text-align:right;margin:0;
           letter-spacing:.09em;font-variant-numeric:tabular-nums}
-        .clt .clt-doc-rows{margin-top:6px}
+        /* The tick is the only mark in the verification block, and it is a
+           character rather than an icon — the brief rules new icons out and a
+           checkmark glyph is typography. Sage, not the oxblood accent: oxblood
+           is the loss colour on this card. */
+        .clt .clt-doc-reg .clt-doc-ok{color:#5C7A4E;font-weight:400;margin-left:2px}
+        .clt .clt-doc-rows{margin-top:0}
         /* 11px, down from 16. The register above had to come from somewhere:
            the card cannot grow, because at 761 its top already sits exactly on
            the header line at 92 and any taller pushes it under the nav. Five
            rows x 10px is the 50px the register costs. Rows land at 61px against
            a 38px medallion, which is still generous. */
-        .clt .clt-doc-row{display:flex;align-items:center;gap:15px;padding:11px 0;
+        .clt .clt-doc-row{display:flex;align-items:center;gap:15px;padding:9px 0;
           border-top:1px solid var(--doc-rule)}
         .clt .clt-doc-row:first-child{border-top:0;padding-top:4px}
         /* THE MEDALLIONS. A ring, a hairline inner ring, an oxblood glyph. The
@@ -2446,7 +2439,7 @@ export function renderCollateralHero(options = {}) {
         .clt .clt-doc-val.is-mono{font-family:var(--doc-mono);font-size:15px}
 
         /* The two outcomes, and the reason the card exists. */
-        .clt .clt-doc-out{margin-top:22px;display:flex;flex-direction:column;gap:8px}
+        .clt .clt-doc-out{margin-top:0;display:flex;flex-direction:column;gap:8px}
         /* PRINTED, NOT ALERTED. Four changes, all subtractive: radius 6 -> 3
            because printed rules on a form are square and only screens round
            things; the grounds lightened toward the card so they read as a tint
@@ -2454,7 +2447,7 @@ export function renderCollateralHero(options = {}) {
            softened to sit with --doc-rule instead of announcing themselves; and
            the label weight dropped from 500 to 400, since a printed form does
            not shout its own field names. */
-        .clt .clt-doc-o{display:flex;align-items:center;gap:13px;padding:15px 16px;
+        .clt .clt-doc-o{display:flex;align-items:center;gap:13px;padding:13px 16px;
           border-radius:3px;border:1px solid transparent}
         .clt .clt-doc-o-win{background:var(--doc-sage-bg);border-color:#D3DAC3}
         .clt .clt-doc-o-lose{background:var(--doc-ox-bg);border-color:#E7D0CB}
@@ -2466,17 +2459,17 @@ export function renderCollateralHero(options = {}) {
         .clt .clt-doc-o-win i{color:#5C7A4E}
         .clt .clt-doc-o-lose i{color:#8E4340}
         .clt .clt-doc-o-t{flex:1 1 auto;font-family:var(--doc-mono);
-          font-size:11.5px;font-weight:400;letter-spacing:.15em;
+          font-size:12.5px;font-weight:500;letter-spacing:.13em;
           text-transform:uppercase;color:var(--doc-ink)}
         .clt .clt-doc-o-t small{display:block;margin-top:3px;font-size:9.5px;
           font-weight:400;letter-spacing:.13em;color:var(--doc-soft)}
-        .clt .clt-doc-o-v{font-family:var(--text-serif);font-size:23px;
+        .clt .clt-doc-o-v{font-family:var(--text-serif);font-size:26px;
           white-space:nowrap;font-variant-numeric:tabular-nums}
         .clt .clt-doc-o-win .clt-doc-o-v{color:#3F6B3A}
         .clt .clt-doc-o-lose .clt-doc-o-v{color:#8E2B27}
 
         .clt .clt-doc-foot{display:flex;align-items:center;justify-content:center;
-          gap:14px;margin-top:13px;padding-top:14px;
+          gap:14px;margin-top:11px;padding-top:12px;
           border-top:1px solid var(--doc-rule);
           font-family:var(--doc-mono);font-size:9px;
           letter-spacing:.13em;text-transform:uppercase;color:var(--doc-soft)}
