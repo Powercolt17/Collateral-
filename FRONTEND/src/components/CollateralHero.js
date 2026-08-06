@@ -130,6 +130,7 @@ function renderContractDoc() {
 
     return `
                 <aside class="clt-doc-wrap" aria-label="Specimen performance contract">
+                    <div class="clt-doc-lift">
                     <article class="clt-doc">
                         ${corners}
                         <div class="clt-doc-in">
@@ -223,6 +224,7 @@ function renderContractDoc() {
                             </div>
                         </div>
                     </article>
+                    </div>
                 </aside>`;
 }
 
@@ -2175,11 +2177,42 @@ export function renderCollateralHero(options = {}) {
             radial-gradient(48% 42% at 28% 76%, rgba(241,232,211,.34), rgba(241,232,211,0) 70%);
           filter:blur(14px);
         }
+        /* THE LIFT. drop-shadow, not box-shadow, and on a PARENT rather than
+           on the card. Two reasons, both structural:
+
+           A mask clips everything the element paints, box-shadow included, so a
+           masked card can have no outer box-shadow at all.
+
+           And filter is applied BEFORE mask in the paint order, so putting
+           drop-shadow on the card itself would compute the shadow from the
+           unmasked rectangle and then mask it away. On the parent it sees the
+           card's finished alpha — deckle included — so the shadow carries the
+           torn edge with it. That is the whole reason this wrapper exists.
+
+           Two shadows rather than the previous four: drop-shadow has no spread,
+           so each is a real blur pass over a 462x761 layer, and the contact
+           plus the ambient say everything the four did. */
+        .clt .clt-doc-lift{
+          filter:drop-shadow(1px 2px 3px rgba(86,64,34,.20))
+                 drop-shadow(6px 16px 26px rgba(120,92,52,.20));
+          transition:filter 220ms cubic-bezier(.2,.8,.2,1);
+        }
+        .clt .clt-doc-lift:hover{
+          filter:drop-shadow(1px 2px 3px rgba(86,64,34,.18))
+                 drop-shadow(8px 26px 44px rgba(120,92,52,.24));
+        }
         .clt .clt-doc{
           position:relative;
           background:var(--doc-bg);
-          border:1px solid var(--doc-edge);
-          border-radius:9px;
+          /* NO BORDER, NO RADIUS. The deckle mask is the edge now. A 1px
+             keyline on a deckled sheet is a contradiction — handmade paper has
+             no ruled boundary, it has a fibrous one — and the mask would slice
+             the border into fragments wherever the edge wanders inside it. */
+          border:0;
+          -webkit-mask-image:url("/assets/images/card-deckle.png");
+          mask-image:url("/assets/images/card-deckle.png");
+          -webkit-mask-size:100% 100%;mask-size:100% 100%;
+          -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
           padding:26px 26px 12px;
           /* ALL WARM, ALL SHALLOW. Every value here was a cool brown-black
              (60,46,28) which is the shadow a grey studio throws, not the one a
@@ -2216,12 +2249,13 @@ export function renderCollateralHero(options = {}) {
 
              Deepened about 15% overall and still soft — no shadow here has a
              radius under 3px or an alpha over .2. */
-          box-shadow:0 1px 3px -1px rgba(86,64,34,.20),
-                     0 2px 4px rgba(120,92,52,.10),
-                     4px 8px 16px -5px rgba(120,92,52,.16),
-                     8px 26px 64px -18px rgba(86,64,34,.20);
-          transition:transform 220ms cubic-bezier(.2,.8,.2,1),
-                     box-shadow 220ms cubic-bezier(.2,.8,.2,1);
+          /* NO BOX-SHADOW HERE ANY MORE — see .clt-doc-lift. A CSS mask clips
+             the element's entire painted output, box-shadow included, so a
+             masked card with a box-shadow simply has no shadow: the shadow
+             lives outside the border box and the mask ends at it. The lift is
+             done with drop-shadow on a parent instead, which follows the alpha
+             shape and therefore follows the deckle. */
+          transition:transform 220ms cubic-bezier(.2,.8,.2,1);
         }
         /* The bevel: 1px of inset highlight top-left, matching shade
            bottom-right. It is the whole difference between "printed sheet" and
@@ -2233,8 +2267,12 @@ export function renderCollateralHero(options = {}) {
              side facing the light and a shaded one opposite. Highlight .85 ->
              .92 and shade .10 -> .15 sharpens that read without adding a
              second rule — the impression is the border, not an ornament on it. */
-          box-shadow:inset 1px 1px 0 rgba(255,255,255,.92),
-                     inset -1px -1px 0 rgba(120,100,70,.15),
+          /* THE 1px BEVEL LINES ARE GONE. They drew a crisp highlight and
+             shade along the border box — which the deckle now wanders inside
+             and outside of, so they appeared as broken fragments along the
+             edge. A handmade sheet has no ruled bevel; what it has is the soft
+             inner falloff below, which is kept. */
+          box-shadow:
                      /* Inner edge shadow. A sheet is not flat to its own edge —
                         it curls a fraction, and the light falls off in the last
                         few millimetres all the way round. 14px at .045 is under
@@ -2482,7 +2520,7 @@ export function renderCollateralHero(options = {}) {
             margin:34px clamp(20px,5.5vw,90px) 0;
           }
           .clt .clt-doc-wrap::before{display:none}
-          .clt .clt-doc{padding:22px 20px 16px;border-radius:8px}
+          .clt .clt-doc{padding:22px 20px 16px}
           .clt .clt-doc:hover{transform:none}
           .clt .clt-doc-title{font-size:clamp(24px,6.4vw,29px)}
           .clt .clt-doc-row{padding:14px 0}
