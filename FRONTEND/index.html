@@ -878,12 +878,12 @@
            Specificity (1,1,0) beats the plain #modal-access blocks whatever the
            source order, which is why this can sit above them. */
         #modal-access.ap-compact{
-            --ap-pad-t:22px; --ap-pad-b:20px;
-            --ap-mark:29px; --ap-eyebrow-b:8px;
-            --ap-hr-t:9px; --ap-hr-b:13px;
-            --ap-inp:44px; --ap-field-b:10px; --ap-lab-b:5px;
-            --ap-btn:46px; --ap-or-t:12px; --ap-or-b:10px;
-            --ap-obtn:40px; --ap-obtn-gap:8px; --ap-foot-t:12px;
+            --ap-pad-t:18px; --ap-pad-b:17px;
+            --ap-mark:27px; --ap-eyebrow-b:7px;
+            --ap-hr-t:8px; --ap-hr-b:11px;
+            --ap-inp:41px; --ap-field-b:9px; --ap-lab-b:5px;
+            --ap-btn:43px; --ap-or-t:10px; --ap-or-b:9px;
+            --ap-obtn:37px; --ap-obtn-gap:7px; --ap-foot-t:10px;
         }
         /* A SHORT LAPTOP OR A LANDSCAPE PHONE. ~525px, which clears 580px.
            Past this the honest answer is the scroll that is still in place as a
@@ -948,7 +948,7 @@
            Scrolling the inner block keeps the border fixed around it. */
         #modal-access .ap-in{
             position:relative;z-index:1;padding:var(--ap-pad-t) var(--ap-pad-x) var(--ap-pad-b);
-            max-height:calc(92vh - 2px);overflow-y:auto;
+            max-height:calc(96vh - 2px);overflow-y:auto;
         }
         #modal-access .ap-in::-webkit-scrollbar{width:4px}
         #modal-access .ap-in::-webkit-scrollbar-track{background:transparent}
@@ -1083,7 +1083,7 @@
         style="background:rgba(245,239,225,.30);backdrop-filter:blur(12px) saturate(.85) brightness(.92);-webkit-backdrop-filter:blur(12px) saturate(.85) brightness(.92);" onclick="window.app.closeAccessModal()"></div>
     <div id="modal-access"
         class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[70] hidden transition-all duration-300 scale-95 opacity-0"
-        style="width:min(520px, calc(100vw - 32px));background:#F4EFE3;border:1px solid #D3C6AF;border-radius:10px;box-shadow:0 40px 90px rgba(50,35,18,.28), 0 4px 14px rgba(50,35,18,.14);max-height:92vh;">
+        style="width:min(520px, calc(100vw - 32px));background:#F4EFE3;border:1px solid #D3C6AF;border-radius:10px;box-shadow:0 40px 90px rgba(50,35,18,.28), 0 4px 14px rgba(50,35,18,.14);max-height:96vh;">
 
         <div class="ap-rule" aria-hidden="true"></div>
         <div class="ap-grain" aria-hidden="true"></div>
