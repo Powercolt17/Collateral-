@@ -426,7 +426,14 @@ export function renderCollateralHero(options = {}) {
            exists. ---- */
         .clt-hero{
           position:relative;width:100%;
-          height:100vh;
+          /* min-height, and svh not vh. vh on a phone is the viewport with the
+             URL bar HIDDEN, so the hero is taller than the screen on load and
+             the background resizes the moment the bar collapses — a scroll jump
+             on first touch. svh is the small viewport, which does not move.
+             min- rather than a fixed height so the hero can grow if content
+             ever exceeds it instead of clipping. */
+          min-height:100vh;
+          min-height:100svh;
           container-type:inline-size;
           background-color:var(--paper);
           /* Confines the light layer's blending to this section. Without it,
@@ -2133,9 +2140,9 @@ export function renderCollateralHero(options = {}) {
              job is to take the hard competition out of the inch around it. */
           inset:-7% -6% -8% -9%;
           background:
-            radial-gradient(58% 46% at 40% 34%, rgba(241,238,232,.23), rgba(241,238,232,0) 72%),
-            radial-gradient(54% 56% at 70% 60%, rgba(241,238,232,.20), rgba(241,238,232,0) 74%),
-            radial-gradient(48% 42% at 28% 76%, rgba(241,238,232,.17), rgba(241,238,232,0) 70%);
+            radial-gradient(58% 46% at 40% 34%, rgba(241,232,211,.46), rgba(241,232,211,0) 72%),
+            radial-gradient(54% 56% at 70% 60%, rgba(241,232,211,.40), rgba(241,232,211,0) 74%),
+            radial-gradient(48% 42% at 28% 76%, rgba(241,232,211,.34), rgba(241,232,211,0) 70%);
           filter:blur(14px);
         }
         .clt .clt-doc{
@@ -2231,8 +2238,19 @@ export function renderCollateralHero(options = {}) {
           padding:4px 9px;font-family:var(--doc-mono);
           font-size:9.5px;font-weight:500;letter-spacing:.16em;
           text-transform:uppercase;color:#5C6B4F}
-        .clt .clt-doc-live i{width:5px;height:5px;border-radius:50%;
-          background:#4E7A4A;display:block;flex:0 0 auto}
+        /* THE ONLY MOVING THING ON THE CARD. A ring expanding out of the dot and
+           fading — opacity and box-shadow only, so nothing reflows and the dot
+           never changes size or colour. 2.4s is slow enough to read as a
+           heartbeat rather than a blink. */
+        .clt .clt-doc-live i{width:6px;height:6px;border-radius:50%;
+          background:#4E7A4A;display:block;flex:0 0 auto;
+          box-shadow:0 0 0 0 rgba(78,122,74,.45);
+          animation:clt-live-pulse 2.4s ease-out infinite}
+        @keyframes clt-live-pulse{
+          0%{box-shadow:0 0 0 0 rgba(78,122,74,.45)}
+          70%{box-shadow:0 0 0 6px rgba(78,122,74,0)}
+          100%{box-shadow:0 0 0 0 rgba(78,122,74,0)}
+        }
 
         /* The rule, with its ornament knocked out of the middle. */
         .clt .clt-doc-div{position:relative;height:1px;background:var(--doc-rule);
@@ -2321,7 +2339,46 @@ export function renderCollateralHero(options = {}) {
         /* The card is a desktop object. Below 821 the hero is a stack whose
            three measurements are tuned to the crop, and dropping a 520px
            document into it would rebuild that layout — out of scope here. */
-        @media (max-width:820px){ .clt .clt-doc-wrap{display:none} }
+        /* ── THE CARD ON A PHONE ────────────────────────────────────────────────
+           It used to be display:none here. It is now the last block in the
+           stack, in flow, full width inside the section's own gutter.
+
+           IN FLOW, WHICH IS WHY IT MOVED IN THE DOM. On desktop the card is
+           absolutely positioned and its DOM position is irrelevant, so it now
+           sits after .clt-lockup — which is exactly where it needs to be for
+           the phone to stack it after the stats without any order juggling.
+           It could not live INSIDE .clt-lockup either: that element is
+           position:absolute on desktop and would become the card's containing
+           block, so right:21cqw would resolve against a 36cqw column.
+
+           NO HALO HERE. On desktop the halo calms the engraving behind the
+           card; on a phone the card sits on clean parchment above the artwork
+           block, so there is nothing to calm and the halo would just be a pale
+           smudge around it.
+
+           THE ARTWORK IS LEFT ALONE. The phone hero is already a STACK, not an
+           overlay — the engraving is a 96vw block below the content, so no face
+           and no image edge is ever behind or under the card. Rebuilding it as
+           a dimmed full-bleed background would undo that and reintroduce
+           exactly the collision this is meant to avoid. */
+        @media (max-width:820px){
+          .clt .clt-doc-wrap{
+            display:block;position:static;transform:none;
+            right:auto;top:auto;width:auto;
+            margin:34px clamp(20px,5.5vw,90px) 0;
+          }
+          .clt .clt-doc-wrap::before{display:none}
+          .clt .clt-doc{padding:22px 20px 16px;border-radius:8px}
+          .clt .clt-doc:hover{transform:none}
+          .clt .clt-doc-title{font-size:clamp(24px,6.4vw,29px)}
+          .clt .clt-doc-row{padding:14px 0}
+          .clt .clt-doc-ico{width:34px;height:34px}
+          .clt .clt-doc-ico svg{width:15px;height:15px}
+          .clt .clt-doc-val{font-size:19px}
+          .clt .clt-doc-o{padding:14px}
+          .clt .clt-doc-o-v{font-size:20px}
+          .clt .clt-doc-foot{gap:10px;font-size:8.5px;letter-spacing:.1em}
+        }
         /* Short desktop windows scale rather than reflow, so the document keeps
            its proportions. Anchored right so it never crosses the lockup. */
         @media (min-width:821px) and (max-height:880px){
@@ -2333,6 +2390,7 @@ export function renderCollateralHero(options = {}) {
         @media (prefers-reduced-motion:reduce){
           .clt .clt-doc{transition:none !important}
           .clt .clt-doc:hover{transform:none !important}
+          .clt .clt-doc-live i{animation:none !important;box-shadow:none !important}
         }
         </style>
 
@@ -2340,7 +2398,6 @@ export function renderCollateralHero(options = {}) {
             <section class="clt-hero" data-plate="${PLATE_W}x${PLATE_H}">
                 <div class="clt-sky" aria-hidden="true"><i></i></div>
                 <div class="clt-press" aria-hidden="true"><i></i></div>
-                ${renderContractDoc()}
                 <div class="clt-lockup">
                     <div class="clt-eyebrow clt-mono clt-in" style="--d:60ms">SELF-ENFORCING PERFORMANCE CONTRACTS</div>
                     <h1><span class="clt-line" style="--d:150ms">Put money</span><br /><span class="clt-line" style="--d:240ms">on your own</span><br /><span class="clt-line" style="--d:330ms"><span class="clt-accent">deadline</span></span></h1>
@@ -2354,6 +2411,8 @@ export function renderCollateralHero(options = {}) {
                         <span><b>${escapeHtml(String(settledCount))}</b>SETTLED TODAY</span>
                     </div>
                 </div>
+
+                ${renderContractDoc()}
             </section>
 
             <!-- The terms line that used to sit here — VERIFICATION IS
