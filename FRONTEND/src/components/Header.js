@@ -1120,18 +1120,49 @@ export function renderHeader(currentRoute = '') {
             }
             .pnl-drawer.open { transform: perspective(1500px) translateX(0) rotateY(0deg); }
         }
+        /* PROPORTIONAL ON DESKTOP, NOT FIXED. A flat 420px is 26% of a 1590px
+           window and 41% of a 1024px one — the same panel reading as cramped on
+           the first and overbearing on the second. clamp gives it 31% of the
+           window with a 400px floor so it never collapses on a small laptop and
+           a 520px ceiling so it never becomes a second page on a wide monitor.
+           At 1590 that is 493px, which is the room CUSTODY TERMINAL needs before
+           the longest label starts dictating the layout. */
         @media (min-width: 768px) {
             .pnl-drawer {
-                width: 420px;
+                width: clamp(400px, 31vw, 520px);
                 transform: perspective(1500px) translateX(102%) rotateY(-9deg);
             }
             .pnl-drawer.open { transform: perspective(1500px) translateX(0) rotateY(0deg); }
         }
 
+        /* ---------- THE PANEL ARRIVES FIRST, THE TYPE SECOND ----------
+           The whole content of the drawer is held back 60ms behind the panel and
+           then fades up over 280ms. It is a small thing that does a specific
+           job: when a surface and the words on it arrive together, the eye reads
+           one moving object; when the surface lands first, it reads as a sheet
+           that was already there being turned toward you. The delay only exists
+           on .open, so closing takes everything out together — an exit that
+           staggers reads as hesitation. */
+        .pnl-drawer .pnl-header,
+        .pnl-drawer .pnl-body-wrap,
+        .pnl-drawer .pnl-footer {
+            opacity: 0;
+            transition: opacity 280ms cubic-bezier(.22,.8,.22,1);
+        }
+        .pnl-drawer.open .pnl-header,
+        .pnl-drawer.open .pnl-body-wrap,
+        .pnl-drawer.open .pnl-footer {
+            opacity: 1;
+            transition-delay: 60ms;
+        }
+
         /* ---------- staggered reveal ---------- */
         /* --i is set per row in the markup; the delay only applies while open,
            so closing collapses everything together instead of unwinding. The
-           offset now comes FROM the right, with the drawer. */
+           offset now comes FROM the right, with the drawer. Its base delay drops
+           to 40ms because the 60ms content fade above now carries the "panel
+           first" beat — leaving it at 120 stacked two waits on top of each other
+           and the nav visibly lagged the footer. */
         .pnl-drawer .pnl-nav-group,
         .pnl-drawer #drawer-nav-group > .pnl-nav-link {
             opacity: 0;
@@ -1143,7 +1174,7 @@ export function renderHeader(currentRoute = '') {
         .pnl-drawer.open #drawer-nav-group > .pnl-nav-link {
             opacity: 1;
             transform: translateX(0);
-            transition-delay: calc(var(--i, 0) * 45ms + 120ms);
+            transition-delay: calc(var(--i, 0) * 45ms + 40ms);
         }
 
         /* ---------- HEADER: one row, one line under it ---------- */
@@ -1279,8 +1310,13 @@ export function renderHeader(currentRoute = '') {
         .pnl-drawer .pnl-nav-group-header::before {
             content: "";
             position: absolute;
+            /* 1.5px, down from 2. On a row whose type is already black, the bar
+               IS the accent, so its whole job is to be found rather than seen —
+               and at 2px against 20px caps it was reading as a weight rather
+               than as a rule. A hair thinner and the mark stops competing with
+               the word it marks. */
             left: 10px; top: 20px; bottom: 20px;
-            width: 2px;
+            width: 1.5px;
             background: #7A1C29;
             transform: scaleY(0);
             transform-origin: center;
@@ -1297,12 +1333,30 @@ export function renderHeader(currentRoute = '') {
             .pnl-drawer .pnl-nav-link:hover::before,
             .pnl-drawer .pnl-nav-group-header:hover::before { transform: scaleY(1); opacity: .45; }
         }
+        /* THE DIAMOND ON THE ACTIVE ROW. Same mark the sub-nav already uses, at
+           4px — the drawer's one positional glyph, applied consistently, rather
+           than a new ornament. It is ABSOLUTE and sits in the gutter between the
+           rule and the text, so the active label stays on the same left edge as
+           the five inactive ones; an inline bullet would have shunted one row
+           right and broken the index alignment that is the whole point. */
+        .pnl-drawer .pnl-nav-link.active::after,
+        .pnl-drawer .pnl-nav-group.expanded .pnl-nav-group-header::after {
+            content: "";
+            position: absolute;
+            left: 16px; top: 50%;
+            width: 4px; height: 4px;
+            margin-top: -2px;
+            background: #7A1C29;
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
         /* ONE MARKER PER ROW. A group's button sits inside .pnl-nav-group-header
            and both carry ::before at the same offset, so an expanded MARKET drew
            the mark twice in the same place — invisible while they matched, and a
            2px-wide bug waiting for the day they stop matching. The wrapper owns
            it, since the wrapper is what "expanded" is a state of. */
-        .pnl-drawer .pnl-nav-group-header .pnl-nav-link::before { content: none; }
+        .pnl-drawer .pnl-nav-group-header .pnl-nav-link::before,
+        .pnl-drawer .pnl-nav-group-header .pnl-nav-link::after { content: none; }
 
         /* The chevron stays ONLY where something expands. It is smaller and
            much quieter than the ink beside it: it answers "is there more here",
@@ -1413,8 +1467,17 @@ export function renderHeader(currentRoute = '') {
         }
         .pnl-drawer .pnl-cta-primary {
             display: flex; align-items: center; justify-content: center; gap: 12px;
-            width: 100%; min-height: 54px;
-            background: #7A1C29;
+            /* DEEPER, TALLER, AND IT LIFTS. This is the primary action on the
+               page and it was the most restrained thing in a drawer full of
+               restraint — which is the one place restraint is wrong. #6B1622 is
+               two steps deeper than the nav's oxblood, so the button reads as
+               the darkest mass in the panel instead of matching the accent
+               marks; 60px of height gives the letterspaced caps room to sit
+               rather than fill; and the hover finally moves, because a control
+               this important should answer when you touch it. Text stays at
+               10.1:1 on the deeper ground. */
+            width: 100%; min-height: 60px;
+            background: #6B1622;
             color: #F3EADB;
             border: none;
             border-radius: 2px;
@@ -1422,13 +1485,17 @@ export function renderHeader(currentRoute = '') {
             font-size: 13px; font-weight: 600;
             letter-spacing: .26em; text-transform: uppercase;
             cursor: pointer; text-decoration: none;
+            box-shadow: 0 1px 2px rgba(60, 14, 22, .16);
             transition: background 280ms cubic-bezier(.22,.8,.22,1),
+                        transform 280ms cubic-bezier(.22,.8,.22,1),
                         box-shadow 280ms cubic-bezier(.22,.8,.22,1);
         }
         .pnl-drawer .pnl-cta-primary:hover {
-            background: #651522;
-            box-shadow: 0 8px 20px rgba(101,21,34,.22);
+            background: #5C1119;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(60, 14, 22, .26);
         }
+        .pnl-drawer .pnl-cta-primary:active { transform: translateY(0); }
         .pnl-drawer .pnl-cta-primary .pnl-arrow {
             display: inline-block;
             transition: transform 280ms cubic-bezier(.22,.8,.22,1);
@@ -1473,10 +1540,19 @@ export function renderHeader(currentRoute = '') {
            status line and one run-on line of the same three facts. The chevron
            went with it: nothing expands any more, and a chevron on something
            that does not expand is a promise the interface does not keep. */
+        /* A SIGNATURE BLOCK, NOT TEXT AT THE BOTTOM. Three changes and they are
+           all about cohesion: the divider comes up from .16 to .30 alpha so
+           there is visibly a line the block sits under rather than a suggestion
+           of one; the padding tightens to 16/18 so the four lines read as one
+           mark instead of a column that ran out of page; and the whole thing is
+           set as a unit against the drawer's bottom edge.
+
+           It is still one hairline. The temptation here is a rule above AND a
+           tinted ground, which is how this becomes a footer again. */
         .pnl-drawer .pnl-footer {
-            padding: 14px 26px 16px;
+            padding: 16px 26px 18px;
             background: transparent;
-            border-top: 1px solid rgba(90, 72, 45, .16);
+            border-top: 1px solid rgba(90, 72, 45, .30);
         }
         .pnl-drawer .pnl-status-bar { cursor: default; }
         .pnl-drawer .pnl-status-left { gap: 9px; }
@@ -1505,8 +1581,8 @@ export function renderHeader(currentRoute = '') {
         .pnl-drawer .pnl-meta {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            margin: 10px 0 0;
+            gap: 3px;
+            margin: 8px 0 0;
             padding: 0 0 0 15px;
             border-top: none;
             font-family: "IBM Plex Mono", ui-monospace, monospace;
@@ -1556,6 +1632,14 @@ export function renderHeader(currentRoute = '') {
 
         @media (prefers-reduced-motion: reduce) {
             .pnl-drawer .pnl-status-dot { animation: none; }
+            .pnl-drawer .pnl-header,
+            .pnl-drawer .pnl-body-wrap,
+            .pnl-drawer .pnl-footer {
+                opacity: 1 !important;
+                transition-duration: .01ms !important;
+                transition-delay: 0ms !important;
+            }
+            .pnl-drawer .pnl-cta-primary { transition-duration: .01ms !important; }
             .pnl-drawer .pnl-nav-group,
             .pnl-drawer #drawer-nav-group > .pnl-nav-link {
                 opacity: 1 !important;
