@@ -148,6 +148,22 @@ function renderContractDoc() {
                                 <span class="clt-doc-stripe" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"/></svg></span>
                             </div>
 
+                            <!-- The register. Two facts a real agreement carries on its face and
+                                 an app panel never does: what this contract is CALLED and
+                                 when it comes due.
+
+                                 Two rows, not the four sketched. Escrow status was cut
+                                 because the footer already says FUNDS HELD IN ESCROW, and
+                                 a document that states the same fact twice in 300px reads
+                                 as padding rather than as rigour. The verified-by line
+                                 above already carries the third. -->
+                            <dl class="clt-doc-reg">
+                                <dt>Contract ID</dt><dd>CM-01942</dd>
+                                <dt>Settlement</dt><dd>31 August</dd>
+                            </dl>
+
+
+
                             <!-- Second rule: identity above, terms below. The card had one
                                  break, under the header, so the title and the first row
                                  ran together as a single block. This is the same knockout
@@ -2066,16 +2082,22 @@ export function renderCollateralHero(options = {}) {
            and its own accent. Sharing the hero's tokens is what would make it
            read as part of the page rather than as a thing resting on it. */
         .clt .clt-doc-wrap{
-          --doc-bg:#F9F2E3;
-          --doc-edge:#D7C9AE;
-          --doc-rule:#E2D7BF;
-          --doc-ink:#2A2622;
+          /* Warmed ~4%: #F8F2E6 -> #F9F2E3 -> #FAF2DF. The card should be the
+             warmest paper on the page — it is the object nearest the viewer
+             and the one the light is falling on. */
+          --doc-bg:#FAF2DF;
+          /* Border +13% contrast. At #D7C9AE the edge dissolved into the
+             parchment behind it and the card lost its outline at a glance,
+             which is most of why it read as light rather than substantial. */
+          --doc-edge:#CBBA97;
+          --doc-rule:#DFD2B6;
+          --doc-ink:#241F19;
           /* #7A7060 measured 4.31:1 at 9px. #6B6152 is 5.24:1 and still reads
              as the muted voice against the ink. */
           --doc-soft:#6B6152;
           --doc-ox:#6D1F2D;
-          --doc-sage-bg:#EDF0E6;
-          --doc-ox-bg:#F6EAE9;
+          --doc-sage-bg:#EFF1E6;
+          --doc-ox-bg:#F8EDEA;
           --doc-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 
           position:absolute;z-index:3;
@@ -2150,7 +2172,7 @@ export function renderCollateralHero(options = {}) {
           background:var(--doc-bg);
           border:1px solid var(--doc-edge);
           border-radius:9px;
-          padding:26px 26px 16px;
+          padding:26px 26px 12px;
           /* ALL WARM, ALL SHALLOW. Every value here was a cool brown-black
              (60,46,28) which is the shadow a grey studio throws, not the one a
              lit parchment room throws. 120,92,52 is the warm brown the plate's
@@ -2173,9 +2195,23 @@ export function renderCollateralHero(options = {}) {
              the neutral it suggested, because everything around it is
              parchment. The tight contact shadow stays, so the card is lifted
              AND still touching. */
-          box-shadow:0 1px 1px rgba(120,92,52,.09),
-                     3px 6px 12px -4px rgba(120,92,52,.14),
-                     6px 24px 60px -18px rgba(60,40,20,.18);
+          /* FOUR now, and every colour is sampled from the parchment rather
+             than mixed as a neutral. #F1E8D3 at three depths of shade gives
+             (146,116,66) light, (120,92,52) mid and (86,64,34) deep — a page
+             this warm cannot throw a grey shadow, and a grey one is most of
+             what made the card read as composited.
+
+             The first is AMBIENT OCCLUSION: a 3px contact line hard against the
+             edge, which is the darkness trapped where two surfaces meet and the
+             single strongest cue that an object is resting on something rather
+             than hovering over it.
+
+             Deepened about 15% overall and still soft — no shadow here has a
+             radius under 3px or an alpha over .2. */
+          box-shadow:0 1px 3px -1px rgba(86,64,34,.20),
+                     0 2px 4px rgba(120,92,52,.10),
+                     4px 8px 16px -5px rgba(120,92,52,.16),
+                     8px 26px 64px -18px rgba(86,64,34,.20);
           transition:transform 220ms cubic-bezier(.2,.8,.2,1),
                      box-shadow 220ms cubic-bezier(.2,.8,.2,1);
         }
@@ -2197,7 +2233,12 @@ export function renderCollateralHero(options = {}) {
                         is what stops the bottom of a light object reading as
                         cut out. Barely present at .12 and confined to the last
                         16px. */
-                     inset 0 -16px 20px -16px rgba(196,156,98,.12);
+                     /* Reflected light off the parchment, warmed and lifted
+                        from .12 to .17, and now with a second pass along the
+                        lower RIGHT — the light falls from upper left, so that
+                        is the edge the table throws warmth back onto. */
+                     inset 0 -18px 22px -18px rgba(198,154,92,.17),
+                     inset -14px -14px 26px -20px rgba(198,154,92,.13);
         }
         /* Paper grain, finer and fainter than the section's — this is a better
            sheet than the ground it lies on. */
@@ -2207,7 +2248,26 @@ export function renderCollateralHero(options = {}) {
              a flat fill; the grain is most of what does that, and it was set
              too politely to register at all. */
           opacity:.5;mix-blend-mode:multiply;
-          background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='.26'/%3E%3C/svg%3E");
+          /* THREE LAYERS, and none of them should be findable on their own.
+
+             FIBRES  a horizontally stretched turbulence — baseFrequency .04 by
+                     .95, so the noise is drawn out along x. That anisotropy is
+                     the whole trick: laid paper has a grain DIRECTION, and
+                     isotropic noise reads as digital dither no matter how fine.
+             TONE    two enormous soft radials at ~2% opacity, which give the
+                     sheet a faint unevenness across its width. Real paper is
+                     never one flat value and the eye knows it without being
+                     able to say so.
+             GRAIN   the original fine noise, unchanged.
+
+             Sizes differ per layer so nothing tiles in step with anything else
+             and no repeat becomes visible at any zoom. */
+          background-image:
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='90'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04 0.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='90' filter='url(%23f)' opacity='0.13'/%3E%3C/svg%3E"),
+            radial-gradient(120% 80% at 18% 22%, rgba(120,96,54,.022), rgba(120,96,54,0) 70%),
+            radial-gradient(110% 90% at 82% 78%, rgba(120,96,54,.018), rgba(120,96,54,0) 68%),
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='0.26'/%3E%3C/svg%3E");
+          background-size:220px 90px, 100% 100%, 100% 100%, 160px 160px;
         }
         .clt .clt-doc:hover{
           transform:translateY(-6px);
@@ -2279,8 +2339,21 @@ export function renderCollateralHero(options = {}) {
         /* Tighter than the first rule: it separates two parts of one
            document rather than the header from the body. */
         .clt .clt-doc-div2{margin:19px 0 0}
+        /* The register. Label left, value right, hairline between — the way a
+           legal header sets a term, not the way a UI sets a field. */
+        .clt .clt-doc-reg{display:grid;grid-template-columns:auto 1fr;
+          gap:5px 14px;margin-top:13px;font-family:var(--doc-mono);
+          font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+          line-height:1.62}
+        .clt .clt-doc-reg dt{color:var(--doc-soft)}
+        .clt .clt-doc-reg dd{color:var(--doc-ink);text-align:right;margin:0}
         .clt .clt-doc-rows{margin-top:6px}
-        .clt .clt-doc-row{display:flex;align-items:center;gap:15px;padding:16px 0;
+        /* 11px, down from 16. The register above had to come from somewhere:
+           the card cannot grow, because at 761 its top already sits exactly on
+           the header line at 92 and any taller pushes it under the nav. Five
+           rows x 10px is the 50px the register costs. Rows land at 61px against
+           a 38px medallion, which is still generous. */
+        .clt .clt-doc-row{display:flex;align-items:center;gap:15px;padding:11px 0;
           border-top:1px solid var(--doc-rule)}
         .clt .clt-doc-row:first-child{border-top:0;padding-top:4px}
         /* THE MEDALLIONS. A ring, a hairline inner ring, an oxblood glyph. The
@@ -2305,11 +2378,18 @@ export function renderCollateralHero(options = {}) {
         .clt .clt-doc-val.is-mono{font-family:var(--doc-mono);font-size:15px}
 
         /* The two outcomes, and the reason the card exists. */
-        .clt .clt-doc-out{margin-top:22px;display:flex;flex-direction:column;gap:9px}
-        .clt .clt-doc-o{display:flex;align-items:center;gap:13px;padding:16px;
-          border-radius:6px;border:1px solid transparent}
-        .clt .clt-doc-o-win{background:var(--doc-sage-bg);border-color:#CBD5B8}
-        .clt .clt-doc-o-lose{background:var(--doc-ox-bg);border-color:#E3C7C4}
+        .clt .clt-doc-out{margin-top:22px;display:flex;flex-direction:column;gap:8px}
+        /* PRINTED, NOT ALERTED. Four changes, all subtractive: radius 6 -> 3
+           because printed rules on a form are square and only screens round
+           things; the grounds lightened toward the card so they read as a tint
+           laid on the paper rather than a panel dropped onto it; the borders
+           softened to sit with --doc-rule instead of announcing themselves; and
+           the label weight dropped from 500 to 400, since a printed form does
+           not shout its own field names. */
+        .clt .clt-doc-o{display:flex;align-items:center;gap:13px;padding:15px 16px;
+          border-radius:3px;border:1px solid transparent}
+        .clt .clt-doc-o-win{background:var(--doc-sage-bg);border-color:#D3DAC3}
+        .clt .clt-doc-o-lose{background:var(--doc-ox-bg);border-color:#E7D0CB}
         .clt .clt-doc-o i{width:30px;height:30px;border-radius:50%;flex:0 0 auto;
           display:flex;align-items:center;justify-content:center;
           border:1px solid currentColor}
@@ -2318,7 +2398,7 @@ export function renderCollateralHero(options = {}) {
         .clt .clt-doc-o-win i{color:#5C7A4E}
         .clt .clt-doc-o-lose i{color:#8E4340}
         .clt .clt-doc-o-t{flex:1 1 auto;font-family:var(--doc-mono);
-          font-size:11.5px;font-weight:500;letter-spacing:.14em;
+          font-size:11.5px;font-weight:400;letter-spacing:.15em;
           text-transform:uppercase;color:var(--doc-ink)}
         .clt .clt-doc-o-t small{display:block;margin-top:3px;font-size:9.5px;
           font-weight:400;letter-spacing:.13em;color:var(--doc-soft)}
@@ -2327,7 +2407,7 @@ export function renderCollateralHero(options = {}) {
         .clt .clt-doc-o-lose .clt-doc-o-v{color:#8E2B27}
 
         .clt .clt-doc-foot{display:flex;align-items:center;justify-content:center;
-          gap:14px;margin-top:18px;padding-top:14px;
+          gap:14px;margin-top:13px;padding-top:14px;
           border-top:1px solid var(--doc-rule);
           font-family:var(--doc-mono);font-size:9px;
           letter-spacing:.13em;text-transform:uppercase;color:var(--doc-soft)}

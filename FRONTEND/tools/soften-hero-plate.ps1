@@ -11,9 +11,11 @@
 # WHAT IS BAKED, in order:
 #   1. desaturate 12%   toward luminance — the engraving is already near-mono,
 #                       so this is a nudge, not a conversion
-#   2. contrast .94     carried over from the old --plate-grade
-#   3. brightness 1.02  likewise
-#   4. veil 20%         toward the page's --paper #F1EEE8
+#   2. contrast 1.13    ABOUT THE IMAGE MEAN, not about 0.5. See the note in
+#                       Go(); this is what recovers the cross-hatching without
+#                       darkening the plate
+#   3. brightness 1.02  carried over from the old --plate-grade
+#   4. veil 18%         toward the page's --paper #F1EEE8
 #
 # Step 4 is the one that matters and it is a VEIL, not a brightness cut. Dimming
 # an engraving darkens its paper along with its ink and the whole thing goes
@@ -28,9 +30,9 @@
 
 param(
     [double]$Desaturate = 0.12,
-    [double]$Contrast   = 0.94,
+    [double]$Contrast   = 1.13,
     [double]$Brightness = 1.02,
-    [double]$Veil       = 0.20,
+    [double]$Veil       = 0.18,
     [int]$Quality       = 82
 )
 
@@ -45,12 +47,25 @@ public class Soften
 {
     static float C01(float v) { return v < 0f ? 0f : (v > 1f ? 1f : v); }
 
+    static float MeanLuminance(Bitmap b)
+    {
+        var d = b.LockBits(new Rectangle(0, 0, b.Width, b.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+        var a = new byte[d.Stride * b.Height];
+        Marshal.Copy(d.Scan0, a, 0, a.Length);
+        b.UnlockBits(d);
+        double s = 0; long n = 0;
+        for (int i = 0; i < a.Length; i += 4)
+        { s += (0.2126 * a[i + 2] + 0.7152 * a[i + 1] + 0.0722 * a[i]) / 255.0; n++; }
+        return (float)(s / n);
+    }
+
     public static string Go(string src, string dst, double desat, double contrast,
                             double bright, double veil, long quality,
                             int pr, int pg, int pb)
     {
         var b = new Bitmap(src);
         int W = b.Width, H = b.Height;
+        float pivot = MeanLuminance(b);
         var d = b.LockBits(new Rectangle(0, 0, W, H), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
         var a = new byte[d.Stride * H];
         Marshal.Copy(d.Scan0, a, 0, a.Length);
@@ -69,9 +84,15 @@ public class Soften
             g = lum + (g - lum) * (1f - (float)desat);
             bl = lum + (bl - lum) * (1f - (float)desat);
 
-            r = (r - 0.5f) * (float)contrast + 0.5f;
-            g = (g - 0.5f) * (float)contrast + 0.5f;
-            bl = (bl - 0.5f) * (float)contrast + 0.5f;
+            /* CONTRAST ABOUT THE IMAGE MEAN, NOT ABOUT 0.5. Pivoting at 0.5 on
+               a plate whose mean is 0.66 pulls everything toward mid-grey and
+               darkens the whole engraving to buy local contrast. Pivoting at
+               the mean leaves overall luminance where it is and spends the
+               contrast purely on separation — which is what "recover the
+               cross-hatching without making it darker" actually requires. */
+            r = pivot + (r - pivot) * (float)contrast;
+            g = pivot + (g - pivot) * (float)contrast;
+            bl = pivot + (bl - pivot) * (float)contrast;
 
             r *= (float)bright; g *= (float)bright; bl *= (float)bright;
 
