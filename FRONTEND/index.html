@@ -805,8 +805,20 @@
         /* Scoped to #modal-access so nothing here can reach the rest of the app. */
         #modal-access{
             --ap-parch:#F4EFE3; --ap-field:#ECE2CD; --ap-cream:#F8F3E8;
-            --ap-ink:#2B2117; --ap-ink-soft:#6B5C46; --ap-muted:#8A7A5E;
-            --ap-faint:#A6977A; --ap-wine:#6A1F2D; --ap-wine-deep:#551824;
+            --ap-ink:#2B2117; --ap-ink-soft:#6B5C46;
+            /* BOTH DEEPENED AFTER MEASURING THE DEPLOYED MODAL. The reference's
+               #8A7A5E lands at 3.64:1 on this parchment and #A6977A at 2.50 —
+               the field labels are 11px and the placeholders are 16px, and both
+               are text, so both want 4.5. They are 4.67 and 4.60 now.
+
+               THE PLACEHOLDER MOVED TOO, and that is the less obvious call. A
+               hint you cannot read is not restraint, and the thing it was
+               buying — placeholder clearly distinct from a typed value — still
+               holds: typed text is #2B2117 at 13:1, which reads as several
+               steps darker than a 4.6:1 hint. The separation was never coming
+               from the placeholder being ILLEGIBLE. */
+            --ap-muted:#786A50; --ap-faint:#796B4E;
+            --ap-wine:#6A1F2D; --ap-wine-deep:#551824;
             --ap-sepia:#D3C6AF; --ap-edge:#C7B79B;
             font-family:"EB Garamond",Georgia,"Times New Roman",serif;
             color:var(--ap-ink);
