@@ -1046,15 +1046,48 @@
         #modal-access .ap-obtn .ap-ic{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:18px;height:18px;display:flex}
         #modal-access .ap-obtn .ap-ic svg{width:100%;height:100%}
 
-        #modal-access .ap-foot{text-align:center;margin-top:var(--ap-foot-t);font-size:14px;color:var(--ap-ink-soft)}
+        /* CREATE ACCOUNT IS THE SECOND MOST IMPORTANT CONTROL IN THIS DIALOG and
+           it was set as the least: 14px, same size as the sentence carrying it,
+           weight 600, and no underline until hover — which on a touch screen
+           means no underline ever. Someone who has never used this product is
+           the exact reader who ends up at the bottom of a SIGN IN form, and the
+           way out was the quietest thing on the page.
+
+           IT IS STILL A LINK, NOT A FOURTH BUTTON. There are already three
+           outlined controls directly above it; a bordered CREATE ACCOUNT would
+           read as a fourth sign-in method rather than as the other door. What
+           makes it findable instead:
+
+             THE LEAD-IN RECEDES   "First contract?" drops to 13px and lightens,
+                                   so the pair stops reading as one flat line.
+             THE LINK ADVANCES     15.5px against 13, weight 700, oxblood.
+             A STANDING UNDERLINE  set at 45% alpha and 4px clear of the
+                                   baseline, so it reads as an underline rather
+                                   than a strike through the descenders. Hover
+                                   and focus take it to full strength.
+             A REAL TAP TARGET     6px of vertical padding, which is what turns
+                                   a 15px line of text into something a thumb
+                                   can hit. */
+        #modal-access .ap-foot{text-align:center;margin-top:var(--ap-foot-t);font-size:13px;color:var(--ap-muted)}
         #modal-access .ap-foot button,
         #modal-access .ap-foot a{
-            color:var(--ap-wine);text-decoration:none;font-weight:600;
-            background:none;border:none;cursor:pointer;padding:0;
-            font-family:"EB Garamond",Georgia,serif;font-size:14px;
+            color:var(--ap-wine);font-weight:700;
+            background:none;border:none;cursor:pointer;
+            padding:6px 3px;margin-left:3px;
+            font-family:"EB Garamond",Georgia,serif;font-size:15.5px;
+            text-decoration:underline;
+            text-decoration-thickness:1px;
+            text-underline-offset:4px;
+            text-decoration-color:rgba(106,31,45,.45);
+            transition:text-decoration-color .2s ease, color .2s ease;
         }
         #modal-access .ap-foot button:hover,
-        #modal-access .ap-foot a:hover{text-decoration:underline}
+        #modal-access .ap-foot a:hover,
+        #modal-access .ap-foot button:focus-visible,
+        #modal-access .ap-foot a:focus-visible{
+            color:var(--ap-wine-deep);
+            text-decoration-color:currentColor;
+        }
 
         #modal-access .ap-refnote{font-size:11px;color:var(--ap-muted);margin:6px 0 0}
         #modal-access .ap-reftoggle{
