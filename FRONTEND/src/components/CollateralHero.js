@@ -1463,6 +1463,25 @@ export function renderCollateralHero(options = {}) {
            height-based and nothing is cropped. The artwork reads smaller there,
            which is the trade — on a 3440 display there is no framing that keeps
            it both large and whole. */
+        /* THE DESKTOP PLATE URL LIVES IN A DESKTOP-ONLY QUERY, AND THAT IS A
+           PERFORMANCE FIX, NOT TIDYING.
+
+           It used to arrive as an inline custom property on the section:
+           style="--clt-plate:url(...)". Chrome resolves url() inside a custom
+           property as soon as the property is DECLARED, not when it is used, so
+           every phone downloaded the 406KB desktop plate on top of the 335KB
+           mobile one — measured on the live page, initiatorType css, while the
+           computed background-image resolved to the mobile crop alone. 406KB of
+           a 741KB image payload, fetched to be thrown away.
+
+           Declared inside min-width:821px, the property does not exist at all
+           on a phone, so there is nothing to resolve and nothing to fetch. The
+           mobile rule sets its own background-image directly and never referred
+           to this variable. */
+        @media (min-width:821px){
+          .clt-hero{--clt-plate:url(${plateSrc})}
+        }
+
         @media (min-width:821px) and (min-aspect-ratio:11/5){
           .clt-hero::before{
             background-image:url(/assets/images/collateral-senate-wide.jpg);
@@ -1884,7 +1903,7 @@ export function renderCollateralHero(options = {}) {
         </style>
 
         <div class="clt">
-            <section class="clt-hero" style="--clt-plate:url(${plateSrc});" data-plate="${PLATE_W}x${PLATE_H}">
+            <section class="clt-hero" data-plate="${PLATE_W}x${PLATE_H}">
                 <div class="clt-sky" aria-hidden="true"><i></i></div>
                 <div class="clt-press" aria-hidden="true"><i></i></div>
                 <div class="clt-lockup">

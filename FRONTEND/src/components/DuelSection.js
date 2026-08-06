@@ -332,8 +332,39 @@ export function initDuelSection() {
         }
     };
 
-    load();
     const reduced = window.matchMedia
         && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!reduced) setInterval(load, POLL_MS);
+
+    /* NOTHING FETCHES OR TICKS UNTIL THE SECTION IS NEAR THE VIEWPORT.
+       This section sits about eight screens down. Firing the first request and
+       starting a 60s interval at load put a network round trip and a recurring
+       timer on the critical path for content nobody had scrolled to — work that
+       competes with the hero for the main thread during first paint.
+
+       The observer starts the poll when the section comes within 300px, and
+       STOPS it when it leaves. A poll running against an offscreen section is
+       requests and repaints for something nobody is looking at.
+
+       rootMargin, not a threshold of 0: the data should be there by the time
+       the section arrives, not start loading as it does. */
+    let timer = null;
+    const start = () => {
+        if (timer) return;
+        load();
+        if (!reduced) timer = setInterval(load, POLL_MS);
+    };
+    const stop = () => {
+        if (!timer) return;
+        clearInterval(timer);
+        timer = null;
+    };
+
+    const section = document.getElementById('duels');
+    if (section && 'IntersectionObserver' in window) {
+        new IntersectionObserver((entries) => {
+            entries.forEach((e) => (e.isIntersecting ? start() : stop()));
+        }, { rootMargin: '300px 0px' }).observe(section);
+    } else {
+        start();
+    }
 }

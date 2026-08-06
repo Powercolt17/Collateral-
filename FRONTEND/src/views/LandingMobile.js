@@ -37,6 +37,37 @@
 export function renderMobileScale() {
     return `
         <style>
+        /* ── OFFSCREEN SECTIONS ARE NOT RENDERED AT LOAD ─────────────────────
+           content-visibility:auto lets the browser skip layout, paint and
+           compositing for a section until it is scrolled near. On a page that
+           measures 14,414px on a phone — seventeen screens — that is most of
+           the initial render work removed for zero visual change.
+
+           THE HERO AND THE LEDGER ARE EXCLUDED ON PURPOSE. The hero is the LCP
+           element and must paint immediately; skipping it would make the number
+           it is measured by worse, not better. The ledger sits directly under
+           the fold and its rows animate, so it is left to render normally
+           rather than thrash in and out of skipped state at the boundary.
+
+           EVERY ENTRY CARRIES contain-intrinsic-size. Without it a skipped
+           section reports zero height, the scrollbar collapses and then jumps
+           as each one paints. The values are the measured heights from the
+           mobile pass — 1676, 967, 1089, 1699, 1226, 2067, 512, 1520 — so the
+           placeholder is the size of the real thing and the bar does not move. */
+        .fk{content-visibility:auto;contain-intrinsic-size:auto 1676px}
+        .cs{content-visibility:auto;contain-intrinsic-size:auto 967px}
+        .orc{content-visibility:auto;contain-intrinsic-size:auto 1089px}
+        .rec{content-visibility:auto;contain-intrinsic-size:auto 1699px}
+        .flw{content-visibility:auto;contain-intrinsic-size:auto 1226px}
+        .prc{content-visibility:auto;contain-intrinsic-size:auto 2067px}
+        .dl{content-visibility:auto;contain-intrinsic-size:auto 512px}
+        .sch{content-visibility:auto;contain-intrinsic-size:auto 1520px}
+
+        /* Isolates each animated component's repaints from the rest of the
+           page, so the comet and the scrolling register cannot force work
+           outside their own box. */
+        .flw-panel,.lg-body,.dl-duel{contain:paint}
+
         @media (max-width:820px){
 
           /* ── section frame ───────────────────────────────────────────────

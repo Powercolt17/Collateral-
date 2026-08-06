@@ -1063,18 +1063,44 @@ export function renderHeader(currentRoute = '') {
             backdrop-filter: none;
             -webkit-backdrop-filter: none;
         }
+        /* PRE-BLURRED, TINY, AND NOT LOADED UNTIL THE DRAWER OPENS.
+
+           This rule used to point at collateral-senate-frame.jpg — the 406KB
+           full desktop plate — and because the overlay is in the DOM from first
+           paint, EVERY page load fetched it. On a phone that was 406KB of a
+           741KB image payload, downloaded for a drawer that was shut, and it
+           was the single largest asset on the page. Measured on the live page:
+           initiatorType css, 406KB, while the hero's own computed background
+           resolved to the mobile crop alone.
+
+           Two changes, and each fixes a different cost:
+
+           THE BYTES. collateral-menu-backdrop.jpg is the same artwork at 160px
+           wide — 3.2KB against 406KB. It is upscaled to fill the overlay, and
+           that upscale is what produces the blur, which is why blur(7px) is
+           gone from the filter below. A GPU blur across a full-viewport element
+           is the most expensive thing that was on this page; a browser
+           stretching a 160px bitmap is free. brightness and saturate stay
+           because they are per-pixel arithmetic, not a convolution, and
+           dropping them would change the tone.
+
+           THE TIMING. The URL now sits on .pnl-overlay.open::before, so nothing
+           is requested until the menu is actually opened. At 3.2KB the first
+           open is imperceptible. */
         .pnl-overlay::before {
             content: "";
             position: absolute;
             inset: 0;
-            background-image: url(/assets/images/collateral-senate-frame.jpg);
             background-position: center;
             background-size: cover;
             background-repeat: no-repeat;
-            filter: blur(7px) brightness(.78) saturate(.95);
-            /* Scaled up so the blur's soft edge is pushed off-screen instead of
-               showing a pale border where the filter runs out of pixels. */
+            filter: brightness(.78) saturate(.95);
+            /* Scaled up so the soft edge is pushed off-screen rather than
+               showing a pale border where the upscale runs out of pixels. */
             transform: scale(1.06);
+        }
+        .pnl-overlay.open::before {
+            background-image: url(/assets/images/collateral-menu-backdrop.jpg);
         }
         /* Dark at the LEFT, where the drawer is, clearing to the right. */
         .pnl-overlay::after {
