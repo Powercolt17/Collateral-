@@ -135,15 +135,18 @@ function renderContractDoc() {
         deadline: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.6"/><path d="M12 7.4V12l3.1 1.9"/></svg>',
     };
 
-    const row = (icon, label, value, sub) => `
-                                <div class="clt-doc-row">
+    const row = (icon, label, value, sub, cls) => `
+                                <div class="clt-doc-row${cls ? ' ' + cls : ''}">
                                     <span class="clt-doc-ico" aria-hidden="true">${ICO[icon]}</span>
                                     <span class="clt-doc-lab">${label}</span>
                                     <span class="clt-doc-val">${value}${sub ? `<small>${sub}</small>` : ''}</span>
                                 </div>`;
 
-    const reg = (label, value) => `
-                                <dt>${label}</dt><dd>${value}</dd>`;
+    /* One cell of the certification block. Label above, value below — the value
+       is the larger, darker mark because the value is what is being certified;
+       the label is only saying what field it answers. */
+    const cert = (label, value) => `
+                                <div><dt>${label}</dt><dd>${value}</dd></div>`;
 
     return `
                 <aside class="clt-doc-wrap" aria-label="Specimen performance contract">
@@ -163,15 +166,20 @@ function renderContractDoc() {
 
                             <!-- ── 1 · COMMITMENT ── what is being staked and against what -->
                             <div class="clt-doc-sec">Commitment</div>
-                            <div class="clt-doc-rows">${row("stake", "Stake", "$250.00")}${row("target", "Target", "+20%")}${row("deadline", "Deadline", "31 August", "in 30 days")}
+                            <div class="clt-doc-rows">${row("stake", "Stake", "$250.00")}${row("target", "Target", "+20%")}${row("deadline", "Deadline", "31 August", "30 days remaining", "is-due")}
                             </div>
 
                             <!-- ── 2 · VERIFICATION ── who says so, and on what authority.
-                                 A register rather than medallion rows: this is the part of a
-                                 contract that gets SET DOWN, not illustrated, and four more
-                                 icon rows would have read as more settings. -->
+                                 A RULED CERTIFICATION BLOCK, not a list. This is the product's
+                                 differentiator, so it cannot be the quietest thing on the card;
+                                 but four more medallion rows would have read as four more
+                                 settings. A ruled 2x2 field block is what an official document
+                                 actually uses to certify — and it states four facts in the
+                                 height a four-row list took.
+                                 Source order is the reading order the eye wants: who verifies,
+                                 where the money is, how it pays out, and the reference last. -->
                             <div class="clt-doc-sec">Verification</div>
-                            <dl class="clt-doc-reg">${reg('Source', 'Stripe API <b class="clt-doc-ok">&#10003;</b>')}${reg('Contract ID', 'CM-01942')}${reg('Escrow', 'Active')}${reg('Settlement', 'Automatic')}
+                            <dl class="clt-doc-cert">${cert('Source', 'Stripe API <b class="clt-doc-ok">&#10003;</b>')}${cert('Escrow', 'Active')}${cert('Settlement', 'Automatic')}${cert('Contract', 'CM-01942')}
                             </dl>
 
                             <!-- ── 3 · OUTCOME ── the two ways this ends. The climax. -->
@@ -2277,8 +2285,10 @@ export function renderCollateralHero(options = {}) {
              Sizes differ per layer so nothing tiles in step with anything else
              and no repeat becomes visible at any zoom. */
           background-image:
-            /* AGE, generated — foxing, mottle and edge oxidation. See
-               tools/make-card-age.ps1 for why these three cannot be gradients. */
+            /* STOCK, generated — cotton fibre, an intaglio press mark and gentle
+               tonal drift. This layer used to be foxing and edge oxidation; see
+               tools/make-card-age.ps1 for why old paper was the wrong target and
+               why none of what replaced it can be a gradient. */
             url("/assets/images/card-age.png"),
             url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='90'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04 0.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='90' filter='url(%23f)' opacity='0.16'/%3E%3C/svg%3E"),
             radial-gradient(120% 80% at 18% 22%, rgba(120,96,54,.026), rgba(120,96,54,0) 70%),
@@ -2372,48 +2382,67 @@ export function renderCollateralHero(options = {}) {
            structural — it is the section boundary — where a box would be
            decoration, and the brief rules decoration out. The first header has
            no rule because the title above it is already the boundary. */
+        /* SPACE, NOT MORE RULES. The three sections read as one field when the
+           gap between them is the same as the gap inside them, and the fix is
+           the gap rather than a heavier line: 11px above -> 21px, and 8px of
+           padding under the rule -> 10px. That is ~12px of extra air per
+           boundary, which is what separates a section from a row. */
         .clt .clt-doc-sec{font-family:var(--doc-mono);font-size:9px;
           letter-spacing:.24em;text-transform:uppercase;color:var(--doc-soft);
-          margin:11px 0 7px;padding-top:8px;
+          margin:21px 0 7px;padding-top:10px;
           border-top:1px solid var(--doc-rule)}
         .clt .clt-doc-sec:first-of-type{border-top:0;padding-top:0;margin-top:12px}
 
-        /* The register. Label left, value right, hairline between — the way a
-           legal header sets a term, not the way a UI sets a field. */
-        /* TYPESET, NOT LAID OUT. Three things separate a legal register from a
-           key-value list:
+        /* THE CERTIFICATION BLOCK.
+           Automatic verification is the product's differentiator, so it cannot
+           be the faintest thing on the card. What it was — a right-aligned
+           label/value register — is the typographic form of a FOOTNOTE, and it
+           read like one.
 
-           A TAB STOP. grid-template-columns:auto means the label column is set
-           by the longest label and every value starts on the same vertical —
-           a real tab stop, not two independently flowing columns.
+           A RULED 2x2 FIELD BLOCK is what an official document actually uses to
+           certify: a customs stamp, a notary panel, an inspection certificate.
+           Same idea here — a hairline box divided into four fields, each field
+           naming itself in small caps and then answering.
 
-           TRACKING SPLIT BY ROLE. Labels stay at .16em because tracked small
-           caps is what a caption is; values come down to .09em because tracked
-           DATA reads as decoration and a document sets its figures tight.
+           VALUE FIRST, LABEL SECOND, which is the whole inversion. The value is
+           what is being certified; the label only says which field it answers.
+           So the value carries the size (13px against 8.5), the weight and the
+           ink, and the label goes small, tracked and muted above it. The eye now
+           lands on STRIPE API, ACTIVE, AUTOMATIC — three claims — instead of on
+           four words that describe where claims would go.
 
-           TABULAR FIGURES. CM-01942 and 31 AUGUST have to align on the same
-           right edge, and proportional digits put the 1s and the 9s on
-           different widths. tabular-nums is the difference between typeset and
-           typed. */
-        .clt .clt-doc-reg{display:grid;grid-template-columns:auto 1fr;
-          gap:5px 18px;margin:0;font-family:var(--doc-mono);
-          font-size:9px;text-transform:uppercase;line-height:1.6;
+           It also costs no height: four stacked rows and a 2x2 of stacked pairs
+           both come to ~74px, so the section gets its weight for free.
+
+           The block is a lighter tint than the paper so it reads as a panel the
+           press left on the sheet rather than a card dropped on top. Radius 2 —
+           printed rules are square. */
+        .clt .clt-doc-cert{display:grid;grid-template-columns:1fr 1fr;margin:0;
+          border:1px solid var(--doc-edge);border-radius:2px;
+          background:rgba(255,253,246,.5);
+          font-family:var(--doc-mono);text-transform:uppercase;
           font-variant-numeric:tabular-nums}
-        .clt .clt-doc-reg dt{color:var(--doc-soft);letter-spacing:.16em}
-        .clt .clt-doc-reg dd{color:var(--doc-ink);text-align:right;margin:0;
-          letter-spacing:.09em;font-variant-numeric:tabular-nums}
+        .clt .clt-doc-cert > div{padding:6px 11px;min-width:0}
+        .clt .clt-doc-cert > div:nth-child(2n){border-left:1px solid var(--doc-rule)}
+        .clt .clt-doc-cert > div:nth-child(n+3){border-top:1px solid var(--doc-rule)}
+        .clt .clt-doc-cert dt{font-size:8.5px;letter-spacing:.2em;
+          line-height:1.2;color:var(--doc-soft)}
+        .clt .clt-doc-cert dd{margin:2px 0 0;font-size:13px;letter-spacing:.05em;
+          line-height:1.2;color:var(--doc-ink);font-weight:500;
+          font-variant-numeric:tabular-nums;
+          white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         /* The tick is the only mark in the verification block, and it is a
            character rather than an icon — the brief rules new icons out and a
            checkmark glyph is typography. Sage, not the oxblood accent: oxblood
            is the loss colour on this card. */
-        .clt .clt-doc-reg .clt-doc-ok{color:#5C7A4E;font-weight:400;margin-left:2px}
+        .clt .clt-doc-cert .clt-doc-ok{color:#5C7A4E;font-weight:400;margin-left:3px}
         .clt .clt-doc-rows{margin-top:0}
         /* 11px, down from 16. The register above had to come from somewhere:
            the card cannot grow, because at 761 its top already sits exactly on
            the header line at 92 and any taller pushes it under the nav. Five
            rows x 10px is the 50px the register costs. Rows land at 61px against
            a 38px medallion, which is still generous. */
-        .clt .clt-doc-row{display:flex;align-items:center;gap:15px;padding:9px 0;
+        .clt .clt-doc-row{display:flex;align-items:center;gap:15px;padding:8px 0;
           border-top:1px solid var(--doc-rule)}
         .clt .clt-doc-row:first-child{border-top:0;padding-top:4px}
         /* THE MEDALLIONS. A ring, a hairline inner ring, an oxblood glyph. The
@@ -2437,9 +2466,19 @@ export function renderCollateralHero(options = {}) {
           font-family:var(--doc-mono);font-size:9px;
           letter-spacing:.14em;text-transform:uppercase;color:var(--doc-soft)}
         .clt .clt-doc-val.is-mono{font-family:var(--doc-mono);font-size:15px}
+        /* THE DEADLINE IS THE ANCHOR. On a performance contract the date is the
+           thing that creates the pressure, and at 21px it carried exactly the
+           same weight as the stake. 25px makes it the largest figure in the
+           Commitment block, and the countdown under it moves from --doc-soft to
+           --doc-ink: "30 DAYS REMAINING" is a live fact, not a caption. It is
+           still not coloured — a red clock would be an alert, and this document
+           states its terms rather than warning about them. */
+        .clt .clt-doc-row.is-due .clt-doc-val{font-size:25px}
+        .clt .clt-doc-row.is-due .clt-doc-val small{color:var(--doc-ink);
+          font-size:9.5px;letter-spacing:.16em;margin-top:4px}
 
         /* The two outcomes, and the reason the card exists. */
-        .clt .clt-doc-out{margin-top:0;display:flex;flex-direction:column;gap:8px}
+        .clt .clt-doc-out{margin-top:0;display:flex;flex-direction:column;gap:7px}
         /* PRINTED, NOT ALERTED. Four changes, all subtractive: radius 6 -> 3
            because printed rules on a form are square and only screens round
            things; the grounds lightened toward the card so they read as a tint
@@ -2447,7 +2486,7 @@ export function renderCollateralHero(options = {}) {
            softened to sit with --doc-rule instead of announcing themselves; and
            the label weight dropped from 500 to 400, since a printed form does
            not shout its own field names. */
-        .clt .clt-doc-o{display:flex;align-items:center;gap:13px;padding:13px 16px;
+        .clt .clt-doc-o{display:flex;align-items:center;gap:13px;padding:12px 16px;
           border-radius:3px;border:1px solid transparent}
         .clt .clt-doc-o-win{background:var(--doc-sage-bg);border-color:#D3DAC3}
         .clt .clt-doc-o-lose{background:var(--doc-ox-bg);border-color:#E7D0CB}
@@ -2458,10 +2497,15 @@ export function renderCollateralHero(options = {}) {
           stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;display:block}
         .clt .clt-doc-o-win i{color:#5C7A4E}
         .clt .clt-doc-o-lose i{color:#8E4340}
+        /* 13.5px, up from 12.5. Tracked uppercase mono is the least legible
+           setting on the card — .13em of tracking costs a small size more than
+           it costs a large one — and at 12.5 the headings were readable only on
+           inspection. The amounts stay dominant (26px against 13.5) but the
+           heading now reads at a glance, which is the point of a heading. */
         .clt .clt-doc-o-t{flex:1 1 auto;font-family:var(--doc-mono);
-          font-size:12.5px;font-weight:500;letter-spacing:.13em;
+          font-size:13.5px;font-weight:500;letter-spacing:.13em;
           text-transform:uppercase;color:var(--doc-ink)}
-        .clt .clt-doc-o-t small{display:block;margin-top:3px;font-size:9.5px;
+        .clt .clt-doc-o-t small{display:block;margin-top:3px;font-size:10.5px;
           font-weight:400;letter-spacing:.13em;color:var(--doc-soft)}
         .clt .clt-doc-o-v{font-family:var(--text-serif);font-size:26px;
           white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -2469,7 +2513,7 @@ export function renderCollateralHero(options = {}) {
         .clt .clt-doc-o-lose .clt-doc-o-v{color:#8E2B27}
 
         .clt .clt-doc-foot{display:flex;align-items:center;justify-content:center;
-          gap:14px;margin-top:11px;padding-top:12px;
+          gap:14px;margin-top:9px;padding-top:10px;
           border-top:1px solid var(--doc-rule);
           font-family:var(--doc-mono);font-size:9px;
           letter-spacing:.13em;text-transform:uppercase;color:var(--doc-soft)}
@@ -2517,6 +2561,13 @@ export function renderCollateralHero(options = {}) {
           .clt .clt-doc-ico{width:34px;height:34px}
           .clt .clt-doc-ico svg{width:15px;height:15px}
           .clt .clt-doc-val{font-size:19px}
+          .clt .clt-doc-row.is-due .clt-doc-val{font-size:22px}
+          /* The certification cells hold their two columns on a phone — a 334px
+             card gives each 117px, and the longest value needs exactly 117. That
+             is a fit with no slack, so the value comes down a point here: a
+             fallback face half a percent wider would otherwise start clipping
+             the one line on this card that has to be believed. */
+          .clt .clt-doc-cert dd{font-size:12px}
           .clt .clt-doc-o{padding:14px}
           .clt .clt-doc-o-v{font-size:20px}
           .clt .clt-doc-foot{gap:10px;font-size:8.5px;letter-spacing:.1em}

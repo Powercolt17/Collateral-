@@ -1,41 +1,53 @@
-# Generates the ageing texture for the Performance Contract card.
+# Generates the paper texture for the Performance Contract card.
 #
 #   powershell -File FRONTEND/tools/make-card-age.ps1
 #
-# WHY A BAKED TEXTURE AND NOT MORE CSS GRADIENTS. The card already carries
-# fibres, tonal radials and fine grain as CSS layers, and those are the right
-# tool for SMOOTH things. Age is not smooth. What actually reads as old paper is
-# three irregular phenomena, and none of them can be expressed as a gradient:
+# THIS SCRIPT USED TO MAKE PAPER LOOK OLD. IT NOW MAKES PAPER LOOK GOOD, and
+# that is a deliberate reversal rather than a dialling-down.
 #
-#   FOXING        the rust-brown speckle that develops where the sheet has
-#                 impurities. Irregular in size, position and density, denser
-#                 near edges where air reaches. A gradient cannot make a spot.
-#   MOTTLE        broad uneven discolouration, several blotches across a sheet,
-#                 at a scale between the fibres and the whole page.
-#   EDGE TONING   the perimeter oxidises first, so an old sheet is darker for
-#                 the outer centimetre or so — and unevenly, not as a clean
-#                 vignette.
+# The reasoning: the Roman engraving beside this card already supplies every bit
+# of historical atmosphere the hero needs. When the contract is ALSO foxed and
+# edge-toned, the two read as the same artefact and the idea collapses. The
+# concept only works on the CONTRAST — a precise, institutional, present-tense
+# document set against a classical engraving. So the document should feel
+# OFFICIAL, not ANCIENT: the modern descendant of that tradition, not another
+# object dug out of the same drawer.
 #
-# All three are emitted as ALPHA over one warm brown, so the CSS applies it with
-# mix-blend-mode:multiply exactly like the existing grain and it tints rather
-# than paints. Nothing here is a colour the card does not already have.
+# What was removed:
+#   FOXING       rust-brown speckle. The single strongest "this sheet is 200
+#                years old" cue, and as scattered floating spots it was also the
+#                least premium thing on the card. Gone entirely.
+#   EDGE TONING  the oxidised perimeter. Same problem: it says decay. Gone.
 #
-# STRENGTH WAS RAISED AFTER THE FIRST BUILD SHIPPED INVISIBLE. Foxing .17 ->
-# .30, mottle .085 -> .145, edge toning .20 -> .34, spot density up ~65%, and
-# the alpha cap .24 -> .34. The first pass was calibrated to "if a refinement is
-# noticeable immediately it is too strong", which is the right rule for a craft
-# pass and the wrong one when the ask is literally "make it look old" — at a
-# mean alpha of 6% it was not visible at all, which is not restraint, it is
-# nothing. The cap is still a hard legibility limit; see the note on it below.
+# What replaces them, all three things a GOOD sheet of stock has today:
+#   COTTON FIBRE broad-direction filaments, from anisotropic noise stretched
+#                ~9:1 and then crossed with its own transpose. Real cotton rag
+#                has fibres running both ways at unequal density; a single
+#                direction reads as brushed metal, and isotropic noise reads as
+#                digital grain.
+#   PRESS MARK   the faint debossed line an intaglio plate leaves inset from the
+#                trimmed edge. It is the mark of a sheet that went through a
+#                press under pressure — the reason banknotes, share certificates
+#                and letterpress stationery carry one — and it is pure quality
+#                signal with no age in it at all. Softened and made slightly
+#                uneven so it is an impression rather than a drawn border.
+#   TONAL DRIFT  gentle, very-low-frequency variation. No sheet is one flat
+#                value; this is what stops the card reading as #FDF9F0.
+#
+# Emitted as ALPHA over one neutral warm grey — NOT the old brown, which was a
+# stain colour. The CSS multiplies it, so it modulates the paper it already has
+# rather than painting a new one. Cap .13, against .34 before: the whole point
+# is that this is felt and not seen.
 
 param(
     [int]$W = 500,
     [int]$H = 820,
     [int]$Seed = 20641,
-    [double]$Foxing = 0.30,
-    [double]$Mottle = 0.145,
-    [double]$EdgeTone = 0.34,
-    [int]$InkR = 150, [int]$InkG = 112, [int]$InkB = 62
+    [double]$Fibre = 0.085,
+    [double]$Press = 0.10,
+    [double]$Tonal = 0.055,
+    [double]$PressInset = 13.0,
+    [int]$InkR = 128, [int]$InkG = 116, [int]$InkB = 96
 )
 
 Add-Type -AssemblyName System.Drawing
@@ -74,86 +86,53 @@ public class CardAge
     }
 
     public static string Go(string dst, int W, int H, int seed,
-                            double foxing, double mottle, double edgeTone,
+                            double fibre, double press, double tonal, double inset,
                             int ir, int ig, int ib)
     {
         var bmp = new Bitmap(W, H, PixelFormat.Format32bppArgb);
         var d = bmp.LockBits(new Rectangle(0, 0, W, H), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
         var a = new byte[d.Stride * H];
 
-        var rnd = new Random(seed);
-
-        /* Foxing spots. Count scales with area so the density is the same
-           whatever size this is generated at. Placement is biased toward the
-           edges — air reaches the perimeter first — by rejecting a proportion
-           of the draws that land centrally. */
-        int spots = (int)(W * H / 3100.0);
-        var sx = new float[spots]; var sy = new float[spots];
-        var sr = new float[spots]; var sa = new float[spots];
-        for (int i = 0; i < spots; i++)
-        {
-            float px, py, edgeness;
-            int guard = 0;
-            do
-            {
-                px = (float)rnd.NextDouble() * W;
-                py = (float)rnd.NextDouble() * H;
-                float ex = Math.Min(px, W - px) / (W * 0.5f);
-                float ey = Math.Min(py, H - py) / (H * 0.5f);
-                edgeness = 1f - Math.Min(ex, ey);          /* 1 at the rim */
-                guard++;
-            } while (rnd.NextDouble() > 0.35 + 0.65 * edgeness && guard < 12);
-
-            sx[i] = px; sy[i] = py;
-            sr[i] = 1.6f + (float)Math.Pow(rnd.NextDouble(), 2.2) * 9.5f;
-            sa[i] = (0.22f + 0.78f * (float)rnd.NextDouble()) * (float)foxing;
-        }
-
-        float edgeBand = Math.Min(W, H) * 0.16f;
-
         for (int y = 0; y < H; y++)
             for (int x = 0; x < W; x++)
             {
                 float al = 0;
 
-                /* mottle — broad uneven discolouration */
-                float m = Fbm(x / 190f, y / 240f, seed + 7, 3);
-                al += (float)mottle * S((m - 0.34f) / 0.5f);
+                /* COTTON FIBRE. Two anisotropic fields at ~9:1, crossed, at
+                   unequal weight — a sheet has a grain direction, so the two
+                   are not balanced. Centred on zero so fibres both lighten and
+                   darken; only the darkening survives into alpha, which is
+                   correct, since a fibre catching light is the paper itself. */
+                float fx = Fbm(x / 1.5f, y / 13f, seed + 3, 2) - 0.5f;
+                float fy = Fbm(x / 13f, y / 1.5f, seed + 61, 2) - 0.5f;
+                al += (float)fibre * C01(fx * 1.25f + fy * 0.75f + 0.5f) * 2f - (float)fibre * 0.5f;
 
-                /* edge toning, roughened by its own noise so it is not a clean
-                   vignette — an old sheet does not oxidise evenly */
+                /* TONAL DRIFT. One broad field, gently biased so most of the
+                   sheet is clean and a few areas sit a shade deeper. */
+                float t = Fbm(x / 260f, y / 320f, seed + 7, 2);
+                al += (float)tonal * S((t - 0.42f) / 0.55f);
+
+                /* PRESS MARK. Distance to the nearest edge, and a soft band
+                   centred on the inset — an impression, not a stroke. The
+                   inset itself wanders by a pixel or so along its length, the
+                   way a real plate mark does; a perfectly parallel line reads
+                   as a CSS border. */
                 float dx = Math.Min(x, W - 1 - x), dy = Math.Min(y, H - 1 - y);
                 float dist = Math.Min(dx, dy);
-                float e = 1f - S(dist / edgeBand);
-                e *= 0.55f + 0.45f * Fbm(x / 60f, y / 60f, seed + 23, 2);
-                al += (float)edgeTone * e;
+                float wob = (Fbm(x / 70f, y / 70f, seed + 131, 2) - 0.5f) * 2.2f;
+                float band = 1f - S(Math.Abs(dist - ((float)inset + wob)) / 2.6f);
+                al += (float)press * band;
 
-                /* foxing */
-                for (int i = 0; i < spots; i++)
-                {
-                    float ddx = x - sx[i], ddy = y - sy[i];
-                    float r2 = ddx * ddx + ddy * ddy;
-                    float rr = sr[i] * sr[i];
-                    if (r2 > rr * 4f) continue;
-                    float t = (float)Math.Sqrt(r2) / sr[i];
-                    if (t > 2f) continue;
-                    /* soft, slightly ragged edge rather than a clean disc */
-                    float fall = 1f - S(t / 1.7f);
-                    fall *= 0.7f + 0.6f * Fbm(x / 5f, y / 5f, seed + 51 + i, 2);
-                    al += sa[i] * fall;
-                }
+                /* Just inside the mark the sheet is very slightly compressed,
+                   so it holds a touch more tone. Half the strength, three times
+                   the width — this is what makes it read as pressure rather
+                   than as a second hairline. */
+                if (dist > inset)
+                    al += (float)press * 0.28f * (1f - S((dist - (float)inset) / 9f));
 
-                /* HARD CAP AT .24, and this is a legibility limit rather than a
-                   taste one. The texture multiplies UNDER the card text. At
-                   alpha .345 — which overlapping foxing plus edge toning
-                   reached — the paper under a muted 9px label darkens enough
-                   to put it at 3.87:1, under AA. Capped at .24 the worst
-                   ground the type ever sits on is 4.83:1 with the muted colour
-                   deepened to match. Age must not cost the document its
-                   readability. */
                 int o = y * d.Stride + x * 4;
                 a[o + 2] = (byte)ir; a[o + 1] = (byte)ig; a[o] = (byte)ib;
-                a[o + 3] = (byte)(Math.Min(C01(al), 0.34f) * 255f + 0.5f);
+                a[o + 3] = (byte)(Math.Min(C01(al), 0.13f) * 255f + 0.5f);
             }
 
         Marshal.Copy(a, 0, d.Scan0, a.Length);
@@ -163,8 +142,8 @@ public class CardAge
         double mean = 0; long n = 0; float peak = 0;
         for (int i = 3; i < a.Length; i += 4) { mean += a[i]; n++; if (a[i] > peak) peak = a[i]; }
         bmp.Dispose();
-        return string.Format("{0}x{1}  {2} foxing spots  mean alpha {3:0.0}/255  peak {4:0}/255",
-                             W, H, spots, mean / n, peak);
+        return string.Format("{0}x{1}  mean alpha {2:0.0}/255 ({3:0.0}%)  peak {4:0}/255 ({5:0.0}%)",
+                             W, H, mean / n, mean / n / 2.55, peak, peak / 2.55);
     }
 }
 '@
@@ -172,5 +151,5 @@ public class CardAge
 $root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $img  = "$root\FRONTEND\public\assets\images"
 
-Write-Output ([CardAge]::Go("$img\card-age.png", $W, $H, $Seed, $Foxing, $Mottle, $EdgeTone, $InkR, $InkG, $InkB))
+Write-Output ([CardAge]::Go("$img\card-age.png", $W, $H, $Seed, $Fibre, $Press, $Tonal, $PressInset, $InkR, $InkG, $InkB))
 Get-Item "$img\card-age.png" | Select-Object Name, @{n='KB';e={[math]::Round($_.Length/1kb,1)}}
