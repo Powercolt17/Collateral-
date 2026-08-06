@@ -22,8 +22,17 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Collateral">
     <meta name="application-name" content="Collateral">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="apple-touch-icon" href="/logo.png">
+    <!-- The wax seal. favicon.ico carries 16/32/48 as DIBs for the browsers and
+         tools that want an .ico; favicon-32.png is what modern browsers
+         actually pick up. Both live in public/ — the previous /favicon.ico was
+         a JPEG with an .ico extension sitting in FRONTEND/ rather than
+         FRONTEND/public/, so it was never served and the tab fell back to the
+         browser's default mark. Regenerate with tools/make-favicon.ps1. -->
+    <link rel="icon" href="/favicon.ico" sizes="48x48">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <!-- 180 with an opaque parchment ground: iOS composites home-screen icons
+         on black, and a transparent one would sit the seal in a black tile. -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
