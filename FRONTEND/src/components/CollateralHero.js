@@ -591,7 +591,7 @@ export function renderCollateralHero(options = {}) {
              has to come right and the card has to come left. 9cqw is 135px at
              1497 and puts the plate's left edge at +1px, so the fill strip that
              appears is a single pixel. */
-          background-position:calc(100% + 10cqw) top;
+          background-position:calc(100% + 6cqw) top;
           background-size:cover;
           background-color:#EED6AF;
           background-repeat:no-repeat;
@@ -2146,7 +2146,7 @@ export function renderCollateralHero(options = {}) {
              top of 78 would sit 14px UNDER the nav. At 50% the card top is 92,
              exactly the header's bottom, which leaves 5px of crown showing —
              and those 5px are behind the header itself. */
-          right:21cqw;top:50%;
+          right:25cqw;top:50%;
           transform:translateY(-50%);
           width:min(462px,38cqw);
         }
