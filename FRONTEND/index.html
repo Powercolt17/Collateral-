@@ -869,6 +869,22 @@
                 --ap-obtn:42px; --ap-obtn-gap:8px; --ap-foot-t:13px;
             }
         }
+        /* THE REFERRAL FIELD IS OPEN. main.js adds this class whenever that
+           field is showing, and it is the one piece of height the media queries
+           cannot anticipate — they key off the VIEWPORT, and this is CONTENT.
+           Measured: the field costs about 97px, which was exactly the overflow
+           at 1280x720. Stepping the rhythm one notch tighter buys back ~120, so
+           the tallest state the dialog has still fits without a scrollbar.
+           Specificity (1,1,0) beats the plain #modal-access blocks whatever the
+           source order, which is why this can sit above them. */
+        #modal-access.ap-compact{
+            --ap-pad-t:22px; --ap-pad-b:20px;
+            --ap-mark:29px; --ap-eyebrow-b:8px;
+            --ap-hr-t:9px; --ap-hr-b:13px;
+            --ap-inp:44px; --ap-field-b:10px; --ap-lab-b:5px;
+            --ap-btn:46px; --ap-or-t:12px; --ap-or-b:10px;
+            --ap-obtn:40px; --ap-obtn-gap:8px; --ap-foot-t:12px;
+        }
         /* A SHORT LAPTOP OR A LANDSCAPE PHONE. ~525px, which clears 580px.
            Past this the honest answer is the scroll that is still in place as a
            backstop — compressing further would start taking the dialog below
@@ -883,7 +899,26 @@
                 --ap-btn:44px; --ap-or-t:10px; --ap-or-b:9px;
                 --ap-obtn:38px; --ap-obtn-gap:7px; --ap-foot-t:10px;
             }
+            /* The two compressions have to compose here, or a short window with
+               the referral field open would land back on the roomier values —
+               .ap-compact outside this query is (1,1,0) and would beat the
+               (1,0,0) rule above it. Restated one notch tighter again. */
+            #modal-access.ap-compact{
+                --ap-pad-t:14px; --ap-pad-b:13px;
+                --ap-mark:23px; --ap-eyebrow-b:6px;
+                --ap-hr-t:6px; --ap-hr-b:9px;
+                --ap-inp:38px; --ap-field-b:8px; --ap-lab-b:4px;
+                --ap-btn:40px; --ap-or-t:8px; --ap-or-b:7px;
+                --ap-obtn:34px; --ap-obtn-gap:6px; --ap-foot-t:8px;
+            }
         }
+        /* THE REFERRAL BLOCK IS SECONDARY, so it is set that way rather than as
+           a third equal field: a shorter input, since a username is a handful of
+           characters, and the incentive note on one tight line. This is worth
+           doing on its own merits and it also takes ~20px off the state that was
+           overflowing. */
+        #modal-access #auth-referral-code{height:calc(var(--ap-inp) - 6px)}
+        #modal-access .ap-refnote{font-size:10.5px;line-height:1.35;margin-top:5px}
         /* The engraved inner hairline and the paper tooth. Both are pointer-
            events:none so neither can eat a click meant for a field. */
         #modal-access .ap-rule{

@@ -497,7 +497,24 @@ window.app = {
                 const input = document.getElementById('auth-referral-code');
                 if (input) input.value = '';
             }
+            window.app._syncAuthDensity();
         }
+    },
+    /* The referral field is the only thing that can make this dialog taller than
+       the window it opens in, and it is the ONE part of the form whose height
+       the CSS cannot see coming — the media queries key off viewport height, not
+       content. So the dialog carries a density class the moment that field is
+       open, which steps the whole vertical rhythm one notch tighter and buys
+       back more than the field costs.
+       Driven from JS rather than :has() because the field's visibility lives in
+       an inline style attribute, and matching on that would mean selecting on a
+       substring of style text. */
+    _syncAuthDensity: function () {
+        const modal = document.getElementById('modal-access');
+        const field = document.getElementById('auth-referral-field');
+        if (!modal || !field) return;
+        const open = field.style.display !== 'none' && !field.classList.contains('hidden');
+        modal.classList.toggle('ap-compact', open);
     },
     toggleAuthMode: function () {
         window.app._hideAuthError();
@@ -540,6 +557,10 @@ window.app = {
             if (eyebrow) eyebrow.textContent = 'Sign In';
             if (toggleText) toggleText.innerHTML = 'First contract? <button onclick="window.app.toggleAuthMode()">Create Account</button>';
         }
+        /* Both branches can change whether the referral field is showing — the
+           signup branch auto-expands it when a stored code exists — so the
+           density has to be re-read after either one. */
+        window.app._syncAuthDensity();
     },
     /* The password reveal. It lives here rather than inline in index.html
        because every other control in that modal calls through window.app, and a
