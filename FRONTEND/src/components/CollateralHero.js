@@ -148,6 +148,17 @@ function renderContractDoc() {
                                 <span class="clt-doc-stripe" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"/></svg></span>
                             </div>
 
+                            <!-- Second rule: identity above, terms below. The card had one
+                                 break, under the header, so the title and the first row
+                                 ran together as a single block. This is the same knockout
+                                 and ornament as that one — a repeated gesture, not a new
+                                 device. -->
+                            <div class="clt-doc-div clt-doc-div2" aria-hidden="true">
+                                <span><i></i><b></b><i></i></span>
+                            </div>
+
+
+
                             <div class="clt-doc-rows">
                                 <div class="clt-doc-row">
                                     <span class="clt-doc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.2 3.8 8.4h16.4z"/><path d="M4.8 10.4h14.4"/><path d="M6.8 10.4v6.8M10.27 10.4v6.8M13.73 10.4v6.8M17.2 10.4v6.8"/><path d="M4.8 17.2h14.4M3.4 19.8h17.2"/></svg></span>
@@ -2026,7 +2037,7 @@ export function renderCollateralHero(options = {}) {
            and its own accent. Sharing the hero's tokens is what would make it
            read as part of the page rather than as a thing resting on it. */
         .clt .clt-doc-wrap{
-          --doc-bg:#F8F2E6;
+          --doc-bg:#F9F2E3;
           --doc-edge:#D7C9AE;
           --doc-rule:#E2D7BF;
           --doc-ink:#2A2622;
@@ -2064,7 +2075,7 @@ export function renderCollateralHero(options = {}) {
 
              At 1905x1080: card 986-1448, standing 92% covered, writing 94%
              clear, seal 38px inside the edge, 300px off the headline. */
-          right:24cqw;top:calc(50% + 36px);
+          right:21cqw;top:calc(50% + 36px);
           transform:translateY(-50%);
           width:min(462px,38cqw);
         }
@@ -2090,9 +2101,9 @@ export function renderCollateralHero(options = {}) {
              job is to take the hard competition out of the inch around it. */
           inset:-7% -6% -8% -9%;
           background:
-            radial-gradient(58% 46% at 40% 34%, rgba(241,238,232,.34), rgba(241,238,232,0) 72%),
-            radial-gradient(54% 56% at 70% 60%, rgba(241,238,232,.30), rgba(241,238,232,0) 74%),
-            radial-gradient(48% 42% at 28% 76%, rgba(241,238,232,.26), rgba(241,238,232,0) 70%);
+            radial-gradient(58% 46% at 40% 34%, rgba(241,238,232,.23), rgba(241,238,232,0) 72%),
+            radial-gradient(54% 56% at 70% 60%, rgba(241,238,232,.20), rgba(241,238,232,0) 74%),
+            radial-gradient(48% 42% at 28% 76%, rgba(241,238,232,.17), rgba(241,238,232,0) 70%);
           filter:blur(14px);
         }
         .clt .clt-doc{
@@ -2101,15 +2112,24 @@ export function renderCollateralHero(options = {}) {
           border:1px solid var(--doc-edge);
           border-radius:9px;
           padding:26px 26px 16px;
-          /* THREE shadows now, and the middle one is the point. A sheet lying
-             on a table has a CONTACT shadow — tight, close, darker than the
-             ambient one — and without it the card floats regardless of how soft
-             the big shadow is. It is also warmer (74,54,30 against 60,46,28)
-             because the surface catching it is parchment, not a grey ground.
-             Still no glow and nothing hard-edged. */
-          box-shadow:0 1px 2px rgba(60,46,28,.06),
-                     0 10px 18px -8px rgba(74,54,30,.17),
-                     0 30px 56px -18px rgba(60,46,28,.22);
+          /* ALL WARM, ALL SHALLOW. Every value here was a cool brown-black
+             (60,46,28) which is the shadow a grey studio throws, not the one a
+             lit parchment room throws. 120,92,52 is the warm brown the plate's
+             own shadows resolve to, so the card is lit by the same room as the
+             scene it sits in.
+
+             It also sits LOWER now — 34px of blur at the outside where there
+             were 56, and the depth cut roughly a third. A card floating an inch
+             above the table reads as a widget; a few millimetres reads as paper
+             someone set down.
+
+             The offsets carry x, which the old ones did not. The table recedes
+             to the lower right and the light comes from the upper left, so the
+             shadow falls that way. A shadow with no x on a surface drawn in
+             perspective is the tell that an element was composited on. */
+          box-shadow:0 1px 1px rgba(120,92,52,.09),
+                     3px 6px 12px -4px rgba(120,92,52,.15),
+                     6px 18px 34px -14px rgba(120,92,52,.17);
           transition:transform 220ms cubic-bezier(.2,.8,.2,1),
                      box-shadow 220ms cubic-bezier(.2,.8,.2,1);
         }
@@ -2118,8 +2138,14 @@ export function renderCollateralHero(options = {}) {
            "rectangle with a border". */
         .clt .clt-doc::before{
           content:"";position:absolute;inset:0;border-radius:8px;pointer-events:none;
-          box-shadow:inset 1px 1px 0 rgba(255,255,255,.7),
-                     inset -1px -1px 0 rgba(120,100,70,.07),
+          box-shadow:inset 1px 1px 0 rgba(255,255,255,.85),
+                     inset -1px -1px 0 rgba(120,100,70,.10),
+                     /* Inner edge shadow. A sheet is not flat to its own edge —
+                        it curls a fraction, and the light falls off in the last
+                        few millimetres all the way round. 14px at .045 is under
+                        the threshold of being seen and over the threshold of
+                        being felt. */
+                     inset 0 0 14px rgba(122,96,54,.045),
                      /* Reflected warmth. The parchment under the card throws a
                         little of itself back onto the sheet's lower edge, which
                         is what stops the bottom of a light object reading as
@@ -2131,7 +2157,10 @@ export function renderCollateralHero(options = {}) {
            sheet than the ground it lies on. */
         .clt .clt-doc::after{
           content:"";position:absolute;inset:0;border-radius:8px;pointer-events:none;
-          opacity:.34;mix-blend-mode:multiply;
+          /* .5, up from .34. The card should read as a laid sheet rather than
+             a flat fill; the grain is most of what does that, and it was set
+             too politely to register at all. */
+          opacity:.5;mix-blend-mode:multiply;
           background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='.26'/%3E%3C/svg%3E");
         }
         .clt .clt-doc:hover{
@@ -2190,7 +2219,10 @@ export function renderCollateralHero(options = {}) {
           display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
         .clt .clt-doc-stripe svg{width:8px;height:8px;fill:#fff;display:block}
 
-        .clt .clt-doc-rows{margin-top:26px}
+        /* Tighter than the first rule: it separates two parts of one
+           document rather than the header from the body. */
+        .clt .clt-doc-div2{margin:19px 0 0}
+        .clt .clt-doc-rows{margin-top:6px}
         .clt .clt-doc-row{display:flex;align-items:center;gap:15px;padding:16px 0;
           border-top:1px solid var(--doc-rule)}
         .clt .clt-doc-row:first-child{border-top:0;padding-top:4px}
