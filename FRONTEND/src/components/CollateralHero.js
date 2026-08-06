@@ -555,7 +555,7 @@ export function renderCollateralHero(options = {}) {
              has to come right and the card has to come left. 9cqw is 135px at
              1497 and puts the plate's left edge at +1px, so the fill strip that
              appears is a single pixel. */
-          background-position:calc(100% + 9cqw) top;
+          background-position:calc(100% + 10cqw) top;
           background-size:cover;
           background-color:#EED6AF;
           background-repeat:no-repeat;
@@ -2044,17 +2044,29 @@ export function renderCollateralHero(options = {}) {
              92-853 and its top edge sat above the tallest head (88). At +36 it
              runs 128-889: the head clears it by 40px, and 156px of card now
              overlaps the table slab rather than torsos. */
-          /* 27cqw from the right, not 5. The card has to sit OVER the standing
+          /* 24cqw from the right, not 5. The card has to sit OVER the standing
              man to leave the writing and stamping men clear, and he is the
              leftmost of the three — so the card comes off the right edge and
-             into the middle of the frame. Measured at 1497x945 with the 9cqw
-             plate shift: card 573-1093; standing man 718-1110, so all but a
-             17px sliver of him is behind it; writing man 1062-1338, 89% of him
-             clear of it; stamping man and the seal both fully clear at 1273+
-             and 1436. */
-          right:27cqw;top:calc(50% + 36px);
+             into the middle of the frame.
+
+             WIDTH 462, DOWN FROM 520, and that is what made the composition
+             work rather than the hero getting taller. A 115vh hero would have
+             solved the overlap by pushing everything below the fold off a 13in
+             laptop, which is a real cost paid to avoid a 58px one. The card had
+             the whitespace to give: horizontal padding 30 -> 26 and the frame
+             58 narrower, with no reflow at all — height stays 761 and nothing
+             inside overflows, verified on the live page.
+
+             Measured at 1497x945 with the 10cqw plate shift: card 676-1138;
+             standing man 100% behind it; writing man 78% clear; stamping man
+             and the seal fully clear of it, seal 46px inside the right edge;
+             137px between the headline column and the card, up from 34.
+
+             At 1905x1080: card 986-1448, standing 92% covered, writing 94%
+             clear, seal 38px inside the edge, 300px off the headline. */
+          right:24cqw;top:calc(50% + 36px);
           transform:translateY(-50%);
-          width:min(520px,40cqw);
+          width:min(462px,38cqw);
         }
         /* ── THE DISSOLVE ──────────────────────────────────────────────────────
            The artwork quietens where it passes under the document, so the two
@@ -2088,7 +2100,7 @@ export function renderCollateralHero(options = {}) {
           background:var(--doc-bg);
           border:1px solid var(--doc-edge);
           border-radius:9px;
-          padding:26px 30px 16px;
+          padding:26px 26px 16px;
           /* THREE shadows now, and the middle one is the point. A sheet lying
              on a table has a CONTACT shadow — tight, close, darker than the
              ambient one — and without it the card floats regardless of how soft
