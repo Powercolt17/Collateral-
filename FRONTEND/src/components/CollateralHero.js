@@ -2085,7 +2085,7 @@ export function renderCollateralHero(options = {}) {
           /* Warmed ~4%: #F8F2E6 -> #F9F2E3 -> #FAF2DF. The card should be the
              warmest paper on the page — it is the object nearest the viewer
              and the one the light is falling on. */
-          --doc-bg:#FAF2DF;
+          --doc-bg:#FBF2DC;
           /* Border +13% contrast. At #D7C9AE the edge dissolved into the
              parchment behind it and the card lost its outline at a glance,
              which is most of why it read as light rather than substantial. */
@@ -2220,8 +2220,13 @@ export function renderCollateralHero(options = {}) {
            "rectangle with a border". */
         .clt .clt-doc::before{
           content:"";position:absolute;inset:0;border-radius:8px;pointer-events:none;
-          box-shadow:inset 1px 1px 0 rgba(255,255,255,.85),
-                     inset -1px -1px 0 rgba(120,100,70,.10),
+          /* THE BORDER READS AS ENGRAVED, not drawn. A printed keyline is a
+             DEBOSSED line: the paper is pressed, so there is a lit edge on the
+             side facing the light and a shaded one opposite. Highlight .85 ->
+             .92 and shade .10 -> .15 sharpens that read without adding a
+             second rule — the impression is the border, not an ornament on it. */
+          box-shadow:inset 1px 1px 0 rgba(255,255,255,.92),
+                     inset -1px -1px 0 rgba(120,100,70,.15),
                      /* Inner edge shadow. A sheet is not flat to its own edge —
                         it curls a fraction, and the light falls off in the last
                         few millimetres all the way round. 14px at .045 is under
@@ -2263,9 +2268,9 @@ export function renderCollateralHero(options = {}) {
              Sizes differ per layer so nothing tiles in step with anything else
              and no repeat becomes visible at any zoom. */
           background-image:
-            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='90'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04 0.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='90' filter='url(%23f)' opacity='0.13'/%3E%3C/svg%3E"),
-            radial-gradient(120% 80% at 18% 22%, rgba(120,96,54,.022), rgba(120,96,54,0) 70%),
-            radial-gradient(110% 90% at 82% 78%, rgba(120,96,54,.018), rgba(120,96,54,0) 68%),
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='90'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04 0.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='90' filter='url(%23f)' opacity='0.16'/%3E%3C/svg%3E"),
+            radial-gradient(120% 80% at 18% 22%, rgba(120,96,54,.026), rgba(120,96,54,0) 70%),
+            radial-gradient(110% 90% at 82% 78%, rgba(120,96,54,.022), rgba(120,96,54,0) 68%),
             url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)' opacity='0.26'/%3E%3C/svg%3E");
           background-size:220px 90px, 100% 100%, 100% 100%, 160px 160px;
         }
@@ -2341,12 +2346,28 @@ export function renderCollateralHero(options = {}) {
         .clt .clt-doc-div2{margin:19px 0 0}
         /* The register. Label left, value right, hairline between — the way a
            legal header sets a term, not the way a UI sets a field. */
+        /* TYPESET, NOT LAID OUT. Three things separate a legal register from a
+           key-value list:
+
+           A TAB STOP. grid-template-columns:auto means the label column is set
+           by the longest label and every value starts on the same vertical —
+           a real tab stop, not two independently flowing columns.
+
+           TRACKING SPLIT BY ROLE. Labels stay at .16em because tracked small
+           caps is what a caption is; values come down to .09em because tracked
+           DATA reads as decoration and a document sets its figures tight.
+
+           TABULAR FIGURES. CM-01942 and 31 AUGUST have to align on the same
+           right edge, and proportional digits put the 1s and the 9s on
+           different widths. tabular-nums is the difference between typeset and
+           typed. */
         .clt .clt-doc-reg{display:grid;grid-template-columns:auto 1fr;
-          gap:5px 14px;margin-top:13px;font-family:var(--doc-mono);
-          font-size:9px;letter-spacing:.16em;text-transform:uppercase;
-          line-height:1.62}
-        .clt .clt-doc-reg dt{color:var(--doc-soft)}
-        .clt .clt-doc-reg dd{color:var(--doc-ink);text-align:right;margin:0}
+          gap:6px 18px;margin-top:13px;font-family:var(--doc-mono);
+          font-size:9px;text-transform:uppercase;line-height:1.6;
+          font-variant-numeric:tabular-nums}
+        .clt .clt-doc-reg dt{color:var(--doc-soft);letter-spacing:.16em}
+        .clt .clt-doc-reg dd{color:var(--doc-ink);text-align:right;margin:0;
+          letter-spacing:.09em;font-variant-numeric:tabular-nums}
         .clt .clt-doc-rows{margin-top:6px}
         /* 11px, down from 16. The register above had to come from somewhere:
            the card cannot grow, because at 761 its top already sits exactly on
@@ -2371,6 +2392,7 @@ export function renderCollateralHero(options = {}) {
           font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
           color:var(--doc-ink);flex:1 1 auto}
         .clt .clt-doc-val{text-align:right;font-family:var(--text-serif);
+          font-variant-numeric:tabular-nums;
           font-size:21px;line-height:1.1;color:var(--doc-ink);white-space:nowrap}
         .clt .clt-doc-val small{display:block;margin-top:3px;
           font-family:var(--doc-mono);font-size:9px;
@@ -2402,7 +2424,8 @@ export function renderCollateralHero(options = {}) {
           text-transform:uppercase;color:var(--doc-ink)}
         .clt .clt-doc-o-t small{display:block;margin-top:3px;font-size:9.5px;
           font-weight:400;letter-spacing:.13em;color:var(--doc-soft)}
-        .clt .clt-doc-o-v{font-family:var(--text-serif);font-size:23px;white-space:nowrap}
+        .clt .clt-doc-o-v{font-family:var(--text-serif);font-size:23px;
+          white-space:nowrap;font-variant-numeric:tabular-nums}
         .clt .clt-doc-o-win .clt-doc-o-v{color:#3F6B3A}
         .clt .clt-doc-o-lose .clt-doc-o-v{color:#8E2B27}
 

@@ -46,6 +46,116 @@ using System.Runtime.InteropServices;
 public class Soften
 {
     static float C01(float v) { return v < 0f ? 0f : (v > 1f ? 1f : v); }
+    static float Smooth(float t) { t = C01(t); return t * t * (3f - 2f * t); }
+
+    /* UNSHARP MASK, and it is doing something a contrast curve cannot.
+       Global contrast separates dark from light across the whole plate; it does
+       nothing for a 1px engraved line sitting next to a 1px gap, because both
+       move together. Unsharp works on the DIFFERENCE between a pixel and its
+       neighbourhood, which is exactly what a line is. Radius 2 and amount .34 —
+       small enough that no halo forms around the figures, which is the failure
+       mode and the reason this is not set higher. */
+    static void Unsharp(byte[] a, int stride, int W, int H, float amount, int radius)
+    {
+        var blur = new byte[a.Length];
+        Array.Copy(a, blur, a.Length);
+        int win = radius * 2 + 1;
+        var tmp = new float[W * H * 3];
+        for (int y = 0; y < H; y++)          /* horizontal pass */
+            for (int c = 0; c < 3; c++)
+            {
+                float sum = 0; int n = 0;
+                for (int x = -radius; x <= radius; x++)
+                { int xx = Math.Min(W - 1, Math.Max(0, x)); sum += a[y * stride + xx * 4 + c]; n++; }
+                for (int x = 0; x < W; x++)
+                {
+                    tmp[(y * W + x) * 3 + c] = sum / n;
+                    int add = Math.Min(W - 1, x + radius + 1), sub = Math.Max(0, x - radius);
+                    sum += a[y * stride + add * 4 + c] - a[y * stride + sub * 4 + c];
+                }
+            }
+        for (int x = 0; x < W; x++)          /* vertical pass */
+            for (int c = 0; c < 3; c++)
+            {
+                float sum = 0; int n = 0;
+                for (int y = -radius; y <= radius; y++)
+                { int yy = Math.Min(H - 1, Math.Max(0, y)); sum += tmp[(yy * W + x) * 3 + c]; n++; }
+                for (int y = 0; y < H; y++)
+                {
+                    float mean = sum / n;
+                    int i = y * stride + x * 4 + c;
+                    float v = a[i] + amount * (a[i] - mean);
+                    blur[i] = (byte)C01(v / 255f) == 0 && v > 255 ? (byte)255 : (byte)Math.Max(0, Math.Min(255, v));
+                    int ad = Math.Min(H - 1, y + radius + 1), sb = Math.Max(0, y - radius);
+                    sum += tmp[(ad * W + x) * 3 + c] - tmp[(sb * W + x) * 3 + c];
+                }
+            }
+        Array.Copy(blur, a, a.Length);
+    }
+
+    /* THE SEAL. It is the climax of the picture and it was 87x57 pixels of a
+       1767px plate — smaller on screen than the card's own row labels.
+       Magnified about its own centre, enriched, and given a sheen.
+
+       The mask is an ELLIPSE, not a rectangle, feathered from 72% to 100% of
+       its radius. A rectangular patch would leave four straight seams in the
+       middle of a drawn scroll; an ellipse feathered over a quarter of its own
+       radius leaves none, because the blend finishes inside the wax and never
+       crosses onto the paper.
+
+       The sheen is one soft highlight placed up and left of centre. That is
+       where the plate's own light comes from — every figure is lit from upper
+       left — so a sheen anywhere else would read as a sticker. */
+    static void Seal(byte[] a, int stride, int W, int H,
+                     int cx, int cy, float rx, float ry,
+                     float scale, float sat, float contrast, float sheen)
+    {
+        var src = new byte[a.Length];
+        Array.Copy(a, src, a.Length);
+        int x0 = Math.Max(0, (int)(cx - rx) - 2), x1 = Math.Min(W - 1, (int)(cx + rx) + 2);
+        int y0 = Math.Max(0, (int)(cy - ry) - 2), y1 = Math.Min(H - 1, (int)(cy + ry) + 2);
+
+        float shx = cx - rx * 0.30f, shy = cy - ry * 0.34f;
+        float shr = rx * 0.52f;
+
+        for (int y = y0; y <= y1; y++)
+            for (int x = x0; x <= x1; x++)
+            {
+                float nx = (x - cx) / rx, ny = (y - cy) / ry;
+                float d = (float)Math.Sqrt(nx * nx + ny * ny);
+                if (d > 1f) continue;
+                float m = 1f - Smooth((d - 0.72f) / 0.28f);   /* 1 inside, 0 at the rim */
+                if (m <= 0f) continue;
+
+                /* sample the unscaled original at the inverse-scaled position */
+                float sx = cx + (x - cx) / scale, sy = cy + (y - cy) / scale;
+                int ix = (int)sx, iy = (int)sy;
+                float fx = sx - ix, fy = sy - iy;
+                ix = Math.Min(W - 2, Math.Max(0, ix)); iy = Math.Min(H - 2, Math.Max(0, iy));
+                float[] px = new float[3];
+                for (int c = 0; c < 3; c++)
+                {
+                    float p00 = src[iy * stride + ix * 4 + c], p10 = src[iy * stride + (ix + 1) * 4 + c];
+                    float p01 = src[(iy + 1) * stride + ix * 4 + c], p11 = src[(iy + 1) * stride + (ix + 1) * 4 + c];
+                    px[c] = (p00 * (1 - fx) + p10 * fx) * (1 - fy) + (p01 * (1 - fx) + p11 * fx) * fy;
+                }
+                float b2 = px[0] / 255f, g2 = px[1] / 255f, r2 = px[2] / 255f;
+                float lum = 0.2126f * r2 + 0.7152f * g2 + 0.0722f * b2;
+                r2 = lum + (r2 - lum) * sat; g2 = lum + (g2 - lum) * sat; b2 = lum + (b2 - lum) * sat;
+                r2 = lum + (r2 - lum); /* keep */
+                float mid = 0.42f;
+                r2 = mid + (r2 - mid) * contrast; g2 = mid + (g2 - mid) * contrast; b2 = mid + (b2 - mid) * contrast;
+
+                float sd = (float)Math.Sqrt((x - shx) * (x - shx) + (y - shy) * (y - shy)) / shr;
+                float sp = sheen * (1f - Smooth(sd));
+                r2 += sp; g2 += sp * 0.92f; b2 += sp * 0.80f;
+
+                int o = y * stride + x * 4;
+                a[o + 2] = (byte)(255f * C01(a[o + 2] / 255f * (1 - m) + C01(r2) * m));
+                a[o + 1] = (byte)(255f * C01(a[o + 1] / 255f * (1 - m) + C01(g2) * m));
+                a[o]     = (byte)(255f * C01(a[o] / 255f * (1 - m) + C01(b2) * m));
+            }
+    }
 
     static float MeanLuminance(Bitmap b)
     {
@@ -105,6 +215,13 @@ public class Soften
 
             a[i] = (byte)(bl * 255f); a[i + 1] = (byte)(g * 255f); a[i + 2] = (byte)(r * 255f);
         }
+        /* Order matters. Unsharp runs AFTER the veil, so it sharpens what will
+           actually ship rather than detail the veil then softens again. The
+           seal runs last so the veil never mutes the one thing that is supposed
+           to hold the eye. */
+        Unsharp(a, d.Stride, W, H, 0.34f, 2);
+        Seal(a, d.Stride, W, H, 1473, 687, 62f, 42f, 1.13f, 1.14f, 1.10f, 0.055f);
+
         Marshal.Copy(a, 0, d.Scan0, a.Length);
         b.UnlockBits(d);
 
