@@ -538,7 +538,35 @@ export function renderCollateralHero(options = {}) {
              on .clt-hero instead and the ungraded fill meets the graded plate
              at a visible vertical seam down the middle of the hero. Same value
              and same reasoning as the mobile panel. */
-          background-position:right top;
+          /* ── RECOMPOSED: THE SCENE SLIDES RIGHT ────────────────────────────
+             The card was landing on the standing figure instead of the table,
+             so the artwork moves out from under it. 12cqw, NOT the 18-22% the
+             brief asked for, and the number is set by the wax seal.
+
+             MEASURED off collateral-senate-frame.jpg (1767x1024): the seal sits
+             at x=1496, which is 271px from the image's right edge. At 1512x945
+             cover scales the plate by .923 and anchors it right, so the seal
+             renders at screen x=1262. A 20% shift is 302px and puts it at
+             1564 — past a 1512 viewport, gone. The same brief requires the seal
+             to stay visible, so 20% cannot be right; it was written without the
+             image's geometry to hand.
+
+             13cqw is 195px at 1497 and lands the seal at 1441, clear of the
+             card's right edge by 19px — it reads as peeking out from behind the
+             document rather than being buried by it. That is the largest shift
+             this composition affords.
+
+             cqw and not px, so the shift is the same fraction of the hero at
+             every width. A fixed offset would let the seal drift back under the
+             card on wide screens.
+
+             Sliding right exposes fill down the LEFT — 89px at 1512 — and that
+             costs nothing. The plate's left third is blank paper, measured at
+             #EBD3AB against this fill's #EED6AF: three values apart per
+             channel. Both sit under --plate-grade on this element, so they are
+             graded together and meet without a seam. That is the same reason
+             the fill was put here in the first place. */
+          background-position:calc(100% + 13cqw) top;
           background-size:cover;
           background-color:#EED6AF;
           background-repeat:no-repeat;
@@ -2020,9 +2048,38 @@ export function renderCollateralHero(options = {}) {
           --doc-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 
           position:absolute;z-index:3;
-          right:5cqw;top:50%;
+          /* +36px. Two things wanted it lower: the magistrate's head is the
+             highest thing on the right and should stay that way, and the card's
+             lower third needs to reach the table front, measured at 77.5% of
+             the plate = screen y 733 at 1512x945. At top:50% the card ran
+             92-853 and its top edge sat above the tallest head (88). At +36 it
+             runs 128-889: the head clears it by 40px, and 156px of card now
+             overlaps the table slab rather than torsos. */
+          right:5cqw;top:calc(50% + 36px);
           transform:translateY(-50%);
           width:min(520px,40cqw);
+        }
+        /* ── THE DISSOLVE ──────────────────────────────────────────────────────
+           The artwork quietens where it passes under the document, so the two
+           stop competing. THREE OVERLAPPING RADIALS, not one — a single radial
+           is a soft ellipse and reads as a vignette, and a linear-gradient
+           would read as exactly the rectangle the brief rules out. Three
+           centres at different offsets and radii sum to an irregular field with
+           no axis of symmetry, and the blur on top removes any edge either of
+           them might still have. Ink going quiet in paper, rather than a scrim.
+
+           It is inset NEGATIVE on all four sides so the softening starts well
+           outside the card and there is no boundary coincident with the card's
+           own edge — that coincidence is what makes a backing plate look like a
+           backing plate. Detail stays sharp everywhere it is not needed. */
+        .clt .clt-doc-wrap::before{
+          content:"";position:absolute;z-index:-1;pointer-events:none;
+          inset:-16% -14% -18% -20%;
+          background:
+            radial-gradient(58% 46% at 40% 34%, rgba(241,238,232,.90), rgba(241,238,232,0) 72%),
+            radial-gradient(54% 56% at 70% 60%, rgba(241,238,232,.86), rgba(241,238,232,0) 74%),
+            radial-gradient(48% 42% at 28% 76%, rgba(241,238,232,.82), rgba(241,238,232,0) 70%);
+          filter:blur(16px);
         }
         .clt .clt-doc{
           position:relative;
@@ -2030,11 +2087,15 @@ export function renderCollateralHero(options = {}) {
           border:1px solid var(--doc-edge);
           border-radius:9px;
           padding:26px 30px 16px;
-          /* Two shadows, both nearly invisible: a tight one that reads as the
-             sheet's own thickness, and a wide soft one that lifts it off the
-             plate. No glow, no colour in either. */
+          /* THREE shadows now, and the middle one is the point. A sheet lying
+             on a table has a CONTACT shadow — tight, close, darker than the
+             ambient one — and without it the card floats regardless of how soft
+             the big shadow is. It is also warmer (74,54,30 against 60,46,28)
+             because the surface catching it is parchment, not a grey ground.
+             Still no glow and nothing hard-edged. */
           box-shadow:0 1px 2px rgba(60,46,28,.06),
-                     0 18px 40px -14px rgba(60,46,28,.20);
+                     0 10px 18px -8px rgba(74,54,30,.17),
+                     0 30px 56px -18px rgba(60,46,28,.22);
           transition:transform 220ms cubic-bezier(.2,.8,.2,1),
                      box-shadow 220ms cubic-bezier(.2,.8,.2,1);
         }
@@ -2044,7 +2105,13 @@ export function renderCollateralHero(options = {}) {
         .clt .clt-doc::before{
           content:"";position:absolute;inset:0;border-radius:8px;pointer-events:none;
           box-shadow:inset 1px 1px 0 rgba(255,255,255,.7),
-                     inset -1px -1px 0 rgba(120,100,70,.07);
+                     inset -1px -1px 0 rgba(120,100,70,.07),
+                     /* Reflected warmth. The parchment under the card throws a
+                        little of itself back onto the sheet's lower edge, which
+                        is what stops the bottom of a light object reading as
+                        cut out. Barely present at .12 and confined to the last
+                        16px. */
+                     inset 0 -16px 20px -16px rgba(196,156,98,.12);
         }
         /* Paper grain, finer and fainter than the section's — this is a better
            sheet than the ground it lies on. */
