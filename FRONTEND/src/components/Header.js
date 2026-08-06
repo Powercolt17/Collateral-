@@ -1057,8 +1057,8 @@ export function renderHeader(currentRoute = '') {
             border-left: 1px solid rgba(122, 29, 43, .18);
             background: #F3EADB;
             box-shadow: -18px 0 48px rgba(40, 28, 14, 0);
-            transition: transform 320ms cubic-bezier(.22,.8,.22,1),
-                        box-shadow 320ms cubic-bezier(.22,.8,.22,1);
+            transition: transform 380ms cubic-bezier(.22,.8,.22,1),
+                        box-shadow 380ms cubic-bezier(.22,.8,.22,1);
         }
         /* Extremely light, per the brief — enough to lift the sheet off the page
            behind it and no more. The old one was 24px/60px at .38 alpha, which
@@ -1067,28 +1067,65 @@ export function renderHeader(currentRoute = '') {
 
         /* GRAIN, NOT PATTERN. The dotted 4px radial grid this replaces was the
            single loudest thing in the drawer: a visible, regular, machine-made
-           texture, which is the opposite of paper. Fractal turbulence at .05
-           alpha has no period at all — it reads as tooth in the sheet and
-           disappears the moment you stop looking for it. */
+           texture, which is the opposite of paper. Fractal turbulence has no
+           period at all — it reads as tooth in the sheet and disappears the
+           moment you stop looking for it.
+
+           MULTIPLY, AND THIS IS WHY THE DRAWER LOOKED NEARLY WHITE. The base is
+           and always was #F3EADB — verified on the live page as
+           rgb(243,234,219) — but desaturated turbulence is MID-GREY, and at
+           mix-blend-mode:normal half of every grain sample was LIGHTER than the
+           parchment under it. The layer was averaging the sheet toward grey,
+           which on a warm ground reads as washed out. Multiply lets grain only
+           ever darken, which is the only thing a fibre in paper can do. */
         .pnl-drawer::before {
             content: "";
             position: absolute;
             inset: 0;
             pointer-events: none;
-            opacity: .5;
+            opacity: .38;
+            mix-blend-mode: multiply;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.1'/%3E%3C/svg%3E");
             background-size: 180px 180px;
         }
         /* Both breakpoints declare their own transform, so the side has to be
            flipped in both — overriding only the base rule parks the drawer off
            the opposite edge and it never appears. */
+        /* ---------- THE FOLIO UNFOLD ----------
+           Not a slide. The panel is hinged on its right edge and swings open
+           like the cover of a bound folio: it starts rotated 9deg away from the
+           reader, so the leading (left) edge is further off than the spine, and
+           settles flat as it arrives.
+
+           WHY IT READS AS PAPER AND NOT AS A 3D EFFECT: perspective is 1500px
+           against a 420px panel, which is a very long lens — the foreshortening
+           is barely a few pixels of taper across the width. What the eye
+           actually registers is that the far edge arrives LAST, which is how a
+           physical sheet behaves and how no CSS slide behaves. 9deg is the
+           largest angle that still lands under the threshold where type starts
+           to look distorted mid-transition.
+
+           transform-origin is the right edge because that is the hinge. The
+           duration goes to 380ms: an unfold that takes exactly as long as a
+           slide reads as a slide with a glitch in it.
+
+           BOTH BREAKPOINTS, since each declares its own transform — overriding
+           only one parks the drawer off the opposite edge and it never
+           appears. */
+        .pnl-drawer { transform-origin: 100% 50%; will-change: transform; }
         @media (max-width: 767px) {
-            .pnl-drawer { transform: translateX(102%); width: 90vw; max-width: 420px; }
-            .pnl-drawer.open { transform: translateX(0); }
+            .pnl-drawer {
+                width: 90vw; max-width: 420px;
+                transform: perspective(1500px) translateX(102%) rotateY(-9deg);
+            }
+            .pnl-drawer.open { transform: perspective(1500px) translateX(0) rotateY(0deg); }
         }
         @media (min-width: 768px) {
-            .pnl-drawer { transform: translateX(102%); width: 420px; }
-            .pnl-drawer.open { transform: translateX(0); }
+            .pnl-drawer {
+                width: 420px;
+                transform: perspective(1500px) translateX(102%) rotateY(-9deg);
+            }
+            .pnl-drawer.open { transform: perspective(1500px) translateX(0) rotateY(0deg); }
         }
 
         /* ---------- staggered reveal ---------- */
@@ -1116,13 +1153,24 @@ export function renderHeader(currentRoute = '') {
             background: transparent;
             border-bottom: 1px solid rgba(122, 29, 43, .28);
         }
+        /* "NAVIGATION", NOT "MENU", AND NOT IN MONO. Two changes, one point.
+           "Menu" is what a phone app calls its drawer; an index page calls
+           itself what it is. And tracked uppercase mono is the voice of a
+           terminal — the same voice the whole rest of this pass removed — so
+           the one piece of text naming the panel was contradicting it. Cormorant
+           small caps, in ink rather than oxblood, because a title that names the
+           page does not also need to be the brightest thing on it.
+
+           NOT "COLLATERAL / Navigation". The wordmark is 20px away in the bar
+           behind this, at the same height, and still visible with the drawer
+           open — printing it twice on one line would read as a mistake. */
         .pnl-drawer .pnl-header-title {
-            font-family: "IBM Plex Mono", ui-monospace, monospace !important;
-            font-size: 9.5px;
-            font-weight: 500;
-            letter-spacing: .30em;
+            font-family: "Cormorant Garamond", Georgia, serif !important;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: .24em;
             text-transform: uppercase;
-            color: #7A1C29;
+            color: #3A3126;
         }
         /* The close control loses its box. A bordered 32px square in the corner
            of a drawer whose whole premise is "no boxes" was the first thing that
@@ -1191,7 +1239,10 @@ export function renderHeader(currentRoute = '') {
             text-transform: uppercase;
             color: #2A2118;
             min-height: 0 !important;
-            padding: 14px 26px !important;
+            /* 20px, up from 14 — about 40px between rows. Luxury print sets
+               its indexes loose; the constraint is the drawer's height, and at
+               six primary items this still clears the CTA on a 667px phone. */
+            padding: 20px 26px !important;
             border-right: none !important;
             transition: color 220ms cubic-bezier(.22,.8,.22,1);
         }
@@ -1200,15 +1251,23 @@ export function renderHeader(currentRoute = '') {
            tap and the label visibly grows as you leave the page. */
         .pnl-drawer .pnl-nav-link:hover { color: #7A1C29; }
 
-        /* ---------- ACTIVE: an edge mark, no fill, no right border ----------
+        /* ---------- ACTIVE: an edge mark, and BLACK TYPE ----------
            The original active state was a tinted fill plus a 3px rule down the
-           RIGHT edge; both were set with !important, so these have to be. */
+           RIGHT edge; both were set with !important, so these have to be.
+
+           THE INK STAYS INK. Setting the active label in oxblood made MARKET the
+           loudest thing in a drawer whose whole argument is restraint — every
+           other row whispered and one shouted, purely because of which page you
+           happened to be on. Colour is a poor carrier for "you are here"
+           anyway: it competes for the same channel the brand uses. The burgundy
+           moves entirely to the accent bar and the diamonds, where it marks
+           position without setting the type on fire. */
         .pnl-drawer .pnl-nav-link.active,
         .pnl-drawer .pnl-acct-link.active {
             background: transparent !important;
             border-right: none !important;
             border-left: none !important;
-            color: #7A1C29 !important;
+            color: #2A2118 !important;
         }
         @media (hover: hover) {
             .pnl-drawer .pnl-nav-link:hover,
@@ -1220,7 +1279,7 @@ export function renderHeader(currentRoute = '') {
         .pnl-drawer .pnl-nav-group-header::before {
             content: "";
             position: absolute;
-            left: 10px; top: 15px; bottom: 15px;
+            left: 10px; top: 20px; bottom: 20px;
             width: 2px;
             background: #7A1C29;
             transform: scaleY(0);
@@ -1303,8 +1362,10 @@ export function renderHeader(currentRoute = '') {
         }
         .pnl-drawer .pnl-subnav-link:first-child { padding-top: 4px; }
         .pnl-drawer .pnl-subnav-link:last-child { padding-bottom: 14px; }
+        /* Same rule as the primary rows: the burgundy lives in the diamond, not
+           in the words. Weight and a solid bullet carry "you are here". */
         .pnl-drawer .pnl-subnav-link.active {
-            color: #7A1C29 !important;
+            color: #2A2118 !important;
             font-weight: 600 !important;
             border-left: none !important;
             background: transparent !important;
@@ -1346,7 +1407,7 @@ export function renderHeader(currentRoute = '') {
            with 34px of air above it, one burgundy button is already the loudest
            thing in the drawer and needs nothing behind it. */
         .pnl-drawer .pnl-connect-section {
-            padding: 34px 26px 4px;
+            padding: 40px 26px 4px;
             background: transparent;
             border-top: none;
         }
@@ -1442,32 +1503,19 @@ export function renderHeader(currentRoute = '') {
            .collapsed rule left that call is simply a no-op, which is the quiet
            way to retire a behaviour without touching main.js. */
         .pnl-drawer .pnl-meta {
-            display: block;
-            margin: 7px 0 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin: 10px 0 0;
             padding: 0 0 0 15px;
             border-top: none;
             font-family: "IBM Plex Mono", ui-monospace, monospace;
-            font-size: 8.5px;
+            font-size: 9px;
             font-weight: 400;
             letter-spacing: .16em;
             text-transform: uppercase;
             color: #7C6E58;
         }
-        .pnl-drawer .pnl-legal {
-            gap: 16px;
-            margin-top: 12px;
-            padding-top: 0;
-            border-top: none;
-        }
-        .pnl-drawer .pnl-legal a {
-            font-family: "IBM Plex Mono", ui-monospace, monospace;
-            font-size: 8.5px;
-            letter-spacing: .14em;
-            text-transform: uppercase;
-            color: #8A7C64;
-            transition: color 200ms cubic-bezier(.22,.8,.22,1);
-        }
-        .pnl-drawer .pnl-legal a:hover { color: #7A1C29; }
 
         /* ---------- TYPE BASE ---------- */
         .pnl-drawer, .pnl-drawer .pnl-body, .pnl-drawer .pnl-legal {
@@ -1613,7 +1661,7 @@ export function renderHeader(currentRoute = '') {
                aria-label="Navigation & Account Menu">
             
             <div class="pnl-header">
-                <span class="pnl-header-title">Menu</span>
+                <span class="pnl-header-title">Navigation</span>
                 <button onclick="window.app.closeMobileMenu()" class="pnl-close" aria-label="Close menu">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
@@ -1777,19 +1825,25 @@ export function renderHeader(currentRoute = '') {
                     </div>
                 </div>
 
-                <!-- The same three facts the two-column grid held, set as one
-                     run-on line. A grid of label-over-value tiles is how a
-                     dashboard reports; a document states its terms in a line and
-                     moves on. #pnl-footer-meta is kept because toggleMobileMenu
-                     still strips .collapsed from it on desktop — with no
-                     .collapsed rule left, that call is a no-op. -->
-                <div id="pnl-footer-meta" class="pnl-meta">Mainnet &middot; USD Settlement &middot; 99.9% Uptime</div>
-
-                <div class="pnl-legal">
-                    <a href="/terms" onclick="window.app.closeMobileMenu()">Terms</a>
-                    <a href="/docs" onclick="window.app.closeMobileMenu()">Docs</a>
-                    <a href="https://x.com/collaboralcap" target="_blank" rel="noopener">X / Twitter</a>
+                <!-- Three facts, three lines, under the status they qualify.
+                     Run together with middots they read as a strapline; stacked,
+                     they read as a standing declaration — which is what an
+                     institution's status block is. #pnl-footer-meta keeps its id
+                     because toggleMobileMenu still strips .collapsed from it on
+                     desktop; with no .collapsed rule left, that call is a
+                     no-op. -->
+                <div id="pnl-footer-meta" class="pnl-meta">
+                    <span>Mainnet</span>
+                    <span>USD Settlement</span>
+                    <span>99.9% Uptime</span>
                 </div>
+
+                <!-- TERMS / DOCS / X ARE GONE FROM HERE. A navigation drawer
+                     that also carries legal and social links is a sitemap, and
+                     they were the last thing in it still behaving like page
+                     furniture. They belong in the site footer, which is where
+                     someone looking for them would go. -->
+
             </div>
         </aside>
     `;
