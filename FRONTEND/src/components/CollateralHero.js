@@ -221,7 +221,7 @@ function renderContractDoc() {
  */
 export function renderCollateralHero(options = {}) {
     const {
-        plateSrc = '/assets/images/collateral-senate-frame.jpg',
+        plateSrc = "/assets/images/collateral-senate-frame-soft.jpg",
         heldInEscrow = '$8,700,000',
         settledToday = '$597,736',
         settledCount = 54,
@@ -570,7 +570,14 @@ export function renderCollateralHero(options = {}) {
           background-size:cover;
           background-color:#EED6AF;
           background-repeat:no-repeat;
-          filter:var(--plate-grade);
+          /* NO RUNTIME FILTER. The grade AND the 20% veil toward --paper are
+             baked into collateral-senate-frame-soft.jpg by
+             tools/soften-hero-plate.ps1. This is a full-viewport layer and the
+             LCP element; a filter here is re-evaluated by the compositor on
+             every paint — during the press reveal, on scroll, on resize — for a
+             result that never changes. Baked costs one export and nothing at
+             runtime, and the file came down 406KB to 332KB with it. */
+          filter:none;
 
           /* THE PRESS. The plate does not fade in, it prints.
 
@@ -644,12 +651,27 @@ export function renderCollateralHero(options = {}) {
             radial-gradient(120% 90% at 68% 78%,
               rgba(239,230,210,0) 40%,
               rgba(239,230,210,.35) 100%),
+            /* EXTENDED RIGHT, 70% -> 88%. The card spans 48-79% of the hero,
+               so a scrim that reached zero at 70% left the card's right half
+               and everything past it sitting on full-strength artwork — which
+               is where the seam read hardest and where the card's own text had
+               the busiest ground behind it. */
             linear-gradient(90deg,
               rgba(239,230,210,.96) 0%,
-              rgba(239,230,210,.93) 28%,
-              rgba(239,230,210,.86) 44%,
-              rgba(239,230,210,.45) 56%,
-              rgba(239,230,210,0) 70%);
+              rgba(239,230,210,.93) 26%,
+              rgba(239,230,210,.86) 42%,
+              rgba(239,230,210,.52) 56%,
+              rgba(239,230,210,.22) 72%,
+              rgba(239,230,210,0) 88%),
+            /* Right edge. Without it the plate stops dead on the viewport
+               boundary — the hard line the brief is describing. */
+            linear-gradient(270deg,
+              rgba(239,230,210,.50) 0%,
+              rgba(239,230,210,0) 11%),
+            /* Bottom, into the proof strip below. */
+            linear-gradient(0deg,
+              rgba(239,230,210,.55) 0%,
+              rgba(239,230,210,0) 9%);
         }
         /* AMBIENT SWEEP. Sits on .clt-sky::after so it inherits that layer's
            left-to-right mask, which keeps it off the type column for free. New
@@ -2041,7 +2063,9 @@ export function renderCollateralHero(options = {}) {
           --doc-edge:#D7C9AE;
           --doc-rule:#E2D7BF;
           --doc-ink:#2A2622;
-          --doc-soft:#7A7060;
+          /* #7A7060 measured 4.31:1 at 9px. #6B6152 is 5.24:1 and still reads
+             as the muted voice against the ink. */
+          --doc-soft:#6B6152;
           --doc-ox:#6D1F2D;
           --doc-sage-bg:#EDF0E6;
           --doc-ox-bg:#F6EAE9;
@@ -2075,7 +2099,15 @@ export function renderCollateralHero(options = {}) {
 
              At 1905x1080: card 986-1448, standing 92% covered, writing 94%
              clear, seal 38px inside the edge, 300px off the headline. */
-          right:21cqw;top:calc(50% + 36px);
+          /* BACK TO 50%, dropping the earlier +36. Measured: the standing
+             man's crown is at plate y=94, which is screen y=87, and the card
+             top at +36 sat at 128 — so his head cleared the card by 41px and
+             broke its top edge, which is the thing being complained about.
+             There is no room to go higher either: the header is 92px and a card
+             top of 78 would sit 14px UNDER the nav. At 50% the card top is 92,
+             exactly the header's bottom, which leaves 5px of crown showing —
+             and those 5px are behind the header itself. */
+          right:21cqw;top:50%;
           transform:translateY(-50%);
           width:min(462px,38cqw);
         }
@@ -2127,9 +2159,16 @@ export function renderCollateralHero(options = {}) {
              to the lower right and the light comes from the upper left, so the
              shadow falls that way. A shadow with no x on a surface drawn in
              perspective is the tell that an element was composited on. */
+          /* DELIBERATE LIFT. The previous set was tuned to sit the card a few
+             millimetres off the table; against a plate that is now veiled 20%
+             toward the page, that read as flat. The outer shadow goes back out
+             to 24/60 — the brief's own figure — but warm (60,40,20) rather than
+             the neutral it suggested, because everything around it is
+             parchment. The tight contact shadow stays, so the card is lifted
+             AND still touching. */
           box-shadow:0 1px 1px rgba(120,92,52,.09),
-                     3px 6px 12px -4px rgba(120,92,52,.15),
-                     6px 18px 34px -14px rgba(120,92,52,.17);
+                     3px 6px 12px -4px rgba(120,92,52,.14),
+                     6px 24px 60px -18px rgba(60,40,20,.18);
           transition:transform 220ms cubic-bezier(.2,.8,.2,1),
                      box-shadow 220ms cubic-bezier(.2,.8,.2,1);
         }
