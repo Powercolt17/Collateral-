@@ -2,6 +2,22 @@
 #
 #   powershell -File FRONTEND/tools/make-favicon.ps1
 #
+# ── SUPERSEDED. RUNNING THIS WILL OVERWRITE THE CURRENT FAVICON. ──────────────
+# The shipped icons are now generated from a supplied PHOTOGRAPH of the seal
+# (collateral_favicon_32x32_source.png), cropped to its red pixels at 129,51,538
+# and rendered at 16/32/48/180. This script still draws the vector mark and will
+# replace those files if it is run.
+#
+# The trade was measured before shipping, and the warning below is correct: on
+# the photograph the C separates from the wax by 4.9-11.3 luma at 16px against
+# roughly 150 for the drawn knockout. Contrast does not recover it — tested at
+# 1.4, 1.8, 2.4 and 3.2, where separation went 8.8, 6.9, 6.1, 6.9, i.e. WORSE,
+# because the C and the wax saturate together. It reads as a wine disc at tab
+# size and as the real seal at 180.
+#
+# That was a design decision, not an oversight. Run this script to go back.
+# ──────────────────────────────────────────────────────────────────────────────
+#
 # WHY THIS EXISTS. FRONTEND/favicon.ico was a JPEG with an .ico extension, and
 # it sat in FRONTEND/ rather than FRONTEND/public/, so Vite never served it.
 # /favicon.ico returned 404 and every browser fell back to its own default mark.
