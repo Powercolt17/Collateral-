@@ -195,7 +195,29 @@ export function renderActiveContracts() {
             .xh-band-art {
                 position: absolute;
                 inset: -130px -1% 0;
-                background: url("/assets/images/trading-hall.webp") center 42% / cover no-repeat;
+                /* CROPPED IN ON THE DESK, which is the one compositional change
+                   available without repainting the plate.
+
+                   background-size:cover was showing the ENTIRE width of a
+                   1792px panorama, so
+                   the frame contained the whole institution and the central
+                   transaction was one incident among many. 128% width shows
+                   about 78% of the plate horizontally and 48% vertically — a
+                   22% tighter crop that walks the far-left desk and the outer
+                   archive bays off the edges and leaves the operator, the desk
+                   and the scribe holding the middle.
+
+                   THE VERTICAL ANCHOR IS 48%, NOT CENTRE. The temple has to
+                   survive above the desk or the hall stops being a hall, and
+                   the counter has to land low enough that the dissolve and the
+                   contract card both meet it. 48% puts the visible window at
+                   roughly a quarter to three-quarters of the plate: ceiling at
+                   the top, counter across the bottom third.
+
+                   This is a crop, not a fix. The plate is still a panorama being
+                   asked to behave like a portrait of one transaction, and the
+                   real answer is a purpose-built engraving. */
+                background: url("/assets/images/trading-hall.webp") 50% 48% / 128% auto no-repeat;
                 mix-blend-mode: multiply;
                 /* THE DISSOLVE IS AN ELLIPSE NOW, NOT A LINE, and that is the
                    whole answer to "it still reads as a horizontal band".
@@ -250,7 +272,7 @@ export function renderActiveContracts() {
                 pointer-events: none;
                 mix-blend-mode: multiply;
                 background:
-                    radial-gradient(120% 80% at 78% 46%, rgba(74,58,36,.16), rgba(74,58,36,0) 58%),
+                    radial-gradient(110% 78% at 82% 44%, rgba(74,58,36,.17), rgba(74,58,36,0) 56%),
                     /* THE WINGS FALL OFF. A tenth of a stop of extra ink down
                        the outer 24% of each side, so the hall darkens toward the
                        frame and the eye is left with one bright place to go.
@@ -274,7 +296,7 @@ export function renderActiveContracts() {
                 inset: 0;
                 pointer-events: none;
                 mix-blend-mode: screen;
-                background: radial-gradient(52% 42% at 58% 70%, rgba(255,246,226,.34), rgba(255,246,226,0) 72%);
+                background: radial-gradient(48% 40% at 54% 68%, rgba(255,246,226,.36), rgba(255,246,226,0) 72%);
                 /* THE ONE THING THAT MOVES. The hall's light breathes between
                    90% and 100% over fifteen seconds — about three points of
                    actual alpha on a .30 layer, which is under the threshold at
