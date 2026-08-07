@@ -113,8 +113,17 @@ export function renderChapterRuleStyles() {
            it does not depend on finding a tint that survives next to gold ink.
 
            It is .clt-strip, INSIDE the hero wrapper, not .orc. .orc is the
-           802px oracle register further down the page and is untouched. */
-        .lp .clt-strip{background-color:transparent}
+           802px oracle register further down the page and is untouched.
+
+           THE TAN WAS A GRADIENT, NOT A COLOUR. CollateralHero.js declares
+           background-image:linear-gradient(rgb(236,225,199),rgb(233,221,192))
+           on .clt-strip. Setting background-color:transparent did nothing to
+           it, and — worse — my verification read background-COLOR only, so it
+           looked straight through the gradient, found the paper underneath and
+           reported "one paper" three times while the band was still visibly
+           tan. background-image has to be cleared explicitly, and a paint audit
+           has to read colour AND image AND pseudo-elements. */
+        .lp .clt-strip{background-color:transparent;background-image:none}
 
         /* The rules do the work now, so they are drawn properly: a hairline
            that fades at both ends rather than running edge to edge, matching
