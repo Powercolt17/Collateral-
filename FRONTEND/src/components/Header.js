@@ -82,7 +82,14 @@ export function renderHeader(currentRoute = '') {
                header by 22px, so a 92px bar would put it 6px UNDER. The target
                is a desktop frame and this is a desktop change. */
             @media (min-width: 1024px) {
-                .ch-header { height: 92px; }
+                /* 84px, down from 92. Eight pixels off the bar on EVERY route,
+                   because the header is one shared component — "every page
+                   should share identical header proportions" is already true,
+                   and forking a market-only bar is what would break it.
+                   Everything below now clears the bar by MORE than it did, so
+                   nothing can collide: the landing card's clearance was measured
+                   at 110px against the old 92. */
+                .ch-header { height: 84px; }
                 /* Selector is .ch-header .ch-header-inner, not .ch-header-inner
                    alone. The base padding rule is declared LATER in this same
                    stylesheet, so at equal specificity it wins on source order

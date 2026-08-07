@@ -108,9 +108,34 @@ export function renderActiveContracts() {
                which is what makes the two read as one composition rather than
                as an image with a section under it. ═════════════════════════ */
 
-            /* 92px of clearance for the fixed header, since the band is the
-               first thing on the page and would otherwise start beneath it. */
-            .xh { position: relative; padding-top: 92px; }
+            /* THE WHITE BAR UNDER THE HEADER WAS NEVER THE HEADER. The bar is
+               background:transparent at rest — what was showing through it is
+               #app, which carries Tailwind's pt-24 (96px) on every route, over a
+               body painted with --bg-page. So the top of this page was 96px of
+               white, then 92px of parchment from the rule below, and only then
+               the hall.
+
+               Two things fall out of that:
+
+                 THE SEAM. Fixed by painting the page's own paper behind #app,
+                 further down this block, so the strip and the sheet are one
+                 value and the header genuinely disappears into it.
+
+                 188px OF CLEARANCE FOR A 92px HEADER. #app's 96px already
+                 clears the bar; this rule was adding a second, nearly equal
+                 offset on top of it. Removing it takes 92px of dead parchment
+                 out of the hero on its own — the single largest cut in this
+                 pass, and it costs nothing, because it was never doing
+                 anything. */
+            .xh { position: relative; padding-top: 0; }
+
+            /* ONE SHEET, FROM THE TOP EDGE DOWN. #app is where the page's
+               background has to be set — .eq starts BELOW its padding, so
+               painting .eq alone can never reach the strip the header sits on.
+               Scoped through :has() to this route only, so no other view's
+               ground is touched by a market-hero commit. */
+            body:has(.eq) { background: #F1E8D3; }
+            body:has(.eq) #app { background: #F1E8D3; }
 
             /* ---- the hall banner ----
                600px, up from 466 — 29% taller. The establishing shot has to
@@ -118,7 +143,7 @@ export function renderActiveContracts() {
             .xh-band {
                 position: relative;
                 width: 100%;
-                height: 600px;
+                height: clamp(300px, 44vh, 460px);
                 overflow: hidden;
                 /* Must be the page's exact ground, not the token: the plate
                    multiplies against this, so any difference between the band's
@@ -183,11 +208,11 @@ export function renderActiveContracts() {
                    lower half meets it, and the last 8% still falls clean away so
                    there is no edge at the band's bottom. */
                 -webkit-mask-image:
-                    linear-gradient(to bottom, transparent 0%, #000 9%, #000 68%, rgba(0,0,0,.82) 82%, rgba(0,0,0,.40) 93%, transparent 100%),
+                    linear-gradient(to bottom, transparent 0%, #000 9%, #000 76%, rgba(0,0,0,.88) 88%, rgba(0,0,0,.46) 96%, transparent 100%),
                     linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%);
                 -webkit-mask-composite: source-in;
                 mask-image:
-                    linear-gradient(to bottom, transparent 0%, #000 9%, #000 68%, rgba(0,0,0,.82) 82%, rgba(0,0,0,.40) 93%, transparent 100%),
+                    linear-gradient(to bottom, transparent 0%, #000 9%, #000 76%, rgba(0,0,0,.88) 88%, rgba(0,0,0,.46) 96%, transparent 100%),
                     linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%);
                 mask-composite: intersect;
                 will-change: transform;
@@ -321,13 +346,13 @@ export function renderActiveContracts() {
                 position: relative;
                 max-width: 1440px;
                 margin: 0 auto;
-                padding: 0 60px 64px;
+                padding: 0 60px 40px;
                 display: grid;
                 grid-template-columns: 1fr auto;
                 gap: 56px;
                 align-items: start;
             }
-            .xh-lead { display: flex; flex-direction: column; min-height: 430px; padding-top: 56px; }
+            .xh-lead { display: flex; flex-direction: column; padding-top: 30px; }
             /* CARVED, NOT SET. Three changes, all of them about authority
                rather than size — the headline does not get bigger.
 
@@ -344,15 +369,15 @@ export function renderActiveContracts() {
                One word in one other colour is the whole emphasis. */
             .xh-h1 {
                 font-family: "Cormorant Garamond", Georgia, serif;
-                font-weight: 600; font-size: 80px; line-height: 1.02;
-                letter-spacing: .004em; margin: 0 0 26px;
-                color: var(--ink, #211B12); max-width: 12ch;
+                font-weight: 600; font-size: 66px; line-height: 1.04;
+                letter-spacing: .004em; margin: 0 0 14px;
+                color: var(--ink, #211B12); max-width: 15ch;
             }
             .xh-h1 .ox { color: #7C1D2B; }
             .xh-lede {
                 font-family: "EB Garamond", Georgia, serif;
-                font-size: 20px; line-height: 1.6; color: #574E3D;
-                max-width: 386px; margin: 0 0 40px;
+                font-size: 18px; line-height: 1.58; color: #574E3D;
+                max-width: 480px; margin: 0 0 26px;
             }
             .xh-cta { display: flex; align-items: center; gap: 28px; }
             /* Its own button, NOT .eq-btn-primary. That rule is written with
@@ -364,7 +389,7 @@ export function renderActiveContracts() {
                 background: #7C1D2B; color: #F6EEDD;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 11.5px; letter-spacing: .22em; text-transform: uppercase;
-                padding: 17px 30px; border: 1px solid #5E1420; border-radius: 2px;
+                padding: 15px 28px; border: 1px solid #5E1420; border-radius: 2px;
                 text-decoration: none; cursor: pointer;
                 box-shadow: 0 8px 20px rgba(94,20,32,.20);
                 transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
@@ -389,13 +414,13 @@ export function renderActiveContracts() {
                two read as one control group. */
             .xh-stats {
                 display: flex; gap: 44px; align-items: center;
-                margin-top: auto; padding-top: 58px;
+                margin-top: auto; padding-top: 30px;
                 border-top: 1px solid rgba(70,55,35,.20);
             }
             .xh-stats .sep { width: 1px; height: 42px; background: rgba(70,55,35,.20); }
             .xh-stat .n {
                 font-family: "Cormorant Garamond", Georgia, serif;
-                font-size: 40px; font-weight: 600; line-height: 1; color: var(--ink, #211B12);
+                font-size: 33px; font-weight: 600; line-height: 1; color: var(--ink, #211B12);
             }
             .xh-stat .k {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
@@ -426,15 +451,15 @@ export function renderActiveContracts() {
                line rather than resting on it, so it emerges from the desk
                instead of sitting on the seam. */
             .xh-contract {
-                position: relative; margin-top: -186px; z-index: 4;
-                width: 384px; background: #F5EDDA;
+                position: relative; margin-top: -216px; z-index: 4;
+                width: 342px; background: #F5EDDA;
                 border: 1px solid rgba(70,55,35,.34);
                 box-shadow:
                     inset 0 1px 0 rgba(255,250,235,.72),
                     0 2px 3px rgba(40,25,12,.22),
                     0 14px 26px -10px rgba(40,25,12,.20),
                     0 40px 70px -30px rgba(40,25,12,.16);
-                padding: 20px 22px 16px;
+                padding: 18px 20px 14px;
                 will-change: transform;
             }
             /* THE SHEET SITS IN THE SCENE'S LIGHT. The band's brightest point is
@@ -456,45 +481,45 @@ export function renderActiveContracts() {
             .xh-ct-top { display: flex; align-items: center; justify-content: space-between; }
             .xh-ct-label {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 9px; letter-spacing: .26em; text-transform: uppercase; color: #8E8065;
+                font-size: 8.5px; letter-spacing: .26em; text-transform: uppercase; color: #8E8065;
             }
             .xh-live {
                 display: inline-flex; align-items: center; gap: 7px;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: #4E6B3E;
+                font-size: 8.5px; letter-spacing: .18em; text-transform: uppercase; color: #4E6B3E;
             }
             .xh-live .d { width: 6px; height: 6px; border-radius: 50%; background: #4E6B3E; box-shadow: 0 0 0 3px rgba(78,107,62,.14); }
             .xh-ct-title {
                 font-family: "Cormorant Garamond", Georgia, serif;
-                font-size: 29px; font-weight: 600; line-height: 1;
-                margin: 12px 0 0; color: var(--ink, #211B12);
+                font-size: 26px; font-weight: 600; line-height: 1;
+                margin: 10px 0 0; color: var(--ink, #211B12);
             }
-            .xh-ct-rule { height: 1px; background: rgba(70,55,35,.30); margin: 14px 0 2px; position: relative; }
+            .xh-ct-rule { height: 1px; background: rgba(70,55,35,.30); margin: 12px 0 2px; position: relative; }
             .xh-ct-rule::after { content: ""; position: absolute; left: 0; right: 0; top: 2px; height: 1px; background: rgba(70,55,35,.11); }
             .xh-grp {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 8.5px; letter-spacing: .24em; text-transform: uppercase;
                 color: #B4A98C; margin: 14px 0 6px;
             }
-            .xh-crow { display: flex; align-items: center; gap: 11px; padding: 8px 0; border-bottom: 1px solid rgba(70,55,35,.11); }
-            .xh-cico { width: 20px; height: 20px; flex: none; color: #574E3D; }
+            .xh-crow { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(70,55,35,.11); }
+            .xh-cico { width: 18px; height: 18px; flex: none; color: #574E3D; }
             .xh-crow .ck {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #8E8065;
+                font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: #8E8065;
             }
             .xh-crow .cv {
                 margin-left: auto; font-family: "Cormorant Garamond", Georgia, serif;
-                font-size: 21px; font-weight: 600; color: var(--ink, #211B12);
+                font-size: 19px; font-weight: 600; color: var(--ink, #211B12);
             }
             .xh-crow .cv small {
                 display: block; font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 8.5px; letter-spacing: .08em; color: #8E8065;
+                font-size: 8px; letter-spacing: .08em; color: #8E8065;
                 text-align: right; margin-top: 2px; font-weight: 400;
             }
             /* A ruled 2x2 register — the same certification block the landing
                card uses, so the two cards state their verification the same way. */
             .xh-vgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(70,55,35,.11); border: 1px solid rgba(70,55,35,.11); }
-            .xh-vcell { background: #F5EDDA; padding: 9px 11px; }
+            .xh-vcell { background: #F5EDDA; padding: 8px 10px; }
             .xh-vcell .k {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 8px; letter-spacing: .16em; text-transform: uppercase;
@@ -502,24 +527,24 @@ export function renderActiveContracts() {
             }
             .xh-vcell .v {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .04em; color: var(--ink, #211B12); font-weight: 500;
+                font-size: 10.5px; letter-spacing: .04em; color: var(--ink, #211B12); font-weight: 500;
             }
             .xh-vcell .v.ok { color: #3F5A31; }
-            .xh-out { display: flex; align-items: center; gap: 11px; padding: 10px 12px; margin-top: 7px; border: 1px solid rgba(70,55,35,.11); }
+            .xh-out { display: flex; align-items: center; gap: 10px; padding: 9px 11px; margin-top: 6px; border: 1px solid rgba(70,55,35,.11); }
             .xh-out.win { background: rgba(78,107,62,.07); }
             .xh-out.lose { background: rgba(124,29,43,.06); }
             .xh-out .ok2 {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500;
+                font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500;
             }
             .xh-out .os {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 8.5px; letter-spacing: .05em; color: #7A6D55; margin-top: 3px;
+                font-size: 8px; letter-spacing: .05em; color: #7A6D55; margin-top: 3px;
             }
-            .xh-out .ov { margin-left: auto; font-family: "Cormorant Garamond", Georgia, serif; font-size: 23px; font-weight: 600; }
+            .xh-out .ov { margin-left: auto; font-family: "Cormorant Garamond", Georgia, serif; font-size: 21px; font-weight: 600; }
             .xh-out.win .ov { color: #3F5A31; }
             .xh-out.lose .ov { color: #7C1D2B; }
-            .xh-ct-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+            .xh-ct-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
             .xh-ct-foot span {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 8.5px; letter-spacing: .12em; text-transform: uppercase;
@@ -556,7 +581,7 @@ export function renderActiveContracts() {
                 .xh-ref { right: 40px; }
             }
             @media (max-width: 1000px) {
-                .xh-band { height: 340px; }
+                .xh-band { height: clamp(260px, 38vh, 340px); }
                 .xh-body { grid-template-columns: 1fr; padding: 0 32px 48px; }
                 .xh-lead { min-height: 0; padding-top: 32px; }
                 .xh-contract { margin: 8px 0 0; width: 100%; max-width: 420px; }
@@ -565,8 +590,9 @@ export function renderActiveContracts() {
                 .xh-ref { right: 32px; }
             }
             @media (max-width: 700px) {
-                .xh { padding-top: 76px; }
-                .xh-band { height: 240px; }
+                /* No padding-top override here either — #app's 96px is the
+                   header clearance on every breakpoint now. */
+                .xh-band { height: clamp(200px, 30vh, 260px); }
                 .xh h1.xh-h1 { font-size: 38px !important; letter-spacing: .004em !important; line-height: 1.0 !important; }
                 .xh-lede { font-size: 17px; }
                 .xh-ref { display: none; }
