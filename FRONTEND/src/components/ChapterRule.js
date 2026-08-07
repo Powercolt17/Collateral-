@@ -103,6 +103,22 @@ export function renderChapterRuleStyles() {
            in the first place. */
         .lp .cl-grain{z-index:3}
 
+        /* ── THE ONE DELIBERATE EXCEPTION TO THE SINGLE PAPER ────────────────
+           The oracle band under the hero, #EBE0C6: a hair deeper and warmer
+           than the page. Everything else on this page is one paper on purpose,
+           and this is the single strip that is allowed not to be.
+
+           It is not a leftover panel. The band already carries a 1px hairline
+           on both edges, so with a slightly deeper ground it reads as a struck
+           seal-of-authenticity strip rather than as another stacked section —
+           the same way a printed instrument tints the block that carries its
+           attestations. Warmer rather than merely darker, which is what takes
+           the green cast off it.
+
+           It is .clt-strip, INSIDE the hero wrapper, not .orc. .orc is the
+           802px oracle register further down the page and is untouched. */
+        .lp .clt-strip{background-color:#EBE0C6}
+
         /* The card fills. These were rgb(250,245,232) — lighter than the page,
            which is what made them read as panels sitting on top of it. */
         .lp .flw-panel,.lp .prc-calc,.lp .prc-pane,.lp .prc-tier,
