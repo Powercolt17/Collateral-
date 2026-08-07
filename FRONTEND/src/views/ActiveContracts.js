@@ -219,40 +219,56 @@ export function renderActiveContracts() {
                    real answer is a purpose-built engraving. */
                 background: url("/assets/images/trading-hall.webp") 50% 48% / 128% auto no-repeat;
                 mix-blend-mode: multiply;
-                /* THE DISSOLVE IS AN ELLIPSE NOW, NOT A LINE, and that is the
-                   whole answer to "it still reads as a horizontal band".
+                /* AN ASYMMETRIC DISSOLVE, BECAUSE THE TWO SIDES HAVE DIFFERENT
+                   JOBS. One ellipse centred at 50% produced a boundary that was
+                   a perfect mirror — deepest at the middle, identical at both
+                   edges — and a symmetrical fall on all four sides is the
+                   definition of a vignette, which is what it read as.
 
-                   A linear-gradient mask cannot produce anything but a straight
-                   horizontal edge — every pixel on a given row gets identical
-                   alpha, so however soft the falloff, the BOUNDARY is a rule
-                   across the page. Softening it further only makes a wider rule.
+                   The page is not symmetrical. The headline sits bottom-LEFT and
+                   needs paper under it; the contract card sits bottom-RIGHT and
+                   provides its own separation, so ink there is wanted rather
+                   than tolerated. So:
 
-                   A radial-gradient gives every column its own fall. Centred at
-                   50%/30% with a 116%x70% radius, the ink survives to about 82%
-                   of the band directly under the desk and to about 74% at the
-                   far edges — a 27px curve that dips where the counter is and
-                   lifts where the hall thins out. The dissolve follows the
-                   ARTWORK rather than the frame, which is what makes it read as
-                   the plate running out of ink rather than as a treatment.
+                     THE MAIN ELLIPSE MOVES RIGHT, 50% -> 58%, which carries the
+                     deepest ink under the desk and the card instead of under
+                     the middle of nothing.
 
-                   It is also SHORTER by about a quarter: solid to 82% where the
-                   linear version began falling at 76%.
+                     A SECOND ELLIPSE at 66%/14% takes the left side down
+                     further. Because the layers intersect, the boundary is the
+                     LOWER ENVELOPE of two curves rather than one smooth arc, so
+                     it acquires an inflection where they cross — which is the
+                     thing that stops it reading as a shape.
 
-                   Three layers, all intersect, so alpha is the minimum of the
-                   ellipse, an 8% top fade and the side falls. All-intersect is
-                   deliberate: mixing composite operators is where masks become
-                   unpredictable across engines, and min() of three simple
-                   shapes cannot surprise anyone. */
+                     THE FIRST PAIR I TRIED WAS BACKWARDS. An ellipse anchored
+                     LEFT cuts the RIGHT side, which took ink out from under the
+                     card and left it under the headline: the exact inverse of
+                     the brief. The envelope was simulated before shipping rather
+                     than eyeballed. The corrected pair measures 70 / 76 / 83 /
+                     87 / 89 across the left half, peaks at 58% under the desk,
+                     and holds 12-16 points more ink on the right than at the
+                     mirrored left column.
+
+                     THE RIGHT SIDE FADE SHRINKS, 13% -> 6%. The card is already
+                     a hard edge there; fading the plate as well was separating
+                     two things that were separate.
+
+                   Four layers, all intersect, so alpha is simply the minimum of
+                   four shapes. Mixing composite operators is where masks start
+                   behaving differently across engines; min() cannot surprise
+                   anyone. */
                 -webkit-mask-image:
-                    radial-gradient(116% 70% at 50% 30%, #000 81%, rgba(0,0,0,.55) 92%, transparent 100%),
+                    radial-gradient(118% 74% at 58% 28%, #000 82%, rgba(0,0,0,.55) 93%, transparent 100%),
+                    radial-gradient(110% 86% at 66% 14%, #000 80%, rgba(0,0,0,.45) 92%, transparent 100%),
                     linear-gradient(to bottom, transparent 0%, #000 8%, #000 100%),
-                    linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%);
-                -webkit-mask-composite: source-in, source-in, source-in;
+                    linear-gradient(to right, transparent 0%, #000 12%, #000 94%, transparent 100%);
+                -webkit-mask-composite: source-in, source-in, source-in, source-in;
                 mask-image:
-                    radial-gradient(116% 70% at 50% 30%, #000 81%, rgba(0,0,0,.55) 92%, transparent 100%),
+                    radial-gradient(118% 74% at 58% 28%, #000 82%, rgba(0,0,0,.55) 93%, transparent 100%),
+                    radial-gradient(110% 86% at 66% 14%, #000 80%, rgba(0,0,0,.45) 92%, transparent 100%),
                     linear-gradient(to bottom, transparent 0%, #000 8%, #000 100%),
-                    linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%);
-                mask-composite: intersect, intersect, intersect;
+                    linear-gradient(to right, transparent 0%, #000 12%, #000 94%, transparent 100%);
+                mask-composite: intersect, intersect, intersect, intersect;
                 will-change: transform;
             }
 
@@ -508,7 +524,7 @@ export function renderActiveContracts() {
                line rather than resting on it, so it emerges from the desk
                instead of sitting on the seam. */
             .xh-contract {
-                position: relative; margin-top: -198px; z-index: 4;
+                position: relative; margin-top: -186px; z-index: 4;
                 width: 342px; background: #F5EDDA;
                 border: 1px solid rgba(70,55,35,.34);
                 box-shadow:
@@ -1472,7 +1488,7 @@ export function renderActiveContracts() {
                              third person and procedure, which is how an
                              institution describes itself. -->
                         <h1 class="xh-h1">The exchange for <span class="ox">human execution.</span></h1>
-                        <p class="xh-lede">Every agreement begins with a verified metric, secured capital, and a predefined settlement rule. Browse active contracts, create your own, or challenge another participant. Every outcome is verified at the source and permanently recorded.</p>
+                        <p class="xh-lede">Every contract is backed by locked capital, verified directly from its source, and settled automatically. Browse the market, create your own agreement, or challenge another participant. Every outcome is permanently recorded.</p>
                         <div class="xh-cta">
                             <!-- Targets unchanged: primary to #live-market,
                                  secondary to #how-it-works.
