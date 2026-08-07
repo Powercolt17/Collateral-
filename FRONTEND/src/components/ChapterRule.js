@@ -103,21 +103,46 @@ export function renderChapterRuleStyles() {
            in the first place. */
         .lp .cl-grain{z-index:3}
 
-        /* ── THE ONE DELIBERATE EXCEPTION TO THE SINGLE PAPER ────────────────
-           The oracle band under the hero, #EBE0C6: a hair deeper and warmer
-           than the page. Everything else on this page is one paper on purpose,
-           and this is the single strip that is allowed not to be.
-
-           It is not a leftover panel. The band already carries a 1px hairline
-           on both edges, so with a slightly deeper ground it reads as a struck
-           seal-of-authenticity strip rather than as another stacked section —
-           the same way a printed instrument tints the block that carries its
-           attestations. Warmer rather than merely darker, which is what takes
-           the green cast off it.
+        /* ── THE ORACLE BAND CARRIES NO FILL ─────────────────────────────────
+           #EBE0C6 was tried here and rejected on sight: against warm parchment
+           a deeper warm tan does not read as vellum, it reads as mustard, and a
+           tinted block is the one thing this page spent its whole redesign
+           removing. So there is no fill. The band is the same paper as
+           everything else and it is defined by RULES AND SPACE instead — which
+           is how an engraved instrument sets off a block of attestations, and
+           it does not depend on finding a tint that survives next to gold ink.
 
            It is .clt-strip, INSIDE the hero wrapper, not .orc. .orc is the
            802px oracle register further down the page and is untouched. */
-        .lp .clt-strip{background-color:#EBE0C6}
+        .lp .clt-strip{background-color:transparent}
+
+        /* The rules do the work now, so they are drawn properly: a hairline
+           that fades at both ends rather than running edge to edge, matching
+           the chapter dividers. A rule that stops dead at the viewport edge is
+           what makes a strip look like a boxed section. */
+        .lp .clt-strip{border-top:0;border-bottom:0;position:relative}
+        .lp .clt-strip::before,.lp .clt-strip::after{
+          content:"";position:absolute;left:0;right:0;height:1px;
+          background:linear-gradient(90deg,
+            rgba(60,48,30,0) 0%, rgba(60,48,30,.18) 26%,
+            rgba(60,48,30,.18) 74%, rgba(60,48,30,0) 100%);
+        }
+        .lp .clt-strip::before{top:0}
+        .lp .clt-strip::after{bottom:0}
+
+        /* CONTRAST. The oracle labels and the eyebrow were rgb(154,140,111) at
+           10px — 2.77:1 on this paper, against a 4.5:1 AA threshold. Small type
+           you have to lean in to read is what actually reads cheap, whatever
+           the surface behind it is doing. rgb(122,109,84) is the same warm
+           grey-brown family, two steps down, and clears AA.
+
+           The label class is .clt-name, not .clt-src-name — the first attempt
+           guessed and left PLAID, STRIPE, YOUTUBE and SHOPIFY sitting at 2.77
+           while only the eyebrow moved. Read off the live DOM the second time.
+
+           #6E6249 rather than #7A6D54: the lighter value measured 4.25 on this
+           paper, which is under the line, not over it. */
+        .lp .clt-strip-eyebrow,.lp .clt-strip .clt-name{color:#6E6249}
 
         /* The card fills. These were rgb(250,245,232) — lighter than the page,
            which is what made them read as panels sitting on top of it. */
