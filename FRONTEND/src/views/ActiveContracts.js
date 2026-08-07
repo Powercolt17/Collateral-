@@ -353,49 +353,15 @@ export function renderActiveContracts() {
                     radial-gradient(90% 52% at 50% 30%, rgba(246,238,221,.20), rgba(246,238,221,0) 72%),
                     linear-gradient(to bottom, rgba(246,238,221,.13) 0%, rgba(246,238,221,.06) 38%, rgba(246,238,221,0) 62%);
             }
-            .xh-band-inner {
-                position: relative;
-                z-index: 2;
-                max-width: 1440px;
-                margin: 0 auto;
-                height: 100%;
-                padding: 0 60px;
-            }
-            .xh-kicker {
-                position: absolute; top: 34px; left: 60px;
-                display: inline-flex; align-items: center; gap: 13px;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .30em; text-transform: uppercase;
-                color: #6B2230;
-            }
-            .xh-kicker i { height: 1px; width: 30px; background: #7C1D2B; opacity: .75; display: block; }
-            .xh-ref {
-                position: absolute; top: 32px; right: 60px; text-align: right;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
-                line-height: 1.7; color: #6F6551;
-            }
-            /* Both of these are lifted well clear of the bottom now. The mask's
-               fall begins at 58%, and text sitting inside the dissolve would
-               fade with the ink it is printed on. */
-            .xh-motto {
-                position: absolute; left: 60px; bottom: 118px;
-                display: flex; align-items: center; gap: 16px;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 12px; letter-spacing: .30em; text-transform: uppercase;
-                color: #4A4234;
-            }
-            /* The counterweight to the motto, and the reason it is words rather
-               than an ornament: this is the institution stating its function.
-               Sealed, verified, archived is what the hall behind it does. */
-            .xh-charter {
-                position: absolute; right: 60px; bottom: 118px;
-                display: flex; align-items: center; gap: 14px;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 10px; letter-spacing: .26em; text-transform: uppercase;
-                color: #6F6551;
-            }
-            .xh-charter i { height: 1px; width: 24px; background: rgba(70,55,35,.38); display: block; }
+            /* THE FOUR OVERLAY LABELS ARE GONE — kicker, reference block, motto
+               and charter. They were set over the engraving itself, and once the
+               plate was cropped in 22% there was no quiet ground left under any
+               of them: at 10-12px on a busy sepia field they measured as unread
+               marks rather than text, which is worse than absent. The engraving
+               now carries no type at all, and everything those lines said is
+               said better by the headline directly beneath it.
+               .xh-band-inner went with them, since it existed only to hold them.
+               .xh-mark stays — the contract card still uses it. */
             /* The rotated square with an inner hairline — the same positional
                glyph the drawer and the fork section use. */
             .xh-mark {
@@ -649,9 +615,6 @@ export function renderActiveContracts() {
                 .xh h1.xh-h1 { font-size: 62px !important; letter-spacing: .004em !important; line-height: .96 !important; }
                 .xh-contract { width: 340px; }
                 .xh-body { gap: 36px; padding: 0 40px 56px; }
-                .xh-band-inner, .xh-kicker, .xh-motto { padding-left: 0; }
-                .xh-kicker, .xh-motto { left: 40px; }
-                .xh-ref { right: 40px; }
             }
             @media (max-width: 1000px) {
                 .xh-band { height: clamp(260px, 38vh, 340px); }
@@ -659,8 +622,6 @@ export function renderActiveContracts() {
                 .xh-lead { min-height: 0; padding-top: 32px; }
                 .xh-contract { margin: 8px 0 0; width: 100%; max-width: 420px; }
                 .xh h1.xh-h1 { font-size: 52px !important; letter-spacing: .004em !important; line-height: .98 !important; max-width: none; }
-                .xh-kicker, .xh-motto { left: 32px; }
-                .xh-ref { right: 32px; }
             }
             @media (max-width: 700px) {
                 /* No padding-top override here either — #app's 96px is the
@@ -668,9 +629,6 @@ export function renderActiveContracts() {
                 .xh-band { height: clamp(200px, 30vh, 260px); }
                 .xh h1.xh-h1 { font-size: 38px !important; letter-spacing: .004em !important; line-height: 1.0 !important; }
                 .xh-lede { font-size: 17px; }
-                .xh-ref { display: none; }
-                .xh-kicker { font-size: 9.5px; letter-spacing: .22em; top: 20px; }
-                .xh-motto { font-size: 10px; letter-spacing: .22em; bottom: 18px; }
                 .xh-cta { flex-direction: column; align-items: stretch; gap: 16px; }
                 .xh-btn { justify-content: center; }
                 .xh-learn { text-align: center; }
@@ -1464,17 +1422,14 @@ export function renderActiveContracts() {
             <div class="xh">
                 <!-- The hall. aria-hidden because it is atmosphere; the page's
                      actual heading is the h1 below it. -->
+                <!-- No type on the plate. The four overlay labels are removed;
+                     the engraving is the engraving and the headline below it
+                     does the talking. -->
                 <div class="xh-band" aria-hidden="true">
                     <div class="xh-band-art" data-xh-par="0.12"></div>
                     <div class="xh-band-depth"></div>
                     <div class="xh-band-air"></div>
                     <div class="xh-band-light"></div>
-                    <div class="xh-band-inner" data-xh-par="0.06">
-                        <div class="xh-kicker"><i></i> Register of Active Contracts</div>
-                        <div class="xh-ref">No. II &middot; The Trading Hall<br>Est. MMXXV</div>
-                        <div class="xh-motto"><span class="xh-mark sm"></span> Veritas &middot; Fides &middot; Executio</div>
-                        <div class="xh-charter">Sealed &middot; Verified &middot; Archived <i></i></div>
-                    </div>
                 </div>
 
                 <div class="xh-body">
