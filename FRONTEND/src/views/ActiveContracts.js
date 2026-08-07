@@ -143,7 +143,7 @@ export function renderActiveContracts() {
             .xh-band {
                 position: relative;
                 width: 100%;
-                height: clamp(280px, 38vh, 420px);
+                height: clamp(268px, 34vh, 400px);
                 overflow: hidden;
                 /* Must be the page's exact ground, not the token: the plate
                    multiplies against this, so any difference between the band's
@@ -403,7 +403,7 @@ export function renderActiveContracts() {
             .xh-h1 .ox { color: #7C1D2B; }
             .xh-lede {
                 font-family: "EB Garamond", Georgia, serif;
-                font-size: 18px; line-height: 1.58; color: #574E3D;
+                font-size: 18px; line-height: 1.5; color: #574E3D;
                 max-width: 556px; margin: 0 0 26px;
             }
             .xh-cta { display: flex; align-items: center; gap: 28px; }
@@ -435,12 +435,14 @@ export function renderActiveContracts() {
             .xh-learn:hover { color: #211B12; border-bottom-color: #7C1D2B; }
             .xh-learn .a { color: #7C1D2B; }
 
-            /* 58px of clear air above the rule, up from 38. The statistics are
-               the last step of the path and the only one that is a conclusion
-               rather than an invitation; crowding them against the CTA made the
-               two read as one control group. */
+            /* FOUR FIGURES INSTEAD OF THREE, so the gap comes down 44 -> 36 and
+               the row is allowed to wrap. It does not wrap at any desktop width
+               — measured at 668px of content against 922px of column at 1440 —
+               but "Verified Sources" is the longest label in the set and a
+               narrower window or a wider font fallback should push the fourth
+               figure onto a second line rather than out of the column. */
             .xh-stats {
-                display: flex; gap: 44px; align-items: center;
+                display: flex; flex-wrap: wrap; gap: 18px 36px; align-items: center;
                 margin-top: auto; padding-top: 24px;
                 border-top: 1px solid rgba(70,55,35,.20);
             }
@@ -1430,7 +1432,7 @@ export function renderActiveContracts() {
                     <div class="xh-band-air"></div>
                     <div class="xh-band-light"></div>
                     <div class="xh-band-inner" data-xh-par="0.06">
-                        <div class="xh-kicker"><i></i> The Exchange for Human Execution</div>
+                        <div class="xh-kicker"><i></i> Register of Active Contracts</div>
                         <div class="xh-ref">No. II &middot; The Trading Hall<br>Est. MMXXV</div>
                         <div class="xh-motto"><span class="xh-mark sm"></span> Veritas &middot; Fides &middot; Executio</div>
                         <div class="xh-charter">Sealed &middot; Verified &middot; Archived <i></i></div>
@@ -1439,23 +1441,46 @@ export function renderActiveContracts() {
 
                 <div class="xh-body">
                     <div class="xh-lead">
-                        <h1 class="xh-h1">Put money on your own <span class="ox">deadline.</span></h1>
-                        <p class="xh-lede">Stake your own money on a goal. Hit the deadline and you keep it &mdash; miss it, and it&rsquo;s gone. Every agreement is sealed, held, and settled in the open.</p>
+                        <!-- THE HOMEPAGE'S STORY IS NOT THIS PAGE'S STORY.
+                             "Put money on your own deadline" answers "what is
+                             Collateral" — which the landing page has already
+                             answered by the time anyone arrives here. This page
+                             answers the next question: what is inside. So the
+                             voice moves from second person and motivation to
+                             third person and procedure, which is how an
+                             institution describes itself. -->
+                        <h1 class="xh-h1">The exchange for <span class="ox">human execution.</span></h1>
+                        <p class="xh-lede">Every agreement begins with a verified metric, secured capital, and a predefined settlement rule. Browse active contracts, create your own, or challenge another participant. Every outcome is verified at the source and permanently recorded.</p>
                         <div class="xh-cta">
-                            <!-- Both targets are unchanged: the primary still
-                                 scrolls to #live-market and the secondary to
-                                 #how-it-works, exactly as EXPLORE MARKET and
-                                 LEARN MORE did. Only the wording and the skin
-                                 moved. -->
+                            <!-- Targets unchanged: primary to #live-market,
+                                 secondary to #how-it-works.
+                                 THE SECONDARY IS NOT LABELLED "BROWSE
+                                 CONTRACTS", and that is deliberate. The primary
+                                 already lands on the contract board, so two
+                                 buttons reading "Enter Exchange" and "Browse
+                                 Contracts" would scroll to the same place —
+                                 which is a worse first impression than a plain
+                                 label, because the reader learns the page
+                                 repeats itself. "Contract types" is what lives
+                                 at the other end. -->
                             <button class="xh-btn" onclick="document.getElementById('live-market').scrollIntoView({behavior:'smooth'})">Enter Exchange <span class="a" aria-hidden="true">&rarr;</span></button>
-                            <button class="xh-learn" onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})">See how it works <span class="a" aria-hidden="true">&darr;</span></button>
+                            <button class="xh-learn" onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})">Contract types <span class="a" aria-hidden="true">&darr;</span></button>
                         </div>
+                        <!-- FOUR FIGURES THAT DESCRIBE A MARKET, not three that
+                             describe a promise. Capital locked and auto-settled
+                             carry over; settled-today becomes active-contracts,
+                             because a live exchange is measured by what is OPEN
+                             on it, and verified sources is added because the
+                             number of things this market can price is the one
+                             fact that says how big it is. -->
                         <div class="xh-stats">
-                            <div class="xh-stat"><div class="n">$8,700,000</div><div class="k">Held in Escrow</div></div>
+                            <div class="xh-stat"><div class="n">$8,700,000</div><div class="k">Capital Locked</div></div>
                             <div class="sep"></div>
-                            <div class="xh-stat"><div class="n">54</div><div class="k">Settled Today</div></div>
+                            <div class="xh-stat"><div class="n">312</div><div class="k">Active Contracts</div></div>
                             <div class="sep"></div>
-                            <div class="xh-stat"><div class="n">99.2%</div><div class="k">Settled on Time</div></div>
+                            <div class="xh-stat"><div class="n">99.2%</div><div class="k">Auto-Settled</div></div>
+                            <div class="sep"></div>
+                            <div class="xh-stat"><div class="n">14</div><div class="k">Verified Sources</div></div>
                         </div>
                     </div>
 
