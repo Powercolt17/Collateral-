@@ -77,8 +77,31 @@ export function renderChapterRuleStyles() {
            been exactly the strip between every pair of chapters — the opposite
            of the point. */
         .lp.cl-root{--paper:#F3EADB;background:#F3EADB !important}
-        .lp .clt-hero,.lp .lg,.lp .fk,.lp .cs,.lp .orc,.lp .rec,
+        /* .clt is the hero's WRAPPER and was missed the first time — it still
+           held rgb(241,238,232), the cooler paper, so a strip of the old tone
+           survived directly under the hero even after .clt-hero moved. */
+        .lp .clt,.lp .clt-hero,.lp .lg,.lp .fk,.lp .cs,.lp .orc,.lp .rec,
         .lp .flw,.lp .prc,.lp .dl,.lp .sch{background-color:#F3EADB}
+
+        /* ── THE GRAIN GOES OVER EVERYTHING, WHICH IS THE REAL FIX ───────────
+           .cl-grain is a fixed full-viewport noise layer with
+           mix-blend-mode:multiply, and it sat at z-index 1. Every section is
+           position:relative at z-index 2, so sections painted ABOVE it and were
+           never textured, while the root — and therefore every gap between
+           chapters — painted BELOW it and was multiplied.
+
+           So the grain was only ever visible in the gaps. Identical colours
+           either side, and still a darker strip at every divider, because the
+           difference was never the colour: it was which side of the grain each
+           surface painted on. A background-color audit cannot see that, which
+           is why the first pass reported one paper and the band was still
+           there.
+
+           At z-index 3 it lands on everything equally — above the sections,
+           below the header at z-index 50 — so the texture is continuous across
+           the whole document, which is what "one uninterrupted paper" asks for
+           in the first place. */
+        .lp .cl-grain{z-index:3}
 
         /* The card fills. These were rgb(250,245,232) — lighter than the page,
            which is what made them read as panels sitting on top of it. */
@@ -93,15 +116,33 @@ export function renderChapterRuleStyles() {
 
         /* ── CHAPTER RULE ────────────────────────────────────────────────────
            The only thing between chapters, alongside whitespace and type. */
+        /* THE RULE PAINTS THE PAPER ITSELF, AND ITS AIR IS PADDING NOT MARGIN.
+           BOTH OF THOSE ARE THE FIX FOR A VISIBLE DARKER BAND.
+
+           .cl-grain is a fixed, full-viewport noise layer at z-index 1 with
+           mix-blend-mode:multiply. Every section on this page is position
+           relative at z-index 2, so section paper paints ABOVE the grain and is
+           never darkened by it. The divider had no background at all, so the
+           gap showed the ROOT's paper — which sits below the grain and IS
+           multiplied by it.
+
+           Same colour on both, measured identical, and still a visibly darker
+           strip: the difference was never the colour, it was which side of the
+           grain each one painted on. That is why checking background-color
+           found nothing.
+
+           So the rule paints #F3EADB at z-index 2 like a section, and its 100px
+           of air is padding rather than margin, because a margin is transparent
+           and would have left the same darkened strip either side of the line. */
         .cl-rule{
           display:flex;align-items:center;justify-content:center;
           gap:14px;
-          width:100%;max-width:1305px;margin:0 auto;
-          padding:0 51px;
-          /* 100px of air, inside the 80-120 the brief asks for. The sections
-             keep their own padding, so this is the gap BETWEEN chapters on top
-             of that. */
-          margin-top:50px;margin-bottom:50px;
+          width:100%;margin:0 auto;
+          position:relative;z-index:2;
+          background:#F3EADB;
+          /* 100px of air between chapters, inside the 80-120 asked for, on top
+             of each section's own padding. */
+          padding:50px 51px;
         }
         .cl-rule i{
           display:block;height:1px;flex:1 1 auto;min-width:0;
@@ -116,7 +157,7 @@ export function renderChapterRuleStyles() {
         .cl-rule svg{display:block;flex:0 0 auto}
 
         @media (max-width:820px){
-          .cl-rule{padding:0 20px;gap:11px;margin-top:34px;margin-bottom:34px}
+          .cl-rule{padding:34px 20px;gap:11px;margin:0}
           .cl-rule svg{width:9px;height:9px}
         }
         @media (prefers-reduced-motion:reduce){.cl-rule{transition:none}}
