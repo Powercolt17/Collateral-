@@ -197,7 +197,7 @@ export function renderForkSection(options = {}) {
           -webkit-font-smoothing:antialiased;
         }
         .fk *{box-sizing:border-box;margin:0;padding:0}
-        .fk-wrap{width:100%;max-width:1305.6px;margin:0 auto;padding:61.2px 52.7px 47.6px}
+        .fk-wrap{width:100%;max-width:1305.6px;margin:0 auto;padding:44px 52.7px 38px}
 
         /* The section's one repeated ornament. Rotated square, not a glyph —
            a real diamond character sits differently in every serif we might
@@ -209,12 +209,12 @@ export function renderForkSection(options = {}) {
         /* The masthead gives up width to the steps and the gap narrows. Four
            columns of centred prose live or die on measure, and every pixel
            taken from here goes straight into theirs. */
-        .fk-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.2fr);
+        .fk-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.2fr);gap:30px;
           gap:39.1px;align-items:start}
         .fk-kicker{font-size:11.5px;letter-spacing:.26em;text-transform:uppercase;
           color:var(--fk-ink-soft);font-weight:600;margin-bottom:17px}
         .fk h2{font-family:var(--fk-display);font-weight:600;color:var(--fk-ox);
-          font-size:clamp(32.3px,3.48vw,52.7px);line-height:.98;letter-spacing:.015em;
+          font-size:clamp(30px,3vw,44px);line-height:1;letter-spacing:.015em;
           text-transform:uppercase;margin-bottom:17px}
         .fk-mark{display:flex;align-items:center;gap:10.2px;margin-bottom:17px}
         .fk-mark i{height:1px;width:34px;background:var(--fk-ox);opacity:.7;display:block}
@@ -253,12 +253,12 @@ export function renderForkSection(options = {}) {
         /* Same knockout as .fk-close, and the same rule about it: the text sits
            on .fk-choose-t, never on a bare descendant selector, so the diamond
            below can never be caught by it. */
-        .fk-choose{position:relative;height:1px;background:var(--fk-line);margin:34px 0 0}
+        .fk-choose{position:relative;height:1px;background:var(--fk-line);margin:22px 0 0}
         .fk-choose-t{position:absolute;left:50%;top:50%;
           transform:translate(-50%,-50%);background:var(--fk-parch);padding:0 17px;
           font-size:12px;letter-spacing:.2em;text-transform:uppercase;
           color:var(--fk-ox);font-weight:600;white-space:nowrap}
-        .fk-choose-dia{text-align:center;margin:22.1px 0 37.4px}
+        .fk-choose-dia{text-align:center;margin:14px 0 24px}
         .fk-choose-dia .fk-dia{width:8.5px;height:8.5px;opacity:.95}
 
         /* ---- solo / rivalry ---- */
@@ -308,10 +308,10 @@ export function renderForkSection(options = {}) {
            can be compared across the gutter. */
         .fk .fk-p-name{font-family:var(--fk-display);font-weight:600;
           font-size:clamp(25.5px,2.3vw,34px);line-height:1;letter-spacing:.09em;
-          text-transform:uppercase;color:var(--fk-ox);margin-bottom:20.4px}
+          text-transform:uppercase;color:var(--fk-ox);margin-bottom:12px}
         .fk .fk-p-def{font-family:var(--fk-display);font-weight:500;
           font-size:clamp(17.5px,1.5vw,21px);line-height:1.35;color:var(--fk-ink);
-          margin-bottom:28.9px}
+          margin-bottom:18px}
 
         /* THE PLATES DISSOLVE INTO THE PAPER. No box, no radius, no vignette,
            no feather. Two layers, each carrying a baked per-pixel alpha mask:
@@ -340,7 +340,7 @@ export function renderForkSection(options = {}) {
         /* 90% of the column: the plates come down about a tenth and the paper
            around them goes up, which is most of what demotes them from hero to
            support. */
-        .fk-plate{position:relative;width:90%;margin:0 auto 30.6px}
+        .fk-plate{position:relative;width:66%;margin:0 auto 16px}
         .fk-plate img{display:block;width:100%;height:auto;position:relative;
           -webkit-mask-image:var(--pl-mask);mask-image:var(--pl-mask);
           -webkit-mask-size:100% 100%;mask-size:100% 100%;
@@ -359,7 +359,7 @@ export function renderForkSection(options = {}) {
            the voice. */
         .fk .fk-p-cap{font-family:var(--fk-display);font-weight:500;
           font-size:clamp(18.7px,1.7vw,23px);line-height:1.35;color:var(--fk-ink);
-          margin-bottom:25.5px}
+          margin-bottom:15px}
 
         /* The schedule. Two columns, mono, small and quiet — it is there to be
            compared across the gutter at a glance, not read as prose. The rules
@@ -377,8 +377,8 @@ export function renderForkSection(options = {}) {
            the auto margins are what centre this block. */
         .fk .fk-p-feat{list-style:none;display:grid;
           grid-template-columns:repeat(2,minmax(0,1fr));
-          gap:11px 18.7px;text-align:left;margin:0 auto 27.2px;max-width:340px;
-          padding:18.7px 0;border-top:1px solid var(--fk-line-soft);
+          gap:7px 18.7px;text-align:left;margin:0 auto 17px;max-width:340px;
+          padding:12px 0;border-top:1px solid var(--fk-line-soft);
           border-bottom:1px solid var(--fk-line-soft)}
         /* 10.2px, not 10.5, and the tracking eased with it. This is the smallest
            type in the section and it was set in the lowest-contrast colour;
@@ -468,7 +468,7 @@ export function renderForkSection(options = {}) {
            of padding and a parchment background, and painted a 37.4px block over
            the word VOTING. Anything nested here must not be reachable by the
            knockout's own selector. */
-        .fk-close{position:relative;height:1px;background:var(--fk-line);margin-top:35.7px}
+        .fk-close{position:relative;height:1px;background:var(--fk-line);margin-top:24px}
         .fk-close-t{position:absolute;left:50%;top:50%;
           transform:translate(-50%,-50%);background:var(--fk-parch);padding:0 18.7px;
           font-size:13.5px;letter-spacing:.15em;text-transform:uppercase;
@@ -485,7 +485,7 @@ export function renderForkSection(options = {}) {
 
         @media (max-width:1180px){
           .fk-wrap{padding:54.4px 37.4px 44.2px}
-          .fk-top{grid-template-columns:minmax(0,1fr);gap:37.4px}
+          .fk-top{grid-template-columns:minmax(0,1fr);gap:26px}
           .fk-lede{max-width:none}
           .fk-step{padding:0 8.5px}
           .fk-paths{grid-template-columns:minmax(0,1fr) 61.2px minmax(0,1fr)}
@@ -497,7 +497,7 @@ export function renderForkSection(options = {}) {
            row need their own top hairline, and the third step starts that row,
            so its left border is the one to drop. */
         @media (max-width:760px){
-          .fk-wrap{padding:44.2px 20.4px 37.4px}
+          .fk-wrap{padding:34px 20.4px 30px}
           .fk-steps{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:25.5px}
           .fk-step{padding:0 10.2px}
           .fk-step:nth-child(3){border-left:0}
@@ -520,11 +520,11 @@ export function renderForkSection(options = {}) {
           .fk-or .fk-or-mark{position:absolute;left:50%;top:50%;
             transform:translate(-50%,-50%);flex-direction:row;gap:11.9px;
             padding:0 15.3px}
-          .fk .fk-p-name{margin-bottom:15.3px}
-          .fk .fk-p-def{margin-bottom:23.8px}
-          .fk-plate{width:100%;margin-bottom:23.8px}
-          .fk .fk-p-cap{margin-bottom:20.4px}
-          .fk .fk-p-feat{max-width:none;gap:8.5px 15.3px;padding:15.3px 0;margin-bottom:22.1px}
+          .fk .fk-p-name{margin-bottom:10px}
+          .fk .fk-p-def{margin-bottom:14px}
+          .fk-plate{width:84%;margin-bottom:15px}
+          .fk .fk-p-cap{margin-bottom:13px}
+          .fk .fk-p-feat{max-width:none;gap:6px 15.3px;padding:11px 0;margin-bottom:15px}
           /* nowrap exists to keep the two schedules the same height so the CTAs
              line up, and that only matters while the panels are side by side.
              Stacked, a wrap costs nothing — and the longest item needs 141.1px in

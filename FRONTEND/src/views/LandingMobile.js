@@ -54,10 +54,11 @@ export function renderMobileScale() {
            as each one paints. The values are the measured heights from the
            mobile pass — 1676, 967, 1089, 1699, 1226, 2067, 512, 1520 — so the
            placeholder is the size of the real thing and the bar does not move. */
-        /* 1676 -> 2025. The fork's type was raised for legibility and the
-           section grew with it; leaving the old estimate here would have the
-           browser reserve 349px too little and jog the scrollbar as it paints. */
-        .fk{content-visibility:auto;contain-intrinsic-size:auto 2025px}
+        /* 1676 -> 2025 when the fork's type was raised, then -> 1955 when its
+           spacing and plates were tightened. This value has to be re-measured
+           every time the section's height moves, or the browser reserves the
+           wrong amount and the scrollbar jogs as it paints. */
+        .fk{content-visibility:auto;contain-intrinsic-size:auto 1955px}
         .cs{content-visibility:auto;contain-intrinsic-size:auto 967px}
         .orc{content-visibility:auto;contain-intrinsic-size:auto 1089px}
         .rec{content-visibility:auto;contain-intrinsic-size:auto 1699px}
