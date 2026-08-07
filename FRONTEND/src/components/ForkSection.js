@@ -468,7 +468,16 @@ export function renderForkSection(options = {}) {
            of padding and a parchment background, and painted a 37.4px block over
            the word VOTING. Anything nested here must not be reachable by the
            knockout's own selector. */
-        .fk-close{position:relative;height:1px;background:var(--fk-line);margin-top:24px}
+        /* 64px, not 24px. The margin is measured to the RULE, but the label is
+           22px tall and translate(-50%,-50%) centres it ON that rule, so 11px
+           of it hangs above wherever the margin puts the line. Measured live,
+           that left 3px between the bottom of the Choose Solo / Choose Rivalry
+           buttons and the top of the inscription — the margin looked like 24px
+           of air in the source and was worth 3px on screen.
+
+           64 buys ~43px of real clearance to the label. Any change here has to
+           be reasoned about at the label's edge, not the rule's. */
+        .fk-close{position:relative;height:1px;background:var(--fk-line);margin-top:64px}
         .fk-close-t{position:absolute;left:50%;top:50%;
           transform:translate(-50%,-50%);background:var(--fk-parch);padding:0 18.7px;
           font-size:13.5px;letter-spacing:.15em;text-transform:uppercase;

@@ -54,11 +54,13 @@ export function renderMobileScale() {
            as each one paints. The values are the measured heights from the
            mobile pass — 1676, 967, 1089, 1699, 1226, 2067, 512, 1520 — so the
            placeholder is the size of the real thing and the bar does not move. */
-        /* 1676 -> 2025 when the fork's type was raised, then -> 1955 when its
-           spacing and plates were tightened. This value has to be re-measured
-           every time the section's height moves, or the browser reserves the
-           wrong amount and the scrollbar jogs as it paints. */
-        .fk{content-visibility:auto;contain-intrinsic-size:auto 1955px}
+        /* 1676 -> 2025 when the fork's type was raised, -> 1955 when its
+           spacing and plates were tightened, -> 1995 when .fk-close's margin
+           went 24 -> 64 to get the closing inscription off the CTA buttons.
+           This value has to be re-measured every time the section's height
+           moves, or the browser reserves the wrong amount and the scrollbar
+           jogs as it paints. */
+        .fk{content-visibility:auto;contain-intrinsic-size:auto 1995px}
         .cs{content-visibility:auto;contain-intrinsic-size:auto 967px}
         .orc{content-visibility:auto;contain-intrinsic-size:auto 1089px}
         .rec{content-visibility:auto;contain-intrinsic-size:auto 1699px}
