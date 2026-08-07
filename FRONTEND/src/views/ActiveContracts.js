@@ -195,26 +195,42 @@ export function renderActiveContracts() {
             .xh-band-art {
                 position: absolute;
                 inset: -130px -1% 0;
-                background: url("/assets/images/trading-hall.webp") center 46% / cover no-repeat;
+                background: url("/assets/images/trading-hall.webp") center 42% / cover no-repeat;
                 mix-blend-mode: multiply;
-                /* THE INK NOW SURVIVES DOWN TO WHERE THE CARD LANDS, and that is
-                   the fix for the card not belonging — not its position.
-                   Previously the fall began at 58% and was down to 28% by 90%,
-                   which meant the counter had already dissolved to bare
-                   parchment exactly where the contract sits. The card was
-                   overlapping NOTHING. An object cannot read as resting on a
-                   surface that is not drawn under it.
-                   Holding to 68% and 82% keeps stone visible where the card's
-                   lower half meets it, and the last 8% still falls clean away so
-                   there is no edge at the band's bottom. */
+                /* THE DISSOLVE IS AN ELLIPSE NOW, NOT A LINE, and that is the
+                   whole answer to "it still reads as a horizontal band".
+
+                   A linear-gradient mask cannot produce anything but a straight
+                   horizontal edge — every pixel on a given row gets identical
+                   alpha, so however soft the falloff, the BOUNDARY is a rule
+                   across the page. Softening it further only makes a wider rule.
+
+                   A radial-gradient gives every column its own fall. Centred at
+                   50%/30% with a 116%x70% radius, the ink survives to about 82%
+                   of the band directly under the desk and to about 74% at the
+                   far edges — a 27px curve that dips where the counter is and
+                   lifts where the hall thins out. The dissolve follows the
+                   ARTWORK rather than the frame, which is what makes it read as
+                   the plate running out of ink rather than as a treatment.
+
+                   It is also SHORTER by about a quarter: solid to 82% where the
+                   linear version began falling at 76%.
+
+                   Three layers, all intersect, so alpha is the minimum of the
+                   ellipse, an 8% top fade and the side falls. All-intersect is
+                   deliberate: mixing composite operators is where masks become
+                   unpredictable across engines, and min() of three simple
+                   shapes cannot surprise anyone. */
                 -webkit-mask-image:
-                    linear-gradient(to bottom, transparent 0%, #000 9%, #000 76%, rgba(0,0,0,.88) 88%, rgba(0,0,0,.46) 96%, transparent 100%),
+                    radial-gradient(116% 70% at 50% 30%, #000 81%, rgba(0,0,0,.55) 92%, transparent 100%),
+                    linear-gradient(to bottom, transparent 0%, #000 8%, #000 100%),
                     linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%);
-                -webkit-mask-composite: source-in;
+                -webkit-mask-composite: source-in, source-in, source-in;
                 mask-image:
-                    linear-gradient(to bottom, transparent 0%, #000 9%, #000 76%, rgba(0,0,0,.88) 88%, rgba(0,0,0,.46) 96%, transparent 100%),
+                    radial-gradient(116% 70% at 50% 30%, #000 81%, rgba(0,0,0,.55) 92%, transparent 100%),
+                    linear-gradient(to bottom, transparent 0%, #000 8%, #000 100%),
                     linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%);
-                mask-composite: intersect;
+                mask-composite: intersect, intersect, intersect;
                 will-change: transform;
             }
 
@@ -235,19 +251,30 @@ export function renderActiveContracts() {
                 mix-blend-mode: multiply;
                 background:
                     radial-gradient(120% 80% at 78% 46%, rgba(74,58,36,.16), rgba(74,58,36,0) 58%),
+                    /* THE WINGS FALL OFF. A tenth of a stop of extra ink down
+                       the outer 24% of each side, so the hall darkens toward the
+                       frame and the eye is left with one bright place to go.
+                       This is the other half of the focal point — brightening
+                       the desk alone raises the whole scene's midpoint; taking
+                       the edges down is what makes the desk read as brighter
+                       THAN something. */
+                    linear-gradient(to right, rgba(70,55,35,.11) 0%, rgba(70,55,35,0) 24%, rgba(70,55,35,0) 76%, rgba(70,55,35,.11) 100%),
                     linear-gradient(to bottom, rgba(70,55,35,.05) 0%, rgba(70,55,35,0) 34%);
             }
             /* ══ LIGHT ══════════════════════════════════════════════════════
                The brightest point in the hall falls on the counter, where the
-               contract is laid. screen only ever lightens, and at .30 over a
-               60%-wide ellipse it is a change in exposure across the desk, not a
-               glow with an edge — there is no ring anywhere to find. */
+               contract is laid. screen only ever lightens, and at .34 over a
+               tightened ellipse it is a change in exposure across the desk, not
+               a glow with an edge — there is no ring anywhere to find.
+               .30 -> .34 and the ellipse pulled in from 58%x46% to 52%x42%: the
+               same light, concentrated on less, which is what raises the desk
+               about a tenth of a stop above everything around it. */
             .xh-band-light {
                 position: absolute;
                 inset: 0;
                 pointer-events: none;
                 mix-blend-mode: screen;
-                background: radial-gradient(58% 46% at 60% 72%, rgba(255,246,226,.30), rgba(255,246,226,0) 70%);
+                background: radial-gradient(52% 42% at 58% 70%, rgba(255,246,226,.34), rgba(255,246,226,0) 72%);
                 /* THE ONE THING THAT MOVES. The hall's light breathes between
                    90% and 100% over fifteen seconds — about three points of
                    actual alpha on a .30 layer, which is under the threshold at
@@ -352,7 +379,7 @@ export function renderActiveContracts() {
                 gap: 56px;
                 align-items: start;
             }
-            .xh-lead { display: flex; flex-direction: column; padding-top: 24px; }
+            .xh-lead { display: flex; flex-direction: column; padding-top: 6px; }
             /* CARVED, NOT SET. Three changes, all of them about authority
                rather than size — the headline does not get bigger.
 
@@ -420,12 +447,18 @@ export function renderActiveContracts() {
             .xh-stats .sep { width: 1px; height: 42px; background: rgba(70,55,35,.20); }
             .xh-stat .n {
                 font-family: "Cormorant Garamond", Georgia, serif;
-                font-size: 33px; font-weight: 600; line-height: 1; color: var(--ink, #211B12);
+                font-size: 35px; font-weight: 600; line-height: 1; color: var(--ink, #211B12);
             }
+            /* #6A5E48, and this turned out to be a bug rather than a taste
+               call. The old #8E8065 measures 3.18:1 on #F1E8D3 — under AA for
+               10px text, so the figures the page offers as its trust signal
+               were captioned in something a reader with low vision could not
+               resolve. 5.23:1 now, which is also the "darken them a bit" the
+               brief asked for; the two wanted the same value. */
             .xh-stat .k {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
-                color: #8E8065; margin-top: 8px;
+                color: #6A5E48; margin-top: 8px;
             }
 
             /* ---- the contract, laid on the counter ----
@@ -451,7 +484,7 @@ export function renderActiveContracts() {
                line rather than resting on it, so it emerges from the desk
                instead of sitting on the seam. */
             .xh-contract {
-                position: relative; margin-top: -216px; z-index: 4;
+                position: relative; margin-top: -198px; z-index: 4;
                 width: 342px; background: #F5EDDA;
                 border: 1px solid rgba(70,55,35,.34);
                 box-shadow:
