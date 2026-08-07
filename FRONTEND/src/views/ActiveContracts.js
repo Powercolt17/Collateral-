@@ -325,12 +325,28 @@ export function renderActiveContracts() {
             }
 
             /* ---- responsive ----
-               THE SEAM OVERLAP IS THE FIRST THING TO GO. Below 1100 the two
+               THE SEAM OVERLAP IS THE FIRST THING TO GO. Below 1000 the two
                columns cannot both hold their width, and a card pulled up 150px
                into a banner it no longer sits beside reads as a mistake rather
-               than as a composition. It stacks and sits on the parchment. */
+               than as a composition. It stacks and sits on the parchment.
+
+               THE HEADLINE RULES BELOW CARRY !important, AND THEY HAVE TO.
+               mobile.css line 521 sets, inside @media (max-width: 768px):
+
+                 h1, .lh1, .eq-hero-headline, ... {
+                   font-size: clamp(24px, 7vw, 36px) !important;
+                   letter-spacing: -0.5px !important;
+                   line-height: 1.15 !important; }
+
+               a BARE h1 selector, so it reaches this heading. Measured on the
+               shipped bundle at 375px: the headline rendered at 26.25px — 7vw —
+               against the 38px this file asks for, with the tracking dragged
+               negative, which is the opposite of what a Cormorant display line
+               wants. No amount of specificity outranks !important, so these
+               answer in kind. That is the one legitimate use of it: replying to
+               an !important, not pre-empting one. */
             @media (max-width: 1180px) {
-                .xh-h1 { font-size: 62px; }
+                .xh h1.xh-h1 { font-size: 62px !important; letter-spacing: .004em !important; line-height: .96 !important; }
                 .xh-contract { width: 340px; }
                 .xh-body { gap: 36px; padding: 0 40px 56px; }
                 .xh-band-inner, .xh-kicker, .xh-motto { padding-left: 0; }
@@ -342,14 +358,14 @@ export function renderActiveContracts() {
                 .xh-body { grid-template-columns: 1fr; padding: 0 32px 48px; }
                 .xh-lead { min-height: 0; padding-top: 32px; }
                 .xh-contract { margin: 8px 0 0; width: 100%; max-width: 420px; }
-                .xh-h1 { font-size: 52px; max-width: none; }
+                .xh h1.xh-h1 { font-size: 52px !important; letter-spacing: .004em !important; line-height: .98 !important; max-width: none; }
                 .xh-kicker, .xh-motto { left: 32px; }
                 .xh-ref { right: 32px; }
             }
             @media (max-width: 700px) {
                 .xh { padding-top: 76px; }
                 .xh-band { height: 240px; }
-                .xh-h1 { font-size: 38px; }
+                .xh h1.xh-h1 { font-size: 38px !important; letter-spacing: .004em !important; line-height: 1.0 !important; }
                 .xh-lede { font-size: 17px; }
                 .xh-ref { display: none; }
                 .xh-kicker { font-size: 9.5px; letter-spacing: .22em; top: 20px; }
