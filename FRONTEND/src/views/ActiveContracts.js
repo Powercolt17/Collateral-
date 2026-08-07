@@ -40,8 +40,20 @@ export function renderActiveContracts() {
               --lift: 0 1px 2px rgba(14,20,32,.04), 0 12px 28px -18px rgba(14,20,32,.22);
             }
 
+            /* ONE CREAM ACROSS THE WHOLE PRODUCT. This page read var(--paper) =
+               #F7F4ED while the landing hero and the header bar had both been
+               moved to #F1E8D3, so navigating from home to /market changed the
+               paper under the reader by four points of warmth. That is the kind
+               of inconsistency nobody can name and everybody feels.
+
+               #F1E8D3 IS SET HERE RATHER THAN ON THE TOKEN, deliberately. --paper
+               is read by six other views; retuning it would have repainted the
+               entire app from inside a hero commit. The page ground and the band
+               behind it are what meet the header, so they are what changes. The
+               inner surfaces — cards, modals, the rivalry board — keep --paper
+               on purpose: they are meant to sit ON the paper, not to be it. */
             .eq {
-                background: var(--paper, #F7F4ED);
+                background: #F1E8D3;
                 min-height: 100vh;
                 font-family: var(--body, 'Public Sans', sans-serif);
                 color: var(--ink, #0E1420);
@@ -108,7 +120,11 @@ export function renderActiveContracts() {
                 width: 100%;
                 height: 600px;
                 overflow: hidden;
-                background: var(--paper, #F7F4ED);
+                /* Must be the page's exact ground, not the token: the plate
+                   multiplies against this, so any difference between the band's
+                   paper and the page's would print as a visible rectangle
+                   exactly where the dissolve is trying to hide one. */
+                background: #F1E8D3;
                 /* The art and the depth layers blend with the band's own paper
                    and stop there. Without this, multiply would reach through to
                    whatever the page puts behind the band. */
@@ -156,12 +172,22 @@ export function renderActiveContracts() {
                 inset: -130px -1% 0;
                 background: url("/assets/images/trading-hall.webp") center 46% / cover no-repeat;
                 mix-blend-mode: multiply;
+                /* THE INK NOW SURVIVES DOWN TO WHERE THE CARD LANDS, and that is
+                   the fix for the card not belonging — not its position.
+                   Previously the fall began at 58% and was down to 28% by 90%,
+                   which meant the counter had already dissolved to bare
+                   parchment exactly where the contract sits. The card was
+                   overlapping NOTHING. An object cannot read as resting on a
+                   surface that is not drawn under it.
+                   Holding to 68% and 82% keeps stone visible where the card's
+                   lower half meets it, and the last 8% still falls clean away so
+                   there is no edge at the band's bottom. */
                 -webkit-mask-image:
-                    linear-gradient(to bottom, transparent 0%, #000 9%, #000 58%, rgba(0,0,0,.72) 76%, rgba(0,0,0,.28) 90%, transparent 100%),
+                    linear-gradient(to bottom, transparent 0%, #000 9%, #000 68%, rgba(0,0,0,.82) 82%, rgba(0,0,0,.40) 93%, transparent 100%),
                     linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%);
                 -webkit-mask-composite: source-in;
                 mask-image:
-                    linear-gradient(to bottom, transparent 0%, #000 9%, #000 58%, rgba(0,0,0,.72) 76%, rgba(0,0,0,.28) 90%, transparent 100%),
+                    linear-gradient(to bottom, transparent 0%, #000 9%, #000 68%, rgba(0,0,0,.82) 82%, rgba(0,0,0,.40) 93%, transparent 100%),
                     linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%);
                 mask-composite: intersect;
                 will-change: transform;
@@ -197,6 +223,45 @@ export function renderActiveContracts() {
                 pointer-events: none;
                 mix-blend-mode: screen;
                 background: radial-gradient(58% 46% at 60% 72%, rgba(255,246,226,.30), rgba(255,246,226,0) 70%);
+                /* THE ONE THING THAT MOVES. The hall's light breathes between
+                   90% and 100% over fifteen seconds — about three points of
+                   actual alpha on a .30 layer, which is under the threshold at
+                   which anyone can point to it and say what changed. Nothing
+                   else in the scene animates, and that is the whole design: one
+                   slow sign of life reads as a real room, two reads as a screen
+                   saver. Opacity only, so it composites and never repaints. */
+                animation: xh-lamp 15s ease-in-out infinite alternate;
+            }
+            @keyframes xh-lamp { from { opacity: .90; } to { opacity: 1; } }
+            @media (prefers-reduced-motion: reduce) {
+                .xh-band-light { animation: none; }
+            }
+            /* ══ ATMOSPHERE ═════════════════════════════════════════════════
+               A FURTHER 12% OF CONTRAST OUT OF THE FAR CROWD, and it is done by
+               LIFTING BLACKS rather than by laying haze over them. screen raises
+               the darkest values and leaves the lightest alone, which compresses
+               the range from below — which is precisely what distance does to
+               contrast in air, and precisely what an engraver imitates with
+               thinner, wider-spaced lines in the background.
+
+               That is a different operation from the fog this hero started with:
+               fog reduced everything uniformly toward beige and flattened the
+               scene; this reduces only the far plane and therefore INCREASES the
+               separation between it and the counter. The crowd falls back toward
+               texture and the foreground figures gain the room to dominate,
+               which is what makes the hall read as big.
+
+               Shaped to miss the desk entirely — the ellipse is centred at 46%
+               height and fades out well above the counter, so nothing the reader
+               is meant to look at loses a single step of contrast. */
+            .xh-band-air {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                mix-blend-mode: screen;
+                background:
+                    radial-gradient(90% 52% at 50% 30%, rgba(246,238,221,.20), rgba(246,238,221,0) 72%),
+                    linear-gradient(to bottom, rgba(246,238,221,.13) 0%, rgba(246,238,221,.06) 38%, rgba(246,238,221,0) 62%);
             }
             .xh-band-inner {
                 position: relative;
@@ -1303,6 +1368,7 @@ export function renderActiveContracts() {
                 <div class="xh-band" aria-hidden="true">
                     <div class="xh-band-art" data-xh-par="0.12"></div>
                     <div class="xh-band-depth"></div>
+                    <div class="xh-band-air"></div>
                     <div class="xh-band-light"></div>
                     <div class="xh-band-inner" data-xh-par="0.06">
                         <div class="xh-kicker"><i></i> The Exchange for Human Execution</div>
