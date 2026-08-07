@@ -46,6 +46,13 @@
 
 const TICK_MS = 2600;
 
+/* HOW MANY ROWS THE REGISTER SHOWS AT ONCE.
+   Six rows at 96px was 605px of table under a 178px head — the section ran
+   1.22 screens on a 1855px display and was reported as taking too much room.
+   Five is the same register, one row shorter; the ticker still moves through
+   the whole set, so nothing is hidden, only less is shown at rest. */
+const VISIBLE_ROWS = 5;
+
 /* ROW_SHAPE — what fromApi() must return per row:
      n        register number, string
      op       { name, role, initials }
@@ -151,7 +158,7 @@ export function renderLedgerSection(options = {}) {
        the landing page with it — the kind of loss that leaves the route
        reachable but undiscoverable. */
     const { onSeeFullLedger } = options;
-    const rows = fromApi().map(renderRow).join('');
+    const rows = fromApi().slice(0, VISIBLE_ROWS).map(renderRow).join('');
     const stats = SUMMARY.map((s) => `
                         <div class="lg-stat">
                             <div class="lg-sv">${escapeHtml(s.v)}</div>
@@ -174,13 +181,13 @@ export function renderLedgerSection(options = {}) {
           font-family:var(--lg-serif);-webkit-font-smoothing:antialiased;
         }
         .lg *{box-sizing:border-box;margin:0;padding:0}
-        .lg-wrap{width:100%;max-width:1360px;margin:0 auto;padding:51px 51px 54.4px}
+        .lg-wrap{width:100%;max-width:1360px;margin:0 auto;padding:38px 51px 38px}
 
         .lg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:51px;margin-bottom:17px}
         .lg-head-l{min-width:0}
         .lg h2{font-family:var(--lg-display);font-weight:600;color:var(--lg-ox);
-          font-size:clamp(28.9px,3.32vw,47.6px);line-height:1;text-transform:uppercase;
-          font-variant:small-caps;letter-spacing:.01em;margin-bottom:15.3px}
+          font-size:clamp(28.9px,2.9vw,41px);line-height:1;text-transform:uppercase;
+          font-variant:small-caps;letter-spacing:.01em;margin-bottom:11px}
         .lg-lede{font-size:14px;line-height:1.6;color:var(--lg-ink-soft);max-width:527px}
 
         .lg-sum{padding-top:5.1px}
@@ -204,12 +211,12 @@ export function renderLedgerSection(options = {}) {
         .lg-cols,.lg-row{display:grid;
           grid-template-columns:39.1px 212.5px minmax(195.5px,1fr) 178.5px 91.8px 197.2px 142.8px;
           column-gap:22.1px;align-items:center}
-        .lg-table{margin-top:25.5px}
+        .lg-table{margin-top:18px}
         .lg-cols{padding:0 0 11.9px;border-bottom:1px solid var(--lg-ink)}
         .lg-cols span{font-family:var(--lg-mono);font-size:10px;letter-spacing:.2em;
           text-transform:uppercase;color:var(--lg-faint)}
 
-        .lg-row{padding:18.7px 0;border-bottom:1px solid var(--lg-line-soft);position:relative}
+        .lg-row{padding:12px 0;border-bottom:1px solid var(--lg-line-soft);position:relative}
         .lg-row::after{content:"";position:absolute;inset:0;background:rgba(124,29,43,.05);
           opacity:0;pointer-events:none}
         .lg-row.lg-flash::after{animation:lg-flash 1.1s ease-out}
@@ -226,7 +233,7 @@ export function renderLedgerSection(options = {}) {
 
         .lg-g-title{display:block;font-family:var(--lg-display);font-size:17.8px;
           font-weight:600;color:var(--lg-ink);line-height:1.15}
-        .lg-g-sub{display:block;font-family:var(--lg-mono);font-size:9.5px;
+        .lg-g-sub{display:block;margin-top:2px;font-family:var(--lg-mono);font-size:9.5px;
           letter-spacing:.14em;text-transform:uppercase;color:var(--lg-muted);margin-top:4.2px}
 
         .lg-ver{display:flex;align-items:center;gap:10.2px;min-width:0}
@@ -256,7 +263,7 @@ export function renderLedgerSection(options = {}) {
         .lg-pt{font-family:var(--lg-mono);font-size:9.5px;letter-spacing:.14em;
           text-transform:uppercase;color:var(--lg-muted);margin-top:4.2px}
         .lg-pbar{position:relative;height:2px;background:var(--lg-track);
-          margin:9.4px 0 6.8px;border-radius:2px;overflow:hidden}
+          margin:6px 0 4px;border-radius:2px;overflow:hidden}
         .lg-pfill{position:absolute;left:0;top:0;height:100%;width:0;background:var(--lg-ox);
           opacity:.55;border-radius:2px;transition:width .9s cubic-bezier(.22,1,.36,1)}
         .lg-pot{font-family:var(--lg-mono);font-size:9px;letter-spacing:.14em;
@@ -301,7 +308,7 @@ export function renderLedgerSection(options = {}) {
           .lg-ava{width:27.2px;height:27.2px}
         }
         @media (max-width:900px){
-          .lg-wrap{padding:28.9px 17px 25.5px}
+          .lg-wrap{padding:24px 17px 22px}
           .lg-head{flex-direction:column;gap:22.1px}
           .lg-stats{flex-wrap:wrap;gap:11.9px 0}
           .lg-stat{flex:1 1 40%;padding:0 10.2px;text-align:left}

@@ -69,7 +69,9 @@ export function renderMobileScale() {
         /* Isolates each animated component's repaints from the rest of the
            page, so the comet and the scrolling register cannot force work
            outside their own box. */
-        .flw-panel,.lg-body,.dl-duel{contain:paint}
+        /* .lg-body is gone — the register was rebuilt around .lg-table, and the
+           old selector was left pointing at nothing. */
+        .flw-panel,.lg-table,.dl-duel{contain:paint}
 
         @media (max-width:820px){
 
@@ -114,6 +116,25 @@ export function renderMobileScale() {
           .dl-grid{margin-top:24px}
           .rec-cards{margin-top:24px !important;gap:12px !important}
           .rec-totals{margin-top:28px !important}
+
+          /* ── the register on a phone ─────────────────────────────────────
+             Each row stacks its seven cells vertically here, so a row measures
+             236px against 96px on the desktop grid — five of them was 1,180px
+             of table and the section ran 2.16 screens.
+
+             The fifth row is hidden rather than the rows being squeezed
+             further: the ticker cycles values through every row it is given, so
+             what is on screen keeps changing and nothing is lost, whereas
+             taking another 20px out of each row would start closing up the
+             operator and progress stacks. Four rows still reads as a register.
+
+             VISIBLE_ROWS in the component stays at 5 because it is one value
+             for both breakpoints; this is the phone-only trim. */
+          /* n+6, not n+5. The column header shares the rows' element type and
+             sits first among them, so nth-of-type counts it — n+5 hid the
+             fourth AND fifth rows and left three. Measured, not reasoned. */
+          .lg-row:nth-of-type(n+6){display:none}
+          .lg-row{padding-top:9px !important;padding-bottom:9px !important}
 
           /* Nine rows at 20px of vertical padding is 360px of padding alone.
              16px keeps a 44px touch target on the row while returning ~72px. */
