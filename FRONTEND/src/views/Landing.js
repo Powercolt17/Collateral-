@@ -11,6 +11,7 @@ import { renderFlowSection, initFlowSection } from '../components/FlowSection.js
 import { renderPriceSection, initPriceSection } from '../components/PriceSection.js';
 import { renderDuelSection, initDuelSection } from '../components/DuelSection.js';
 import { renderScheduleSection, initScheduleSection } from '../components/ScheduleSection.js';
+import { renderChapterRule, renderChapterRuleStyles } from '../components/ChapterRule.js';
 import { renderMobileScale } from './LandingMobile.js';
 import { renderLedgerSection, initLedgerSection } from '../components/LedgerSection.js';
 
@@ -29,37 +30,53 @@ export function renderLanding() {
 
             
 
-            <!-- ═════ 1 · HERO (engraved plate) ═════ -->
+            <!-- ═════ 1 · HERO (engraved plate) ═════ -->
+            ${renderChapterRuleStyles()}
+
             ${renderCollateralHero({
         onWriteContract: "if(window.app &amp;&amp; window.app.openAccessModal){ window.app.openAccessModal('signup'); } else { window.router.navigate('/signin'); } return false;",
         onWatchFlow: "document.getElementById('flow') &amp;&amp; document.getElementById('flow').scrollIntoView({behavior:'smooth'}); return false;",
     })}
 
             <!-- ═════ 1b · LEDGER (settled in public) ═════ -->
+            ${renderChapterRule()}
             ${renderLedgerSection({
         onSeeFullLedger: "window.router.navigate('/ledger'); return false;",
     })}
 
             <!-- ═════ 2 · FORK (how it settles) ═════ -->
+            ${renderChapterRule()}
             ${renderForkSection()}
 
             <!-- ═════ 3 · CASE ═════ -->
+            ${renderChapterRule()}
+
             ${renderCaseSection()}
 
             <!-- ═════ 3b · ORACLE REGISTER ═════ -->
+            ${renderChapterRule()}
+
             ${renderOracleSection()}
 
             <!-- ═════ 4 · RECORD ═════ -->
+            ${renderChapterRule()}
             ${renderRecordSection()}
 
 
             <!-- ═════ 5 · FORFEIT FLOW ═════ -->
+            ${renderChapterRule()}
+
             ${renderFlowSection()}
+
+            ${renderChapterRule()}
 
             ${renderPriceSection()}
 
+            ${renderChapterRule()}
+
             ${renderDuelSection()}
 
+            ${renderChapterRule()}
             ${renderScheduleSection()}
 
             ${renderMobileScale()}

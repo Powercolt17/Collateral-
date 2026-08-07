@@ -154,7 +154,8 @@ export function renderHeader(currentRoute = '') {
                said had been removed along with the blur it covered for — the
                blur is back, so its fallback is back with it. */
             .ch-header.nav-scrolled {
-                background: #F1E8D3;
+                /* Matches the unified page paper — see ChapterRule.js. */
+                background: #F3EADB;
                 border-bottom: 1px solid rgba(60, 48, 30, 0.12);
             }
             @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
