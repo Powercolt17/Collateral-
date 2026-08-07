@@ -80,8 +80,12 @@ export function renderChapterRuleStyles() {
         /* .clt is the hero's WRAPPER and was missed the first time — it still
            held rgb(241,238,232), the cooler paper, so a strip of the old tone
            survived directly under the hero even after .clt-hero moved. */
-        .lp .clt,.lp .clt-hero,.lp .lg,.lp .fk,.lp .cs,.lp .orc,.lp .rec,
+        .lp .lg,.lp .fk,.lp .cs,.lp .orc,.lp .rec,
         .lp .flw,.lp .prc,.lp .dl,.lp .sch{background-color:#F3EADB}
+        /* The hero sits on #F1E8D3, matching the header bar above it. Split out
+           of the list above so the two surfaces that meet at the top of the
+           page carry one value. */
+        .lp .clt,.lp .clt-hero{background-color:#F1E8D3}
 
         /* ── THE GRAIN GOES OVER EVERYTHING, WHICH IS THE REAL FIX ───────────
            .cl-grain is a fixed full-viewport noise layer with

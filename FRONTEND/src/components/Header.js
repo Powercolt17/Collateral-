@@ -154,8 +154,11 @@ export function renderHeader(currentRoute = '') {
                said had been removed along with the blur it covered for — the
                blur is back, so its fallback is back with it. */
             .ch-header.nav-scrolled {
-                /* Matches the unified page paper — see ChapterRule.js. */
-                background: #F3EADB;
+                /* #F1E8D3, matching the hero. This fallback was #F3EADB while
+                   the @supports variant below was already rgba(241,232,211) —
+                   so the bar changed colour depending on whether the browser
+                   had backdrop-filter. Same value in both now. */
+                background: #F1E8D3;
                 border-bottom: 1px solid rgba(60, 48, 30, 0.12);
             }
             @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
