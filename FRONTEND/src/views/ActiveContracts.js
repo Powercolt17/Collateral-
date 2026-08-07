@@ -69,38 +69,300 @@ export function renderActiveContracts() {
                 color: var(--ink-3, #6E7686);
             }
 
-            /* --- HERO SECTION --- */
-            .eq-hero {
-                padding: 100px 32px 50px;
-                max-width: 1300px;
-                margin: 0 auto;
+            /* ══════════════════════════════════════════════════════════════
+               THE EXCHANGE HERO
+
+               Ported from the supplied hero_exchange_final.html. Three things
+               about that file could not ship as authored:
+
+                 ITS TOPBAR. It renders its own COLLATERAL wordmark, balance,
+                 health, HOW IT WORKS and hamburger. This app already has a real
+                 one — renderHeader, wired to the router and to updateAuthUI —
+                 and a second static copy would have sat 92px above the live one
+                 showing figures that never update.
+
+                 ITS 402KB INLINE BASE64. The banner artwork was a data: URI in
+                 the markup, which means it is parsed on every render, cannot be
+                 cached, and cannot be fetched in parallel with the document. It
+                 is now /assets/images/trading-hall.webp at 1792x874, 294KB, and
+                 the browser treats it like an image.
+
+                 ITS GLOBAL RESET. A universal margin/padding reset plus bare
+                 h1 and body rules would have reached every other section on
+                 this page. All of the below is scoped under .xh.
+
+               THE CARD STRADDLES THE SEAM ON PURPOSE. It is pulled up 150px so
+               it crosses the boundary between the banner and the parchment,
+               which is what makes the two read as one composition rather than
+               as an image with a section under it. ═════════════════════════ */
+
+            /* 92px of clearance for the fixed header, since the band is the
+               first thing on the page and would otherwise start beneath it. */
+            .xh { position: relative; padding-top: 92px; }
+
+            /* ---- the hall banner ---- */
+            .xh-band {
                 position: relative;
+                width: 100%;
+                height: 466px;
+                overflow: hidden;
+                background: var(--paper, #F7F4ED);
             }
-            .eq-hero-headline {
-                font-family: var(--display, 'Archivo', sans-serif);
-                font-size: 64px;
-                font-weight: 700;
-                color: var(--ink, #0E1420);
-                line-height: 1.02;
-                letter-spacing: -.026em;
-                margin-bottom: 20px;
-                max-width: 900px;
+            .xh-band-art {
+                position: absolute;
+                inset: 0;
+                background: url("/assets/images/trading-hall.webp") center 42% / cover no-repeat;
             }
-            .eq-hero-headline strong {
-                font-weight: 800;
-                color: var(--blood, #7A1C29);
+            /* FOUR GRADIENTS, NOT A VIGNETTE, and the distinction is the whole
+               reason the artwork does not read as a photograph dropped in a box.
+               A vignette darkens toward a rectangle's edges and announces the
+               rectangle. These dissolve the plate into the parchment on each
+               side independently — heavier at the bottom where the card and the
+               headline have to sit on it, light at the top where the header
+               floats. */
+            .xh-band-veil {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                background:
+                    linear-gradient(to bottom, var(--paper, #F7F4ED) 0%, rgba(247,244,237,.35) 12%, rgba(247,244,237,0) 30%),
+                    linear-gradient(to top, var(--paper, #F7F4ED) 2%, rgba(247,244,237,.75) 15%, rgba(247,244,237,.10) 34%, rgba(247,244,237,0) 52%),
+                    linear-gradient(to right, rgba(247,244,237,.55) 0%, rgba(247,244,237,0) 22%, rgba(247,244,237,0) 78%, rgba(247,244,237,.55) 100%),
+                    linear-gradient(0deg, rgba(247,244,237,.12), rgba(247,244,237,.12));
             }
-            .eq-hero-sub {
-                font-size: 15px;
-                color: var(--ink-2, #4A5464);
-                max-width: 520px;
-                line-height: 1.6;
-                margin-bottom: 28px;
+            .xh-band-inner {
+                position: relative;
+                z-index: 2;
+                max-width: 1440px;
+                margin: 0 auto;
+                height: 100%;
+                padding: 0 60px;
             }
-            .eq-hero-actions {
-                display: flex;
-                align-items: center;
-                gap: 20px;
+            .xh-kicker {
+                position: absolute; top: 34px; left: 60px;
+                display: inline-flex; align-items: center; gap: 13px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .30em; text-transform: uppercase;
+                color: #6B2230;
+            }
+            .xh-kicker i { height: 1px; width: 30px; background: #7C1D2B; opacity: .75; display: block; }
+            .xh-ref {
+                position: absolute; top: 32px; right: 60px; text-align: right;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+                line-height: 1.7; color: #6F6551;
+            }
+            .xh-motto {
+                position: absolute; left: 60px; bottom: 30px;
+                display: flex; align-items: center; gap: 16px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 12px; letter-spacing: .30em; text-transform: uppercase;
+                color: #4A4234;
+            }
+            /* The rotated square with an inner hairline — the same positional
+               glyph the drawer and the fork section use. */
+            .xh-mark {
+                width: 9px; height: 9px; background: #5E1420;
+                transform: rotate(45deg); display: inline-block; position: relative; flex: none;
+            }
+            .xh-mark::after { content: ""; position: absolute; inset: 2.2px; border: .5px solid rgba(255,246,228,.30); }
+            .xh-mark.sm { width: 7px; height: 7px; }
+            .xh-mark.sm::after { inset: 1.6px; }
+
+            /* ---- content zone under the banner ---- */
+            .xh-body {
+                position: relative;
+                max-width: 1440px;
+                margin: 0 auto;
+                padding: 0 60px 64px;
+                display: grid;
+                grid-template-columns: 1fr auto;
+                gap: 56px;
+                align-items: start;
+            }
+            .xh-lead { display: flex; flex-direction: column; min-height: 430px; padding-top: 44px; }
+            .xh-h1 {
+                font-family: "Cormorant Garamond", Georgia, serif;
+                font-weight: 600; font-size: 80px; line-height: .94;
+                letter-spacing: .004em; margin: 0 0 22px;
+                color: var(--ink, #211B12); max-width: 12ch;
+            }
+            .xh-h1 .ox { color: #7C1D2B; }
+            .xh-lede {
+                font-family: "EB Garamond", Georgia, serif;
+                font-size: 20px; line-height: 1.55; color: #574E3D;
+                max-width: 440px; margin: 0 0 34px;
+            }
+            .xh-cta { display: flex; align-items: center; gap: 28px; }
+            /* Its own button, NOT .eq-btn-primary. That rule is written with
+               !important and also matches button[class*="-cta"] across the rest
+               of this page; borrowing it would have meant either fighting the
+               !important or changing every other button here to match a hero. */
+            .xh-btn {
+                display: inline-flex; align-items: center; gap: 12px;
+                background: #7C1D2B; color: #F6EEDD;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11.5px; letter-spacing: .22em; text-transform: uppercase;
+                padding: 17px 30px; border: 1px solid #5E1420; border-radius: 2px;
+                text-decoration: none; cursor: pointer;
+                box-shadow: 0 8px 20px rgba(94,20,32,.20);
+                transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+            }
+            .xh-btn:hover { background: #5E1420; transform: translateY(-1px); box-shadow: 0 12px 26px rgba(94,20,32,.26); }
+            .xh-btn:active { transform: translateY(0); }
+            .xh-btn .a { opacity: .8; }
+            .xh-learn {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
+                color: #574E3D; text-decoration: none;
+                border-bottom: 1px solid rgba(70,55,35,.30); padding-bottom: 4px;
+                background: none; border-left: 0; border-right: 0; border-top: 0; cursor: pointer;
+                transition: color .2s ease, border-color .2s ease;
+            }
+            .xh-learn:hover { color: #211B12; border-bottom-color: #7C1D2B; }
+            .xh-learn .a { color: #7C1D2B; }
+
+            .xh-stats {
+                display: flex; gap: 44px; align-items: center;
+                margin-top: auto; padding-top: 38px;
+                border-top: 1px solid rgba(70,55,35,.20);
+            }
+            .xh-stats .sep { width: 1px; height: 42px; background: rgba(70,55,35,.20); }
+            .xh-stat .n {
+                font-family: "Cormorant Garamond", Georgia, serif;
+                font-size: 40px; font-weight: 600; line-height: 1; color: var(--ink, #211B12);
+            }
+            .xh-stat .k {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+                color: #8E8065; margin-top: 8px;
+            }
+
+            /* ---- contract card straddling the seam ---- */
+            .xh-contract {
+                position: relative; margin-top: -150px; z-index: 4;
+                width: 384px; background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.30);
+                box-shadow: 0 34px 70px rgba(40,25,12,.32), 0 8px 20px rgba(40,25,12,.18);
+                padding: 20px 22px 16px;
+            }
+            .xh-contract::after {
+                content: ""; position: absolute; inset: 5px;
+                border: 1px solid rgba(70,55,35,.11); pointer-events: none;
+            }
+            .xh-ct-in { position: relative; z-index: 2; }
+            .xh-ct-top { display: flex; align-items: center; justify-content: space-between; }
+            .xh-ct-label {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 9px; letter-spacing: .26em; text-transform: uppercase; color: #8E8065;
+            }
+            .xh-live {
+                display: inline-flex; align-items: center; gap: 7px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: #4E6B3E;
+            }
+            .xh-live .d { width: 6px; height: 6px; border-radius: 50%; background: #4E6B3E; box-shadow: 0 0 0 3px rgba(78,107,62,.14); }
+            .xh-ct-title {
+                font-family: "Cormorant Garamond", Georgia, serif;
+                font-size: 29px; font-weight: 600; line-height: 1;
+                margin: 12px 0 0; color: var(--ink, #211B12);
+            }
+            .xh-ct-rule { height: 1px; background: rgba(70,55,35,.30); margin: 14px 0 2px; position: relative; }
+            .xh-ct-rule::after { content: ""; position: absolute; left: 0; right: 0; top: 2px; height: 1px; background: rgba(70,55,35,.11); }
+            .xh-grp {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 8.5px; letter-spacing: .24em; text-transform: uppercase;
+                color: #B4A98C; margin: 14px 0 6px;
+            }
+            .xh-crow { display: flex; align-items: center; gap: 11px; padding: 8px 0; border-bottom: 1px solid rgba(70,55,35,.11); }
+            .xh-cico { width: 20px; height: 20px; flex: none; color: #574E3D; }
+            .xh-crow .ck {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #8E8065;
+            }
+            .xh-crow .cv {
+                margin-left: auto; font-family: "Cormorant Garamond", Georgia, serif;
+                font-size: 21px; font-weight: 600; color: var(--ink, #211B12);
+            }
+            .xh-crow .cv small {
+                display: block; font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 8.5px; letter-spacing: .08em; color: #8E8065;
+                text-align: right; margin-top: 2px; font-weight: 400;
+            }
+            /* A ruled 2x2 register — the same certification block the landing
+               card uses, so the two cards state their verification the same way. */
+            .xh-vgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(70,55,35,.11); border: 1px solid rgba(70,55,35,.11); }
+            .xh-vcell { background: #F5EDDA; padding: 9px 11px; }
+            .xh-vcell .k {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 8px; letter-spacing: .16em; text-transform: uppercase;
+                color: #8E8065; margin-bottom: 4px;
+            }
+            .xh-vcell .v {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .04em; color: var(--ink, #211B12); font-weight: 500;
+            }
+            .xh-vcell .v.ok { color: #3F5A31; }
+            .xh-out { display: flex; align-items: center; gap: 11px; padding: 10px 12px; margin-top: 7px; border: 1px solid rgba(70,55,35,.11); }
+            .xh-out.win { background: rgba(78,107,62,.07); }
+            .xh-out.lose { background: rgba(124,29,43,.06); }
+            .xh-out .ok2 {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500;
+            }
+            .xh-out .os {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 8.5px; letter-spacing: .05em; color: #7A6D55; margin-top: 3px;
+            }
+            .xh-out .ov { margin-left: auto; font-family: "Cormorant Garamond", Georgia, serif; font-size: 23px; font-weight: 600; }
+            .xh-out.win .ov { color: #3F5A31; }
+            .xh-out.lose .ov { color: #7C1D2B; }
+            .xh-ct-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+            .xh-ct-foot span {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 8.5px; letter-spacing: .12em; text-transform: uppercase;
+                color: #7A6D55; display: inline-flex; align-items: center; gap: 6px;
+            }
+
+            /* ---- responsive ----
+               THE SEAM OVERLAP IS THE FIRST THING TO GO. Below 1100 the two
+               columns cannot both hold their width, and a card pulled up 150px
+               into a banner it no longer sits beside reads as a mistake rather
+               than as a composition. It stacks and sits on the parchment. */
+            @media (max-width: 1180px) {
+                .xh-h1 { font-size: 62px; }
+                .xh-contract { width: 340px; }
+                .xh-body { gap: 36px; padding: 0 40px 56px; }
+                .xh-band-inner, .xh-kicker, .xh-motto { padding-left: 0; }
+                .xh-kicker, .xh-motto { left: 40px; }
+                .xh-ref { right: 40px; }
+            }
+            @media (max-width: 1000px) {
+                .xh-band { height: 340px; }
+                .xh-body { grid-template-columns: 1fr; padding: 0 32px 48px; }
+                .xh-lead { min-height: 0; padding-top: 32px; }
+                .xh-contract { margin: 8px 0 0; width: 100%; max-width: 420px; }
+                .xh-h1 { font-size: 52px; max-width: none; }
+                .xh-kicker, .xh-motto { left: 32px; }
+                .xh-ref { right: 32px; }
+            }
+            @media (max-width: 700px) {
+                .xh { padding-top: 76px; }
+                .xh-band { height: 240px; }
+                .xh-h1 { font-size: 38px; }
+                .xh-lede { font-size: 17px; }
+                .xh-ref { display: none; }
+                .xh-kicker { font-size: 9.5px; letter-spacing: .22em; top: 20px; }
+                .xh-motto { font-size: 10px; letter-spacing: .22em; bottom: 18px; }
+                .xh-cta { flex-direction: column; align-items: stretch; gap: 16px; }
+                .xh-btn { justify-content: center; }
+                .xh-learn { text-align: center; }
+                /* The stat row wraps rather than scrolls; the rules between them
+                   go, because a vertical rule between stacked items is a rule
+                   pointing the wrong way. */
+                .xh-stats { flex-wrap: wrap; gap: 22px 32px; padding-top: 28px; }
+                .xh-stats .sep { display: none; }
+                .xh-stat .n { font-size: 30px; }
             }
 
             /* Oxblood Buttons — #7A1C29 background, #FFF8F5 text, #54111B hover */
@@ -129,14 +391,10 @@ export function renderActiveContracts() {
                 transform: translateY(-1px);
                 box-shadow: 0 4px 12px rgba(84, 17, 27, 0.3);
             }
-            .eq-link-more {
-                color: var(--ink-3, #6E7686);
-                font-size: 14px;
-                text-decoration: none;
-                font-weight: 500;
-                transition: color 0.15s ease;
-            }
-            .eq-link-more:hover { color: var(--ink, #0E1420); }
+            /* .eq-link-more went with the old hero. Its replacement is
+               .xh-learn, which is a button rather than an anchor because it
+               scrolls the page rather than navigating anywhere -- an href="#"
+               that a handler cancels is a link that lies about where it goes. */
 
             /* --- MARKET SECTION HEADER & RECONCILED STATS --- */
             .eq-market-header {
@@ -873,13 +1131,11 @@ export function renderActiveContracts() {
             @media (max-width: 1200px) {
                 .eq-grid { grid-template-columns: repeat(2, 1fr); }
                 .eq-mechanism-grid { grid-template-columns: repeat(2, 1fr); }
-                .eq-hero-headline { font-size: 48px; }
             }
             @media (max-width: 768px) {
                 .eq-grid { grid-template-columns: 1fr; }
                 .eq-mechanism-grid { grid-template-columns: 1fr; }
                 .eq-paths-grid { grid-template-columns: 1fr; }
-                .eq-hero-headline { font-size: 34px !important; }
                 .eq-stats-strip { flex-direction: column; gap: 20px; padding: 20px; }
             }
         </style>
@@ -887,13 +1143,69 @@ export function renderActiveContracts() {
         <div class="cl-grain" aria-hidden="true"></div>
 
         <div class="eq">
-            <!-- Section 1: Hero -->
-            <div class="eq-hero">
-                <h1 class="eq-hero-headline">Put your money where your <strong>metrics</strong> are.</h1>
-                <p class="eq-hero-sub">Stake against revenue, sales, or growth targets. Automatic verification. Final settlement. No appeals.</p>
-                <div class="eq-hero-actions">
-                    <button class="eq-btn-primary" onclick="document.getElementById('live-market').scrollIntoView({behavior:'smooth'})">Explore Market</button>
-                    <a href="#" class="eq-link-more" onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'}); return false;">Learn more →</a>
+            <!-- Section 1: Hero — the Exchange -->
+            <div class="xh">
+                <!-- The hall. aria-hidden because it is atmosphere; the page's
+                     actual heading is the h1 below it. -->
+                <div class="xh-band" aria-hidden="true">
+                    <div class="xh-band-art"></div>
+                    <div class="xh-band-veil"></div>
+                    <div class="xh-band-inner">
+                        <div class="xh-kicker"><i></i> The Exchange for Human Execution</div>
+                        <div class="xh-ref">No. II &middot; The Trading Hall<br>Est. MMXXV</div>
+                        <div class="xh-motto"><span class="xh-mark sm"></span> Veritas &middot; Fides &middot; Executio</div>
+                    </div>
+                </div>
+
+                <div class="xh-body">
+                    <div class="xh-lead">
+                        <h1 class="xh-h1">Put money on your own <span class="ox">deadline.</span></h1>
+                        <p class="xh-lede">Stake your own money on a goal. Hit the deadline and you keep it &mdash; miss it, and it&rsquo;s gone. Every agreement is sealed, held, and settled in the open.</p>
+                        <div class="xh-cta">
+                            <!-- Both targets are unchanged: the primary still
+                                 scrolls to #live-market and the secondary to
+                                 #how-it-works, exactly as EXPLORE MARKET and
+                                 LEARN MORE did. Only the wording and the skin
+                                 moved. -->
+                            <button class="xh-btn" onclick="document.getElementById('live-market').scrollIntoView({behavior:'smooth'})">Enter Exchange <span class="a" aria-hidden="true">&rarr;</span></button>
+                            <button class="xh-learn" onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})">See how it works <span class="a" aria-hidden="true">&darr;</span></button>
+                        </div>
+                        <div class="xh-stats">
+                            <div class="xh-stat"><div class="n">$8,700,000</div><div class="k">Held in Escrow</div></div>
+                            <div class="sep"></div>
+                            <div class="xh-stat"><div class="n">54</div><div class="k">Settled Today</div></div>
+                            <div class="sep"></div>
+                            <div class="xh-stat"><div class="n">99.2%</div><div class="k">Settled on Time</div></div>
+                        </div>
+                    </div>
+
+                    <!-- Specimen contract, pulled up so it crosses the seam -->
+                    <aside class="xh-contract" aria-label="Specimen performance contract">
+                        <div class="xh-ct-in">
+                            <div class="xh-ct-top"><span class="xh-ct-label">Performance Contract</span><span class="xh-live"><span class="d"></span> Live</span></div>
+                            <div class="xh-ct-title">Stripe Revenue Growth</div>
+                            <div class="xh-ct-rule"></div>
+
+                            <div class="xh-grp">Commitment</div>
+                            <div class="xh-crow"><svg class="xh-cico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="1.5"/><path d="M2.5 10h19M16 14.5h2.5"/></svg><span class="ck">Stake</span><span class="cv">$250.00</span></div>
+                            <div class="xh-crow"><svg class="xh-cico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg><span class="ck">Target</span><span class="cv">+20%</span></div>
+                            <div class="xh-crow"><svg class="xh-cico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.6"/><path d="M12 7.4V12l3.1 1.9"/></svg><span class="ck">Deadline</span><span class="cv">31 Aug<small>30 days remaining</small></span></div>
+
+                            <div class="xh-grp">Verification</div>
+                            <div class="xh-vgrid">
+                                <div class="xh-vcell"><div class="k">Source</div><div class="v ok">Stripe API &#10003;</div></div>
+                                <div class="xh-vcell"><div class="k">Escrow</div><div class="v ok">Active</div></div>
+                                <div class="xh-vcell"><div class="k">Settlement</div><div class="v">Automatic</div></div>
+                                <div class="xh-vcell"><div class="k">Contract</div><div class="v">CM&middot;01942</div></div>
+                            </div>
+
+                            <div class="xh-grp">Outcome</div>
+                            <div class="xh-out win"><span class="xh-mark sm"></span><div><div class="ok2" style="color:#3F5A31">Hit target</div><div class="os">You keep your stake &middot; 4.0&times;</div></div><span class="ov">+$1,000</span></div>
+                            <div class="xh-out lose"><span class="xh-mark sm"></span><div><div class="ok2" style="color:#7C1D2B">Miss target</div><div class="os">Stake forfeited to pool</div></div><span class="ov">&minus;$250</span></div>
+
+                            <div class="xh-ct-foot"><span><span class="xh-mark sm"></span> Funds held in escrow</span><span>Auto-settled</span></div>
+                        </div>
+                    </aside>
                 </div>
             </div>
 
