@@ -100,35 +100,103 @@ export function renderActiveContracts() {
                first thing on the page and would otherwise start beneath it. */
             .xh { position: relative; padding-top: 92px; }
 
-            /* ---- the hall banner ---- */
+            /* ---- the hall banner ----
+               600px, up from 466 — 29% taller. The establishing shot has to
+               hold long enough to be a place rather than a strip. */
             .xh-band {
                 position: relative;
                 width: 100%;
-                height: 466px;
+                height: 600px;
                 overflow: hidden;
                 background: var(--paper, #F7F4ED);
+                /* The art and the depth layers blend with the band's own paper
+                   and stop there. Without this, multiply would reach through to
+                   whatever the page puts behind the band. */
+                isolation: isolate;
             }
+
+            /* ══ INK ON PAPER, NOT ARTWORK UNDER FOG ══════════════════════════
+               THE FOG WAS A LAYER OF PARCHMENT-COLOURED PAINT ON TOP. The old
+               veil ended with a linear-gradient from rgba(247,244,237,.12) to
+               itself — a flat 12% wash across the entire band —
+               plus 55% washes down both sides and a 75% wash across the bottom.
+               That is a scrim, and a scrim is exactly what "Photoshop feather"
+               describes: the engraving keeps its full ink and something milky
+               sits between it and the reader.
+
+               THE FIX IS TWO PROPERTIES, AND NEITHER OF THEM PAINTS ANYTHING.
+
+               mix-blend-mode: multiply makes the plate behave like INK. Multiply
+               can only ever darken, so the engraving's light areas become the
+               page's own parchment rather than a second, slightly different
+               beige laid over it — which is what made the plate read as a
+               rectangle even where the fade was working.
+
+               mask-image REMOVES INK RATHER THAN COVERING IT. As the mask alpha
+               falls, less ink is deposited; the line work thins and pales in
+               place, keeping every stroke it had, exactly the way a copperplate
+               prints lighter as the plate runs dry. Nothing is added on top, so
+               there is nothing to read as mist.
+
+               The stops are asymmetric on purpose: a long, slow bottom fall
+               through the last 42% so the trading counter dissolves into the
+               parchment the headline sits on, a short top fall so the ceiling
+               arrives immediately, and gentle side falls that stop well short of
+               opaque so the hall keeps running past the frame. */
+            /* 130px OF HEADROOM ABOVE THE BAND, and this is a parallax
+               requirement rather than a framing one. The plate translates DOWN
+               as the page scrolls up, so if it started flush with the band's top
+               edge it would drag that edge into view within the first hundred
+               pixels of scroll and expose the frame it is supposed to dissolve
+               out of. The band is visible for roughly 690px of scroll and the
+               rate is 0.12, so the furthest it ever travels is ~83px — well
+               inside the 130 it has. */
             .xh-band-art {
                 position: absolute;
-                inset: 0;
-                background: url("/assets/images/trading-hall.webp") center 42% / cover no-repeat;
+                inset: -130px -1% 0;
+                background: url("/assets/images/trading-hall.webp") center 46% / cover no-repeat;
+                mix-blend-mode: multiply;
+                -webkit-mask-image:
+                    linear-gradient(to bottom, transparent 0%, #000 9%, #000 58%, rgba(0,0,0,.72) 76%, rgba(0,0,0,.28) 90%, transparent 100%),
+                    linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%);
+                -webkit-mask-composite: source-in;
+                mask-image:
+                    linear-gradient(to bottom, transparent 0%, #000 9%, #000 58%, rgba(0,0,0,.72) 76%, rgba(0,0,0,.28) 90%, transparent 100%),
+                    linear-gradient(to right, transparent 0%, #000 13%, #000 87%, transparent 100%);
+                mask-composite: intersect;
+                will-change: transform;
             }
-            /* FOUR GRADIENTS, NOT A VIGNETTE, and the distinction is the whole
-               reason the artwork does not read as a photograph dropped in a box.
-               A vignette darkens toward a rectangle's edges and announces the
-               rectangle. These dissolve the plate into the parchment on each
-               side independently — heavier at the bottom where the card and the
-               headline have to sit on it, light at the top where the header
-               floats. */
-            .xh-band-veil {
+
+            /* ══ DEPTH ══════════════════════════════════════════════════════
+               Three planes out of one flat plate, by taking ink AWAY from the
+               far one rather than adding haze to it.
+
+               The top third — temple, ceiling, upper architecture — loses
+               density, so it recedes the way distance actually works in an
+               engraving: fewer, lighter lines. The archive wall on the right
+               gains it, because that corner is the deepest shadow in the hall
+               and holding it dark is what gives the counter something to be
+               brighter than. */
+            .xh-band-depth {
                 position: absolute;
                 inset: 0;
                 pointer-events: none;
+                mix-blend-mode: multiply;
                 background:
-                    linear-gradient(to bottom, var(--paper, #F7F4ED) 0%, rgba(247,244,237,.35) 12%, rgba(247,244,237,0) 30%),
-                    linear-gradient(to top, var(--paper, #F7F4ED) 2%, rgba(247,244,237,.75) 15%, rgba(247,244,237,.10) 34%, rgba(247,244,237,0) 52%),
-                    linear-gradient(to right, rgba(247,244,237,.55) 0%, rgba(247,244,237,0) 22%, rgba(247,244,237,0) 78%, rgba(247,244,237,.55) 100%),
-                    linear-gradient(0deg, rgba(247,244,237,.12), rgba(247,244,237,.12));
+                    radial-gradient(120% 80% at 78% 46%, rgba(74,58,36,.16), rgba(74,58,36,0) 58%),
+                    linear-gradient(to bottom, rgba(70,55,35,.05) 0%, rgba(70,55,35,0) 34%);
+            }
+            /* ══ LIGHT ══════════════════════════════════════════════════════
+               The brightest point in the hall falls on the counter, where the
+               contract is laid. screen only ever lightens, and at .30 over a
+               60%-wide ellipse it is a change in exposure across the desk, not a
+               glow with an edge — there is no ring anywhere to find. */
+            .xh-band-light {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                mix-blend-mode: screen;
+                background: radial-gradient(58% 46% at 60% 72%, rgba(255,246,226,.30), rgba(255,246,226,0) 70%);
             }
             .xh-band-inner {
                 position: relative;
@@ -152,13 +220,27 @@ export function renderActiveContracts() {
                 font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
                 line-height: 1.7; color: #6F6551;
             }
+            /* Both of these are lifted well clear of the bottom now. The mask's
+               fall begins at 58%, and text sitting inside the dissolve would
+               fade with the ink it is printed on. */
             .xh-motto {
-                position: absolute; left: 60px; bottom: 30px;
+                position: absolute; left: 60px; bottom: 118px;
                 display: flex; align-items: center; gap: 16px;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 12px; letter-spacing: .30em; text-transform: uppercase;
                 color: #4A4234;
             }
+            /* The counterweight to the motto, and the reason it is words rather
+               than an ornament: this is the institution stating its function.
+               Sealed, verified, archived is what the hall behind it does. */
+            .xh-charter {
+                position: absolute; right: 60px; bottom: 118px;
+                display: flex; align-items: center; gap: 14px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10px; letter-spacing: .26em; text-transform: uppercase;
+                color: #6F6551;
+            }
+            .xh-charter i { height: 1px; width: 24px; background: rgba(70,55,35,.38); display: block; }
             /* The rotated square with an inner hairline — the same positional
                glyph the drawer and the fork section use. */
             .xh-mark {
@@ -180,18 +262,32 @@ export function renderActiveContracts() {
                 gap: 56px;
                 align-items: start;
             }
-            .xh-lead { display: flex; flex-direction: column; min-height: 430px; padding-top: 44px; }
+            .xh-lead { display: flex; flex-direction: column; min-height: 430px; padding-top: 56px; }
+            /* CARVED, NOT SET. Three changes, all of them about authority
+               rather than size — the headline does not get bigger.
+
+               line-height .94 -> 1.02. Sub-single leading is a display trick
+               that makes a headline look COMPRESSED, which reads as urgent; an
+               inscription is cut with air between the lines because the stone
+               is not in a hurry.
+
+               The lede narrows 440 -> 386, which is about 62 characters — the
+               measure a book uses, and short enough that the eye returns to a
+               known left edge instead of hunting for it.
+
+               And the ox span carries no italic, no weight change, no rule.
+               One word in one other colour is the whole emphasis. */
             .xh-h1 {
                 font-family: "Cormorant Garamond", Georgia, serif;
-                font-weight: 600; font-size: 80px; line-height: .94;
-                letter-spacing: .004em; margin: 0 0 22px;
+                font-weight: 600; font-size: 80px; line-height: 1.02;
+                letter-spacing: .004em; margin: 0 0 26px;
                 color: var(--ink, #211B12); max-width: 12ch;
             }
             .xh-h1 .ox { color: #7C1D2B; }
             .xh-lede {
                 font-family: "EB Garamond", Georgia, serif;
-                font-size: 20px; line-height: 1.55; color: #574E3D;
-                max-width: 440px; margin: 0 0 34px;
+                font-size: 20px; line-height: 1.6; color: #574E3D;
+                max-width: 386px; margin: 0 0 40px;
             }
             .xh-cta { display: flex; align-items: center; gap: 28px; }
             /* Its own button, NOT .eq-btn-primary. That rule is written with
@@ -222,9 +318,13 @@ export function renderActiveContracts() {
             .xh-learn:hover { color: #211B12; border-bottom-color: #7C1D2B; }
             .xh-learn .a { color: #7C1D2B; }
 
+            /* 58px of clear air above the rule, up from 38. The statistics are
+               the last step of the path and the only one that is a conclusion
+               rather than an invitation; crowding them against the CTA made the
+               two read as one control group. */
             .xh-stats {
                 display: flex; gap: 44px; align-items: center;
-                margin-top: auto; padding-top: 38px;
+                margin-top: auto; padding-top: 58px;
                 border-top: 1px solid rgba(70,55,35,.20);
             }
             .xh-stats .sep { width: 1px; height: 42px; background: rgba(70,55,35,.20); }
@@ -238,13 +338,50 @@ export function renderActiveContracts() {
                 color: #8E8065; margin-top: 8px;
             }
 
-            /* ---- contract card straddling the seam ---- */
+            /* ---- the contract, laid on the counter ----
+               IT WAS FLOATING BECAUSE OF ITS SHADOW, not its position. One
+               enormous soft blur — 0 34px 70px at .32 — is the shadow of an
+               object suspended well above a surface, and it is the single cue
+               that said "pinned on top" loudest.
+
+               A sheet actually resting on a counter casts three things:
+
+                 CONTACT   0 2px 3px at .22, almost no blur. This is the dark
+                           line where paper meets stone, and it is the one that
+                           does the work. Without it nothing ever looks placed.
+                 FORM      0 14px 26px -10px at .20, offset down and short.
+                 AMBIENT   0 40px 70px -30px at .16, very wide, very faint.
+
+               Plus an inset hairline of warm light along the top edge, which is
+               the lit lip of a sheet catching the same lamp the counter does —
+               and it is the reason the card looks illuminated BY the scene
+               rather than glowing on its own. No glow was added anywhere.
+
+               -186px, deeper than the old -150: the card now breaks the counter
+               line rather than resting on it, so it emerges from the desk
+               instead of sitting on the seam. */
             .xh-contract {
-                position: relative; margin-top: -150px; z-index: 4;
+                position: relative; margin-top: -186px; z-index: 4;
                 width: 384px; background: #F5EDDA;
-                border: 1px solid rgba(70,55,35,.30);
-                box-shadow: 0 34px 70px rgba(40,25,12,.32), 0 8px 20px rgba(40,25,12,.18);
+                border: 1px solid rgba(70,55,35,.34);
+                box-shadow:
+                    inset 0 1px 0 rgba(255,250,235,.72),
+                    0 2px 3px rgba(40,25,12,.22),
+                    0 14px 26px -10px rgba(40,25,12,.20),
+                    0 40px 70px -30px rgba(40,25,12,.16);
                 padding: 20px 22px 16px;
+                will-change: transform;
+            }
+            /* THE SHEET SITS IN THE SCENE'S LIGHT. The band's brightest point is
+               the counter at 60%/72%; this repeats that fall across the card at
+               a fraction of the strength, so the top-left of the document is
+               fractionally warmer than its bottom-right — the same lamp, the
+               same direction. soft-light rather than screen because the card
+               already has a colour and this is meant to bend it, not wash it. */
+            .xh-contract::before {
+                content: ""; position: absolute; inset: 0; pointer-events: none;
+                mix-blend-mode: soft-light;
+                background: linear-gradient(152deg, rgba(255,244,220,.55) 0%, rgba(255,244,220,0) 46%, rgba(60,42,20,.10) 100%);
             }
             .xh-contract::after {
                 content: ""; position: absolute; inset: 5px;
@@ -1164,12 +1301,14 @@ export function renderActiveContracts() {
                 <!-- The hall. aria-hidden because it is atmosphere; the page's
                      actual heading is the h1 below it. -->
                 <div class="xh-band" aria-hidden="true">
-                    <div class="xh-band-art"></div>
-                    <div class="xh-band-veil"></div>
-                    <div class="xh-band-inner">
+                    <div class="xh-band-art" data-xh-par="0.12"></div>
+                    <div class="xh-band-depth"></div>
+                    <div class="xh-band-light"></div>
+                    <div class="xh-band-inner" data-xh-par="0.06">
                         <div class="xh-kicker"><i></i> The Exchange for Human Execution</div>
                         <div class="xh-ref">No. II &middot; The Trading Hall<br>Est. MMXXV</div>
                         <div class="xh-motto"><span class="xh-mark sm"></span> Veritas &middot; Fides &middot; Executio</div>
+                        <div class="xh-charter">Sealed &middot; Verified &middot; Archived <i></i></div>
                     </div>
                 </div>
 
@@ -1196,7 +1335,7 @@ export function renderActiveContracts() {
                     </div>
 
                     <!-- Specimen contract, pulled up so it crosses the seam -->
-                    <aside class="xh-contract" aria-label="Specimen performance contract">
+                    <aside class="xh-contract" data-xh-par="-0.02" aria-label="Specimen performance contract">
                         <div class="xh-ct-in">
                             <div class="xh-ct-top"><span class="xh-ct-label">Performance Contract</span><span class="xh-live"><span class="d"></span> Live</span></div>
                             <div class="xh-ct-title">Stripe Revenue Growth</div>
@@ -1553,7 +1692,62 @@ export function renderActiveContracts() {
     `;
 }
 
+/**
+ * Parallax for the Exchange hero.
+ *
+ * THE RATES ARE THE POINT, and they are deliberately small. The hall moves at
+ * 0.16 of scroll, the band's own inscriptions at 0.06, and the contract at
+ * -0.02 — negative, so the card drifts fractionally AGAINST the page and reads
+ * as the nearest object rather than merely the slowest. At a 600px band that is
+ * about 83px of travel on the artwork across the whole hero and under 12px on
+ * the card: felt as depth, never seen as motion. Anything larger and the plate
+ * detaches from its own frame on the way past.
+ *
+ * ONLY transform, ONLY on elements already promoted by will-change, and only
+ * inside one rAF per frame — the handler itself does nothing but set a flag, so
+ * a fast scroll cannot queue work. Nothing here reads layout: the offsets come
+ * from scrollY and the band's cached top, so there is no forced reflow in the
+ * scroll path.
+ *
+ * It disables itself entirely under prefers-reduced-motion, and below 1000px,
+ * where the card has stacked out of the band and parallax between two things
+ * that no longer overlap is just drift.
+ */
+function initXhParallax() {
+    const band = document.querySelector('.xh-band');
+    if (!band) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.matchMedia && window.matchMedia('(max-width: 1000px)').matches) return;
+
+    const layers = [...document.querySelectorAll('[data-xh-par]')].map((el) => ({
+        el, rate: parseFloat(el.getAttribute('data-xh-par')) || 0,
+    }));
+    if (!layers.length) return;
+
+    let ticking = false;
+    const apply = () => {
+        ticking = false;
+        const y = window.scrollY || document.documentElement.scrollTop || 0;
+        /* Past the band's own height there is nothing left to parallax against,
+           so the transform is clamped rather than left to run away down the
+           page. */
+        const t = Math.min(y, 900);
+        for (const { el, rate } of layers) {
+            el.style.transform = `translate3d(0, ${(t * rate).toFixed(2)}px, 0)`;
+        }
+    };
+    const onScroll = () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(apply);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    apply();
+}
+
 export function initActiveContracts() {
+    initXhParallax();
+
     // Sort + domain filters now drive the Rivalry board only.
     let activeSort = 'trending_24h';
     let activeCategory = 'all';
