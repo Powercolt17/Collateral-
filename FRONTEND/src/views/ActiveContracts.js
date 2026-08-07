@@ -143,7 +143,7 @@ export function renderActiveContracts() {
             .xh-band {
                 position: relative;
                 width: 100%;
-                height: clamp(300px, 44vh, 460px);
+                height: clamp(280px, 38vh, 420px);
                 overflow: hidden;
                 /* Must be the page's exact ground, not the token: the plate
                    multiplies against this, so any difference between the band's
@@ -346,13 +346,13 @@ export function renderActiveContracts() {
                 position: relative;
                 max-width: 1440px;
                 margin: 0 auto;
-                padding: 0 60px 40px;
+                padding: 0 60px 32px;
                 display: grid;
                 grid-template-columns: 1fr auto;
                 gap: 56px;
                 align-items: start;
             }
-            .xh-lead { display: flex; flex-direction: column; padding-top: 30px; }
+            .xh-lead { display: flex; flex-direction: column; padding-top: 24px; }
             /* CARVED, NOT SET. Three changes, all of them about authority
                rather than size — the headline does not get bigger.
 
@@ -371,13 +371,13 @@ export function renderActiveContracts() {
                 font-family: "Cormorant Garamond", Georgia, serif;
                 font-weight: 600; font-size: 66px; line-height: 1.04;
                 letter-spacing: .004em; margin: 0 0 14px;
-                color: var(--ink, #211B12); max-width: 15ch;
+                color: var(--ink, #211B12); max-width: 18ch;
             }
             .xh-h1 .ox { color: #7C1D2B; }
             .xh-lede {
                 font-family: "EB Garamond", Georgia, serif;
                 font-size: 18px; line-height: 1.58; color: #574E3D;
-                max-width: 480px; margin: 0 0 26px;
+                max-width: 556px; margin: 0 0 26px;
             }
             .xh-cta { display: flex; align-items: center; gap: 28px; }
             /* Its own button, NOT .eq-btn-primary. That rule is written with
@@ -414,7 +414,7 @@ export function renderActiveContracts() {
                two read as one control group. */
             .xh-stats {
                 display: flex; gap: 44px; align-items: center;
-                margin-top: auto; padding-top: 30px;
+                margin-top: auto; padding-top: 24px;
                 border-top: 1px solid rgba(70,55,35,.20);
             }
             .xh-stats .sep { width: 1px; height: 42px; background: rgba(70,55,35,.20); }
