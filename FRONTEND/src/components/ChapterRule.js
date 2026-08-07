@@ -125,19 +125,25 @@ export function renderChapterRuleStyles() {
            has to read colour AND image AND pseudo-elements. */
         .lp .clt-strip{background-color:transparent;background-image:none}
 
-        /* The rules do the work now, so they are drawn properly: a hairline
-           that fades at both ends rather than running edge to edge, matching
-           the chapter dividers. A rule that stops dead at the viewport edge is
-           what makes a strip look like a boxed section. */
+        /* NO RULES EITHER. When the fill came off I replaced it with a hairline
+           top and bottom, on the reasoning that the band still needed some
+           boundary. It did not. At 1840px wide those two lines spanned the
+           whole viewport, and a full-bleed line across the page is the exact
+           thing that reads as a boxed section — the same failure as the tint,
+           drawn at 1px instead of filled.
+
+           The chapter dividers get away with a line because they are 102px of
+           air with a diamond at the optical centre; they read as punctuation.
+           A bare edge-to-edge rule with content pressed against it reads as a
+           border. So the band is set off by SPACE ONLY, which is what the
+           one-paper brief asked for in the first place.
+
+           These were the only two near-full-width hairlines anywhere in the
+           document — measured across every element and pseudo-element in the
+           first 2400px, border and background both. Nothing else on the page
+           depended on them. */
         .lp .clt-strip{border-top:0;border-bottom:0;position:relative}
-        .lp .clt-strip::before,.lp .clt-strip::after{
-          content:"";position:absolute;left:0;right:0;height:1px;
-          background:linear-gradient(90deg,
-            rgba(60,48,30,0) 0%, rgba(60,48,30,.18) 26%,
-            rgba(60,48,30,.18) 74%, rgba(60,48,30,0) 100%);
-        }
-        .lp .clt-strip::before{top:0}
-        .lp .clt-strip::after{bottom:0}
+        .lp .clt-strip::before,.lp .clt-strip::after{content:none}
 
         /* CONTRAST. The oracle labels and the eyebrow were rgb(154,140,111) at
            10px — 2.77:1 on this paper, against a 4.5:1 AA threshold. Small type
