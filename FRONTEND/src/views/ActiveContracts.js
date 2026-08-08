@@ -4,6 +4,10 @@
 // Market-listing and execution-modal imports removed with the contract catalog:
 // the source picker fetches nothing, and terms are derived after the examination.
 
+// Section 2 is the same component the homepage renders, so the two pages cannot
+// drift apart describing the same two contract types.
+import { renderStructuresSection } from '../components/StructuresSection.js';
+
 export function renderActiveContracts() {
     return `
         <style>
@@ -1221,56 +1225,12 @@ export function renderActiveContracts() {
                 cursor: not-allowed;
             }
 
-            /* --- TWO PATHS SECTION --- */
-            .eq-paths {
-                max-width: 1300px; margin: 0 auto;
-                padding: 60px 32px;
-                border-top: 1px solid var(--rule, #DCD5C6);
-            }
-            .eq-paths-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 24px;
-            }
-            .eq-path-card {
-                background: var(--plate, #FFFDF9);
-                border: 1px solid var(--rule, #DCD5C6);
-                border-radius: var(--r, 2px);
-                padding: 36px 32px;
-                box-shadow: var(--lift);
-                display: flex; flex-direction: column;
-            }
-            .eq-path-title {
-                font-family: var(--display, 'Archivo', sans-serif);
-                font-size: 22px; font-weight: 700;
-                line-height: 1.2; letter-spacing: -.026em;
-                color: var(--ink, #0E1420); margin-bottom: 16px;
-            }
-            .eq-path-title strong { color: var(--blood, #7A1C29); }
-            .eq-path-desc {
-                font-size: 14px; color: var(--ink-2, #4A5464);
-                line-height: 1.6; margin-bottom: 24px; flex-grow: 1;
-            }
-
-            .eq-path-cta {
-                display: inline-block;
-                padding: 14px 24px;
-                background: #7A1C29 !important;
-                color: #FFF8F5 !important;
-                border: 1px solid #7A1C29 !important;
-                border-radius: var(--r, 2px);
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; font-weight: 700;
-                letter-spacing: .16em; text-transform: uppercase;
-                text-decoration: none; text-align: center;
-                cursor: pointer;
-                transition: all 0.2s ease;
-            }
-            .eq-path-cta:hover {
-                background: #54111B !important;
-                border-color: #54111B !important;
-                transform: translateY(-1px);
-            }
+            /* The .eq-paths / .eq-path-card / .eq-path-cta block was removed
+               with the "Two ways to compete." cards it styled. Those cards used
+               --plate #FFFDF9, a WHITE fill — the one thing the single-document
+               pass took off the rest of the site — and this page was the last
+               place it survived. StructuresSection carries its own scoped
+               styles, so nothing here replaces them. */
 
             /* --- MECHANISM SECTION --- */
             .eq-mechanism {
@@ -1410,7 +1370,6 @@ export function renderActiveContracts() {
             @media (max-width: 768px) {
                 .eq-grid { grid-template-columns: 1fr; }
                 .eq-mechanism-grid { grid-template-columns: 1fr; }
-                .eq-paths-grid { grid-template-columns: 1fr; }
                 .eq-stats-strip { flex-direction: column; gap: 20px; padding: 20px; }
             }
         </style>
@@ -1507,43 +1466,33 @@ export function renderActiveContracts() {
                 </div>
             </div>
 
-            <!-- Section 2: Two Contract Types -->
-            <section class="eq-paths" id="how-it-works">
-                <div style="margin-bottom: 32px;">
-                    <div class="mono-lbl" style="margin-bottom: 8px;">CONTRACT PRIMITIVES</div>
-                    <h2 class="eq-market-title">Two ways to <strong>compete.</strong></h2>
-                    <p style="font-size: 15px; color: var(--ink-2, #4A5464); max-width: 560px; line-height: 1.6;">Collateral offers two distinct contract primitives. Same verified metrics. Same locked capital. Same automatic settlement. Different opponents.</p>
-                </div>
-                <div class="eq-paths-grid">
-                    <!-- Solo Contract -->
-                    <div class="eq-path-card">
-                        <div class="mono-lbl" style="margin-bottom: 12px; color: var(--blood, #7A1C29);">SOLO CONTRACT</div>
-                        <h3 class="eq-path-title">Back <strong>yourself.</strong></h3>
-                        <p class="eq-path-desc">Stake capital against your own performance targets. Hit the metric — keep everything. Miss — capital is forfeited under verified rules.</p>
-                        <button class="eq-path-cta" onclick="document.getElementById('live-market').scrollIntoView({behavior:'smooth'})">Browse Solo Contracts →</button>
-                    </div>
-                    <!-- Rivalry Contract -->
-                    <div class="eq-path-card">
-                        <div class="mono-lbl" style="margin-bottom: 12px; color: var(--blood, #7A1C29);">RIVALRY CONTRACT</div>
-                        <h3 class="eq-path-title">Challenge an <strong>opponent.</strong></h3>
-                        <p class="eq-path-desc">Issue a head-to-head duel. Both operators lock matched capital. Verified growth determines the winner. Loser forfeits their stake.</p>
-                        <a href="#" onclick="event.preventDefault(); window.router.navigate('/market?type=rivalry');" class="eq-path-cta">Explore Rivalries →</a>
-                    </div>
-                </div>
+            <!-- Section 2: Two Contract Types.
+                 The white "Two ways to compete." cards are gone; this is the
+                 filed-instrument treatment used on the homepage.
 
-                <div class="ss-sources">
-                    <span class="ss-sources-k">&sect; HOW SOURCES WORK</span>
-                    <span class="ss-sources-v">
-                        Your bank settles every contract. Stripe, Shopify and YouTube only
-                        unlock metrics a bank statement can&rsquo;t see.
-                    </span>
-                </div>
+                 id="how-it-works" MOVES ONTO the new section rather than being
+                 dropped — the "Contract types ↓" button further up this page
+                 scrolls to that id, and losing it would have made that button
+                 do nothing silently.
 
-                <p class="ss-promise">
-                    No terms exist until your bank is connected and examined. Nothing here
-                    commits you to a contract, and read access can be revoked at any time.
-                </p>
-            </section>
+                 The CTAs keep this page's behaviour, not the homepage's auth
+                 gate: Solo scrolls to the live market below, Rivalry navigates
+                 to the rivalry filter. Same destinations the old cards had.
+
+                 The section brings its own "How sources work" line, so the old
+                 .ss-sources block is not repeated. .ss-promise is kept — it is
+                 the revocation notice and has no equivalent in the design. -->
+            ${renderStructuresSection({
+                id: 'how-it-works',
+                soloLabel: 'Browse Solo Contracts',
+                rivalLabel: 'Explore Rivalries',
+                soloAction: "document.getElementById('live-market').scrollIntoView({behavior:'smooth'}); return false;",
+                rivalAction: "window.router.navigate('/market?type=rivalry'); return false;",
+            })}
+            <p class="ss-promise">
+                No terms exist until your bank is connected and examined. Nothing here
+                commits you to a contract, and read access can be revoked at any time.
+            </p>
 
             <!-- Section 3: Live Market Header & Mechanical Odometer Stats -->
             <section class="eq-market-header" id="live-market">

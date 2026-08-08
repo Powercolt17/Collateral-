@@ -43,7 +43,26 @@
  * the source's href="#".
  */
 
-export function renderStructuresSection() {
+/** The landing behaviour: gate on auth before contract creation. */
+const CTA_ACTION =
+    "if(window.app &amp;&amp; window.app.openAccessModal){ window.app.openAccessModal('signup'); } else { window.router.navigate('/signin'); } return false;";
+
+/**
+ * @param {object} [o]
+ * @param {string} [o.id]          Section id. The Exchange passes "how-it-works"
+ *                                 because a button further up that page scrolls
+ *                                 to it; the homepage takes the default.
+ * @param {string} [o.soloAction]  onclick body for the Solo CTA.
+ * @param {string} [o.rivalAction] onclick body for the Rivalry CTA.
+ * @param {string} [o.soloLabel]   Solo CTA text.
+ * @param {string} [o.rivalLabel]  Rivalry CTA text.
+ */
+export function renderStructuresSection(o = {}) {
+    const id = o.id || 'stc-section';
+    const soloLabel = o.soloLabel || 'Review Contract';
+    const rivalLabel = o.rivalLabel || 'Review Contract';
+    const soloAction = o.soloAction || CTA_ACTION;
+    const rivalAction = o.rivalAction || CTA_ACTION;
     return `
         <style>
 .stc{
@@ -207,7 +226,7 @@ export function renderStructuresSection() {
         @media (prefers-reduced-motion:reduce){.stc *{transition:none !important}}
         </style>
 
-        <section class="stc" id="stc-section" aria-labelledby="stc-title">
+        <section class="stc" id="${id}" aria-labelledby="stc-title">
 <div class="stc-wrap">
     <div class="stc-kicker"><span class="stc-r"></span> Section 02 · Contract Primitives</div>
     <h2 id="stc-title">Contract <span class="stc-ox">structures.</span></h2>
@@ -242,7 +261,7 @@ export function renderStructuresSection() {
           </div>
           <div class="stc-f-foot">
             <span class="stc-f-sources"><svg class="stc-src-seal" viewBox="0 0 60 60"><path d="M30 4 C40 4 47 12 50 22 C53 30 56 34 54 42 C52 50 44 56 34 56 C22 57 12 52 8 42 C4 33 6 24 10 17 C14 10 20 4 30 4 Z" fill="#7C1D2B"/><path d="M30 4 C40 4 47 12 50 22 C53 30 56 34 54 42 C52 50 44 56 34 56 C22 57 12 52 8 42 C4 33 6 24 10 17 C14 10 20 4 30 4 Z" fill="none" stroke="#4E0F19" stroke-width="1.2"/><circle cx="30" cy="30" r="16.5" fill="none" stroke="rgba(255,235,220,.30)" stroke-width="1"/><text x="30" y="37" font-family="Cormorant Garamond,serif" font-size="21" font-weight="700" fill="#F0DAC7" text-anchor="middle">C</text><ellipse cx="23" cy="20" rx="8" ry="5" fill="rgba(255,235,215,.15)"/></svg><span class="stc-src-txt">Verification Sources <span class="stc-dot">·</span> Bank / Stripe / YouTube</span></span>
-            <button type="button" class="stc-f-action" onclick="if(window.app &amp;&amp; window.app.openAccessModal){ window.app.openAccessModal('signup'); } else { window.router.navigate('/signin'); } return false;">Review Contract <span class="stc-a">→</span></button>
+            <button type="button" class="stc-f-action" onclick="${soloAction}">${soloLabel} <span class="stc-a">→</span></button>
           </div>
         </div>
       </article>
@@ -275,7 +294,7 @@ export function renderStructuresSection() {
           </div>
           <div class="stc-f-foot">
             <span class="stc-f-sources"><svg class="stc-src-seal" viewBox="0 0 60 60"><path d="M30 4 C40 4 47 12 50 22 C53 30 56 34 54 42 C52 50 44 56 34 56 C22 57 12 52 8 42 C4 33 6 24 10 17 C14 10 20 4 30 4 Z" fill="#7C1D2B"/><path d="M30 4 C40 4 47 12 50 22 C53 30 56 34 54 42 C52 50 44 56 34 56 C22 57 12 52 8 42 C4 33 6 24 10 17 C14 10 20 4 30 4 Z" fill="none" stroke="#4E0F19" stroke-width="1.2"/><circle cx="30" cy="30" r="16.5" fill="none" stroke="rgba(255,235,220,.30)" stroke-width="1"/><text x="30" y="37" font-family="Cormorant Garamond,serif" font-size="21" font-weight="700" fill="#F0DAC7" text-anchor="middle">C</text><ellipse cx="23" cy="20" rx="8" ry="5" fill="rgba(255,235,215,.15)"/></svg><span class="stc-src-txt">Verification Sources <span class="stc-dot">·</span> Bank / Stripe / Shopify</span></span>
-            <button type="button" class="stc-f-action" onclick="if(window.app &amp;&amp; window.app.openAccessModal){ window.app.openAccessModal('signup'); } else { window.router.navigate('/signin'); } return false;">Review Contract <span class="stc-a">→</span></button>
+            <button type="button" class="stc-f-action" onclick="${rivalAction}">${rivalLabel} <span class="stc-a">→</span></button>
           </div>
         </div>
       </article>
