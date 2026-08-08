@@ -56,11 +56,12 @@ export function renderMobileScale() {
            placeholder is the size of the real thing and the bar does not move. */
         /* This slot was .fk (1676 -> 2025 -> 1955 -> 1995 as the fork was
            retuned). The fork is gone; .stc — the contract-structures
-           certificates — occupies the slot now, measured at 1972px on 390x844.
+           certificates — occupies the slot now, measured at 2016px on 390x844
+           (1972 before the verification seal went to its full size).
            This value has to be re-measured every time the section's height
            moves, or the browser reserves the wrong amount and the scrollbar
            jogs as it paints. */
-        .stc{content-visibility:auto;contain-intrinsic-size:auto 1972px}
+        .stc{content-visibility:auto;contain-intrinsic-size:auto 2016px}
         .cs{content-visibility:auto;contain-intrinsic-size:auto 967px}
         .orc{content-visibility:auto;contain-intrinsic-size:auto 1089px}
         .rec{content-visibility:auto;contain-intrinsic-size:auto 1699px}

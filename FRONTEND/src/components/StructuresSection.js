@@ -152,13 +152,28 @@ export function renderStructuresSection(o = {}) {
         .stc-f-lead{height:1px;border-bottom:1.5px dotted var(--dot)}
         .stc-f-v{font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.02em;color:var(--ink);font-weight:500;text-align:right}
         .stc-f-foot{position:relative;display:flex;flex-direction:column-reverse;gap:15px;margin-top:22px}
-        .stc-f-sources{display:flex;align-items:center;gap:14px;border-top:1px solid var(--line);padding-top:16px}
+        /* gap 7, not 14: the picture leaves ~18px beside a 175px seal, which at our
+   62px is 6.4. 14 pushed the type away from the wax. */
+        .stc-f-sources{display:flex;align-items:center;gap:7px;border-top:1px solid var(--line);padding-top:16px}
         /* The drawn SVG seal was replaced by the photographed one. It is 110x96,
    NOT square, so height is auto — forcing 32x32 as the SVG had would
    squash it. The drop-shadow goes too: the photograph carries its own
    shadow, and stacking a CSS one on top reads as a sticker. */
-        .stc-src-seal{width:auto;height:30px;flex:none}
-        .stc-src-txt{font-family:"Cormorant Garamond",serif;font-size:15px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap}
+        /* 62px, read off the supplied picture rather than guessed: there the seal is
+   175px tall against a 28px cap height, a ratio of 6.25. Our row sets the
+   type at 15px Cormorant, whose cap is ~9.9px, so the seal has to be ~62px
+   to sit in the same relationship. It was 30px — under half — which is why
+   the row did not read like the picture. */
+        .stc-src-seal{width:auto;height:62px;flex:none}
+        /* 12px at .10em, DOWN from 15px at .13em, and this fixes an overflow that
+   predates the bigger seal. The line is white-space:nowrap and measured
+   471px against 465px of usable card width, so even beside the old 30px
+   seal the row ran 519px and pushed past the card edge.
+   The supplied picture is a 1310px banner; this card is ~570px. The seal can
+   only carry the picture's prominence here if the type gives way. Measured
+   across five combinations: 62px seal + 12px/.10em totals 442px and clears
+   the 465px with 23px to spare; every larger type size overflowed. */
+        .stc-src-txt{font-family:"Cormorant Garamond",serif;font-size:12px;font-weight:600;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap}
         .stc-src-txt .stc-dot{color:var(--ox);margin:0 9px}
         .stc-f-action{white-space:nowrap;align-self:flex-end}
         .stc-f-verified{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);font-weight:500;display:inline-flex;align-items:center;gap:9px}
@@ -215,7 +230,7 @@ export function renderStructuresSection(o = {}) {
           .stc-f-k{font-size:8.5px;letter-spacing:.16em}
           .stc-f-v{font-size:11.5px}
           .stc-src-txt{white-space:normal;font-size:13.5px;letter-spacing:.1em}
-          .stc-src-seal{width:auto;height:25px}
+          .stc-src-seal{width:auto;height:46px}
           .stc-f-sources{gap:11px}
           /* The footer is a four-across flex row; stacked it stays readable. */
           .stc-foot{flex-direction:column;align-items:flex-start;gap:14px;
