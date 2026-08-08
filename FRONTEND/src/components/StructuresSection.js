@@ -279,7 +279,7 @@ export function renderStructuresSection(o = {}) {
             <div class="stc-f-row"><span class="stc-f-k">Window</span><span class="stc-f-lead"></span><span class="stc-f-v">30 Days</span></div>
           </div>
           <div class="stc-f-foot">
-            <span class="stc-f-sources"><img class="stc-src-seal" src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="110" height="96" decoding="async"><span class="stc-src-txt">Verification Sources <span class="stc-dot">·</span> Bank / Stripe / YouTube</span></span>
+            <span class="stc-f-sources"><img class="stc-src-seal" src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="147" height="128" decoding="async"><span class="stc-src-txt">Verification Sources <span class="stc-dot">·</span> Bank / Stripe / YouTube</span></span>
             <button type="button" class="stc-f-action" onclick="${soloAction}">${soloLabel} <span class="stc-a">→</span></button>
           </div>
         </div>
@@ -312,7 +312,7 @@ export function renderStructuresSection(o = {}) {
             <div class="stc-f-row"><span class="stc-f-k">Window</span><span class="stc-f-lead"></span><span class="stc-f-v">14 — 60 Days</span></div>
           </div>
           <div class="stc-f-foot">
-            <span class="stc-f-sources"><img class="stc-src-seal" src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="110" height="96" decoding="async"><span class="stc-src-txt">Verification Sources <span class="stc-dot">·</span> Bank / Stripe / Shopify</span></span>
+            <span class="stc-f-sources"><img class="stc-src-seal" src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="147" height="128" decoding="async"><span class="stc-src-txt">Verification Sources <span class="stc-dot">·</span> Bank / Stripe / Shopify</span></span>
             <button type="button" class="stc-f-action" onclick="${rivalAction}">${rivalLabel} <span class="stc-a">→</span></button>
           </div>
         </div>
