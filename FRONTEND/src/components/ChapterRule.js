@@ -80,7 +80,11 @@ export function renderChapterRuleStyles() {
         /* .clt is the hero's WRAPPER and was missed the first time — it still
            held rgb(241,238,232), the cooler paper, so a strip of the old tone
            survived directly under the hero even after .clt-hero moved. */
-        .lp .lg,.lp .fk,.lp .cs,.lp .orc,.lp .rec,
+        /* .stc replaced .fk here. Its own stylesheet sets the same value via
+           --parch, but it stays in this list so the page's paper is still
+           declared in one place. The certificates INSIDE it are deliberately
+           one step lighter — see StructuresSection.js. */
+        .lp .lg,.lp .stc,.lp .cs,.lp .orc,.lp .rec,
         .lp .flw,.lp .prc,.lp .dl,.lp .sch{background-color:#F3EADB}
         /* The hero sits on #F1E8D3, matching the header bar above it. Split out
            of the list above so the two surfaces that meet at the top of the

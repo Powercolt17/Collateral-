@@ -54,13 +54,13 @@ export function renderMobileScale() {
            as each one paints. The values are the measured heights from the
            mobile pass — 1676, 967, 1089, 1699, 1226, 2067, 512, 1520 — so the
            placeholder is the size of the real thing and the bar does not move. */
-        /* 1676 -> 2025 when the fork's type was raised, -> 1955 when its
-           spacing and plates were tightened, -> 1995 when .fk-close's margin
-           went 24 -> 64 to get the closing inscription off the CTA buttons.
+        /* This slot was .fk (1676 -> 2025 -> 1955 -> 1995 as the fork was
+           retuned). The fork is gone; .stc — the contract-structures
+           certificates — occupies the slot now, measured at 1972px on 390x844.
            This value has to be re-measured every time the section's height
            moves, or the browser reserves the wrong amount and the scrollbar
            jogs as it paints. */
-        .fk{content-visibility:auto;contain-intrinsic-size:auto 1995px}
+        .stc{content-visibility:auto;contain-intrinsic-size:auto 1972px}
         .cs{content-visibility:auto;contain-intrinsic-size:auto 967px}
         .orc{content-visibility:auto;contain-intrinsic-size:auto 1089px}
         .rec{content-visibility:auto;contain-intrinsic-size:auto 1699px}
@@ -82,27 +82,22 @@ export function renderMobileScale() {
              80-92px of vertical padding nine times over is ~760px of the page
              on its own. 34/30 keeps the sections visibly separated without
              each one opening with half a screen of nothing. */
-          .lg-wrap,.fk-wrap,.cs-wrap,.orc-wrap,.rec-wrap{
+          .lg-wrap,.stc-wrap,.cs-wrap,.orc-wrap,.rec-wrap{
             padding-top:34px !important;padding-bottom:30px !important}
           .flw,.prc,.dl,.sch{padding-top:34px;padding-bottom:30px}
 
           /* One shared gutter. These ran 20 and 21px against the hero's own
              lockup inset; matching them stops the left edge stepping in and out
              as you scroll the page. */
-          .lg-wrap,.fk-wrap,.cs-wrap,.orc-wrap,.rec-wrap{
+          .lg-wrap,.stc-wrap,.cs-wrap,.orc-wrap,.rec-wrap{
             padding-left:20px !important;padding-right:20px !important}
 
           /* ── type ────────────────────────────────────────────────────────
              A small step, because the headings were close already. 26px still
              reads as a section head under a 41px hero. */
-          .lg h2,.fk h2,.cs h2,.orc h2,.rec h2,.flw h2,.prc h2,.dl h2,.sch h2{
+          .lg h2,.stc h2,.cs h2,.orc h2,.rec h2,.flw h2,.prc h2,.dl h2,.sch h2{
             font-size:26px !important;line-height:1.08}
           .flw-lede,.prc-lede,.dl-lede,.sch-lede{font-size:15px;line-height:1.55}
-
-          /* The fork's sizes are set ONCE, further down with the rest of the
-             mobile type scale — putting them here as well meant two rules in
-             this same file fighting, and the later one silently won. */
-          .fk .fk-p-feat li{font-size:12.5px !important;line-height:1.6}
 
           /* ── the blocks that actually carry the height ───────────────────
              Panels and cards were carrying desktop padding on a 358px card,
@@ -194,7 +189,7 @@ export function renderMobileScale() {
              is still absent from every selector. */
 
           /* Section frame again. 34/30 -> 26/22 over nine sections is ~150px. */
-          .lg-wrap,.fk-wrap,.cs-wrap,.orc-wrap,.rec-wrap{
+          .lg-wrap,.stc-wrap,.cs-wrap,.orc-wrap,.rec-wrap{
             padding-top:26px !important;padding-bottom:22px !important}
           .flw,.prc,.dl,.sch{padding-top:26px;padding-bottom:22px}
 
@@ -260,19 +255,17 @@ export function renderMobileScale() {
 
              The hero stays 41/16. Cutting section heads to 23 widens the gap to
              it, which is the correct direction: the hero should dominate. */
-          .lg h2,.fk h2,.cs h2,.orc h2,.rec h2,.flw h2,.prc h2,.dl h2,.sch h2{
+          .lg h2,.stc h2,.cs h2,.orc h2,.rec h2,.flw h2,.prc h2,.dl h2,.sch h2{
             font-size:23px !important;line-height:1.1 !important}
 
-          /* .fk-lede is NOT in this group any more. The fork's copy was
-             reported as the hardest to read on the page, so it takes its own
-             larger size below rather than the shared 15px. */
+          /* The structures section's own copy (.stc-sub, .stc-f-body) is not in
+             this group — it carries its own sizes in StructuresSection.js, set
+             against the certificate measure rather than the page measure. */
           .lg-head-l p,.cs-body,.orc-body,.rec-body,
           .flw-lede,.prc-lede,.dl-lede,.sch-lede{
             font-size:15px !important;line-height:1.45 !important}
-          .fk-lede{font-size:16.5px !important;line-height:1.6 !important}
 
           /* Sub-heads step back so the section heading leads again. */
-          .fk-step h3{font-size:18px !important;line-height:1.2 !important}
           .orc-pname{font-size:17px !important}
           .rec-title{font-size:15px !important}
           .prc-tm{font-size:22px !important}
@@ -280,7 +273,6 @@ export function renderMobileScale() {
           /* Body copy inside the blocks, and the row text in the tables. */
           /* 14 -> 15.5. This is the four-step explainer, and at 14px with 1.45
              leading it was the least readable block in the section. */
-          .fk-step p{font-size:15.5px !important;line-height:1.6 !important}
           .orc-metrics{font-size:14px !important}
           .cs-void,.cs-under{font-size:14px !important}
           .lg-goal{font-size:15px !important}
@@ -294,10 +286,10 @@ export function renderMobileScale() {
         /* Below 380 the gutter comes in again — at 360 and 320 a 20px inset on
            each side is a real share of the screen. */
         @media (max-width:379px){
-          .lg-wrap,.fk-wrap,.cs-wrap,.orc-wrap,.rec-wrap{
+          .lg-wrap,.stc-wrap,.cs-wrap,.orc-wrap,.rec-wrap{
             padding-left:16px !important;padding-right:16px !important}
           .flw,.prc,.dl,.sch{padding-left:16px;padding-right:16px}
-          .lg h2,.fk h2,.cs h2,.orc h2,.rec h2,.flw h2,.prc h2,.dl h2,.sch h2{
+          .lg h2,.stc h2,.cs h2,.orc h2,.rec h2,.flw h2,.prc h2,.dl h2,.sch h2{
             font-size:24px !important}
         }
         </style>

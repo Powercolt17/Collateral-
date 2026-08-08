@@ -3,7 +3,10 @@ import api from '../api.js';
 import { landingCSS } from './LandingStyles.js';
 import { motionController, animateValue, initEntranceObservers, revealStyles } from './LandingMotion.js';
 import { renderCollateralHero } from '../components/CollateralHero.js';
-import { renderForkSection, initForkSection } from '../components/ForkSection.js';
+/* ForkSection.js is still in the tree but no longer rendered — StructuresSection
+   took its slot. It is kept because it holds the only copy of the four-step
+   sequence and the closing inscription. */
+import { renderStructuresSection } from '../components/StructuresSection.js';
 import { renderCaseSection } from '../components/CaseSection.js';
 import { renderOracleSection } from '../components/OracleSection.js';
 import { renderRecordSection, initRecordSection } from '../components/RecordSection.js';
@@ -30,7 +33,7 @@ export function renderLanding() {
 
             
 
-            <!-- ═════ 1 · HERO (engraved plate) ═════ -->
+            <!-- ═════ 1 · HERO (engraved plate) ═════ -->
             ${renderChapterRuleStyles()}
 
             ${renderCollateralHero({
@@ -44,9 +47,9 @@ export function renderLanding() {
         onSeeFullLedger: "window.router.navigate('/ledger'); return false;",
     })}
 
-            <!-- ═════ 2 · FORK (how it settles) ═════ -->
+            <!-- ═════ 2 · CONTRACT STRUCTURES ═════ -->
             ${renderChapterRule()}
-            ${renderForkSection()}
+            ${renderStructuresSection()}
 
             <!-- ═════ 3 · CASE ═════ -->
             ${renderChapterRule()}
@@ -90,7 +93,8 @@ export function initLanding() {
        resolves on its own and never rejects into here, and if it fails the rows
        rendered at build time stay on screen rather than the section emptying. */
     initLedgerSection();
-    initForkSection();
+    /* No initStructuresSection — the section is static markup with no measured
+       gutter, no lazy plates and no observers, unlike the fork it replaced. */
     initFlowSection();
     initPriceSection();
     initDuelSection();
