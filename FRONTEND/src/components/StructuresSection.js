@@ -153,7 +153,11 @@ export function renderStructuresSection(o = {}) {
         .stc-f-v{font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.02em;color:var(--ink);font-weight:500;text-align:right}
         .stc-f-foot{position:relative;display:flex;flex-direction:column-reverse;gap:15px;margin-top:22px}
         .stc-f-sources{display:flex;align-items:center;gap:14px;border-top:1px solid var(--line);padding-top:16px}
-        .stc-src-seal{width:32px;height:32px;flex:none;filter:drop-shadow(0 2px 3px rgba(60,20,25,.28))}
+        /* The drawn SVG seal was replaced by the photographed one. It is 110x96,
+   NOT square, so height is auto — forcing 32x32 as the SVG had would
+   squash it. The drop-shadow goes too: the photograph carries its own
+   shadow, and stacking a CSS one on top reads as a sticker. */
+        .stc-src-seal{width:auto;height:30px;flex:none}
         .stc-src-txt{font-family:"Cormorant Garamond",serif;font-size:15px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap}
         .stc-src-txt .stc-dot{color:var(--ox);margin:0 9px}
         .stc-f-action{white-space:nowrap;align-self:flex-end}
@@ -211,7 +215,7 @@ export function renderStructuresSection(o = {}) {
           .stc-f-k{font-size:8.5px;letter-spacing:.16em}
           .stc-f-v{font-size:11.5px}
           .stc-src-txt{white-space:normal;font-size:13.5px;letter-spacing:.1em}
-          .stc-src-seal{width:26px;height:26px}
+          .stc-src-seal{width:auto;height:25px}
           .stc-f-sources{gap:11px}
           /* The footer is a four-across flex row; stacked it stays readable. */
           .stc-foot{flex-direction:column;align-items:flex-start;gap:14px;
@@ -260,7 +264,7 @@ export function renderStructuresSection(o = {}) {
             <div class="stc-f-row"><span class="stc-f-k">Window</span><span class="stc-f-lead"></span><span class="stc-f-v">30 Days</span></div>
           </div>
           <div class="stc-f-foot">
-            <span class="stc-f-sources"><svg class="stc-src-seal" viewBox="0 0 60 60"><path d="M30 4 C40 4 47 12 50 22 C53 30 56 34 54 42 C52 50 44 56 34 56 C22 57 12 52 8 42 C4 33 6 24 10 17 C14 10 20 4 30 4 Z" fill="#7C1D2B"/><path d="M30 4 C40 4 47 12 50 22 C53 30 56 34 54 42 C52 50 44 56 34 56 C22 57 12 52 8 42 C4 33 6 24 10 17 C14 10 20 4 30 4 Z" fill="none" stroke="#4E0F19" stroke-width="1.2"/><circle cx="30" cy="30" r="16.5" fill="none" stroke="rgba(255,235,220,.30)" stroke-width="1"/><text x="30" y="37" font-family="Cormorant Garamond,serif" font-size="21" font-weight="700" fill="#F0DAC7" text-anchor="middle">C</text><ellipse cx="23" cy="20" rx="8" ry="5" fill="rgba(255,235,215,.15)"/></svg><span class="stc-src-txt">Verification Sources <span class="stc-dot">·</span> Bank / Stripe / YouTube</span></span>
+            <span class="stc-f-sources"><img class="stc-src-seal" src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="110" height="96" decoding="async"><span class="stc-src-txt">Verification Sources <span class="stc-dot">·</span> Bank / Stripe / YouTube</span></span>
             <button type="button" class="stc-f-action" onclick="${soloAction}">${soloLabel} <span class="stc-a">→</span></button>
           </div>
         </div>
@@ -293,7 +297,7 @@ export function renderStructuresSection(o = {}) {
             <div class="stc-f-row"><span class="stc-f-k">Window</span><span class="stc-f-lead"></span><span class="stc-f-v">14 — 60 Days</span></div>
           </div>
           <div class="stc-f-foot">
-            <span class="stc-f-sources"><svg class="stc-src-seal" viewBox="0 0 60 60"><path d="M30 4 C40 4 47 12 50 22 C53 30 56 34 54 42 C52 50 44 56 34 56 C22 57 12 52 8 42 C4 33 6 24 10 17 C14 10 20 4 30 4 Z" fill="#7C1D2B"/><path d="M30 4 C40 4 47 12 50 22 C53 30 56 34 54 42 C52 50 44 56 34 56 C22 57 12 52 8 42 C4 33 6 24 10 17 C14 10 20 4 30 4 Z" fill="none" stroke="#4E0F19" stroke-width="1.2"/><circle cx="30" cy="30" r="16.5" fill="none" stroke="rgba(255,235,220,.30)" stroke-width="1"/><text x="30" y="37" font-family="Cormorant Garamond,serif" font-size="21" font-weight="700" fill="#F0DAC7" text-anchor="middle">C</text><ellipse cx="23" cy="20" rx="8" ry="5" fill="rgba(255,235,215,.15)"/></svg><span class="stc-src-txt">Verification Sources <span class="stc-dot">·</span> Bank / Stripe / Shopify</span></span>
+            <span class="stc-f-sources"><img class="stc-src-seal" src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="110" height="96" decoding="async"><span class="stc-src-txt">Verification Sources <span class="stc-dot">·</span> Bank / Stripe / Shopify</span></span>
             <button type="button" class="stc-f-action" onclick="${rivalAction}">${rivalLabel} <span class="stc-a">→</span></button>
           </div>
         </div>
