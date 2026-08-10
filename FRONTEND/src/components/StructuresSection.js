@@ -130,7 +130,7 @@ export function renderStructuresSection(o = {}) {
         .stc-f-form{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ox);font-weight:500}
         .stc-rule2{position:relative;height:0;border-top:1px solid var(--line-firm);margin:10px 0 0}
         .stc-rule2::after{content:"";position:absolute;left:0;right:0;top:2px;border-top:1px solid var(--line-soft)}
-        .stc-f-titlerow{display:flex;align-items:center;gap:24px;padding:18px 0 16px}
+        .stc-f-titlerow{display:flex;align-items:center;gap:22px;padding:14px 0 12px}
         .stc-f-ico{height:60px;width:auto;flex:none;color:var(--emblem)}
         /* THESE WERE INLINE style="height:66px" / "76px" ON THE IMG.
            An inline style beats any stylesheet rule short of !important, so
@@ -153,17 +153,17 @@ export function renderStructuresSection(o = {}) {
            deployed page. Tightening it 24 -> 16 therefore changed nothing; the
            fields were already flush under the copy, which is past tight into
            collided. Two classes wins and the 16px is real. */
-        .stc-form .stc-f-body{font-size:15.5px;line-height:1.5;color:var(--ink-soft);margin:0 0 16px;max-width:430px}
+        .stc-form .stc-f-body{font-size:15px;line-height:1.48;color:var(--ink-soft);margin:0 0 12px;max-width:430px}
         .stc-f-fields{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-        .stc-f-row{display:grid;grid-template-columns:120px 1fr max-content;align-items:center;gap:14px;padding:7px 0;border-bottom:1px solid var(--line-soft)}
+        .stc-f-row{display:grid;grid-template-columns:120px 1fr max-content;align-items:center;gap:14px;padding:5.5px 0;border-bottom:1px solid var(--line-soft)}
         .stc-f-row:last-child{border-bottom:0}
         .stc-f-k{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
         .stc-f-lead{height:1px;border-bottom:1.5px dotted var(--dot)}
         .stc-f-v{font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.02em;color:var(--ink);font-weight:500;text-align:right}
-        .stc-f-foot{position:relative;display:flex;flex-direction:column-reverse;gap:11px;margin-top:14px}
+        .stc-f-foot{position:relative;display:flex;flex-direction:column-reverse;gap:9px;margin-top:11px}
         /* gap 7, not 14: the picture leaves ~18px beside a 175px seal, which at our
    62px is 6.4. 14 pushed the type away from the wax. */
-        .stc-f-sources{display:flex;align-items:center;gap:7px;border-top:1px solid var(--line);padding-top:12px}
+        .stc-f-sources{display:flex;align-items:center;gap:14px;border-top:1px solid var(--line);padding-top:12px}
         /* The drawn SVG seal was replaced by the photographed one. It is 110x96,
    NOT square, so height is auto — forcing 32x32 as the SVG had would
    squash it. The drop-shadow goes too: the photograph carries its own
@@ -181,7 +181,16 @@ export function renderStructuresSection(o = {}) {
            the instrument.
            Height only, still auto width: the photograph is 147x128, not square,
            and forcing a square would squash it. */
-        .stc-src-seal{width:auto;height:32px;flex:none}
+        /* 30px, and NO drop-shadow, which is where this deliberately stops short
+           of the reference. That file draws the seal as an SVG with no shadow of
+           its own, so its filter:drop-shadow(0 1px 2px) supplies the only one.
+           Ours is a PHOTOGRAPH of wax on a plate and already carries a real
+           shadow in its pixels; adding a CSS one stacks a second, differently
+           angled shadow on top and the mark starts to read as a sticker laid on
+           the card rather than wax pressed into it. The brief says "at most a
+           very subtle neutral shadow" — with a photograph that has its own, at
+           most is none. */
+        .stc-src-seal{width:auto;height:30px;flex:none}
         /* 12px at .10em, DOWN from 15px at .13em, and this fixes an overflow that
    predates the bigger seal. The line is white-space:nowrap and measured
    471px against 465px of usable card width, so even beside the old 30px
@@ -190,7 +199,7 @@ export function renderStructuresSection(o = {}) {
    only carry the picture's prominence here if the type gives way. Measured
    across five combinations: 62px seal + 12px/.10em totals 442px and clears
    the 465px with 23px to spare; every larger type size overflowed. */
-        .stc-src-txt{font-family:"Cormorant Garamond",serif;font-size:12px;font-weight:600;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap}
+        .stc-src-txt{font-family:"Cormorant Garamond",serif;font-size:13.5px;font-weight:600;letter-spacing:.115em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap}
         .stc-src-txt .stc-dot{color:var(--ox);margin:0 9px}
         .stc-f-action{white-space:nowrap;align-self:flex-end}
         .stc-f-verified{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);font-weight:500;display:inline-flex;align-items:center;gap:9px}
@@ -246,7 +255,7 @@ export function renderStructuresSection(o = {}) {
           .stc-f-row{grid-template-columns:86px 1fr max-content;gap:10px}
           .stc-f-k{font-size:8.5px;letter-spacing:.16em}
           .stc-f-v{font-size:11.5px}
-          .stc-src-txt{white-space:normal;font-size:13.5px;letter-spacing:.1em}
+          .stc-src-txt{white-space:normal;letter-spacing:.1em}
           .stc-src-seal{width:auto;height:28px}
           .stc-f-sources{gap:11px}
           /* The footer is a four-across flex row; stacked it stays readable. */
