@@ -104,14 +104,14 @@ export function renderStructuresSection(o = {}) {
         .stc-reg.stc-br{border-left:0;border-top:0}
         .stc-reg.stc-br::after{border-left:0;border-top:0;right:1px;bottom:1px}
         .stc-paper-tx::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.06;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.stc-w3.stc-org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-        .stc-wrap{max-width:1440px;margin:0 auto;padding:96px 64px 88px}
+        .stc-wrap{max-width:1440px;margin:0 auto;padding:76px 64px 68px}
         .stc-kicker{display:inline-flex;align-items:center;gap:13px;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.30em;text-transform:uppercase;color:var(--ox);font-weight:500;margin-bottom:24px}
         .stc-kicker .stc-r{height:1px;width:30px;background:var(--ox);opacity:.75}
         .stc h2{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:52px;line-height:1.0;margin-bottom:20px}
         .stc h2 .stc-ox{color:var(--ox)}
         .stc-sub{font-size:18px;line-height:1.6;color:var(--ink-soft);max-width:600px;margin-bottom:56px}
         .stc-forms{display:grid;grid-template-columns:1fr 1fr;gap:44px}
-        .stc-form{position:relative;background:var(--paper);border:1px solid var(--line-firm);padding:34px 40px 30px;overflow:hidden;
+        .stc-form{position:relative;background:var(--paper);border:1px solid var(--line-firm);padding:26px 36px 22px;overflow:hidden;
     box-shadow:0 16px 34px rgba(60,40,20,.10), inset 0 0 0 1px rgba(255,250,236,.4), inset 0 0 30px rgba(90,68,36,.07)}
         .stc-form::after{content:"";position:absolute;inset:9px;border:1px solid var(--line-soft);pointer-events:none}
         .stc-form .stc-reg.stc-tl{top:15px;left:15px}
@@ -128,9 +128,9 @@ export function renderStructuresSection(o = {}) {
         .stc-f-head{display:flex;align-items:center;justify-content:space-between}
         .stc-f-agr{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.30em;text-transform:uppercase;color:var(--muted);font-weight:500}
         .stc-f-form{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ox);font-weight:500}
-        .stc-rule2{position:relative;height:0;border-top:1px solid var(--line-firm);margin:14px 0 0}
+        .stc-rule2{position:relative;height:0;border-top:1px solid var(--line-firm);margin:10px 0 0}
         .stc-rule2::after{content:"";position:absolute;left:0;right:0;top:2px;border-top:1px solid var(--line-soft)}
-        .stc-f-titlerow{display:flex;align-items:center;gap:24px;padding:28px 0 26px}
+        .stc-f-titlerow{display:flex;align-items:center;gap:24px;padding:18px 0 16px}
         .stc-f-ico{height:60px;width:auto;flex:none;color:var(--emblem)}
         /* THESE WERE INLINE style="height:66px" / "76px" ON THE IMG.
            An inline style beats any stylesheet rule short of !important, so
@@ -144,27 +144,35 @@ export function renderStructuresSection(o = {}) {
         .stc-f-title{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:37px;line-height:.98;color:var(--ink)}
         .stc-f-desc{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ox);font-weight:500;margin-top:11px}
         .stc-f-refblock{margin-left:auto;text-align:right;font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.12em;color:var(--faint);line-height:1.7;align-self:flex-start;padding-top:2px}
-        .stc-f-body{font-size:15.5px;line-height:1.62;color:var(--ink-soft);margin:0 0 24px;max-width:430px}
+        .stc-f-body{font-size:15.5px;line-height:1.5;color:var(--ink-soft);margin:0 0 16px;max-width:430px}
         .stc-f-fields{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-        .stc-f-row{display:grid;grid-template-columns:120px 1fr max-content;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--line-soft)}
+        .stc-f-row{display:grid;grid-template-columns:120px 1fr max-content;align-items:center;gap:14px;padding:7px 0;border-bottom:1px solid var(--line-soft)}
         .stc-f-row:last-child{border-bottom:0}
         .stc-f-k{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
         .stc-f-lead{height:1px;border-bottom:1.5px dotted var(--dot)}
         .stc-f-v{font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.02em;color:var(--ink);font-weight:500;text-align:right}
-        .stc-f-foot{position:relative;display:flex;flex-direction:column-reverse;gap:15px;margin-top:22px}
+        .stc-f-foot{position:relative;display:flex;flex-direction:column-reverse;gap:11px;margin-top:14px}
         /* gap 7, not 14: the picture leaves ~18px beside a 175px seal, which at our
    62px is 6.4. 14 pushed the type away from the wax. */
-        .stc-f-sources{display:flex;align-items:center;gap:7px;border-top:1px solid var(--line);padding-top:16px}
+        .stc-f-sources{display:flex;align-items:center;gap:7px;border-top:1px solid var(--line);padding-top:12px}
         /* The drawn SVG seal was replaced by the photographed one. It is 110x96,
    NOT square, so height is auto — forcing 32x32 as the SVG had would
    squash it. The drop-shadow goes too: the photograph carries its own
    shadow, and stacking a CSS one on top reads as a sticker. */
-        /* 62px, read off the supplied picture rather than guessed: there the seal is
-   175px tall against a 28px cap height, a ratio of 6.25. Our row sets the
-   type at 15px Cormorant, whose cap is ~9.9px, so the seal has to be ~62px
-   to sit in the same relationship. It was 30px — under half — which is why
-   the row did not read like the picture. */
-        .stc-src-seal{width:auto;height:62px;flex:none}
+        /* 32px, DOWN FROM 62, and the 62 was reasoned from a bad reading.
+           The note it replaces derived 6.25x cap height from "the supplied
+           picture" — but the supplied markup for this section sets the seal at
+           32x32 explicitly, and in the reference screenshot the seal is ~34px
+           against a card ~880px wide. Scaled to this ~570px card that is under
+           30px, not 62.
+           The brief is also explicit about intent: 30-34px, "a quiet detail,
+           not a focal point", with the engraved emblem at the top of the card as
+           the hero mark. At 62 the seal was the second largest object on the
+           card and the only saturated one, so the corner took the eye instead of
+           the instrument.
+           Height only, still auto width: the photograph is 147x128, not square,
+           and forcing a square would squash it. */
+        .stc-src-seal{width:auto;height:32px;flex:none}
         /* 12px at .10em, DOWN from 15px at .13em, and this fixes an overflow that
    predates the bigger seal. The line is white-space:nowrap and measured
    471px against 465px of usable card width, so even beside the old 30px
@@ -230,7 +238,7 @@ export function renderStructuresSection(o = {}) {
           .stc-f-k{font-size:8.5px;letter-spacing:.16em}
           .stc-f-v{font-size:11.5px}
           .stc-src-txt{white-space:normal;font-size:13.5px;letter-spacing:.1em}
-          .stc-src-seal{width:auto;height:46px}
+          .stc-src-seal{width:auto;height:28px}
           .stc-f-sources{gap:11px}
           /* The footer is a four-across flex row; stacked it stays readable. */
           .stc-foot{flex-direction:column;align-items:flex-start;gap:14px;
