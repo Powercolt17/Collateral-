@@ -255,6 +255,16 @@ export function renderStructuresSection(o = {}) {
           .stc-f-row{grid-template-columns:86px 1fr max-content;gap:10px}
           .stc-f-k{font-size:8.5px;letter-spacing:.16em}
           .stc-f-v{font-size:11.5px}
+          /* THE LABEL GOES, THE SOURCES STAY. Measured at 320 and 360: the line
+             never CLIPS, because white-space:normal lets it wrap — but it wrapped
+             to THREE lines beside a 30px seal, standing the strip 79px tall on a
+             card two passes were spent shortening. A caption taller than a field
+             row is not a caption.
+             "Verification Sources" is the redundant half: the seal already says
+             this block certifies something, and what the phone reader needs is
+             WHICH sources. Dropping the label and its middot leaves
+             "Bank / Stripe / YouTube", which is the information. */
+          .stc-src-lbl{display:none}
           .stc-src-txt{white-space:normal;letter-spacing:.1em}
           .stc-src-seal{width:auto;height:28px}
           .stc-f-sources{gap:11px}
@@ -305,7 +315,7 @@ export function renderStructuresSection(o = {}) {
             <div class="stc-f-row"><span class="stc-f-k">Window</span><span class="stc-f-lead"></span><span class="stc-f-v">30 Days</span></div>
           </div>
           <div class="stc-f-foot">
-            <span class="stc-f-sources"><img class="stc-src-seal" src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="147" height="128" decoding="async"><span class="stc-src-txt">Verification Sources <span class="stc-dot">·</span> Bank / Stripe / YouTube</span></span>
+            <span class="stc-f-sources"><img class="stc-src-seal" src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="147" height="128" decoding="async"><span class="stc-src-txt"><span class="stc-src-lbl">Verification Sources <span class="stc-dot">·</span> </span>Bank / Stripe / YouTube</span></span>
             <button type="button" class="stc-f-action" onclick="${soloAction}">${soloLabel} <span class="stc-a">→</span></button>
           </div>
         </div>
@@ -338,7 +348,7 @@ export function renderStructuresSection(o = {}) {
             <div class="stc-f-row"><span class="stc-f-k">Window</span><span class="stc-f-lead"></span><span class="stc-f-v">14 — 60 Days</span></div>
           </div>
           <div class="stc-f-foot">
-            <span class="stc-f-sources"><img class="stc-src-seal" src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="147" height="128" decoding="async"><span class="stc-src-txt">Verification Sources <span class="stc-dot">·</span> Bank / Stripe / Shopify</span></span>
+            <span class="stc-f-sources"><img class="stc-src-seal" src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="147" height="128" decoding="async"><span class="stc-src-txt"><span class="stc-src-lbl">Verification Sources <span class="stc-dot">·</span> </span>Bank / Stripe / Shopify</span></span>
             <button type="button" class="stc-f-action" onclick="${rivalAction}">${rivalLabel} <span class="stc-a">→</span></button>
           </div>
         </div>
