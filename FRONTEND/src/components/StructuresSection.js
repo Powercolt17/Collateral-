@@ -144,7 +144,16 @@ export function renderStructuresSection(o = {}) {
         .stc-f-title{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:37px;line-height:.98;color:var(--ink)}
         .stc-f-desc{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ox);font-weight:500;margin-top:11px}
         .stc-f-refblock{margin-left:auto;text-align:right;font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.12em;color:var(--faint);line-height:1.7;align-self:flex-start;padding-top:2px}
-        .stc-f-body{font-size:15.5px;line-height:1.5;color:var(--ink-soft);margin:0 0 16px;max-width:430px}
+        /* SCOPED AS .stc-form .stc-f-body, AT (0,2,0), AND THAT IS THE WHOLE
+           POINT OF THE SELECTOR. LandingStyles.js carries
+             .cl-root h1, .cl-root h2, .cl-root h3, .cl-root p, ... { margin: 0 }
+           at (0,1,1), which beats a bare .stc-f-body at (0,1,0). This card is
+           inside .cl-root on the landing page, so the description's bottom
+           margin has been computing to ZERO all along — measured 0px on the
+           deployed page. Tightening it 24 -> 16 therefore changed nothing; the
+           fields were already flush under the copy, which is past tight into
+           collided. Two classes wins and the 16px is real. */
+        .stc-form .stc-f-body{font-size:15.5px;line-height:1.5;color:var(--ink-soft);margin:0 0 16px;max-width:430px}
         .stc-f-fields{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
         .stc-f-row{display:grid;grid-template-columns:120px 1fr max-content;align-items:center;gap:14px;padding:7px 0;border-bottom:1px solid var(--line-soft)}
         .stc-f-row:last-child{border-bottom:0}
@@ -231,7 +240,7 @@ export function renderStructuresSection(o = {}) {
           .stc-ico-rival{height:50px}
           .stc-f-title{font-size:29px}
           .stc-f-refblock{margin-left:0;text-align:left;width:100%;order:3;padding-top:0}
-          .stc-f-body{font-size:15px;max-width:none;margin-bottom:20px}
+          .stc-form .stc-f-body{font-size:15px;max-width:none;margin-bottom:14px}
           /* 120px of fixed key column leaves almost nothing for the value at
              360px wide, and the dotted leader is the first thing to collapse. */
           .stc-f-row{grid-template-columns:86px 1fr max-content;gap:10px}
