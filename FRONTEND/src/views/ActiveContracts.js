@@ -8,6 +8,39 @@
 // belongs to the landing page now. Its import is removed with it rather than
 // left dangling.
 
+/**
+ * ONE SOURCE OF TRUTH FOR THE MARKET FIGURES.
+ *
+ * This exists because the page was contradicting itself in public. The hero
+ * printed "312 ACTIVE CONTRACTS" as a hardcoded string while the board's
+ * odometer animated to 528 OPEN CONTRACTS about forty pixels below it, and
+ * "$8,700,000 CAPITAL LOCKED" sat above "$633.6k OPEN CAPITAL". On a product
+ * whose entire promise is "verified at the source and permanently recorded",
+ * two disagreeing numbers at the top of the page discredit the thing being sold
+ * before the reader has done anything.
+ *
+ * The masthead status line and the board's odometers both read from here now,
+ * so they cannot drift apart again regardless of who edits which.
+ *
+ * NONE OF THIS IS LIVE YET, and that should be fixed before anyone trades on
+ * it. There is no contracts feed on this route — the only real network calls
+ * are the source-connection checks (Plaid, Stripe, Shopify, YouTube), and the
+ * rivalry board renders mockRivalries. When a real endpoint exists, replace
+ * this object's values at the call site in initActiveContracts and both
+ * surfaces update together.
+ */
+export const MARKET_STATS = {
+    openContracts: 528,
+    openCapital: 633600,
+    dailyVolume: 148200,
+    /* Pre-formatted for the masthead, which has room for a rounded figure and
+       not for six digits. Derived rather than typed, so it cannot disagree with
+       openCapital above. */
+    get openCapitalLabel() {
+        return '$' + Math.round(this.openCapital / 1000) + 'K';
+    },
+};
+
 export function renderActiveContracts() {
     return `
         <style>
@@ -141,13 +174,17 @@ export function renderActiveContracts() {
             body:has(.eq) { background: #F1E8D3; }
             body:has(.eq) #app { background: #F1E8D3; }
 
-            /* ---- the hall banner ----
-               600px, up from 466 — 29% taller. The establishing shot has to
-               hold long enough to be a place rather than a strip. */
+            /* ---- the hall, as a masthead ----
+               ~150px, down from ~306. It was an establishing shot when this
+               page opened with a story; the page no longer tells one, so the
+               plate's job changes from "hold long enough to be a place" to
+               "identify the institution and get out of the way".
+               Still viewport-relative, because the reason for that has not
+               changed: the thing it has to fit inside is not a fixed size. */
             .xh-band {
                 position: relative;
                 width: 100%;
-                height: clamp(268px, 34vh, 400px);
+                height: clamp(132px, 17vh, 178px);
                 overflow: hidden;
                 /* Must be the page's exact ground, not the token: the plate
                    multiplies against this, so any difference between the band's
@@ -188,17 +225,20 @@ export function renderActiveContracts() {
                parchment the headline sits on, a short top fall so the ceiling
                arrives immediately, and gentle side falls that stop well short of
                opaque so the hall keeps running past the frame. */
-            /* 130px OF HEADROOM ABOVE THE BAND, and this is a parallax
-               requirement rather than a framing one. The plate translates DOWN
-               as the page scrolls up, so if it started flush with the band's top
-               edge it would drag that edge into view within the first hundred
-               pixels of scroll and expose the frame it is supposed to dissolve
-               out of. The band is visible for roughly 690px of scroll and the
-               rate is 0.12, so the furthest it ever travels is ~83px — well
-               inside the 130 it has. */
+            /* 66px OF HEADROOM ABOVE THE BAND, halved with the band itself.
+               This is a parallax requirement rather than a framing one: the
+               plate translates DOWN as the page scrolls up, so starting flush
+               with the band's top edge would drag that edge into view within the
+               first hundred pixels of scroll and expose the frame it is meant to
+               dissolve out of.
+               The masthead is visible for roughly 275px of scroll now (96px of
+               #app padding plus a 178px band at its tallest) and the rate is
+               0.12, so the furthest it travels while anyone can see it is ~33px.
+               The scroll clamp below caps it at 48px regardless. Both sit well
+               inside the 66. */
             .xh-band-art {
                 position: absolute;
-                inset: -130px -1% 0;
+                inset: -66px -1% 0;
                 /* CROPPED IN ON THE DESK, which is the one compositional change
                    available without repainting the plate.
 
@@ -376,49 +416,55 @@ export function renderActiveContracts() {
             .xh-mark.sm { width: 7px; height: 7px; }
             .xh-mark.sm::after { inset: 1.6px; }
 
-            /* ---- content zone under the banner ---- */
-            .xh-body {
-                position: relative;
-                max-width: 1440px;
-                margin: 0 auto;
-                padding: 0 60px 32px;
-                display: grid;
-                grid-template-columns: 1fr auto;
-                gap: 56px;
-                align-items: start;
+            /* ---- the status line, printed on the plate ----
+               THE BAND EARNS ITS PLACE BY SAYING SOMETHING TRUE. Every figure
+               here comes from MARKET_STATS, the same object the board's
+               odometers read, so the top of the page and the middle of it
+               cannot print different numbers for the same fact.
+
+               It sits on the plate rather than under it because the masthead is
+               150px and a separate strip below would cost another 40 — the band
+               has quiet paper at its lower left where the dissolve has already
+               taken the ink out, which is exactly where type wants to be. */
+            .xh-status {
+                position: absolute;
+                left: 60px; bottom: 22px; z-index: 2;
+                display: flex; align-items: center; gap: 16px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase;
+                color: #4A4234;
             }
-            .xh-lead { display: flex; flex-direction: column; padding-top: 6px; }
-            /* CARVED, NOT SET. Three changes, all of them about authority
-               rather than size — the headline does not get bigger.
-
-               line-height .94 -> 1.02. Sub-single leading is a display trick
-               that makes a headline look COMPRESSED, which reads as urgent; an
-               inscription is cut with air between the lines because the stone
-               is not in a hurry.
-
-               The lede narrows 440 -> 386, which is about 62 characters — the
-               measure a book uses, and short enough that the eye returns to a
-               known left edge instead of hunting for it.
-
-               And the ox span carries no italic, no weight change, no rule.
-               One word in one other colour is the whole emphasis. */
-            .xh-h1 {
+            .xh-live { display: inline-flex; align-items: center; gap: 9px; color: #3F5A31; }
+            /* The one moving thing in the masthead, and it is 6px wide. A live
+               market should have a pulse; two would be a dashboard. */
+            .xh-live i {
+                width: 6px; height: 6px; border-radius: 50%; background: #4E6B3E;
+                box-shadow: 0 0 0 0 rgba(78,107,62,.4);
+                animation: xh-pulse 2.6s ease-out infinite;
+            }
+            @keyframes xh-pulse {
+                0%   { box-shadow: 0 0 0 0 rgba(78,107,62,.4); }
+                70%  { box-shadow: 0 0 0 6px rgba(78,107,62,0); }
+                100% { box-shadow: 0 0 0 0 rgba(78,107,62,0); }
+            }
+            @media (prefers-reduced-motion: reduce) { .xh-live i { animation: none; } }
+            .xh-sep { width: 1px; height: 11px; background: rgba(70,55,35,.30); display: block; }
+            .xh-stat { color: #4A4234; }
+            /* The figure is the message; the noun after it is the caption. Serif
+               at 14 against mono at 10.5 is enough separation without a second
+               colour. */
+            .xh-stat b {
                 font-family: "Cormorant Garamond", Georgia, serif;
-                font-weight: 600; font-size: 66px; line-height: 1.04;
-                letter-spacing: .004em; margin: 0 0 14px;
-                color: var(--ink, #211B12); max-width: 18ch;
+                font-size: 14px; font-weight: 600; letter-spacing: .04em;
+                color: var(--ink, #211B12); margin-right: 5px;
             }
-            .xh-h1 .ox { color: #7C1D2B; }
-            .xh-lede {
-                font-family: "EB Garamond", Georgia, serif;
-                font-size: 18px; line-height: 1.5; color: #574E3D;
-                max-width: 556px; margin: 0 0 26px;
+
+            /* ---- actions ---- */
+            .xh-actions {
+                max-width: 1440px; margin: 0 auto;
+                padding: 26px 60px 30px;
+                display: flex; align-items: center; gap: 26px;
             }
-            .xh-cta { display: flex; align-items: center; gap: 28px; }
-            /* Its own button, NOT .eq-btn-primary. That rule is written with
-               !important and also matches button[class*="-cta"] across the rest
-               of this page; borrowing it would have meant either fighting the
-               !important or changing every other button here to match a hero. */
             .xh-btn {
                 display: inline-flex; align-items: center; gap: 12px;
                 background: #7C1D2B; color: #F6EEDD;
@@ -443,205 +489,30 @@ export function renderActiveContracts() {
             .xh-learn:hover { color: #211B12; border-bottom-color: #7C1D2B; }
             .xh-learn .a { color: #7C1D2B; }
 
-            /* FOUR FIGURES INSTEAD OF THREE, so the gap comes down 44 -> 36 and
-               the row is allowed to wrap. It does not wrap at any desktop width
-               — measured at 668px of content against 922px of column at 1440 —
-               but "Verified Sources" is the longest label in the set and a
-               narrower window or a wider font fallback should push the fourth
-               figure onto a second line rather than out of the column. */
-            .xh-stats {
-                display: flex; flex-wrap: wrap; gap: 18px 36px; align-items: center;
-                margin-top: auto; padding-top: 24px;
-                border-top: 1px solid rgba(70,55,35,.20);
-            }
-            .xh-stats .sep { width: 1px; height: 42px; background: rgba(70,55,35,.20); }
-            .xh-stat .n {
-                font-family: "Cormorant Garamond", Georgia, serif;
-                font-size: 35px; font-weight: 600; line-height: 1; color: var(--ink, #211B12);
-            }
-            /* #6A5E48, and this turned out to be a bug rather than a taste
-               call. The old #8E8065 measures 3.18:1 on #F1E8D3 — under AA for
-               10px text, so the figures the page offers as its trust signal
-               were captioned in something a reader with low vision could not
-               resolve. 5.23:1 now, which is also the "darken them a bit" the
-               brief asked for; the two wanted the same value. */
-            .xh-stat .k {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
-                color: #6A5E48; margin-top: 8px;
-            }
-
-            /* ---- the contract, laid on the counter ----
-               IT WAS FLOATING BECAUSE OF ITS SHADOW, not its position. One
-               enormous soft blur — 0 34px 70px at .32 — is the shadow of an
-               object suspended well above a surface, and it is the single cue
-               that said "pinned on top" loudest.
-
-               A sheet actually resting on a counter casts three things:
-
-                 CONTACT   0 2px 3px at .22, almost no blur. This is the dark
-                           line where paper meets stone, and it is the one that
-                           does the work. Without it nothing ever looks placed.
-                 FORM      0 14px 26px -10px at .20, offset down and short.
-                 AMBIENT   0 40px 70px -30px at .16, very wide, very faint.
-
-               Plus an inset hairline of warm light along the top edge, which is
-               the lit lip of a sheet catching the same lamp the counter does —
-               and it is the reason the card looks illuminated BY the scene
-               rather than glowing on its own. No glow was added anywhere.
-
-               -186px, deeper than the old -150: the card now breaks the counter
-               line rather than resting on it, so it emerges from the desk
-               instead of sitting on the seam. */
-            .xh-contract {
-                position: relative; margin-top: -186px; z-index: 4;
-                width: 342px; background: #F5EDDA;
-                border: 1px solid rgba(70,55,35,.34);
-                box-shadow:
-                    inset 0 1px 0 rgba(255,250,235,.72),
-                    0 2px 3px rgba(40,25,12,.22),
-                    0 14px 26px -10px rgba(40,25,12,.20),
-                    0 40px 70px -30px rgba(40,25,12,.16);
-                padding: 18px 20px 14px;
-                will-change: transform;
-            }
-            /* THE SHEET SITS IN THE SCENE'S LIGHT. The band's brightest point is
-               the counter at 60%/72%; this repeats that fall across the card at
-               a fraction of the strength, so the top-left of the document is
-               fractionally warmer than its bottom-right — the same lamp, the
-               same direction. soft-light rather than screen because the card
-               already has a colour and this is meant to bend it, not wash it. */
-            .xh-contract::before {
-                content: ""; position: absolute; inset: 0; pointer-events: none;
-                mix-blend-mode: soft-light;
-                background: linear-gradient(152deg, rgba(255,244,220,.55) 0%, rgba(255,244,220,0) 46%, rgba(60,42,20,.10) 100%);
-            }
-            .xh-contract::after {
-                content: ""; position: absolute; inset: 5px;
-                border: 1px solid rgba(70,55,35,.11); pointer-events: none;
-            }
-            .xh-ct-in { position: relative; z-index: 2; }
-            .xh-ct-top { display: flex; align-items: center; justify-content: space-between; }
-            .xh-ct-label {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 8.5px; letter-spacing: .26em; text-transform: uppercase; color: #8E8065;
-            }
-            .xh-live {
-                display: inline-flex; align-items: center; gap: 7px;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 8.5px; letter-spacing: .18em; text-transform: uppercase; color: #4E6B3E;
-            }
-            .xh-live .d { width: 6px; height: 6px; border-radius: 50%; background: #4E6B3E; box-shadow: 0 0 0 3px rgba(78,107,62,.14); }
-            .xh-ct-title {
-                font-family: "Cormorant Garamond", Georgia, serif;
-                font-size: 26px; font-weight: 600; line-height: 1;
-                margin: 10px 0 0; color: var(--ink, #211B12);
-            }
-            .xh-ct-rule { height: 1px; background: rgba(70,55,35,.30); margin: 12px 0 2px; position: relative; }
-            .xh-ct-rule::after { content: ""; position: absolute; left: 0; right: 0; top: 2px; height: 1px; background: rgba(70,55,35,.11); }
-            .xh-grp {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 8.5px; letter-spacing: .24em; text-transform: uppercase;
-                color: #B4A98C; margin: 14px 0 6px;
-            }
-            .xh-crow { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(70,55,35,.11); }
-            .xh-cico { width: 18px; height: 18px; flex: none; color: #574E3D; }
-            .xh-crow .ck {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: #8E8065;
-            }
-            .xh-crow .cv {
-                margin-left: auto; font-family: "Cormorant Garamond", Georgia, serif;
-                font-size: 19px; font-weight: 600; color: var(--ink, #211B12);
-            }
-            .xh-crow .cv small {
-                display: block; font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 8px; letter-spacing: .08em; color: #8E8065;
-                text-align: right; margin-top: 2px; font-weight: 400;
-            }
-            /* A ruled 2x2 register — the same certification block the landing
-               card uses, so the two cards state their verification the same way. */
-            .xh-vgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(70,55,35,.11); border: 1px solid rgba(70,55,35,.11); }
-            .xh-vcell { background: #F5EDDA; padding: 8px 10px; }
-            .xh-vcell .k {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 8px; letter-spacing: .16em; text-transform: uppercase;
-                color: #8E8065; margin-bottom: 4px;
-            }
-            .xh-vcell .v {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 10.5px; letter-spacing: .04em; color: var(--ink, #211B12); font-weight: 500;
-            }
-            .xh-vcell .v.ok { color: #3F5A31; }
-            .xh-out { display: flex; align-items: center; gap: 10px; padding: 9px 11px; margin-top: 6px; border: 1px solid rgba(70,55,35,.11); }
-            .xh-out.win { background: rgba(78,107,62,.07); }
-            .xh-out.lose { background: rgba(124,29,43,.06); }
-            .xh-out .ok2 {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500;
-            }
-            .xh-out .os {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 8px; letter-spacing: .05em; color: #7A6D55; margin-top: 3px;
-            }
-            .xh-out .ov { margin-left: auto; font-family: "Cormorant Garamond", Georgia, serif; font-size: 21px; font-weight: 600; }
-            .xh-out.win .ov { color: #3F5A31; }
-            .xh-out.lose .ov { color: #7C1D2B; }
-            .xh-ct-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
-            .xh-ct-foot span {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 8.5px; letter-spacing: .12em; text-transform: uppercase;
-                color: #7A6D55; display: inline-flex; align-items: center; gap: 6px;
-            }
-
             /* ---- responsive ----
-               THE SEAM OVERLAP IS THE FIRST THING TO GO. Below 1000 the two
-               columns cannot both hold their width, and a card pulled up 150px
-               into a banner it no longer sits beside reads as a mistake rather
-               than as a composition. It stacks and sits on the parchment.
-
-               THE HEADLINE RULES BELOW CARRY !important, AND THEY HAVE TO.
-               mobile.css line 521 sets, inside @media (max-width: 768px):
-
-                 h1, .lh1, .eq-hero-headline, ... {
-                   font-size: clamp(24px, 7vw, 36px) !important;
-                   letter-spacing: -0.5px !important;
-                   line-height: 1.15 !important; }
-
-               a BARE h1 selector, so it reaches this heading. Measured on the
-               shipped bundle at 375px: the headline rendered at 26.25px — 7vw —
-               against the 38px this file asks for, with the tracking dragged
-               negative, which is the opposite of what a Cormorant display line
-               wants. No amount of specificity outranks !important, so these
-               answer in kind. That is the one legitimate use of it: replying to
-               an !important, not pre-empting one. */
+               No column collapse to manage any more: the masthead is a band and
+               a row of buttons, so the only things that move are the gutters and
+               the band's height. */
             @media (max-width: 1180px) {
-                .xh h1.xh-h1 { font-size: 62px !important; letter-spacing: .004em !important; line-height: .96 !important; }
-                .xh-contract { width: 340px; }
-                .xh-body { gap: 36px; padding: 0 40px 56px; }
+                .xh-actions { padding: 24px 40px 28px; }
+                .xh-status { left: 40px; }
             }
             @media (max-width: 1000px) {
-                .xh-band { height: clamp(260px, 38vh, 340px); }
-                .xh-body { grid-template-columns: 1fr; padding: 0 32px 48px; }
-                .xh-lead { min-height: 0; padding-top: 32px; }
-                .xh-contract { margin: 8px 0 0; width: 100%; max-width: 420px; }
-                .xh h1.xh-h1 { font-size: 52px !important; letter-spacing: .004em !important; line-height: .98 !important; max-width: none; }
+                .xh-actions { padding: 22px 32px 26px; }
+                .xh-status { left: 32px; bottom: 18px; gap: 13px; font-size: 10px; letter-spacing: .16em; }
+                .xh-stat b { font-size: 13px; }
             }
             @media (max-width: 700px) {
-                /* No padding-top override here either — #app's 96px is the
-                   header clearance on every breakpoint now. */
-                .xh-band { height: clamp(200px, 30vh, 260px); }
-                .xh h1.xh-h1 { font-size: 38px !important; letter-spacing: .004em !important; line-height: 1.0 !important; }
-                .xh-lede { font-size: 17px; }
-                .xh-cta { flex-direction: column; align-items: stretch; gap: 16px; }
+                /* The escrow figure goes first on a phone — the open-contract
+                   count is the one a trader checks, and three figures plus two
+                   rules will not sit on 360px without shrinking the type past
+                   readable. The number is still on the board below. */
+                .xh-status { left: 22px; bottom: 14px; gap: 10px; font-size: 9px; letter-spacing: .14em; }
+                .xh-status .xh-sep:last-of-type, .xh-status .xh-stat:last-of-type { display: none; }
+                .xh-stat b { font-size: 12px; margin-right: 4px; }
+                .xh-actions { flex-direction: column; align-items: stretch; gap: 14px; padding: 20px 22px 24px; }
                 .xh-btn { justify-content: center; }
                 .xh-learn { text-align: center; }
-                /* The stat row wraps rather than scrolls; the rules between them
-                   go, because a vertical rule between stacked items is a rule
-                   pointing the wrong way. */
-                .xh-stats { flex-wrap: wrap; gap: 22px 32px; padding-top: 28px; }
-                .xh-stats .sep { display: none; }
-                .xh-stat .n { font-size: 30px; }
             }
 
             /* Oxblood Buttons — #7A1C29 background, #FFF8F5 text, #54111B hover */
@@ -1377,92 +1248,47 @@ export function renderActiveContracts() {
         <div class="cl-grain" aria-hidden="true"></div>
 
         <div class="eq">
-            <!-- Section 1: Hero — the Exchange -->
+            <!-- Section 1: Masthead.
+                 NOT A HERO, AND THAT IS THE WHOLE CHANGE. /market is in
+                 protectedPaths — every reader is signed in and has capital in
+                 escrow. The headline, the lede and the specimen contract were
+                 selling a product to someone already using it, which is the
+                 homepage's job and not this page's.
+
+                 The band survives because it is the only thing carrying brand
+                 continuity between the two surfaces; it just stops costing a
+                 viewport. 306px -> 150px, and the mask, depth, light and
+                 parallax layers are unchanged underneath. -->
             <div class="xh">
-                <!-- The hall. aria-hidden because it is atmosphere; the page's
-                     actual heading is the h1 below it. -->
-                <!-- No type on the plate. The four overlay labels are removed;
-                     the engraving is the engraving and the headline below it
-                     does the talking. -->
-                <div class="xh-band" aria-hidden="true">
-                    <div class="xh-band-art" data-xh-par="0.12"></div>
-                    <div class="xh-band-depth"></div>
-                    <div class="xh-band-air"></div>
-                    <div class="xh-band-light"></div>
+                <div class="xh-band">
+                    <div class="xh-band-art" data-xh-par="0.12" aria-hidden="true"></div>
+                    <div class="xh-band-depth" aria-hidden="true"></div>
+                    <div class="xh-band-air" aria-hidden="true"></div>
+                    <div class="xh-band-light" aria-hidden="true"></div>
+
+                    <!-- THE BAND NOW SAYS SOMETHING TRUE INSTEAD OF SOMETHING
+                         SALESY. Every figure here is read from MARKET_STATS,
+                         the same constant the board's odometers use further
+                         down, so the two can never disagree the way 312 and 528
+                         did. One object, one source of truth. -->
+                    <div class="xh-status">
+                        <span class="xh-live"><i></i>Live Exchange</span>
+                        <span class="xh-sep" aria-hidden="true"></span>
+                        <span class="xh-stat"><b>${MARKET_STATS.openContracts}</b> Open</span>
+                        <span class="xh-sep" aria-hidden="true"></span>
+                        <span class="xh-stat"><b>${MARKET_STATS.openCapitalLabel}</b> in Escrow</span>
+                    </div>
                 </div>
 
-                <div class="xh-body">
-                    <div class="xh-lead">
-                        <!-- THE HOMEPAGE'S STORY IS NOT THIS PAGE'S STORY.
-                             "Put money on your own deadline" answers "what is
-                             Collateral" — which the landing page has already
-                             answered by the time anyone arrives here. This page
-                             answers the next question: what is inside. So the
-                             voice moves from second person and motivation to
-                             third person and procedure, which is how an
-                             institution describes itself. -->
-                        <h1 class="xh-h1">The exchange for <span class="ox">human execution.</span></h1>
-                        <p class="xh-lede">Every contract is backed by locked capital, verified directly from its source, and settled automatically. Browse the market, create your own agreement, or challenge another participant. Every outcome is permanently recorded.</p>
-                        <div class="xh-cta">
-                            <!-- THE SECONDARY LOST ITS DESTINATION. It scrolled
-                                 to #how-it-works, which was the Contract
-                                 Structures section, and that section is no
-                                 longer on this route — getElementById would have
-                                 returned null and the button would have thrown
-                                 on click, silently doing nothing.
-                                 It goes to the rivalry board instead, which is
-                                 the only other real place this page can send
-                                 someone: the primary browses the market, this
-                                 one filters it to head-to-head contracts. Two
-                                 buttons, two destinations, both of which exist. -->
-                            <button class="xh-btn" onclick="document.getElementById('live-market').scrollIntoView({behavior:'smooth'})">Enter Exchange <span class="a" aria-hidden="true">&rarr;</span></button>
-                            <button class="xh-learn" onclick="window.router.navigate('/market?type=rivalry')">Rivalry contracts <span class="a" aria-hidden="true">&rarr;</span></button>
-                        </div>
-                        <!-- FOUR FIGURES THAT DESCRIBE A MARKET, not three that
-                             describe a promise. Capital locked and auto-settled
-                             carry over; settled-today becomes active-contracts,
-                             because a live exchange is measured by what is OPEN
-                             on it, and verified sources is added because the
-                             number of things this market can price is the one
-                             fact that says how big it is. -->
-                        <div class="xh-stats">
-                            <div class="xh-stat"><div class="n">$8,700,000</div><div class="k">Capital Locked</div></div>
-                            <div class="sep"></div>
-                            <div class="xh-stat"><div class="n">312</div><div class="k">Active Contracts</div></div>
-                            <div class="sep"></div>
-                            <div class="xh-stat"><div class="n">99.2%</div><div class="k">Auto-Settled</div></div>
-                            <div class="sep"></div>
-                            <div class="xh-stat"><div class="n">14</div><div class="k">Verified Sources</div></div>
-                        </div>
-                    </div>
-
-                    <!-- Specimen contract, pulled up so it crosses the seam -->
-                    <aside class="xh-contract" data-xh-par="-0.02" aria-label="Specimen performance contract">
-                        <div class="xh-ct-in">
-                            <div class="xh-ct-top"><span class="xh-ct-label">Performance Contract</span><span class="xh-live"><span class="d"></span> Live</span></div>
-                            <div class="xh-ct-title">Stripe Revenue Growth</div>
-                            <div class="xh-ct-rule"></div>
-
-                            <div class="xh-grp">Commitment</div>
-                            <div class="xh-crow"><svg class="xh-cico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="1.5"/><path d="M2.5 10h19M16 14.5h2.5"/></svg><span class="ck">Stake</span><span class="cv">$250.00</span></div>
-                            <div class="xh-crow"><svg class="xh-cico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg><span class="ck">Target</span><span class="cv">+20%</span></div>
-                            <div class="xh-crow"><svg class="xh-cico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.6"/><path d="M12 7.4V12l3.1 1.9"/></svg><span class="ck">Deadline</span><span class="cv">31 Aug<small>30 days remaining</small></span></div>
-
-                            <div class="xh-grp">Verification</div>
-                            <div class="xh-vgrid">
-                                <div class="xh-vcell"><div class="k">Source</div><div class="v ok">Stripe API &#10003;</div></div>
-                                <div class="xh-vcell"><div class="k">Escrow</div><div class="v ok">Active</div></div>
-                                <div class="xh-vcell"><div class="k">Settlement</div><div class="v">Automatic</div></div>
-                                <div class="xh-vcell"><div class="k">Contract</div><div class="v">CM&middot;01942</div></div>
-                            </div>
-
-                            <div class="xh-grp">Outcome</div>
-                            <div class="xh-out win"><span class="xh-mark sm"></span><div><div class="ok2" style="color:#3F5A31">Hit target</div><div class="os">You keep your stake &middot; 4.0&times;</div></div><span class="ov">+$1,000</span></div>
-                            <div class="xh-out lose"><span class="xh-mark sm"></span><div><div class="ok2" style="color:#7C1D2B">Miss target</div><div class="os">Stake forfeited to pool</div></div><span class="ov">&minus;$250</span></div>
-
-                            <div class="xh-ct-foot"><span><span class="xh-mark sm"></span> Funds held in escrow</span><span>Auto-settled</span></div>
-                        </div>
-                    </aside>
+                <!-- Two actions, both of which go somewhere that exists. The
+                     primary is CREATE, not "Enter Exchange" — that scrolled to
+                     a section of the page the reader was already on, which is a
+                     scroll button wearing a CTA's clothes. /contracts/execute
+                     is the job a signed-in reader came here to do and nothing
+                     previously linked to it. -->
+                <div class="xh-actions">
+                    <button class="xh-btn" onclick="window.router.navigate('/contracts/execute')">Create Contract <span class="a" aria-hidden="true">&rarr;</span></button>
+                    <button class="xh-learn" onclick="window.router.navigate('/market?type=rivalry')">Rivalry contracts <span class="a" aria-hidden="true">&rarr;</span></button>
                 </div>
             </div>
 
@@ -1770,15 +1596,13 @@ export function renderActiveContracts() {
 }
 
 /**
- * Parallax for the Exchange hero.
+ * Parallax for the Exchange masthead.
  *
- * THE RATES ARE THE POINT, and they are deliberately small. The hall moves at
- * 0.16 of scroll, the band's own inscriptions at 0.06, and the contract at
- * -0.02 — negative, so the card drifts fractionally AGAINST the page and reads
- * as the nearest object rather than merely the slowest. At a 600px band that is
- * about 83px of travel on the artwork across the whole hero and under 12px on
- * the card: felt as depth, never seen as motion. Anything larger and the plate
- * detaches from its own frame on the way past.
+ * ONE LAYER LEFT, and that is a consequence of the page losing its hero rather
+ * than a change of mind. The hall still moves at 0.12 of scroll; the band's own
+ * inscriptions (0.06) and the specimen contract (-0.02) went with the markup
+ * that carried them. On a ~150px masthead 0.12 is about 33px of travel while
+ * the plate is on screen — felt as depth, never seen as motion.
  *
  * ONLY transform, ONLY on elements already promoted by will-change, and only
  * inside one rAF per frame — the handler itself does nothing but set a flag, so
@@ -1807,8 +1631,10 @@ function initXhParallax() {
         const y = window.scrollY || document.documentElement.scrollTop || 0;
         /* Past the band's own height there is nothing left to parallax against,
            so the transform is clamped rather than left to run away down the
-           page. */
-        const t = Math.min(y, 900);
+           page. 400 x 0.12 = 48px, inside the 66px of headroom the plate
+           has above the band, so the top edge can never be dragged into view.
+           It was 900 when the band was 600px tall. */
+        const t = Math.min(y, 400);
         for (const { el, rate } of layers) {
             el.style.transform = `translate3d(0, ${(t * rate).toFixed(2)}px, 0)`;
         }
@@ -1844,9 +1670,12 @@ export function initActiveContracts() {
         requestAnimationFrame(update);
     }
 
-    animateOdometer(document.getElementById('stat-capital'), 633600);
-    animateOdometer(document.getElementById('stat-contracts'), 528);
-    animateOdometer(document.getElementById('stat-pool'), 148200);
+    /* Read from MARKET_STATS, not from literals. The masthead's status line
+       reads the same object, which is what stops the top of the page and the
+       middle of it printing different numbers for the same fact. */
+    animateOdometer(document.getElementById('stat-capital'), MARKET_STATS.openCapital);
+    animateOdometer(document.getElementById('stat-contracts'), MARKET_STATS.openContracts);
+    animateOdometer(document.getElementById('stat-pool'), MARKET_STATS.dailyVolume);
 
 
 
