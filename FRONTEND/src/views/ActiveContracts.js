@@ -225,95 +225,52 @@ export function renderActiveContracts() {
                parchment the headline sits on, a short top fall so the ceiling
                arrives immediately, and gentle side falls that stop well short of
                opaque so the hall keeps running past the frame. */
-            /* 66px OF HEADROOM ABOVE THE BAND, halved with the band itself.
-               This is a parallax requirement rather than a framing one: the
-               plate translates DOWN as the page scrolls up, so starting flush
-               with the band's top edge would drag that edge into view within the
-               first hundred pixels of scroll and expose the frame it is meant to
-               dissolve out of.
-               The masthead is visible for roughly 275px of scroll now (96px of
-               #app padding plus a 178px band at its tallest) and the rate is
-               0.12, so the furthest it travels while anyone can see it is ~33px.
-               The scroll clamp below caps it at 48px regardless. Both sit well
-               inside the 66. */
+            /* ══ THE FRIEZE ═══════════════════════════════════════════════════
+               THE CROP IS THE WHOLE FIX. The band was shortened from 306px to
+               150 but kept a crop tuned for the taller box — 128% zoom anchored
+               at 48% — which at a 10:1 aspect sliced a horizontal strip straight
+               through the figures' torsos. Headless bodies and no desk: it read
+               as a random band of a painting rather than a masthead.
+
+               Nothing figurative survives 10:1. Architecture does, which is why
+               friezes are that shape in the first place. The plate has one at
+               the top: two "C" laurel banners, CAPITAL AT RISK · OUTCOMES ARE
+               FINAL, the temple pediment with its winged figure, and
+               CONTRACTUS IN TABELLIS · FIDES IN EXECUTIONE carved along the
+               right. Column capitals across the whole width, sky through the
+               middle for air.
+
+               So: back to background-size:cover, anchored near the top. cover keeps the
+               plate filling the band at any width, and 2% pins the window to the
+               architecture so it cannot drift down into the crowd when the
+               viewport narrows and the scale changes.
+
+               NO PARALLAX HERE ANY MORE. It was worth 33px of travel on a 150px
+               strip — imperceptible — and it was the only reason this element
+               needed 66px of headroom above the band, which is what made the
+               crop maths fragile. inset:0, no data-xh-par, no will-change. A
+               masthead should sit still. */
             .xh-band-art {
                 position: absolute;
-                inset: -66px -1% 0;
-                /* CROPPED IN ON THE DESK, which is the one compositional change
-                   available without repainting the plate.
-
-                   background-size:cover was showing the ENTIRE width of a
-                   1792px panorama, so
-                   the frame contained the whole institution and the central
-                   transaction was one incident among many. 128% width shows
-                   about 78% of the plate horizontally and 48% vertically — a
-                   22% tighter crop that walks the far-left desk and the outer
-                   archive bays off the edges and leaves the operator, the desk
-                   and the scribe holding the middle.
-
-                   THE VERTICAL ANCHOR IS 48%, NOT CENTRE. The temple has to
-                   survive above the desk or the hall stops being a hall, and
-                   the counter has to land low enough that the dissolve and the
-                   contract card both meet it. 48% puts the visible window at
-                   roughly a quarter to three-quarters of the plate: ceiling at
-                   the top, counter across the bottom third.
-
-                   This is a crop, not a fix. The plate is still a panorama being
-                   asked to behave like a portrait of one transaction, and the
-                   real answer is a purpose-built engraving. */
-                background: url("/assets/images/trading-hall.webp") 50% 48% / 128% auto no-repeat;
+                inset: 0;
+                background: url("/assets/images/trading-hall.webp") 50% 2% / cover no-repeat;
                 mix-blend-mode: multiply;
-                /* AN ASYMMETRIC DISSOLVE, BECAUSE THE TWO SIDES HAVE DIFFERENT
-                   JOBS. One ellipse centred at 50% produced a boundary that was
-                   a perfect mirror — deepest at the middle, identical at both
-                   edges — and a symmetrical fall on all four sides is the
-                   definition of a vignette, which is what it read as.
-
-                   The page is not symmetrical. The headline sits bottom-LEFT and
-                   needs paper under it; the contract card sits bottom-RIGHT and
-                   provides its own separation, so ink there is wanted rather
-                   than tolerated. So:
-
-                     THE MAIN ELLIPSE MOVES RIGHT, 50% -> 58%, which carries the
-                     deepest ink under the desk and the card instead of under
-                     the middle of nothing.
-
-                     A SECOND ELLIPSE at 66%/14% takes the left side down
-                     further. Because the layers intersect, the boundary is the
-                     LOWER ENVELOPE of two curves rather than one smooth arc, so
-                     it acquires an inflection where they cross — which is the
-                     thing that stops it reading as a shape.
-
-                     THE FIRST PAIR I TRIED WAS BACKWARDS. An ellipse anchored
-                     LEFT cuts the RIGHT side, which took ink out from under the
-                     card and left it under the headline: the exact inverse of
-                     the brief. The envelope was simulated before shipping rather
-                     than eyeballed. The corrected pair measures 70 / 76 / 83 /
-                     87 / 89 across the left half, peaks at 58% under the desk,
-                     and holds 12-16 points more ink on the right than at the
-                     mirrored left column.
-
-                     THE RIGHT SIDE FADE SHRINKS, 13% -> 6%. The card is already
-                     a hard edge there; fading the plate as well was separating
-                     two things that were separate.
-
-                   Four layers, all intersect, so alpha is simply the minimum of
-                   four shapes. Mixing composite operators is where masks start
-                   behaving differently across engines; min() cannot surprise
-                   anyone. */
+                /* A SHORT BAND WANTS A SIMPLE DISSOLVE. The two-ellipse envelope
+                   built for the 600px hero existed to keep a curved boundary
+                   away from a headline and a contract card; there is neither
+                   here, and on 150px an ellipse's curvature is smaller than the
+                   fade itself. Two linear falls, intersected: the bottom 40%
+                   into the page, and both edges in by 5%. The top fade is 6% so
+                   the plate meets the paper under the header rather than
+                   starting on a cut line. */
                 -webkit-mask-image:
-                    radial-gradient(118% 74% at 58% 28%, #000 82%, rgba(0,0,0,.55) 93%, transparent 100%),
-                    radial-gradient(110% 86% at 66% 14%, #000 80%, rgba(0,0,0,.45) 92%, transparent 100%),
-                    linear-gradient(to bottom, transparent 0%, #000 8%, #000 100%),
-                    linear-gradient(to right, transparent 0%, #000 12%, #000 94%, transparent 100%);
-                -webkit-mask-composite: source-in, source-in, source-in, source-in;
+                    linear-gradient(to bottom, transparent 0%, #000 6%, #000 60%, rgba(0,0,0,.45) 86%, transparent 100%),
+                    linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%);
+                -webkit-mask-composite: source-in, source-in;
                 mask-image:
-                    radial-gradient(118% 74% at 58% 28%, #000 82%, rgba(0,0,0,.55) 93%, transparent 100%),
-                    radial-gradient(110% 86% at 66% 14%, #000 80%, rgba(0,0,0,.45) 92%, transparent 100%),
-                    linear-gradient(to bottom, transparent 0%, #000 8%, #000 100%),
-                    linear-gradient(to right, transparent 0%, #000 12%, #000 94%, transparent 100%);
-                mask-composite: intersect, intersect, intersect, intersect;
-                will-change: transform;
+                    linear-gradient(to bottom, transparent 0%, #000 6%, #000 60%, rgba(0,0,0,.45) 86%, transparent 100%),
+                    linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%);
+                mask-composite: intersect, intersect;
             }
 
             /* ══ DEPTH ══════════════════════════════════════════════════════
@@ -416,19 +373,19 @@ export function renderActiveContracts() {
             .xh-mark.sm { width: 7px; height: 7px; }
             .xh-mark.sm::after { inset: 1.6px; }
 
-            /* ---- the status line, printed on the plate ----
-               THE BAND EARNS ITS PLACE BY SAYING SOMETHING TRUE. Every figure
-               here comes from MARKET_STATS, the same object the board's
-               odometers read, so the top of the page and the middle of it
-               cannot print different numbers for the same fact.
+            /* ---- the status line ----
+               THE FIGURES ARE THE POINT: every one comes from MARKET_STATS, the
+               same object the board's odometers read, so the top of the page and
+               the middle of it cannot print different numbers for the same fact.
 
-               It sits on the plate rather than under it because the masthead is
-               150px and a separate strip below would cost another 40 — the band
-               has quiet paper at its lower left where the dissolve has already
-               taken the ink out, which is exactly where type wants to be. */
+               IT SITS BESIDE THE BUTTONS, NOT ON THE PLATE. The frieze already
+               carries carved Latin — CONTRACTUS IN TABELLIS · FIDES IN
+               EXECUTIONE — and laying tracked mono over an engraving that is
+               itself lettered puts two typefaces on one surface with neither
+               legible. On the action row it has clean paper under it and costs
+               no extra height, because that row exists regardless. */
             .xh-status {
-                position: absolute;
-                left: 60px; bottom: 22px; z-index: 2;
+                margin-left: auto;
                 display: flex; align-items: center; gap: 16px;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase;
@@ -495,11 +452,11 @@ export function renderActiveContracts() {
                the band's height. */
             @media (max-width: 1180px) {
                 .xh-actions { padding: 24px 40px 28px; }
-                .xh-status { left: 40px; }
+                .xh-status { gap: 13px; }
             }
             @media (max-width: 1000px) {
                 .xh-actions { padding: 22px 32px 26px; }
-                .xh-status { left: 32px; bottom: 18px; gap: 13px; font-size: 10px; letter-spacing: .16em; }
+                .xh-status { gap: 12px; font-size: 10px; letter-spacing: .16em; }
                 .xh-stat b { font-size: 13px; }
             }
             @media (max-width: 700px) {
@@ -507,7 +464,9 @@ export function renderActiveContracts() {
                    count is the one a trader checks, and three figures plus two
                    rules will not sit on 360px without shrinking the type past
                    readable. The number is still on the board below. */
-                .xh-status { left: 22px; bottom: 14px; gap: 10px; font-size: 9px; letter-spacing: .14em; }
+                /* On a phone the row stacks, so the status line becomes its own
+                   line under the buttons rather than a right-hand tail. */
+                .xh-status { margin-left: 0; justify-content: center; gap: 10px; font-size: 9px; letter-spacing: .14em; }
                 .xh-status .xh-sep:last-of-type, .xh-status .xh-stat:last-of-type { display: none; }
                 .xh-stat b { font-size: 12px; margin-right: 4px; }
                 .xh-actions { flex-direction: column; align-items: stretch; gap: 14px; padding: 20px 22px 24px; }
@@ -1260,17 +1219,27 @@ export function renderActiveContracts() {
                  viewport. 306px -> 150px, and the mask, depth, light and
                  parallax layers are unchanged underneath. -->
             <div class="xh">
-                <div class="xh-band">
-                    <div class="xh-band-art" data-xh-par="0.12" aria-hidden="true"></div>
-                    <div class="xh-band-depth" aria-hidden="true"></div>
-                    <div class="xh-band-air" aria-hidden="true"></div>
-                    <div class="xh-band-light" aria-hidden="true"></div>
+                <!-- The plate carries no type of its own. The frieze it now
+                     shows is already lettered in stone. -->
+                <div class="xh-band" aria-hidden="true">
+                    <div class="xh-band-art"></div>
+                    <div class="xh-band-depth"></div>
+                    <div class="xh-band-air"></div>
+                    <div class="xh-band-light"></div>
+                </div>
 
-                    <!-- THE BAND NOW SAYS SOMETHING TRUE INSTEAD OF SOMETHING
-                         SALESY. Every figure here is read from MARKET_STATS,
-                         the same constant the board's odometers use further
-                         down, so the two can never disagree the way 312 and 528
-                         did. One object, one source of truth. -->
+                <!-- One row: what to do on the left, what is true on the right.
+                     The primary is CREATE, not "Enter Exchange" — that scrolled
+                     to a section of the page the reader was already on, which is
+                     a scroll button wearing a CTA's clothes. /contracts/execute
+                     is the job a signed-in reader came here to do and nothing
+                     previously linked to it.
+                     Every figure on the right comes from MARKET_STATS, the same
+                     constant the board's odometers read, so the two cannot
+                     disagree the way 312 and 528 did. -->
+                <div class="xh-actions">
+                    <button class="xh-btn" onclick="window.router.navigate('/contracts/execute')">Create Contract <span class="a" aria-hidden="true">&rarr;</span></button>
+                    <button class="xh-learn" onclick="window.router.navigate('/market?type=rivalry')">Rivalry contracts <span class="a" aria-hidden="true">&rarr;</span></button>
                     <div class="xh-status">
                         <span class="xh-live"><i></i>Live Exchange</span>
                         <span class="xh-sep" aria-hidden="true"></span>
@@ -1278,17 +1247,6 @@ export function renderActiveContracts() {
                         <span class="xh-sep" aria-hidden="true"></span>
                         <span class="xh-stat"><b>${MARKET_STATS.openCapitalLabel}</b> in Escrow</span>
                     </div>
-                </div>
-
-                <!-- Two actions, both of which go somewhere that exists. The
-                     primary is CREATE, not "Enter Exchange" — that scrolled to
-                     a section of the page the reader was already on, which is a
-                     scroll button wearing a CTA's clothes. /contracts/execute
-                     is the job a signed-in reader came here to do and nothing
-                     previously linked to it. -->
-                <div class="xh-actions">
-                    <button class="xh-btn" onclick="window.router.navigate('/contracts/execute')">Create Contract <span class="a" aria-hidden="true">&rarr;</span></button>
-                    <button class="xh-learn" onclick="window.router.navigate('/market?type=rivalry')">Rivalry contracts <span class="a" aria-hidden="true">&rarr;</span></button>
                 </div>
             </div>
 
@@ -1595,62 +1553,16 @@ export function renderActiveContracts() {
     `;
 }
 
-/**
- * Parallax for the Exchange masthead.
- *
- * ONE LAYER LEFT, and that is a consequence of the page losing its hero rather
- * than a change of mind. The hall still moves at 0.12 of scroll; the band's own
- * inscriptions (0.06) and the specimen contract (-0.02) went with the markup
- * that carried them. On a ~150px masthead 0.12 is about 33px of travel while
- * the plate is on screen — felt as depth, never seen as motion.
- *
- * ONLY transform, ONLY on elements already promoted by will-change, and only
- * inside one rAF per frame — the handler itself does nothing but set a flag, so
- * a fast scroll cannot queue work. Nothing here reads layout: the offsets come
- * from scrollY and the band's cached top, so there is no forced reflow in the
- * scroll path.
- *
- * It disables itself entirely under prefers-reduced-motion, and below 1000px,
- * where the card has stacked out of the band and parallax between two things
- * that no longer overlap is just drift.
- */
-function initXhParallax() {
-    const band = document.querySelector('.xh-band');
-    if (!band) return;
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if (window.matchMedia && window.matchMedia('(max-width: 1000px)').matches) return;
+/* initXhParallax is gone with the hero. It drove three layers — the plate, the
+   band inscriptions and the specimen contract — and the last of those markup
+   elements went with the masthead rewrite, so it was left scanning for
+   [data-xh-par] and finding nothing. A 150px frieze does not want parallax
+   anyway: 0.12 of scroll over the ~275px it is visible is 33px of travel,
+   which is below the threshold of being felt and above the cost of the
+   headroom and crop maths it forced on the plate. */
 
-    const layers = [...document.querySelectorAll('[data-xh-par]')].map((el) => ({
-        el, rate: parseFloat(el.getAttribute('data-xh-par')) || 0,
-    }));
-    if (!layers.length) return;
-
-    let ticking = false;
-    const apply = () => {
-        ticking = false;
-        const y = window.scrollY || document.documentElement.scrollTop || 0;
-        /* Past the band's own height there is nothing left to parallax against,
-           so the transform is clamped rather than left to run away down the
-           page. 400 x 0.12 = 48px, inside the 66px of headroom the plate
-           has above the band, so the top edge can never be dragged into view.
-           It was 900 when the band was 600px tall. */
-        const t = Math.min(y, 400);
-        for (const { el, rate } of layers) {
-            el.style.transform = `translate3d(0, ${(t * rate).toFixed(2)}px, 0)`;
-        }
-    };
-    const onScroll = () => {
-        if (ticking) return;
-        ticking = true;
-        requestAnimationFrame(apply);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    apply();
-}
 
 export function initActiveContracts() {
-    initXhParallax();
-
     // Sort + domain filters now drive the Rivalry board only.
     let activeSort = 'trending_24h';
     let activeCategory = 'all';
