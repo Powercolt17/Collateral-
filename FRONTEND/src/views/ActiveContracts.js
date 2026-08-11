@@ -273,87 +273,30 @@ export function renderActiveContracts() {
                 mask-composite: intersect, intersect;
             }
 
-            /* ══ DEPTH ══════════════════════════════════════════════════════
-               Three planes out of one flat plate, by taking ink AWAY from the
-               far one rather than adding haze to it.
+            /* ══ NO GRADING LAYERS ═══════════════════════════════════════════
+               .xh-band-depth, .xh-band-air and .xh-band-light are removed, and
+               they were the reason the masthead looked wrong even after the
+               crop was right.
 
-               The top third — temple, ceiling, upper architecture — loses
-               density, so it recedes the way distance actually works in an
-               engraving: fewer, lighter lines. The archive wall on the right
-               gains it, because that corner is the deepest shadow in the hall
-               and holding it dark is what gives the counter something to be
-               brighter than. */
-            .xh-band-depth {
-                position: absolute;
-                inset: 0;
-                pointer-events: none;
-                mix-blend-mode: multiply;
-                background:
-                    radial-gradient(110% 78% at 82% 44%, rgba(74,58,36,.17), rgba(74,58,36,0) 56%),
-                    /* THE WINGS FALL OFF. A tenth of a stop of extra ink down
-                       the outer 24% of each side, so the hall darkens toward the
-                       frame and the eye is left with one bright place to go.
-                       This is the other half of the focal point — brightening
-                       the desk alone raises the whole scene's midpoint; taking
-                       the edges down is what makes the desk read as brighter
-                       THAN something. */
-                    linear-gradient(to right, rgba(70,55,35,.11) 0%, rgba(70,55,35,0) 24%, rgba(70,55,35,0) 76%, rgba(70,55,35,.11) 100%),
-                    linear-gradient(to bottom, rgba(70,55,35,.05) 0%, rgba(70,55,35,0) 34%);
-            }
-            /* ══ LIGHT ══════════════════════════════════════════════════════
-               The brightest point in the hall falls on the counter, where the
-               contract is laid. screen only ever lightens, and at .34 over a
-               tightened ellipse it is a change in exposure across the desk, not
-               a glow with an edge — there is no ring anywhere to find.
-               .30 -> .34 and the ellipse pulled in from 58%x46% to 52%x42%: the
-               same light, concentrated on less, which is what raises the desk
-               about a tenth of a stop above everything around it. */
-            .xh-band-light {
-                position: absolute;
-                inset: 0;
-                pointer-events: none;
-                mix-blend-mode: screen;
-                background: radial-gradient(48% 40% at 54% 68%, rgba(255,246,226,.36), rgba(255,246,226,0) 72%);
-                /* THE ONE THING THAT MOVES. The hall's light breathes between
-                   90% and 100% over fifteen seconds — about three points of
-                   actual alpha on a .30 layer, which is under the threshold at
-                   which anyone can point to it and say what changed. Nothing
-                   else in the scene animates, and that is the whole design: one
-                   slow sign of life reads as a real room, two reads as a screen
-                   saver. Opacity only, so it composites and never repaints. */
-                animation: xh-lamp 15s ease-in-out infinite alternate;
-            }
-            @keyframes xh-lamp { from { opacity: .90; } to { opacity: 1; } }
-            @media (prefers-reduced-motion: reduce) {
-                .xh-band-light { animation: none; }
-            }
-            /* ══ ATMOSPHERE ═════════════════════════════════════════════════
-               A FURTHER 12% OF CONTRAST OUT OF THE FAR CROWD, and it is done by
-               LIFTING BLACKS rather than by laying haze over them. screen raises
-               the darkest values and leaves the lightest alone, which compresses
-               the range from below — which is precisely what distance does to
-               contrast in air, and precisely what an engraver imitates with
-               thinner, wider-spaced lines in the background.
+               All three were inset:0 with NO MASK. On the 600px hero the plate
+               filled almost the whole box, so an unmasked tint over the top of
+               it was invisible. Here the art dissolves at the sides and the
+               bottom but the tints did not — so they painted a hard-edged
+               rectangle of multiply and screen across the full band: dark
+               smudges in both top corners, a wash through the middle, and a
+               visible cut line along the bottom exactly where the engraving had
+               already faded to paper.
 
-               That is a different operation from the fog this hero started with:
-               fog reduced everything uniformly toward beige and flattened the
-               scene; this reduces only the far plane and therefore INCREASES the
-               separation between it and the counter. The crowd falls back toward
-               texture and the foreground figures gain the room to dominate,
-               which is what makes the hall read as big.
+               Worth recording how that slipped through: the composite preview I
+               checked the crop against rendered the ART and its MASK only. It
+               looked right because it was missing precisely the three layers
+               that were breaking it. A preview that omits half the stack proves
+               nothing about the stack.
 
-               Shaped to miss the desk entirely — the ellipse is centred at 46%
-               height and fades out well above the counter, so nothing the reader
-               is meant to look at loses a single step of contrast. */
-            .xh-band-air {
-                position: absolute;
-                inset: 0;
-                pointer-events: none;
-                mix-blend-mode: screen;
-                background:
-                    radial-gradient(90% 52% at 50% 30%, rgba(246,238,221,.20), rgba(246,238,221,0) 72%),
-                    linear-gradient(to bottom, rgba(246,238,221,.13) 0%, rgba(246,238,221,.06) 38%, rgba(246,238,221,0) 62%);
-            }
+               They are not worth re-masking either. Depth, atmosphere and a
+               lamp exist to build three planes out of a deep establishing shot;
+               a 132px frieze of architecture is one plane at one distance. The
+               plate now sits on the paper with nothing on top of it. */
             /* THE FOUR OVERLAY LABELS ARE GONE — kicker, reference block, motto
                and charter. They were set over the engraving itself, and once the
                plate was cropped in 22% there was no quiet ground left under any
@@ -1223,9 +1166,6 @@ export function renderActiveContracts() {
                      shows is already lettered in stone. -->
                 <div class="xh-band" aria-hidden="true">
                     <div class="xh-band-art"></div>
-                    <div class="xh-band-depth"></div>
-                    <div class="xh-band-air"></div>
-                    <div class="xh-band-light"></div>
                 </div>
 
                 <!-- One row: what to do on the left, what is true on the right.
