@@ -4,9 +4,9 @@
 // Market-listing and execution-modal imports removed with the contract catalog:
 // the source picker fetches nothing, and terms are derived after the examination.
 
-// Section 2 is the same component the homepage renders, so the two pages cannot
-// drift apart describing the same two contract types.
-import { renderStructuresSection } from '../components/StructuresSection.js';
+// The Contract Structures section is no longer rendered on this route — it
+// belongs to the landing page now. Its import is removed with it rather than
+// left dangling.
 
 export function renderActiveContracts() {
     return `
@@ -1404,19 +1404,19 @@ export function renderActiveContracts() {
                         <h1 class="xh-h1">The exchange for <span class="ox">human execution.</span></h1>
                         <p class="xh-lede">Every contract is backed by locked capital, verified directly from its source, and settled automatically. Browse the market, create your own agreement, or challenge another participant. Every outcome is permanently recorded.</p>
                         <div class="xh-cta">
-                            <!-- Targets unchanged: primary to #live-market,
-                                 secondary to #how-it-works.
-                                 THE SECONDARY IS NOT LABELLED "BROWSE
-                                 CONTRACTS", and that is deliberate. The primary
-                                 already lands on the contract board, so two
-                                 buttons reading "Enter Exchange" and "Browse
-                                 Contracts" would scroll to the same place —
-                                 which is a worse first impression than a plain
-                                 label, because the reader learns the page
-                                 repeats itself. "Contract types" is what lives
-                                 at the other end. -->
+                            <!-- THE SECONDARY LOST ITS DESTINATION. It scrolled
+                                 to #how-it-works, which was the Contract
+                                 Structures section, and that section is no
+                                 longer on this route — getElementById would have
+                                 returned null and the button would have thrown
+                                 on click, silently doing nothing.
+                                 It goes to the rivalry board instead, which is
+                                 the only other real place this page can send
+                                 someone: the primary browses the market, this
+                                 one filters it to head-to-head contracts. Two
+                                 buttons, two destinations, both of which exist. -->
                             <button class="xh-btn" onclick="document.getElementById('live-market').scrollIntoView({behavior:'smooth'})">Enter Exchange <span class="a" aria-hidden="true">&rarr;</span></button>
-                            <button class="xh-learn" onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})">Contract types <span class="a" aria-hidden="true">&darr;</span></button>
+                            <button class="xh-learn" onclick="window.router.navigate('/market?type=rivalry')">Rivalry contracts <span class="a" aria-hidden="true">&rarr;</span></button>
                         </div>
                         <!-- FOUR FIGURES THAT DESCRIBE A MARKET, not three that
                              describe a promise. Capital locked and auto-settled
@@ -1466,33 +1466,18 @@ export function renderActiveContracts() {
                 </div>
             </div>
 
-            <!-- Section 2: Two Contract Types.
-                 The white "Two ways to compete." cards are gone; this is the
-                 filed-instrument treatment used on the homepage.
+            <!-- The Contract Structures section is REMOVED FROM THIS ROUTE.
+                 It still renders on the landing page and the mobile landing —
+                 StructuresSection.js is a shared component and is untouched.
+                 Only this call site is gone, so /market drops straight from the
+                 hero into the live board.
 
-                 id="how-it-works" MOVES ONTO the new section rather than being
-                 dropped — the "Contract types ↓" button further up this page
-                 scrolls to that id, and losing it would have made that button
-                 do nothing silently.
+                 .ss-promise goes with it. It is the revocation notice that
+                 belonged to the sources block inside that section; on its own,
+                 between a hero and a market table, it is a sentence about bank
+                 connections with nothing around it to attach to. The same notice
+                 is still carried by the landing page's copy of the section. -->
 
-                 The CTAs keep this page's behaviour, not the homepage's auth
-                 gate: Solo scrolls to the live market below, Rivalry navigates
-                 to the rivalry filter. Same destinations the old cards had.
-
-                 The section brings its own "How sources work" line, so the old
-                 .ss-sources block is not repeated. .ss-promise is kept — it is
-                 the revocation notice and has no equivalent in the design. -->
-            ${renderStructuresSection({
-                id: 'how-it-works',
-                soloLabel: 'Browse Solo Contracts',
-                rivalLabel: 'Explore Rivalries',
-                soloAction: "document.getElementById('live-market').scrollIntoView({behavior:'smooth'}); return false;",
-                rivalAction: "window.router.navigate('/market?type=rivalry'); return false;",
-            })}
-            <p class="ss-promise">
-                No terms exist until your bank is connected and examined. Nothing here
-                commits you to a contract, and read access can be revoked at any time.
-            </p>
 
             <!-- Section 3: Live Market Header & Mechanical Odometer Stats -->
             <section class="eq-market-header" id="live-market">
