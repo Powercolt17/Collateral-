@@ -2031,13 +2031,38 @@ function updateAuthUI() {
         if (btnGetStarted) btnGetStarted.style.display = 'none';
         if (capitalArea) {
             capitalArea.style.display = 'flex';
+            /* THE REAL BALANCE, INCLUDING WHEN IT IS ZERO.
+               This fetched the true balance and then threw it away:
+                   (!availCents || availCents <= 300) ? 2500 : ...
+               so any account under $3 was shown "$2,500". That is not a
+               placeholder waiting on an endpoint — it is live data being
+               overwritten with a number that was never true, in the one place a
+               user is most entitled to trust the page. An empty account now
+               reads $0.
+
+               Health is DERIVED, not invented: available against everything
+               committed, which is what this control's own tooltip means by a
+               margin threshold. With nothing in the account there is no ratio,
+               so it says "—" rather than an encouraging number. */
             window.api.getBillingStatus().then(res => {
-                const availCents = res?.balances?.availableBalanceUsdCents || 0;
+                const b = res?.balances || {};
+                const avail = Number(b.availableBalanceUsdCents) || 0;
+                const locked = Number(b.lockedBalanceUsdCents) || 0;
+                const usd = (cents) => '$' + Math.round(cents / 100).toLocaleString();
+                const health = () => (avail + locked) > 0
+                    ? ((avail / (avail + locked)) * 100).toFixed(1) + '%'
+                    : '—';
+
                 const capEl = document.getElementById('header-avail-cap');
-                if (capEl) {
-                    const dollars = (!availCents || availCents <= 300) ? 2500 : Math.round(availCents / 100);
-                    capEl.textContent = '$' + dollars.toLocaleString();
-                }
+                if (capEl) capEl.textContent = usd(avail);
+                const healthEl = document.getElementById('header-health-cap');
+                if (healthEl) healthEl.textContent = health();
+
+                // Same figures inside the account panel, which carried its own
+                // hardcoded copies of all three.
+                document.querySelectorAll('[data-cap="available"]').forEach(el => { el.textContent = usd(avail); });
+                document.querySelectorAll('[data-cap="escrow"]').forEach(el => { el.textContent = usd(locked); });
+                document.querySelectorAll('[data-cap="health"]').forEach(el => { el.textContent = health(); });
             }).catch(e => console.error('[Auth] Failed to fetch balance for header:', e));
         }
 

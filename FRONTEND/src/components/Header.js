@@ -1782,16 +1782,23 @@ export function renderHeader(currentRoute = '') {
                          onclick="window.router.navigate('/funding')" 
                          tabindex="0"
                          role="button"
-                         aria-label="View Account Capital: $2,500 Available Balance, Health 98.4% Healthy"
+                         aria-label="View account capital"
                          title="Margin Threshold: 80% min health required"
                          style="${isFunding ? 'display: none !important;' : ''}">
+                        <!-- EM DASHES UNTIL THE REAL FIGURES ARRIVE. These read
+                             "$2,500" and "98.4%" in the markup, so a signed-in
+                             user saw a specific, confident, invented balance for
+                             their OWN account on first paint — and the
+                             aria-label read it aloud. main.js now fills both
+                             from /v1/billing/status. A dash is the honest thing
+                             to show before an answer exists. -->
                         <div class="ch-cap-col">
                             <span class="ch-cap-lbl">AVAILABLE BALANCE</span>
-                            <span id="header-avail-cap" class="ch-cap-val">$2,500</span>
+                            <span id="header-avail-cap" class="ch-cap-val">&mdash;</span>
                         </div>
                         <div class="ch-cap-col">
                             <span class="ch-cap-lbl">HEALTH</span>
-                            <span id="header-health-cap" class="ch-cap-val ch-cap-val--health">98.4%</span>
+                            <span id="header-health-cap" class="ch-cap-val ch-cap-val--health">&mdash;</span>
                         </div>
                     </div>
 
@@ -1886,17 +1893,23 @@ export function renderHeader(currentRoute = '') {
                  aria-label="View Account Capital details"
                  title="Margin Threshold: 80% min health required for active commitments"
                  style="display:none;">
+                <!-- The panel carried its own hardcoded copies of all three:
+                     $2,500 available, $633,600 in escrow and 98.4% health, none
+                     of them fetched. data-cap marks them so the same billing
+                     response that fills the bar fills these. The "HEALTHY"
+                     flag went with them — it asserted a verdict about an
+                     account nobody had looked at. -->
                 <div class="pnl-cap-col">
                     <span class="pnl-cap-lbl">AVAILABLE</span>
-                    <span class="pnl-cap-val">$2,500</span>
+                    <span class="pnl-cap-val" data-cap="available">&mdash;</span>
                 </div>
                 <div class="pnl-cap-col">
                     <span class="pnl-cap-lbl">IN ESCROW</span>
-                    <span class="pnl-cap-val pnl-cap-val--secondary">$633,600</span>
+                    <span class="pnl-cap-val pnl-cap-val--secondary" data-cap="escrow">&mdash;</span>
                 </div>
                 <div class="pnl-cap-col">
-                    <span class="pnl-cap-lbl">HEALTH <span style="font-size:7.5px; color:var(--win, #186B4A); font-weight:700;">HEALTHY</span></span>
-                    <span class="pnl-cap-val pnl-cap-val--health">98.4%</span>
+                    <span class="pnl-cap-lbl">HEALTH</span>
+                    <span class="pnl-cap-val pnl-cap-val--health" data-cap="health">&mdash;</span>
                 </div>
             </div>
 

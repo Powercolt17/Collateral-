@@ -22,25 +22,71 @@
  * The masthead status line and the board's odometers both read from here now,
  * so they cannot drift apart again regardless of who edits which.
  *
- * NONE OF THIS IS LIVE YET, and that should be fixed before anyone trades on
- * it. There is no contracts feed on this route — the only real network calls
- * are the source-connection checks (Plaid, Stripe, Shopify, YouTube), and the
- * rivalry board renders mockRivalries. When a real endpoint exists, replace
- * this object's values at the call site in initActiveContracts and both
- * surfaces update together.
+ * IT IS LIVE NOW, and the difference was not small. These values were 528 open
+ * contracts and $633.6k in escrow. /v1/market/homepage-stats reports 2 and
+ * $2,000. A board carrying eight rivalries was printing a market 264 times the
+ * size of the real one, next to a heading that promises settlement "against
+ * live business data" — the single most damaging thing on the page, because it
+ * is the claim the product is actually selling.
+ *
+ * Nothing here is a default that gets shown. Every field starts null, the strip
+ * renders an em dash until the fetch lands, and a failed fetch stays an em dash
+ * rather than falling back to a flattering number.
  */
 export const MARKET_STATS = {
-    openContracts: 528,
-    openCapital: 633600,
-    dailyVolume: 148200,
-    avgSettlementDays: 30,
+    openContracts: null,
+    openCapital: null,
+    avgSettlementDays: null,
+    loaded: false,
+
     /* Pre-formatted for the hero strip, which has room for a rounded figure and
        not for six digits. Derived rather than typed, so it cannot disagree with
-       openCapital above. */
+       openCapital above. Under $1k it shows dollars: rounding $2,000 to "$2K" is
+       fine, rounding $400 to "$0K" is not. */
     get openCapitalLabel() {
-        return '$' + Math.round(this.openCapital / 1000) + 'K';
+        if (this.openCapital == null) return '—';
+        return this.openCapital >= 1000
+            ? '$' + Math.round(this.openCapital / 1000) + 'K'
+            : '$' + Math.round(this.openCapital).toLocaleString();
+    },
+    get openContractsLabel() {
+        return this.openContracts == null ? '—' : String(this.openContracts);
+    },
+    get settlementLabel() {
+        return this.avgSettlementDays == null ? '—' : this.avgSettlementDays + 'd';
     },
 };
+
+/**
+ * Fills MARKET_STATS from the real endpoint and repaints the hero strip.
+ *
+ * capitalLocked comes back in DOLLARS from this endpoint while the billing
+ * balances are in cents — checked against the live response rather than
+ * assumed, because guessing wrong here is a 100x error in public.
+ */
+export async function loadMarketStats() {
+    try {
+        const res = await window.api.getHomepageStats();
+        if (!res || res.ok === false) return;
+        MARKET_STATS.openContracts = Number(res.activeContractsCount) || 0;
+        MARKET_STATS.openCapital = Number(res.capitalLocked) || 0;
+        MARKET_STATS.loaded = true;
+    } catch (e) {
+        console.error('[Market] stats unavailable:', e);
+        return; // leave the dashes
+    }
+    const set = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    };
+    set('mkh-open', MARKET_STATS.openContractsLabel + ' Open');
+    set('mkh-escrow', MARKET_STATS.openCapitalLabel + ' in Escrow');
+    // The settlement window is a property of each contract, not of the market,
+    // and this endpoint does not report an average. It stays out of the strip
+    // rather than being filled with a plausible "30d".
+    const note = document.querySelector('.mkh-note');
+    if (note && MARKET_STATS.loaded) note.remove();
+}
 
 export function renderActiveContracts() {
     return `
@@ -1274,7 +1320,7 @@ export function renderActiveContracts() {
             /* ---- create (solo) ---- */
             .mb-solo { padding-top: 58px; }
             .mb-solo-top { display: flex; align-items: center; gap: 20px; }
-            .mb-solo-emb { height: 56px; width: auto; flex: none; }
+            .mb-solo-emb { height: 64px; width: auto; flex: none; }
             .mb-kick {
                 display: inline-flex; align-items: center; gap: 13px;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
@@ -1370,27 +1416,43 @@ export function renderActiveContracts() {
             .mb-mx-avail .ss-go { color: var(--mb-ox); text-decoration: none; background: none; border: 0; cursor: pointer; font: inherit; letter-spacing: inherit; text-transform: inherit; }
             .mb-mx-avail .ss-go:hover { text-decoration: underline; }
             .ss-metric.ready .mb-mx-avail .ss-go { color: var(--mb-win); cursor: pointer; }
+            /* Source attached, bank still missing. Not an action on this row —
+               it names the outstanding prerequisite, so it is not styled or
+               hovered like the connect links beside it. */
+            .ss-metric.needs-bank .mb-mx-avail .ss-go {
+                color: var(--mb-muted); cursor: default; text-decoration: none;
+            }
+            .ss-metric.needs-bank .mb-mx-avail .ss-go:hover { text-decoration: none; }
 
             /* ---- the terms builder ---- */
-            .mb-builder { display: grid; grid-template-columns: 1fr 356px; gap: 40px; align-items: center; }
-            .mb-bnote { font-size: 15px; line-height: 1.58; color: var(--mb-ink-soft); max-width: 430px; }
-            .mb-bnote .big { font-family: "Cormorant Garamond", Georgia, serif; font-size: 23px; color: var(--mb-ink); display: block; margin-bottom: 12px; font-weight: 600; line-height: 1.1; }
-            .mb-bcard { position: relative; background: var(--mb-paper); border: 1px solid var(--mb-line-firm); padding: 20px 22px; box-shadow: 0 16px 34px rgba(60,40,20,.10); }
+            /* align-items: START, not center. Centring a short paragraph against
+               a tall card floated the explanation into the middle of the row and
+               left a band of empty parchment above and below it — the most
+               visibly unfinished thing on the page. Starting both and nudging
+               the note down by the card's own top padding lines it up with the
+               card's title block, which is the top third. */
+            .mb-builder { display: grid; grid-template-columns: 1fr 356px; gap: 40px; align-items: start; }
+            .mb-bnote { font-size: 15px; line-height: 1.58; color: var(--mb-ink-soft); max-width: 430px; padding-top: 14px; }
+            .mb-bnote .big { font-family: "Cormorant Garamond", Georgia, serif; font-size: 23px; color: var(--mb-ink); display: block; margin-bottom: 10px; font-weight: 600; line-height: 1.1; }
+            /* The card sets the row's height, so compressing the row means
+               compressing the card: padding, row rhythm and the two display
+               figures all come down together rather than one being squeezed. */
+            .mb-bcard { position: relative; background: var(--mb-paper); border: 1px solid var(--mb-line-firm); padding: 15px 20px; box-shadow: 0 16px 34px rgba(60,40,20,.10); }
             .mb-bcard::after { content: ""; position: absolute; inset: 5px; border: 1px solid var(--mb-line-soft); pointer-events: none; }
             .mb-bh { position: relative; z-index: 2; }
             .mb-bt-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
             .mb-bt-k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--mb-muted); }
-            .mb-bt-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 25px; font-weight: 600; margin: 8px 0 4px; }
-            .mb-brule { height: 1px; background: var(--mb-line-firm); margin: 10px 0 4px; }
-            .mb-brow { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--mb-line-soft); }
+            .mb-bt-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; font-weight: 600; margin: 5px 0 2px; }
+            .mb-brule { height: 1px; background: var(--mb-line-firm); margin: 7px 0 2px; }
+            .mb-brow { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--mb-line-soft); }
             .mb-brow .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--mb-muted); }
-            .mb-brow .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 20px; font-weight: 600; color: var(--mb-ink); }
+            .mb-brow .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 18px; font-weight: 600; color: var(--mb-ink); }
             .mb-brow .v .adj { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mb-muted); margin-left: 9px; }
-            .mb-bmult { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--mb-line-soft); }
+            .mb-bmult { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--mb-line-soft); }
             .mb-bmult .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--mb-muted); }
-            .mb-bmult .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 27px; font-weight: 700; color: var(--mb-ox); }
-            .mb-bplain { font-size: 13.5px; line-height: 1.45; color: var(--mb-ink-soft); padding: 12px 0; border-bottom: 1px solid var(--mb-line-soft); }
-            .mb-bout { display: flex; justify-content: space-between; gap: 10px; font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10.5px; letter-spacing: .04em; padding: 12px 0 2px; }
+            .mb-bmult .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 24px; font-weight: 700; color: var(--mb-ox); }
+            .mb-bplain { font-size: 13px; line-height: 1.4; color: var(--mb-ink-soft); padding: 9px 0; border-bottom: 1px solid var(--mb-line-soft); }
+            .mb-bout { display: flex; justify-content: space-between; gap: 10px; font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10.5px; letter-spacing: .04em; padding: 9px 0 2px; }
             .mb-bout .w { color: var(--mb-win); }
             .mb-bout .l { color: var(--mb-ox); }
             .mb-bcreate {
@@ -1398,14 +1460,14 @@ export function renderActiveContracts() {
                 background: var(--mb-ox); color: #F6EEDD;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 11px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500;
-                padding: 13px; border: 0; border-radius: 0; cursor: pointer; margin-top: 15px;
+                padding: 12px; border: 0; border-radius: 0; cursor: pointer; margin-top: 11px;
             }
             /* THE FIGURES IN THIS CARD ARE A WORKED EXAMPLE, NOT A QUOTE. Real
                terms are priced per person from verified history, so the card
                says so rather than letting a reader take $250 -> $1,000 as an
                offer. Delete .mb-bex the same commit it renders a real draft. */
             .mb-bex {
-                display: block; margin-top: 10px; text-align: center;
+                display: block; margin-top: 8px; text-align: center;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-muted);
             }
@@ -1506,6 +1568,15 @@ export function renderActiveContracts() {
                 border: 1px dashed var(--mb-line-firm); color: var(--mb-muted);
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+            }
+            /* The ledger's own empty and unavailable states. An empty ledger on
+               a settlement product is a real answer, so it gets the same weight
+               as a row rather than being hidden. */
+            .mb-ledger-note {
+                padding: 34px 8px; color: var(--mb-muted);
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+                border-bottom: 1px solid var(--mb-line-soft);
             }
 
             /* ---- issue band ---- */
@@ -1618,25 +1689,29 @@ export function renderActiveContracts() {
                         <p class="mkh-lede">Back verified operators&mdash;or stake on your own performance. Every contract settles automatically against live business data.</p>
                         <div class="mkh-actions">
                             <button type="button" class="mkh-btn" onclick="window.router.navigate('/contracts/execute')">Create Contract <span class="a" aria-hidden="true">&rarr;</span></button>
-                            <button type="button" class="mkh-link" onclick="window.router.navigate('/market?type=rivalry')"><span class="t">Rivalry Contracts</span> <span class="a" aria-hidden="true">&rarr;</span></button>
+                            <!-- "Browse Rivalries", not "Rivalry Contracts": a
+                                 verb to pair with Create Contract. The old label
+                                 named a category and left the action to guess. -->
+                            <button type="button" class="mkh-link" onclick="window.router.navigate('/market?type=rivalry')"><span class="t">Browse Rivalries</span> <span class="a" aria-hidden="true">&rarr;</span></button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Figures come from MARKET_STATS, the same constant the board's
-                     odometers read, so the hero and the board cannot disagree.
-                     They are NOT live yet, which is why the row ends by saying
-                     so — see the note on .mkh-note. -->
+                <!-- DASHES ON FIRST PAINT, then the real figures from
+                     /v1/market/homepage-stats via loadMarketStats(). These were
+                     interpolated constants reading 528 Open and $634K in Escrow;
+                     the endpoint reports 2 and $2,000. The average-settlement
+                     item is gone rather than filled with a plausible "30d" — it
+                     is a property of each contract and this endpoint does not
+                     report a market average. -->
                 <div class="mkh-strip">
                     <div class="mkh-strip-in">
                         <span class="mkh-live"><i aria-hidden="true"></i>Live Exchange</span>
                         <span class="mkh-metrics">
-                            <span>${MARKET_STATS.openContracts} Open</span>
+                            <span id="mkh-open">&mdash; Open</span>
                             <i class="d" aria-hidden="true"></i>
-                            <span>${MARKET_STATS.openCapitalLabel} in Escrow</span>
-                            <i class="d" aria-hidden="true"></i>
-                            <span>${MARKET_STATS.avgSettlementDays}d Avg. Settlement</span>
-                            <span class="mkh-note">Illustrative</span>
+                            <span id="mkh-escrow">&mdash; in Escrow</span>
+                            <span class="mkh-note">Loading</span>
                         </span>
                     </div>
                 </div>
@@ -1663,7 +1738,15 @@ export function renderActiveContracts() {
                  would have been thrown away by rebuilding the markup fresh. -->
             <section class="mb mb-solo" id="ss-root" data-bank="none">
                 <div class="mb-solo-top">
-                    <img class="mb-solo-emb" src="/assets/images/solo-seal.webp" alt="" aria-hidden="true">
+                    <!-- THE SITE'S OWN WAX SEAL, NOT THE SOLO ILLUSTRATION.
+                         solo-seal.webp is a 1024² picture with a pale cream
+                         square baked in and heavy margins, so at 56px it read as
+                         a tiny image inside a box — and it is navy, which
+                         belongs to no other mark on this page. This is the same
+                         oxblood seal the Contract Structures cards carry, with
+                         real transparency (no rectangle at any size) and a 147px
+                         source at 64 CSS px, so it stays sharp at 2x. -->
+                    <img class="mb-solo-emb" src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="64" height="56">
                     <div>
                         <div class="mb-kick"><span class="r"></span> Create</div>
                         <h2>Stake on <span class="ox">your own goal.</span></h2>
@@ -1779,7 +1862,10 @@ export function renderActiveContracts() {
             <!-- ── BOARD ── -->
             <section class="mb mb-board">
                 <div class="mb-lhead">
-                    <span class="lab"><span class="mb-mark"></span> Open Rivalries</span>
+                    <!-- "Rivalry Market", not "Open Rivalries": the board carries
+                         live rivalries as well as open ones, so the heading was
+                         contradicting the Open/Live segments directly under it. -->
+                    <span class="lab"><span class="mb-mark"></span> Rivalry Market</span>
                     <span class="ln"></span>
                     <button type="button" class="act" id="btn-rules">Execution rules &rarr;</button>
                 </div>
@@ -1873,174 +1959,230 @@ export function initActiveContracts() {
        printed the same three figures twice. The hero's status strip is now the
        only place those numbers appear, and it still reads MARKET_STATS. */
 
-    /* Settlements. One array, so a row cannot disagree with itself, and the
-       shape is already what a ledger endpoint would return. Illustrative until
-       it is fed — see the marker at the foot of the table. */
-    const RECENT_SETTLEMENTS = [
-        { receipt: 'RCPT-3901', contract: 'Net Revenue +20%',        won: true,  amount: 1000, source: 'Stripe',  ago: '2m ago',  result: 'Target met' },
-        { receipt: 'RCPT-3888', contract: 'Follower Sprint',         won: false, amount: 500,  source: 'X API',   ago: '14m ago', result: 'Missed' },
-        { receipt: 'RCPT-3877', contract: 'MRR Rivalry · @harbor won', won: true, amount: 2400, source: 'Stripe', ago: '31m ago', result: 'Settled' },
-        { receipt: 'RCPT-3860', contract: 'Order Volume Target',     won: true,  amount: 750,  source: 'Shopify', ago: '1h ago',  result: 'Target met' },
-        { receipt: 'RCPT-3852', contract: 'Watch-Time Rivalry',      won: false, amount: 1000, source: 'YouTube', ago: '2h ago',  result: 'Missed' },
-        { receipt: 'RCPT-3844', contract: 'Subscriber Growth',       won: true,  amount: 1800, source: 'YouTube', ago: '3h ago',  result: 'Target met' },
-    ];
+    /* ═══════════════════════════════════════════════════════════════════
+       REAL DATA, OR NOTHING.
 
-    function renderLedger() {
+       This route used to render a hardcoded board: eight rivalries, six
+       settlements, 528 open contracts, $633.6k in escrow. The live API reports
+       ONE rivalry, ZERO settlements, two open contracts and $2,000. A page
+       whose headline promises settlement "against live business data" was
+       inventing the data — the one failure that discredits everything else on
+       it, because it is exactly the claim being sold.
+
+       Nothing below falls back to a flattering number. Every surface has three
+       honest states — loading, empty, unavailable — and an empty market says so.
+       ═══════════════════════════════════════════════════════════════════ */
+
+    let rivalries = [];
+    let boardState = 'loading';   // loading | ready | error
+
+    const PLATFORM_DOMAIN = {
+        STRIPE: 'finance', SHOPIFY: 'commerce', AMAZON: 'commerce',
+        YOUTUBE: 'social', X: 'social', TWITTER: 'social', PLAID: 'finance',
+    };
+    const RAIL_LABEL = { USD: 'USD · CUSTODIAL', CLTR: 'CLTR · ON-CHAIN' };
+
+    const titleCase = (s) => String(s || '')
+        .toLowerCase().replace(/_/g, ' ')
+        .replace(/\b[a-z]/g, (c) => c.toUpperCase());
+
+    /** Whole days from now until an ISO deadline; never negative. */
+    function daysLeft(iso) {
+        if (!iso) return null;
+        const ms = new Date(iso).getTime() - Date.now();
+        if (!isFinite(ms)) return null;
+        return Math.max(0, Math.ceil(ms / 86400000));
+    }
+
+    /**
+     * The API's lifecycle states collapse to the two the board filters on.
+     * Anything already settled is not a market listing and is dropped — it
+     * belongs in the ledger below.
+     */
+    function boardStateOf(state) {
+        const s = String(state || '').toUpperCase();
+        if (s === 'ACTIVE' || s === 'LIVE' || s === 'IN_PROGRESS') return 'live';
+        if (s === 'SETTLED' || s === 'CANCELLED' || s === 'EXPIRED' || s === 'DECLINED') return null;
+        return 'open';   // issued, awaiting acceptance, awaiting funding
+    }
+
+    /**
+     * Growth against each side's own baseline, which is what the contract is
+     * actually settled on. baselineValue rides along on the list payload;
+     * current values need one metrics call per rivalry, so they are fetched in
+     * parallel and only for what is on the board.
+     *
+     * WHERE THERE IS NO MEASUREMENT YET, THE CARD SAYS SO. A rivalry that has
+     * been funded but not yet sampled has no progress to show, and printing
+     * "+0.0%" would state a measurement that was never taken.
+     */
+    async function attachProgress(list) {
+        await Promise.all(list.map(async (r) => {
+            try {
+                const res = await window.api.getRivalryMetrics(r.id);
+                const metrics = (res && res.metrics) || [];
+                const latest = {};
+                metrics.forEach((m) => {
+                    const prev = latest[m.userId];
+                    if (!prev || new Date(m.fetchedAt) > new Date(prev.fetchedAt)) latest[m.userId] = m;
+                });
+                (r.participants || []).forEach((p) => {
+                    const base = Number(p.baselineValue);
+                    const now = latest[p.userId] && Number(latest[p.userId].metricValue);
+                    if (!isFinite(base) || base <= 0 || !isFinite(now)) return;
+                    const pct = ((now - base) / base) * 100;
+                    r._growth = r._growth || {};
+                    r._growth[p.role] = pct;
+                });
+            } catch (e) {
+                /* leave progress unknown; the card renders a dash */
+            }
+        }));
+        return list;
+    }
+
+    function fmtPct(v) {
+        if (v == null || !isFinite(v)) return null;
+        return (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+    }
+
+    /** API rivalry -> the shape the card renderer consumes. */
+    function toCard(r) {
+        const state = boardStateOf(r.state);
+        if (!state) return null;
+        const stake = Math.round((Number(r.stakePerSideCents) || 0) / 100);
+        const g = r._growth || {};
+        const rail = RAIL_LABEL[String(r.settlementRail || 'USD').toUpperCase()] || RAIL_LABEL.USD;
+        return {
+            id: r.id,
+            title: titleCase(r.metricType) + (r.durationDays ? ' (' + r.durationDays + 'd)' : ''),
+            domain: PLATFORM_DOMAIN[String(r.platform || '').toUpperCase()] || 'finance',
+            platform: String(r.platform || '').toUpperCase(),
+            rail: rail,
+            state: state,
+            // The record hash is the contract's own identifier; a made-up
+            // sequential receipt number would be decoration.
+            receipt: 'RCPT·' + String(r.recordHash || r.id || '').slice(0, 6).toUpperCase(),
+            days_left: daysLeft(r.deadlineUtc),
+            stake_per_side: stake,
+            total_pool: stake * 2,
+            op1: { handle: r.challengerUsername ? '@' + r.challengerUsername : 'Challenger',
+                   delta: fmtPct(g.challenger) },
+            op2: { handle: r.opponentUsername ? '@' + r.opponentUsername : null,
+                   delta: fmtPct(g.opponent) },
+        };
+    }
+
+    async function loadBoard() {
+        try {
+            const res = await window.api.getRivalries({ limit: 24 });
+            const raw = (res && res.rivalries) || [];
+            await attachProgress(raw);
+            rivalries = raw.map(toCard).filter(Boolean);
+            boardState = 'ready';
+        } catch (e) {
+            console.error('[Market] rivalries unavailable:', e);
+            rivalries = [];
+            boardState = 'error';
+        }
+        renderRivalries();
+    }
+
+    /* ---- settlements ----
+       /v1/results is the same feed the Results view reads. It is currently
+       returning 500 and the market reports zero settlements anyway, so the two
+       states that matter here are "none yet" and "couldn't load" — and they are
+       different sentences, because one is a fact about the market and the other
+       is a fact about the request. */
+    async function renderLedger() {
         const host = document.getElementById('mb-ledger-rows');
         if (!host) return;
+        const note = (text) => {
+            host.innerHTML = '';
+            const n = document.createElement('div');
+            n.className = 'mb-ledger-note';
+            n.textContent = text;
+            host.appendChild(n);
+        };
+
+        let results;
+        try {
+            const res = await window.api.getPublicResults();
+            results = (res && res.results) || [];
+        } catch (e) {
+            console.error('[Market] results unavailable:', e);
+            note('Settlement history is temporarily unavailable');
+            return;
+        }
+
+        if (!results.length) {
+            note('No contracts have settled yet');
+            return;
+        }
+
         host.innerHTML = '';
-        RECENT_SETTLEMENTS.forEach((s) => {
+        results.slice(0, 8).forEach((s) => {
+            const won = s.result === 'WIN';
+            const lost = s.result === 'LOSS' || s.result === 'BOTH_MISS';
+            const cls = won ? 'w' : (lost ? 'l' : '');
+            const amount = Math.round((Number(s.stakeCents) || 0) / 100);
+            const when = s.settledAt
+                ? new Date(s.settledAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                : '—';
             const row = document.createElement('div');
             row.className = 'mb-lrow';
-            const cls = s.won ? 'w' : 'l';
-            const sign = s.won ? '+' : '−';
-            row.innerHTML =
-                '<span class="rc">' + s.receipt + '</span>' +
-                '<span class="ct"></span>' +
-                '<span class="rs ' + cls + '">' + s.result + '</span>' +
-                '<span class="am ' + cls + '">' + sign + '$' + s.amount.toLocaleString() + '</span>' +
-                '<span class="sr" title="Verified at source">' + s.source + ' ✓</span>' +
-                '<span class="tm">' + s.ago + '</span>';
-            // textContent, not innerHTML: contract names are data and will come
-            // from an endpoint, so they never get to carry markup.
-            row.querySelector('.ct').textContent = s.contract;
+            const cell = (c, t) => {
+                const n = document.createElement('span');
+                n.className = c;
+                n.textContent = t;
+                return n;
+            };
+            row.appendChild(cell('rc', 'RCPT·' + String(s.id || '').slice(0, 6).toUpperCase()));
+            row.appendChild(cell('ct', s.principal || 'Contract'));
+            row.appendChild(cell('rs ' + cls, won ? 'Target met' : (lost ? 'Missed' : titleCase(s.result))));
+            row.appendChild(cell('am ' + cls, (won ? '+' : (lost ? '−' : '')) + '$' + amount.toLocaleString()));
+            row.appendChild(cell('sr', titleCase(s.platform)));
+            row.appendChild(cell('tm', when));
             host.appendChild(row);
         });
     }
 
-
-    // Mock Rivalries Data (Open challenges sorted above Live duels)
-    const mockRivalries = [
-        {
-            id: 'RVL-9981-A',
-            title: 'Shopify Revenue Growth (30d)',
-            domain: 'commerce',
-            platform: 'SHOPIFY',
-            rail: 'USD · CUSTODIAL',
-            state: 'open', // OPEN CHALLENGE (Sorted first!)
-            receipt: 'RCPT-9981',
-            days_left: 14,
-            stake_per_side: 500,
-            total_pool: 1000,
-            op1: { handle: '@northloop', delta: '+22.4%', is_leader: true },
-            op2: { handle: 'AWAITING COUNTERPARTY', delta: '—', is_leader: false }
-        },
-        {
-            id: 'RVL-4412-B',
-            title: 'X Follower Sprint (14d)',
-            domain: 'social',
-            platform: 'X API',
-            rail: 'CLTR · ON-CHAIN',
-            state: 'open', // OPEN CHALLENGE (Sorted first!)
-            receipt: 'RCPT-4412',
-            days_left: 7,
-            stake_per_side: 1000,
-            total_pool: 2000,
-            op1: { handle: '@solomon_k', delta: '+14.2%', is_leader: true },
-            op2: { handle: 'AWAITING COUNTERPARTY', delta: '—', is_leader: false }
-        },
-        {
-            id: 'RVL-7710-C',
-            title: 'Monthly Recurring Revenue Duel',
-            domain: 'finance',
-            platform: 'STRIPE',
-            rail: 'USD · CUSTODIAL',
-            state: 'live', // LIVE DUEL
-            receipt: 'RCPT-7710',
-            days_left: 10,
-            stake_per_side: 2500,
-            total_pool: 5000,
-            op1: { handle: '@vance_cap', delta: '+34.8%', is_leader: true },
-            op2: { handle: '@meridian', delta: '+19.2%', is_leader: false }
-        },
-        {
-            id: 'RVL-3341-D',
-            title: 'YouTube Subscriber Growth',
-            domain: 'social',
-            platform: 'YOUTUBE',
-            rail: 'CLTR · ON-CHAIN',
-            state: 'live', // LIVE DUEL
-            receipt: 'RCPT-3341',
-            days_left: 3,
-            stake_per_side: 750,
-            total_pool: 1500,
-            op1: { handle: '@atlas_v', delta: '+8.6%', is_leader: true },
-            op2: { handle: '@kodiak', delta: '+5.1%', is_leader: false }
-        },
-        /* The four the reference board added. They go in the SAME array rather
-           than into the markup as literal cards: the count, the domain chips
-           and the state segments all derive from this list, so a card that
-           lived in the HTML would be invisible to every filter and would make
-           the results count lie. */
-        {
-            id: 'RVL-5567-E',
-            title: 'MRR Sprint (30d)',
-            domain: 'finance',
-            platform: 'STRIPE',
-            rail: 'CLTR · ON-CHAIN',
-            state: 'open',
-            receipt: 'RCPT-5567',
-            days_left: 5,
-            stake_per_side: 1500,
-            total_pool: 3000,
-            op1: { handle: '@quill', delta: '+11.0%', is_leader: true },
-            op2: { handle: 'AWAITING COUNTERPARTY', delta: '—', is_leader: false }
-        },
-        {
-            id: 'RVL-8820-F',
-            title: 'Order Volume',
-            domain: 'commerce',
-            platform: 'SHOPIFY',
-            rail: 'USD · CUSTODIAL',
-            state: 'live',
-            receipt: 'RCPT-8820',
-            days_left: 12,
-            stake_per_side: 1000,
-            total_pool: 2000,
-            op1: { handle: '@harbor', delta: '+41.0%', is_leader: true },
-            op2: { handle: '@dune', delta: '+38.0%', is_leader: false }
-        },
-        {
-            id: 'RVL-6034-G',
-            title: 'Follower Growth (14d)',
-            domain: 'social',
-            platform: 'X API',
-            rail: 'CLTR · ON-CHAIN',
-            state: 'open',
-            receipt: 'RCPT-6034',
-            days_left: 2,
-            stake_per_side: 300,
-            total_pool: 600,
-            op1: { handle: '@vela', delta: '+6.3%', is_leader: true },
-            op2: { handle: 'AWAITING COUNTERPARTY', delta: '—', is_leader: false }
-        },
-        {
-            id: 'RVL-4471-H',
-            title: 'Watch-Time',
-            domain: 'social',
-            platform: 'YOUTUBE',
-            rail: 'USD · CUSTODIAL',
-            state: 'live',
-            receipt: 'RCPT-4471',
-            days_left: 18,
-            stake_per_side: 2000,
-            total_pool: 4000,
-            op1: { handle: '@orion', delta: '+28.0%', is_leader: true },
-            op2: { handle: '@pike', delta: '+25.0%', is_leader: false }
-        }
-    ];
-
     /* THE BOARD IS BUILT WITHOUT A TEMPLATE LITERAL, ON PURPOSE. Handles and
-       contract titles are data; the moment they come from an endpoint instead
-       of the array above, interpolating them into an HTML string is an
-       injection. Structure is set as markup, every value is set with
-       textContent, and the two never mix. */
+       contract titles are data — they now come from /v1/rivalries, so
+       interpolating them into an HTML string would be an injection. Structure
+       is set as markup, every value is set with textContent, and the two never
+       mix. */
     function renderRivalries() {
         const rGrid = document.getElementById('rivalry-grid');
         if (!rGrid) return;
         rGrid.innerHTML = '';
 
-        let list = mockRivalries.slice();
+        const count = document.getElementById('mb-count');
+
+        /* Three states before there is anything to draw, and they are three
+           different sentences. "Nothing matches your filters" is a fact about
+           the filters; "no open rivalries" is a fact about the market; "couldn't
+           load" is a fact about the request. Collapsing them into one empty box
+           tells the reader nothing about which is true. */
+        const notice = (text) => {
+            const n = document.createElement('div');
+            n.className = 'mb-empty';
+            n.textContent = text;
+            rGrid.appendChild(n);
+        };
+
+        if (boardState === 'loading') {
+            if (count) count.textContent = '—';
+            notice('Loading the board…');
+            return;
+        }
+        if (boardState === 'error') {
+            if (count) count.textContent = '—';
+            notice('The market is temporarily unavailable');
+            return;
+        }
+
+        let list = rivalries.slice();
         if (activeCategory !== 'all') {
             list = list.filter(r => r.domain.toLowerCase() === activeCategory.toLowerCase());
         }
@@ -2051,14 +2193,12 @@ export function initActiveContracts() {
         // Open challenges first: they are the only ones a reader can act on.
         list.sort((a, b) => (a.state === 'open' ? -1 : b.state === 'open' ? 1 : 0));
 
-        const count = document.getElementById('mb-count');
         if (count) count.textContent = String(list.length);
 
         if (list.length === 0) {
-            const empty = document.createElement('div');
-            empty.className = 'mb-empty';
-            empty.textContent = 'No contracts match these filters';
-            rGrid.appendChild(empty);
+            notice(rivalries.length === 0
+                ? 'No rivalries have been issued yet — be the first'
+                : 'No rivalries match these filters');
             return;
         }
 
@@ -2071,9 +2211,13 @@ export function initActiveContracts() {
 
         list.forEach((r) => {
             const isOpen = r.state === 'open';
-            const d1 = parseFloat(r.op1.delta) || 0;
-            const d2 = parseFloat(r.op2.delta) || 0;
-            const op1Lead = d1 >= d2;
+            /* MEASURED OR NOT — the distinction the old mock could not have.
+               A funded rivalry that has not been sampled yet has no progress,
+               and 0 is a measurement. null means "not measured", and every
+               place that reads these treats the two differently. */
+            const d1 = r.op1.delta == null ? null : parseFloat(r.op1.delta);
+            const d2 = r.op2.delta == null ? null : parseFloat(r.op2.delta);
+            const measured = d1 != null && d2 != null;
 
             const card = el('article', 'mb-card');
             const inner = el('div', 'mb-c-in');
@@ -2084,11 +2228,12 @@ export function initActiveContracts() {
             if (!isOpen) badge.appendChild(el('span', 'd'));
             badge.appendChild(document.createTextNode(isOpen ? 'Open Rivalry' : 'Live Rivalry'));
             top.appendChild(badge);
-            top.appendChild(el('span', 'mb-c-rcpt', r.receipt.replace('-', '·')));
+            top.appendChild(el('span', 'mb-c-rcpt', r.receipt));
             inner.appendChild(top);
 
             // ---- deadline, title, domain
-            inner.appendChild(el('span', 'mb-c-days', r.days_left + 'D LEFT'));
+            inner.appendChild(el('span', 'mb-c-days',
+                r.days_left == null ? 'NO DEADLINE SET' : r.days_left + 'D LEFT'));
             inner.appendChild(el('h3', 'mb-c-title', r.title));
             const dom = el('div', 'mb-c-dom');
             dom.appendChild(el('span', 'pd'));
@@ -2099,12 +2244,14 @@ export function initActiveContracts() {
             const ops = el('div', 'mb-ops');
             const left = el('div', 'mb-op');
             left.appendChild(el('span', 'nm', r.op1.handle));
-            left.appendChild(el('span', 'pc up', r.op1.delta));
+            left.appendChild(el('span', 'pc ' + (d1 == null ? 'mut' : 'up'),
+                d1 == null ? '—' : r.op1.delta));
             ops.appendChild(left);
             ops.appendChild(el('span', 'mb-vs', 'VS'));
             const right = el('div', 'mb-op r');
-            right.appendChild(el('span', 'nm', isOpen ? 'Open slot' : r.op2.handle));
-            right.appendChild(el('span', 'pc ' + (isOpen ? 'mut' : 'up'), isOpen ? '—' : r.op2.delta));
+            right.appendChild(el('span', 'nm', isOpen ? 'Open slot' : (r.op2.handle || 'Opponent')));
+            right.appendChild(el('span', 'pc ' + (isOpen || d2 == null ? 'mut' : 'up'),
+                isOpen || d2 == null ? '—' : r.op2.delta));
             ops.appendChild(right);
             inner.appendChild(ops);
 
@@ -2120,9 +2267,12 @@ export function initActiveContracts() {
                 return n;
             };
             const bar = el('div', 'mb-bar');
-            if (isOpen) {
-                bar.appendChild(seg('a', 50));
-                bar.appendChild(seg('e', 50));
+            if (isOpen || !measured) {
+                /* Nothing to divide: either there is one side, or neither side
+                   has been sampled. A hatched bar shows an undetermined contest
+                   instead of drawing a 50/50 split that looks like a dead heat
+                   somebody actually measured. */
+                bar.appendChild(seg('e', 100));
             } else {
                 const total = Math.abs(d1) + Math.abs(d2);
                 const share = total > 0 ? Math.round((Math.abs(d1) / total) * 100) : 50;
@@ -2341,10 +2491,22 @@ export function initActiveContracts() {
                 return;
             }
 
-            applyCardState('money', bankConnected, 'bank');
-            applyCardState('mrr', bankConnected && !!(stripe && stripe.connected), 'Stripe');
-            applyCardState('orders', bankConnected && !!(shopify && shopify.connected), 'Shopify');
-            applyCardState('views', bankConnected && !!(youtube && youtube.connected), 'YouTube');
+            /* EACH ROW NAMES ITS OWN SOURCE. Previously every row was passed
+               bankConnected && platformConnected, and applyCardState then
+               resolved any un-met state to "Connect bank →" — so with Stripe and
+               YouTube genuinely connected, their rows showed filled green dots
+               beside an instruction to connect a bank. The table contradicted
+               itself in the same row.
+
+               The bank IS still required — it sets the baseline and it is the
+               settlement rail — but that is a different fact from "this metric's
+               source is missing", and collapsing the two produced the nonsense.
+               Availability now answers only "is this metric's own source
+               attached", and the bank prerequisite is reported as itself. */
+            applyCardState('money',  bankConnected, 'bank', bankConnected);
+            applyCardState('mrr',    !!(stripe && stripe.connected),  'Stripe',  bankConnected);
+            applyCardState('orders', !!(shopify && shopify.connected), 'Shopify', bankConnected);
+            applyCardState('views',  !!(youtube && youtube.connected), 'YouTube', bankConnected);
         }
 
         function setCardState(metric, text) {
@@ -2363,28 +2525,46 @@ export function initActiveContracts() {
             return 'in ' + names[m - 1];
         }
 
-        function applyCardState(metric, connected, platform) {
+        /**
+         * @param sourceConnected  is THIS metric's own source attached
+         * @param platform         the source this metric reads from
+         * @param bankConnected    the shared prerequisite, reported separately
+         *
+         * Three states, and each one says the true thing about this row:
+         *   source missing            -> "Connect {Platform} →"   (actionable)
+         *   source attached, no bank  -> "Bank required"          (not "Ready")
+         *   both                      -> "Ready ✓"
+         *
+         * The middle state is the one that matters. Saying "Ready" for MRR when
+         * Stripe is attached but no bank exists would send someone to a builder
+         * that cannot price anything — the bait-and-switch the old code was
+         * guarding against, which it did by mislabelling the row instead.
+         */
+        function applyCardState(metric, sourceConnected, platform, bankConnected) {
             const tile = ssRoot.querySelector('.ss-metric[data-metric="' + metric + '"]');
             if (!tile) return;
             const go = tile.querySelector('.ss-go');
             const req = tile.querySelector('.ss-m-req');
+            const ready = sourceConnected && bankConnected;
 
-            if (connected) {
-                tile.classList.remove('locked');
-                tile.classList.add('ready');
+            tile.classList.toggle('ready', ready);
+            tile.classList.toggle('locked', !ready);
+            tile.classList.toggle('needs-bank', !!sourceConnected && !bankConnected);
+
+            if (ready) {
                 if (go) go.textContent = 'Ready ✓';
                 if (req) req.remove();
+                return;
+            }
+            if (!go) return;
+            if (!sourceConnected) {
+                go.textContent = platform === 'bank'
+                    ? 'Connect bank →'
+                    : 'Connect ' + platform + ' →';
             } else {
-                tile.classList.add('locked');
-                tile.classList.remove('ready');
-                // Name the action that actually unblocks this card. Without a bank
-                // that is always the bank, whatever the platform.
-                if (go) {
-                    const bankMissing = ssRoot.getAttribute('data-bank') !== 'connected';
-                    go.textContent = (bankMissing || platform === 'bank')
-                        ? 'Connect bank →'
-                        : 'Connect ' + platform + ' →';
-                }
+                // Its own source is attached; the only thing left is the bank,
+                // and that is step 01 rather than an action on this row.
+                go.textContent = 'Bank required';
             }
         }
 
@@ -2418,7 +2598,11 @@ export function initActiveContracts() {
         };
     }
 
-    // Initial render
+    /* Paint the loading state first, then go and get the real thing. Each of
+       the three fetches owns one surface and none of them blocks the others, so
+       a slow or dead endpoint degrades only its own section. */
     renderRivalries();
+    loadMarketStats();
+    loadBoard();
     renderLedger();
 }
