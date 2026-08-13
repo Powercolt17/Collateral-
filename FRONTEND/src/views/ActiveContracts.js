@@ -1432,27 +1432,27 @@ export function renderActiveContracts() {
                the note down by the card's own top padding lines it up with the
                card's title block, which is the top third. */
             .mb-builder { display: grid; grid-template-columns: 1fr 356px; gap: 40px; align-items: start; }
-            .mb-bnote { font-size: 15px; line-height: 1.58; color: var(--mb-ink-soft); max-width: 430px; padding-top: 14px; }
+            .mb-bnote { font-size: 15px; line-height: 1.58; color: var(--mb-ink-soft); max-width: 430px; padding-top: 26px; }
             .mb-bnote .big { font-family: "Cormorant Garamond", Georgia, serif; font-size: 23px; color: var(--mb-ink); display: block; margin-bottom: 10px; font-weight: 600; line-height: 1.1; }
             /* The card sets the row's height, so compressing the row means
                compressing the card: padding, row rhythm and the two display
                figures all come down together rather than one being squeezed. */
-            .mb-bcard { position: relative; background: var(--mb-paper); border: 1px solid var(--mb-line-firm); padding: 15px 20px; box-shadow: 0 16px 34px rgba(60,40,20,.10); }
+            .mb-bcard { position: relative; background: var(--mb-paper); border: 1px solid var(--mb-line-firm); padding: 11px 18px; box-shadow: 0 16px 34px rgba(60,40,20,.10); }
             .mb-bcard::after { content: ""; position: absolute; inset: 5px; border: 1px solid var(--mb-line-soft); pointer-events: none; }
             .mb-bh { position: relative; z-index: 2; }
             .mb-bt-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
             .mb-bt-k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--mb-muted); }
-            .mb-bt-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; font-weight: 600; margin: 5px 0 2px; }
-            .mb-brule { height: 1px; background: var(--mb-line-firm); margin: 7px 0 2px; }
-            .mb-brow { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--mb-line-soft); }
+            .mb-bt-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 20px; font-weight: 600; margin: 4px 0 1px; }
+            .mb-brule { height: 1px; background: var(--mb-line-firm); margin: 5px 0 1px; }
+            .mb-brow { display: flex; align-items: center; justify-content: space-between; padding: 2px 0; border-bottom: 1px solid var(--mb-line-soft); }
             .mb-brow .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--mb-muted); }
-            .mb-brow .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 18px; font-weight: 600; color: var(--mb-ink); }
+            .mb-brow .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 17px; font-weight: 600; color: var(--mb-ink); }
             .mb-brow .v .adj { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mb-muted); margin-left: 9px; }
-            .mb-bmult { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--mb-line-soft); }
+            .mb-bmult { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--mb-line-soft); }
             .mb-bmult .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--mb-muted); }
-            .mb-bmult .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 24px; font-weight: 700; color: var(--mb-ox); }
-            .mb-bplain { font-size: 13px; line-height: 1.4; color: var(--mb-ink-soft); padding: 9px 0; border-bottom: 1px solid var(--mb-line-soft); }
-            .mb-bout { display: flex; justify-content: space-between; gap: 10px; font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10.5px; letter-spacing: .04em; padding: 9px 0 2px; }
+            .mb-bmult .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 21px; font-weight: 700; color: var(--mb-ox); }
+            .mb-bplain { font-size: 12.5px; line-height: 1.35; color: var(--mb-ink-soft); padding: 6px 0; border-bottom: 1px solid var(--mb-line-soft); }
+            .mb-bout { display: flex; justify-content: space-between; gap: 10px; font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10.5px; letter-spacing: .04em; padding: 6px 0 2px; }
             .mb-bout .w { color: var(--mb-win); }
             .mb-bout .l { color: var(--mb-ox); }
             .mb-bcreate {
@@ -1460,14 +1460,14 @@ export function renderActiveContracts() {
                 background: var(--mb-ox); color: #F6EEDD;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 11px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500;
-                padding: 12px; border: 0; border-radius: 0; cursor: pointer; margin-top: 11px;
+                padding: 11px; border: 0; border-radius: 0; cursor: pointer; margin-top: 8px;
             }
             /* THE FIGURES IN THIS CARD ARE A WORKED EXAMPLE, NOT A QUOTE. Real
                terms are priced per person from verified history, so the card
                says so rather than letting a reader take $250 -> $1,000 as an
                offer. Delete .mb-bex the same commit it renders a real draft. */
             .mb-bex {
-                display: block; margin-top: 8px; text-align: center;
+                display: block; margin-top: 6px; text-align: center;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-muted);
             }
