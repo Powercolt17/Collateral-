@@ -566,7 +566,13 @@ export async function listRivalries(options: {
     userId?: string;
     limit?: number;
     offset?: number;
-} = {}): Promise<{ rivalries: any[]; total: number }> {
+} = {}): Promise<{
+    rivalries: any[];
+    total: number;
+    scanned: number;
+    skipped: number;
+    truncated: boolean;
+}> {
     const { status, userId, limit = 20, offset = 0 } = options;
 
     let query = db.select().from(rivalries);
@@ -580,13 +586,28 @@ export async function listRivalries(options: {
         );
     }
 
+    /* PAGINATE AFTER FILTERING, NOT BEFORE.
+       This used to apply .limit(limit).offset(offset) in SQL and only then
+       derive each rivalry's state and drop the ones that did not match. Two
+       things went wrong with that:
+
+         - a status filter was applied to one page's worth of rows, so
+           ?status=ACTIVE&limit=20 returned "the ACTIVE ones among the newest
+           20", not "the 20 newest ACTIVE ones". With more rivalries than a page,
+           live ones simply never appear.
+         - `total` was the size of the filtered page, so callers could not tell
+           how many actually matched.
+
+       State is derived per row and cannot be expressed in SQL, so the scan is
+       bounded instead: read up to SCAN_CEILING rows, filter, then slice. */
+    const SCAN_CEILING = 1000;
     const allRivalries = await query
         .orderBy(desc(rivalries.createdAt))
-        .limit(limit)
-        .offset(offset);
+        .limit(SCAN_CEILING);
 
     // Derive state for each and filter
     const results = [];
+    let skipped = 0;
     for (const rivalry of allRivalries) {
         try {
             const state = await getRivalryState(rivalry.id);
@@ -618,13 +639,25 @@ export async function listRivalries(options: {
                 poolCents: rivalry.stakePerSideCents * 2,
             });
         } catch (err: any) {
-            // Skip rivalries with corrupted state (e.g. invalid transitions from sim resets)
+            /* Still skipped — one corrupt row must not 500 the whole board —
+               but COUNTED and returned, because a rivalry that exists in the
+               table and silently never reaches the market is invisible from the
+               outside. A caller that sees skipped > 0 knows to go looking
+               instead of concluding the market is empty. */
+            skipped++;
             console.warn(`[listRivalries] Skipping rivalry ${rivalry.id} — state derivation error: ${err.message}`);
             continue;
         }
     }
 
-    return { rivalries: results, total: results.length };
+    const page = results.slice(offset, offset + limit);
+    return {
+        rivalries: page,
+        total: results.length,      // how many MATCHED, not how many are on this page
+        scanned: allRivalries.length,
+        skipped,
+        truncated: allRivalries.length >= SCAN_CEILING,
+    };
 }
 
 export async function getRivalryDetail(rivalryId: string) {
