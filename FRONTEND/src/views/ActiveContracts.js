@@ -33,7 +33,8 @@ export const MARKET_STATS = {
     openContracts: 528,
     openCapital: 633600,
     dailyVolume: 148200,
-    /* Pre-formatted for the masthead, which has room for a rounded figure and
+    avgSettlementDays: 30,
+    /* Pre-formatted for the hero strip, which has room for a rounded figure and
        not for six digits. Derived rather than typed, so it cannot disagree with
        openCapital above. */
     get openCapitalLabel() {
@@ -164,258 +165,203 @@ export function renderActiveContracts() {
                  out of the hero on its own — the single largest cut in this
                  pass, and it costs nothing, because it was never doing
                  anything. */
-            .xh { position: relative; padding-top: 0; }
+            /* ══════════════════════════════════════════════════════════════
+               THE MARKET HERO
 
-            /* ONE SHEET, FROM THE TOP EDGE DOWN. #app is where the page's
-               background has to be set — .eq starts BELOW its padding, so
-               painting .eq alone can never reach the strip the header sits on.
-               Scoped through :has() to this route only, so no other view's
-               ground is touched by a market-hero commit. */
-            body:has(.eq) { background: #F1E8D3; }
-            body:has(.eq) #app { background: #F1E8D3; }
+               Rebuilt from the masthead. Two columns over a full-width ruled
+               status strip, the clearinghouse engraving on the right.
 
-            /* ---- the hall, as a masthead ----
-               ~150px, down from ~306. It was an establishing shot when this
-               page opened with a story; the page no longer tells one, so the
-               plate's job changes from "hold long enough to be a place" to
-               "identify the institution and get out of the way".
-               Still viewport-relative, because the reason for that has not
-               changed: the thing it has to fit inside is not a fixed size. */
-            .xh-band {
+               PREFIX IS mkh-, NOT xh-. Every .xh rule is deleted with the
+               markup that used it; a fresh prefix means a stale rule cannot
+               survive the rewrite and quietly apply to something. */
+            .mkh {
                 position: relative;
-                width: 100%;
-                height: clamp(132px, 17vh, 178px);
+                min-height: 748px;
+                display: flex;
+                flex-direction: column;
                 overflow: hidden;
-                /* Must be the page's exact ground, not the token: the plate
-                   multiplies against this, so any difference between the band's
-                   paper and the page's would print as a visible rectangle
-                   exactly where the dissolve is trying to hide one. */
-                background: #F1E8D3;
-                /* The art and the depth layers blend with the band's own paper
-                   and stop there. Without this, multiply would reach through to
-                   whatever the page puts behind the band. */
-                isolation: isolate;
+                --mkh-gutter: clamp(24px, 6vw, 96px);
+                --mkh-ox: #5E1E2E;
+            }
+            .mkh-inner {
+                position: relative;
+                flex: 1;
+                display: flex;
+                align-items: center;
+                max-width: 1760px;
+                width: 100%;
+                margin: 0 auto;
+                padding: 56px var(--mkh-gutter) 40px;
+                box-sizing: border-box;
             }
 
-            /* ══ INK ON PAPER, NOT ARTWORK UNDER FOG ══════════════════════════
-               THE FOG WAS A LAYER OF PARCHMENT-COLOURED PAINT ON TOP. The old
-               veil ended with a linear-gradient from rgba(247,244,237,.12) to
-               itself — a flat 12% wash across the entire band —
-               plus 55% washes down both sides and a 75% wash across the bottom.
-               That is a scrim, and a scrim is exactly what "Photoshop feather"
-               describes: the engraving keeps its full ink and something milky
-               sits between it and the reader.
+            /* ---- the engraving ----
+               THE PLATE IS FLATTENED ONTO THIS PAGE'S OWN CREAM, which is why
+               it needs no alpha and shows no rectangle. The supplied file was a
+               2.9MB 32-bit PNG whose transparency existed only to sit on a
+               cream page; compositing it onto that cream first and shipping JPEG
+               is 254KB for the same result. There is no boundary to hide because
+               the plate's ground and the page's ground are the same value.
 
-               THE FIX IS TWO PROPERTIES, AND NEITHER OF THEM PAINTS ANYTHING.
+               contain, not cover: the whole plate stays visible including the
+               irregular dissolve down its left side, and the empty cream margins
+               contain leaves are invisible for the same reason.
 
-               mix-blend-mode: multiply makes the plate behave like INK. Multiply
-               can only ever darken, so the engraving's light areas become the
-               page's own parchment rather than a second, slightly different
-               beige laid over it — which is what made the plate read as a
-               rectangle even where the fade was working.
-
-               mask-image REMOVES INK RATHER THAN COVERING IT. As the mask alpha
-               falls, less ink is deposited; the line work thins and pales in
-               place, keeping every stroke it had, exactly the way a copperplate
-               prints lighter as the plate runs dry. Nothing is added on top, so
-               there is nothing to read as mist.
-
-               The stops are asymmetric on purpose: a long, slow bottom fall
-               through the last 42% so the trading counter dissolves into the
-               parchment the headline sits on, a short top fall so the ceiling
-               arrives immediately, and gentle side falls that stop well short of
-               opaque so the hall keeps running past the frame. */
-            /* ══ THE FRIEZE ═══════════════════════════════════════════════════
-               THE CROP IS THE WHOLE FIX. The band was shortened from 306px to
-               150 but kept a crop tuned for the taller box — 128% zoom anchored
-               at 48% — which at a 10:1 aspect sliced a horizontal strip straight
-               through the figures' torsos. Headless bodies and no desk: it read
-               as a random band of a painting rather than a masthead.
-
-               Nothing figurative survives 10:1. Architecture does, which is why
-               friezes are that shape in the first place. The plate has one at
-               the top: two "C" laurel banners, CAPITAL AT RISK · OUTCOMES ARE
-               FINAL, the temple pediment with its winged figure, and
-               CONTRACTUS IN TABELLIS · FIDES IN EXECUTIONE carved along the
-               right. Column capitals across the whole width, sky through the
-               middle for air.
-
-               So: back to background-size:cover, anchored near the top. cover keeps the
-               plate filling the band at any width, and 2% pins the window to the
-               architecture so it cannot drift down into the crowd when the
-               viewport narrows and the scale changes.
-
-               NO PARALLAX HERE ANY MORE. It was worth 33px of travel on a 150px
-               strip — imperceptible — and it was the only reason this element
-               needed 66px of headroom above the band, which is what made the
-               crop maths fragile. inset:0, no data-xh-par, no will-change. A
-               masthead should sit still. */
-            .xh-band-art {
+               THE ELEMENT REACHES LEFT TO 32%, WELL UNDER THE COPY, and that is
+               deliberate rather than sloppy. The plate's own left third is bare
+               cream, so extending the box lets the engraving render larger
+               without the drawn part ever reaching the text. Only cream overlaps
+               the copy column. */
+            .mkh-art {
                 position: absolute;
-                inset: 0;
-                background: url("/assets/images/trading-hall.webp") 50% 2% / cover no-repeat;
-                mix-blend-mode: multiply;
-                /* A SHORT BAND WANTS A SIMPLE DISSOLVE. The two-ellipse envelope
-                   built for the 600px hero existed to keep a curved boundary
-                   away from a headline and a contract card; there is neither
-                   here, and on 150px an ellipse's curvature is smaller than the
-                   fade itself. Two linear falls, intersected: the bottom 40%
-                   into the page, and both edges in by 5%. The top fade is 6% so
-                   the plate meets the paper under the header rather than
-                   starting on a cut line. */
-                -webkit-mask-image:
-                    linear-gradient(to bottom, transparent 0%, #000 6%, #000 60%, rgba(0,0,0,.45) 86%, transparent 100%),
-                    linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%);
-                -webkit-mask-composite: source-in, source-in;
-                mask-image:
-                    linear-gradient(to bottom, transparent 0%, #000 6%, #000 60%, rgba(0,0,0,.45) 86%, transparent 100%),
-                    linear-gradient(to right, transparent 0%, #000 5%, #000 95%, transparent 100%);
-                mask-composite: intersect, intersect;
+                top: 0; right: 0; bottom: 0; left: 32%;
+                background: url("/assets/images/market-clearinghouse.jpg") center center / contain no-repeat;
+                pointer-events: none;
+                z-index: 0;
             }
 
-            /* ══ NO GRADING LAYERS ═══════════════════════════════════════════
-               .xh-band-depth, .xh-band-air and .xh-band-light are removed, and
-               they were the reason the masthead looked wrong even after the
-               crop was right.
+            .mkh-copy { position: relative; z-index: 1; width: 46%; max-width: 620px; }
 
-               All three were inset:0 with NO MASK. On the 600px hero the plate
-               filled almost the whole box, so an unmasked tint over the top of
-               it was invisible. Here the art dissolves at the sides and the
-               bottom but the tints did not — so they painted a hard-edged
-               rectangle of multiply and screen across the full band: dark
-               smudges in both top corners, a wash through the middle, and a
-               visible cut line along the bottom exactly where the engraving had
-               already faded to paper.
-
-               Worth recording how that slipped through: the composite preview I
-               checked the crop against rendered the ART and its MASK only. It
-               looked right because it was missing precisely the three layers
-               that were breaking it. A preview that omits half the stack proves
-               nothing about the stack.
-
-               They are not worth re-masking either. Depth, atmosphere and a
-               lamp exist to build three planes out of a deep establishing shot;
-               a 132px frieze of architecture is one plane at one distance. The
-               plate now sits on the paper with nothing on top of it. */
-            /* THE FOUR OVERLAY LABELS ARE GONE — kicker, reference block, motto
-               and charter. They were set over the engraving itself, and once the
-               plate was cropped in 22% there was no quiet ground left under any
-               of them: at 10-12px on a busy sepia field they measured as unread
-               marks rather than text, which is worse than absent. The engraving
-               now carries no type at all, and everything those lines said is
-               said better by the headline directly beneath it.
-               .xh-band-inner went with them, since it existed only to hold them.
-               .xh-mark stays — the contract card still uses it. */
-            /* The rotated square with an inner hairline — the same positional
-               glyph the drawer and the fork section use. */
-            .xh-mark {
-                width: 9px; height: 9px; background: #5E1420;
-                transform: rotate(45deg); display: inline-block; position: relative; flex: none;
-            }
-            .xh-mark::after { content: ""; position: absolute; inset: 2.2px; border: .5px solid rgba(255,246,228,.30); }
-            .xh-mark.sm { width: 7px; height: 7px; }
-            .xh-mark.sm::after { inset: 1.6px; }
-
-            /* ---- the status line ----
-               THE FIGURES ARE THE POINT: every one comes from MARKET_STATS, the
-               same object the board's odometers read, so the top of the page and
-               the middle of it cannot print different numbers for the same fact.
-
-               IT SITS BESIDE THE BUTTONS, NOT ON THE PLATE. The frieze already
-               carries carved Latin — CONTRACTUS IN TABELLIS · FIDES IN
-               EXECUTIONE — and laying tracked mono over an engraving that is
-               itself lettered puts two typefaces on one surface with neither
-               legible. On the action row it has clean paper under it and costs
-               no extra height, because that row exists regardless. */
-            .xh-status {
-                margin-left: auto;
-                display: flex; align-items: center; gap: 16px;
+            .mkh-eyebrow {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase;
-                color: #4A4234;
+                font-size: 11px; letter-spacing: .3em; text-transform: uppercase;
+                color: #6A5E48; margin-bottom: 26px;
             }
-            .xh-live { display: inline-flex; align-items: center; gap: 9px; color: #3F5A31; }
-            /* The one moving thing in the masthead, and it is 6px wide. A live
-               market should have a pulse; two would be a dashboard. */
-            .xh-live i {
-                width: 6px; height: 6px; border-radius: 50%; background: #4E6B3E;
-                box-shadow: 0 0 0 0 rgba(78,107,62,.4);
-                animation: xh-pulse 2.6s ease-out infinite;
-            }
-            @keyframes xh-pulse {
-                0%   { box-shadow: 0 0 0 0 rgba(78,107,62,.4); }
-                70%  { box-shadow: 0 0 0 6px rgba(78,107,62,0); }
-                100% { box-shadow: 0 0 0 0 rgba(78,107,62,0); }
-            }
-            @media (prefers-reduced-motion: reduce) { .xh-live i { animation: none; } }
-            .xh-sep { width: 1px; height: 11px; background: rgba(70,55,35,.30); display: block; }
-            .xh-stat { color: #4A4234; }
-            /* The figure is the message; the noun after it is the caption. Serif
-               at 14 against mono at 10.5 is enough separation without a second
-               colour. */
-            .xh-stat b {
+            /* Two lines by construction, not by luck: the break is a <br> in the
+               markup rather than a max-width the browser might wrap differently
+               at some intermediate size. */
+            .mkh-h1 {
                 font-family: "Cormorant Garamond", Georgia, serif;
-                font-size: 14px; font-weight: 600; letter-spacing: .04em;
-                color: var(--ink, #211B12); margin-right: 5px;
+                font-weight: 600;
+                font-size: clamp(64px, 6.3vw, 96px);
+                line-height: .96;
+                letter-spacing: .004em;
+                color: #1A1610;
+                margin: 0 0 28px;
+            }
+            .mkh-h1 .ox { color: var(--mkh-ox); }
+            .mkh-lede {
+                font-family: "EB Garamond", Georgia, serif;
+                font-size: 19px; line-height: 1.58;
+                color: #4A4232;
+                max-width: 500px; margin: 0 0 40px;
             }
 
-            /* ---- actions ---- */
-            .xh-actions {
-                max-width: 1440px; margin: 0 auto;
-                padding: 26px 60px 30px;
-                display: flex; align-items: center; gap: 26px;
-            }
-            .xh-btn {
-                display: inline-flex; align-items: center; gap: 12px;
-                background: #7C1D2B; color: #F6EEDD;
+            .mkh-actions { display: flex; align-items: center; gap: 30px; }
+            /* Square corners, flat oxblood, one hairline of depth. No gradient,
+               no lift, no glow — the brief rules those out and they are what
+               makes a button look like a SaaS pricing CTA. */
+            .mkh-btn {
+                display: inline-flex; align-items: center; gap: 14px;
+                background: var(--mkh-ox); color: #F4EEE2;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 11.5px; letter-spacing: .22em; text-transform: uppercase;
-                padding: 15px 28px; border: 1px solid #5E1420; border-radius: 2px;
-                text-decoration: none; cursor: pointer;
-                box-shadow: 0 8px 20px rgba(94,20,32,.20);
-                transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+                padding: 19px 30px; border: 1px solid #4A1523; border-radius: 0;
+                cursor: pointer;
+                transition: background 200ms ease-out;
             }
-            .xh-btn:hover { background: #5E1420; transform: translateY(-1px); box-shadow: 0 12px 26px rgba(94,20,32,.26); }
-            .xh-btn:active { transform: translateY(0); }
-            .xh-btn .a { opacity: .8; }
-            .xh-learn {
+            .mkh-btn:hover { background: #4A1523; }
+            .mkh-btn .a { display: inline-block; transition: transform 200ms ease-out; }
+            .mkh-btn:hover .a, .mkh-btn:focus-visible .a { transform: translateX(4px); }
+
+            /* The secondary is a text action with a word-width rule, so the rule
+               measures the words rather than the words plus a travelling arrow —
+               the same reason the contract cards wrap their label in a span. */
+            .mkh-link {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+                color: #3A3226; background: none; border: 0; cursor: pointer;
+                display: inline-flex; align-items: center; gap: 12px; padding: 4px 0;
+            }
+            .mkh-link .t { position: relative; display: inline-block; }
+            .mkh-link .t::after {
+                content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px;
+                background: var(--mkh-ox); transform: scaleX(1); transform-origin: left center;
+                transition: transform 200ms ease-out;
+            }
+            .mkh-link .a { color: var(--mkh-ox); display: inline-block; transition: transform 200ms ease-out; }
+            .mkh-link:hover .a, .mkh-link:focus-visible .a { transform: translateX(4px); }
+
+            .mkh-btn:focus-visible, .mkh-link:focus-visible {
+                outline: 2px solid var(--mkh-ox); outline-offset: 4px;
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .mkh-btn, .mkh-btn .a, .mkh-link .a, .mkh-link .t::after { transition: none; }
+            }
+
+            /* ---- status strip ----
+               One rule above, one below, full bleed. Mono at 11px so it clears
+               the 10px floor with room, and both tones are checked against the
+               page ground rather than assumed. */
+            .mkh-strip {
+                position: relative; z-index: 1;
+                border-top: 1px solid rgba(70,55,35,.22);
+                border-bottom: 1px solid rgba(70,55,35,.22);
+            }
+            .mkh-strip-in {
+                max-width: 1760px; margin: 0 auto;
+                padding: 17px var(--mkh-gutter);
+                display: flex; align-items: center; justify-content: space-between;
+                gap: 24px;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
-                color: #574E3D; text-decoration: none;
-                border-bottom: 1px solid rgba(70,55,35,.30); padding-bottom: 4px;
-                background: none; border-left: 0; border-right: 0; border-top: 0; cursor: pointer;
-                transition: color .2s ease, border-color .2s ease;
             }
-            .xh-learn:hover { color: #211B12; border-bottom-color: #7C1D2B; }
-            .xh-learn .a { color: #7C1D2B; }
+            .mkh-live { display: inline-flex; align-items: center; gap: 11px; color: #4A4232; }
+            .mkh-live i {
+                width: 7px; height: 7px; border-radius: 50%; background: #4E6B3E;
+                box-shadow: 0 0 0 0 rgba(78,107,62,.4);
+                animation: mkh-pulse 2.8s ease-out infinite;
+            }
+            @keyframes mkh-pulse {
+                0% { box-shadow: 0 0 0 0 rgba(78,107,62,.4); }
+                70% { box-shadow: 0 0 0 7px rgba(78,107,62,0); }
+                100% { box-shadow: 0 0 0 0 rgba(78,107,62,0); }
+            }
+            @media (prefers-reduced-motion: reduce) { .mkh-live i { animation: none; } }
+            .mkh-metrics { display: flex; align-items: center; gap: 22px; color: #4A4232; }
+            .mkh-metrics .d {
+                width: 6px; height: 6px; background: var(--mkh-ox);
+                transform: rotate(45deg); flex: none;
+            }
+            /* The illustrative marker. It is deliberately the quietest thing in
+               the strip and deliberately still there: these figures are not fed
+               by anything yet, and a market that has not wired its own numbers
+               should not print them as though it had. Delete this span the same
+               commit MARKET_STATS starts reading an endpoint. */
+            .mkh-note {
+                font-size: 10px; letter-spacing: .16em; color: #6F6350;
+                border-left: 1px solid rgba(70,55,35,.22); padding-left: 22px;
+            }
 
-            /* ---- responsive ----
-               No column collapse to manage any more: the masthead is a band and
-               a row of buttons, so the only things that move are the gutters and
-               the band's height. */
+            /* ---- responsive ---- */
             @media (max-width: 1180px) {
-                .xh-actions { padding: 24px 40px 28px; }
-                .xh-status { gap: 13px; }
+                .mkh-copy { width: 50%; }
+                .mkh-art { left: 38%; }
             }
-            @media (max-width: 1000px) {
-                .xh-actions { padding: 22px 32px 26px; }
-                .xh-status { gap: 12px; font-size: 10px; letter-spacing: .16em; }
-                .xh-stat b { font-size: 13px; }
+            @media (max-width: 900px) {
+                /* Stacked: copy first, plate beneath the actions. The plate goes
+                   back to normal flow with a fixed band of height, still contain,
+                   so it never crops and never sits under the type. */
+                .mkh { min-height: 0; }
+                .mkh-inner { flex-direction: column; align-items: stretch; padding: 40px var(--mkh-gutter) 0; }
+                .mkh-copy { width: 100%; max-width: none; }
+                .mkh-h1 { font-size: clamp(44px, 9vw, 64px); }
+                .mkh-lede { max-width: none; }
+                .mkh-art {
+                    position: relative; left: auto; right: auto; top: auto; bottom: auto;
+                    width: 100%; height: clamp(360px, 46vw, 480px); margin-top: 34px;
+                }
+                .mkh-strip-in { flex-direction: column; align-items: flex-start; gap: 13px; padding: 15px var(--mkh-gutter); }
+                .mkh-metrics { flex-wrap: wrap; gap: 12px 16px; }
+                .mkh-note { border-left: 0; padding-left: 0; }
             }
-            @media (max-width: 700px) {
-                /* The escrow figure goes first on a phone — the open-contract
-                   count is the one a trader checks, and three figures plus two
-                   rules will not sit on 360px without shrinking the type past
-                   readable. The number is still on the board below. */
-                /* On a phone the row stacks, so the status line becomes its own
-                   line under the buttons rather than a right-hand tail. */
-                .xh-status { margin-left: 0; justify-content: center; gap: 10px; font-size: 9px; letter-spacing: .14em; }
-                .xh-status .xh-sep:last-of-type, .xh-status .xh-stat:last-of-type { display: none; }
-                .xh-stat b { font-size: 12px; margin-right: 4px; }
-                .xh-actions { flex-direction: column; align-items: stretch; gap: 14px; padding: 20px 22px 24px; }
-                .xh-btn { justify-content: center; }
-                .xh-learn { text-align: center; }
+            @media (max-width: 560px) {
+                .mkh-actions { flex-direction: column; align-items: stretch; gap: 18px; }
+                .mkh-btn { justify-content: center; }
+                .mkh-link { justify-content: center; }
+                .mkh-metrics { font-size: 10px; letter-spacing: .14em; }
             }
+
 
             /* Oxblood Buttons — #7A1C29 background, #FFF8F5 text, #54111B hover */
             .eq .eq-btn-primary,
@@ -1150,45 +1096,51 @@ export function renderActiveContracts() {
         <div class="cl-grain" aria-hidden="true"></div>
 
         <div class="eq">
-            <!-- Section 1: Masthead.
-                 NOT A HERO, AND THAT IS THE WHOLE CHANGE. /market is in
-                 protectedPaths — every reader is signed in and has capital in
-                 escrow. The headline, the lede and the specimen contract were
-                 selling a product to someone already using it, which is the
-                 homepage's job and not this page's.
+            <!-- Section 1: Market hero.
+                 Two columns over a full-bleed ruled status strip. The plate is
+                 the right-hand subject and the architecture, not the people, is
+                 what it is about — the homepage's magistrate and sealing
+                 close-up are a different composition and stay on the homepage.
 
-                 The band survives because it is the only thing carrying brand
-                 continuity between the two surfaces; it just stops costing a
-                 viewport. 306px -> 150px, and the mask, depth, light and
-                 parallax layers are unchanged underneath. -->
-            <div class="xh">
-                <!-- The plate carries no type of its own. The frieze it now
-                     shows is already lettered in stone. -->
-                <div class="xh-band" aria-hidden="true">
-                    <div class="xh-band-art"></div>
-                </div>
+                 The engraving is decorative: the heading below carries the
+                 page's meaning, so the plate is aria-hidden and the strip's
+                 figures are read as text. -->
+            <section class="mkh">
+                <div class="mkh-inner">
+                    <div class="mkh-art" aria-hidden="true"></div>
 
-                <!-- One row: what to do on the left, what is true on the right.
-                     The primary is CREATE, not "Enter Exchange" — that scrolled
-                     to a section of the page the reader was already on, which is
-                     a scroll button wearing a CTA's clothes. /contracts/execute
-                     is the job a signed-in reader came here to do and nothing
-                     previously linked to it.
-                     Every figure on the right comes from MARKET_STATS, the same
-                     constant the board's odometers read, so the two cannot
-                     disagree the way 312 and 528 did. -->
-                <div class="xh-actions">
-                    <button class="xh-btn" onclick="window.router.navigate('/contracts/execute')">Create Contract <span class="a" aria-hidden="true">&rarr;</span></button>
-                    <button class="xh-learn" onclick="window.router.navigate('/market?type=rivalry')">Rivalry contracts <span class="a" aria-hidden="true">&rarr;</span></button>
-                    <div class="xh-status">
-                        <span class="xh-live"><i></i>Live Exchange</span>
-                        <span class="xh-sep" aria-hidden="true"></span>
-                        <span class="xh-stat"><b>${MARKET_STATS.openContracts}</b> Open</span>
-                        <span class="xh-sep" aria-hidden="true"></span>
-                        <span class="xh-stat"><b>${MARKET_STATS.openCapitalLabel}</b> in Escrow</span>
+                    <div class="mkh-copy">
+                        <div class="mkh-eyebrow">Live Clearinghouse</div>
+                        <!-- The line break is markup, not a max-width: a measure
+                             that happens to wrap in two places today will wrap in
+                             three at some width nobody tested. -->
+                        <h1 class="mkh-h1">The market for<br><span class="ox">execution.</span></h1>
+                        <p class="mkh-lede">Back verified operators&mdash;or stake on your own performance. Every contract settles automatically against live business data.</p>
+                        <div class="mkh-actions">
+                            <button type="button" class="mkh-btn" onclick="window.router.navigate('/contracts/execute')">Create Contract <span class="a" aria-hidden="true">&rarr;</span></button>
+                            <button type="button" class="mkh-link" onclick="window.router.navigate('/market?type=rivalry')"><span class="t">Rivalry Contracts</span> <span class="a" aria-hidden="true">&rarr;</span></button>
+                        </div>
                     </div>
                 </div>
-            </div>
+
+                <!-- Figures come from MARKET_STATS, the same constant the board's
+                     odometers read, so the hero and the board cannot disagree.
+                     They are NOT live yet, which is why the row ends by saying
+                     so — see the note on .mkh-note. -->
+                <div class="mkh-strip">
+                    <div class="mkh-strip-in">
+                        <span class="mkh-live"><i aria-hidden="true"></i>Live Exchange</span>
+                        <span class="mkh-metrics">
+                            <span>${MARKET_STATS.openContracts} Open</span>
+                            <i class="d" aria-hidden="true"></i>
+                            <span>${MARKET_STATS.openCapitalLabel} in Escrow</span>
+                            <i class="d" aria-hidden="true"></i>
+                            <span>${MARKET_STATS.avgSettlementDays}d Avg. Settlement</span>
+                            <span class="mkh-note">Illustrative</span>
+                        </span>
+                    </div>
+                </div>
+            </section>
 
             <!-- The Contract Structures section is REMOVED FROM THIS ROUTE.
                  It still renders on the landing page and the mobile landing —
