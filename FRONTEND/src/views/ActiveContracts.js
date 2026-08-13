@@ -176,7 +176,13 @@ export function renderActiveContracts() {
                survive the rewrite and quietly apply to something. */
             .mkh {
                 position: relative;
-                min-height: 748px;
+                /* 680, not 748. The composition was not too low — the BOX was too
+                   tall, and align-items: center was faithfully centring a fixed
+                   amount of content inside the surplus. Shortening the box moves
+                   the centre up by half the difference, and the smaller top pad
+                   moves it up by half of that: ~52px, without touching a single
+                   position on the content itself. */
+                min-height: 680px;
                 display: flex;
                 flex-direction: column;
                 overflow: hidden;
@@ -191,7 +197,7 @@ export function renderActiveContracts() {
                 max-width: 1760px;
                 width: 100%;
                 margin: 0 auto;
-                padding: 56px var(--mkh-gutter) 40px;
+                padding: 20px var(--mkh-gutter) 40px;
                 box-sizing: border-box;
             }
 
@@ -203,19 +209,34 @@ export function renderActiveContracts() {
                is 254KB for the same result. There is no boundary to hide because
                the plate's ground and the page's ground are the same value.
 
-               contain, not cover: the whole plate stays visible including the
-               irregular dissolve down its left side, and the empty cream margins
-               contain leaves are invisible for the same reason.
+               THE TOP EDGE IS DISSOLVED IN THE ASSET, NOT IN CSS. The original's
+               architecture ran straight off the top of its own canvas, leaving a
+               hard horizontal cut — a rectangular asset boundary. A CSS gradient
+               mask would have removed it, but a uniform fade reads as a digital
+               wipe laid over an engraving. tools/make-clearinghouse-plate.ps1
+               instead thresholds a two-octave noise field against depth, so the
+               ink breaks up into speckle the way a copperplate does as the inked
+               area runs out — the same character as the plate's left edge.
 
-               THE ELEMENT REACHES LEFT TO 32%, WELL UNDER THE COPY, and that is
-               deliberate rather than sloppy. The plate's own left third is bare
-               cream, so extending the box lets the engraving render larger
-               without the drawn part ever reaching the text. Only cream overlaps
-               the copy column. */
+               THE ELEMENT REACHES LEFT UNDER THE COPY, and that is deliberate
+               rather than sloppy: the plate's own left quarter is bare cream
+               (measured — 0.0% ink coverage out to 25%), so extending the box
+               lets the engraving render larger without the drawn part ever
+               reaching the text. Only cream overlaps the copy column.
+
+               WIDTH IS OVER-SET SO THE RIGHT ARCHITECTURE BLEEDS. Sized to fit,
+               the plate would stop exactly at the viewport edge and read as a
+               picture placed on the page rather than a hall continuing past it.
+               The extra 160px runs under .mkh's overflow: hidden. It is bounded:
+               ~86% of the plate stays visible at 1440, and the laurel C ends at
+               81%, so the emblem, Victory, the principal columns and the
+               operators are all clear of the cut. */
             .mkh-art {
                 position: absolute;
-                top: 0; right: 0; bottom: 0; left: 32%;
-                background: url("/assets/images/market-clearinghouse.jpg") center center / contain no-repeat;
+                top: 0; bottom: 0; right: auto;
+                left: calc(32% - 30px);
+                width: calc(68% + 190px);
+                background: url("/assets/images/market-clearinghouse.jpg") left calc(50% - 20px) / 100% auto no-repeat;
                 pointer-events: none;
                 z-index: 0;
             }
@@ -240,11 +261,28 @@ export function renderActiveContracts() {
                 margin: 0 0 28px;
             }
             .mkh-h1 .ox { color: var(--mkh-ox); }
+            /* MEASURE IS SET TO THE SECOND LINE, WHICH IS THE LONGEST. The wrap
+               wanted is
+                 Back verified operators—or stake on your own
+                 performance. Every contract settles automatically
+                 against live business data.
+               so the measure has to clear "…settles automatically" and fall short
+               of taking "against" up with it. Measured rather than guessed: that
+               window is NARROW and lower than it looks. Measured in EB Garamond
+               at 19px:
+                 line 1 alone ................................. 335px
+                 line 2 alone ................................. 354px  <- floor
+                 line 1 + "performance." ...................... 435px
+                 line 2 + "against" ........................... 408px  <- ceiling
+               so the measure has to sit in 355–407, and 384 is the middle of it.
+               Anything at or above 435 collapses to two lines and strands
+               "Every" at the end of the first — which is exactly what the old
+               500px was doing. */
             .mkh-lede {
                 font-family: "EB Garamond", Georgia, serif;
                 font-size: 19px; line-height: 1.58;
                 color: #4A4232;
-                max-width: 500px; margin: 0 0 40px;
+                max-width: 384px; margin: 0 0 28px;
             }
 
             .mkh-actions { display: flex; align-items: center; gap: 30px; }
@@ -274,11 +312,23 @@ export function renderActiveContracts() {
                 display: inline-flex; align-items: center; gap: 12px; padding: 4px 0;
             }
             .mkh-link .t { position: relative; display: inline-block; }
+            /* TWO RULES, BECAUSE ONE CANNOT DO BOTH JOBS. The resting underline
+               is part of the design, and the wipe is the interaction — but
+               scaleX from 1 to 1 is not a wipe. So ::before is the quiet resting
+               hairline and ::after is the full-strength rule that wipes in over
+               it from the left. Both live on .t, which wraps the label only, so
+               they measure the words and not the words plus a travelling arrow. */
+            .mkh-link .t::before,
             .mkh-link .t::after {
                 content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px;
-                background: var(--mkh-ox); transform: scaleX(1); transform-origin: left center;
-                transition: transform 200ms ease-out;
+                background: var(--mkh-ox);
             }
+            .mkh-link .t::before { opacity: .34; }
+            .mkh-link .t::after {
+                transform: scaleX(0); transform-origin: left center;
+                transition: transform 260ms cubic-bezier(.22,.61,.36,1);
+            }
+            .mkh-link:hover .t::after, .mkh-link:focus-visible .t::after { transform: scaleX(1); }
             .mkh-link .a { color: var(--mkh-ox); display: inline-block; transition: transform 200ms ease-out; }
             .mkh-link:hover .a, .mkh-link:focus-visible .a { transform: translateX(4px); }
 
@@ -336,7 +386,10 @@ export function renderActiveContracts() {
             /* ---- responsive ---- */
             @media (max-width: 1180px) {
                 .mkh-copy { width: 50%; }
-                .mkh-art { left: 38%; }
+                /* Narrower viewport, so the plate steps right to stay off the
+                   copy — and the bleed shrinks with it, because 190px of
+                   overflow on a 1000px screen would cut into the emblem. */
+                .mkh-art { left: calc(38% - 30px); width: calc(62% + 110px); }
             }
             @media (max-width: 900px) {
                 /* Stacked: copy first, plate beneath the actions. The plate goes
@@ -350,16 +403,35 @@ export function renderActiveContracts() {
                    Explicit order puts the copy first without moving the markup,
                    which leaves the desktop stacking context alone. */
                 .mkh-copy { width: 100%; max-width: none; order: 1; }
-                .mkh-art { order: 2; }
                 /* !important ANSWERS AN !important. mobile.css sets a bare
                    h1 { font-size: clamp(24px,7vw,36px) !important } below 768px,
                    which captured this headline at 27.3px — 7vw of 390 exactly.
                    No class outranks !important, so this replies in kind. */
                 .mkh h1.mkh-h1 { font-size: clamp(44px, 9vw, 64px) !important; line-height: .98 !important; letter-spacing: .004em !important; }
                 .mkh-lede { max-width: none; }
+                /* EVERY DESKTOP OFFSET IS UNSET HERE, not adjusted — a calc()
+                   left edge and a 190px bleed are the two things that clip at
+                   narrow widths.
+                   ORDER 2, because the plate is FIRST in the DOM: it is
+                   absolutely positioned on desktop so source order is irrelevant
+                   there, but the moment it returns to flow it renders ABOVE the
+                   headline. Explicit order fixes that without moving the markup.
+                   THE CROP TAKES ONLY CREAM. Fitting the whole 2:1 plate into a
+                   phone's width leaves the architecture too small to read, so it
+                   is scaled up and anchored right — and because the plate's left
+                   22% is measured bare (0.0% ink out to 25%), that enlargement
+                   cuts nothing but empty ground and leaves no hard edge. Victory,
+                   the emblem and the operators all sit inside what remains.
+                   aspect-ratio rather than a fixed height, so the box is exactly
+                   as tall as the image at every width and never bands it with
+                   dead cream. */
                 .mkh-art {
                     position: relative; left: auto; right: auto; top: auto; bottom: auto;
-                    width: 100%; height: clamp(360px, 46vw, 480px); margin-top: 34px;
+                    order: 2;
+                    width: 100%; height: auto; aspect-ratio: 1.5625;
+                    background-size: 128% auto;
+                    background-position: right center;
+                    margin-top: 30px;
                 }
                 .mkh-strip-in { flex-direction: column; align-items: flex-start; gap: 13px; padding: 15px var(--mkh-gutter); }
                 .mkh-metrics { flex-wrap: wrap; gap: 12px 16px; }
