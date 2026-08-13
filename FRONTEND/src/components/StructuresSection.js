@@ -66,11 +66,11 @@ export function renderStructuresSection(o = {}) {
     return `
         <style>
 .stc{
-    --parch:#F3EADB; --paper:#F5EDDA; --ink:#211B12; --ink-soft:#574E3D;
-    --muted:#8E8065; --faint:#B4A98C; --ox:#7C1D2B; --ox-deep:#5E1420; --win:#4E6B3E;
+    --parch:#F3EADB; --paper:#F5EDDA; --ink:#211B12; --ink-soft:#4E4636;
+    --muted:#736750; --faint:#B4A98C; --ox:#5E1E2E; --ox-deep:#5E1420; --win:#4E6B3E;
     --emblem:#4A3418; --logo:#3A2E1C;
-    --line:rgba(70,55,35,.18); --line-soft:rgba(70,55,35,.10); --line-firm:rgba(70,55,35,.28);
-    --dot:rgba(70,55,35,.34);
+    --line:rgba(70,55,35,.22); --line-soft:rgba(70,55,35,.13); --line-firm:rgba(70,55,35,.30);
+    --dot:rgba(70,55,35,.38);
   }
         /* THE RESET HAS TO BE A UNIVERSAL SELECTOR, NOT AN ELEMENT LIST.
            It was first written as an explicit list — .stc h2, .stc p, .stc div,
@@ -104,12 +104,12 @@ export function renderStructuresSection(o = {}) {
         .stc-reg.stc-br{border-left:0;border-top:0}
         .stc-reg.stc-br::after{border-left:0;border-top:0;right:1px;bottom:1px}
         .stc-paper-tx::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.06;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.stc-w3.stc-org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-        .stc-wrap{max-width:1440px;margin:0 auto;padding:76px 64px 68px}
+        .stc-wrap{max-width:1440px;margin:0 auto;padding:100px 64px 68px}
         .stc-kicker{display:inline-flex;align-items:center;gap:13px;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.30em;text-transform:uppercase;color:var(--ox);font-weight:500;margin-bottom:24px}
         .stc-kicker .stc-r{height:1px;width:30px;background:var(--ox);opacity:.75}
         .stc h2{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:52px;line-height:1.0;margin-bottom:20px}
         .stc h2 .stc-ox{color:var(--ox)}
-        .stc-sub{font-size:18px;line-height:1.6;color:var(--ink-soft);max-width:600px;margin-bottom:56px}
+        .stc-sub{font-size:18px;line-height:1.6;color:#504835;max-width:600px;margin-bottom:56px}
         .stc-forms{display:grid;grid-template-columns:1fr 1fr;gap:44px}
         .stc-form{position:relative;background:var(--paper);border:1px solid var(--line-firm);padding:26px 36px 22px;overflow:hidden;
     box-shadow:0 16px 34px rgba(60,40,20,.10), inset 0 0 0 1px rgba(255,250,236,.4), inset 0 0 30px rgba(90,68,36,.07)}
@@ -119,7 +119,7 @@ export function renderStructuresSection(o = {}) {
         .stc-form .stc-reg.stc-bl{bottom:15px;left:15px}
         .stc-form .stc-reg.stc-br{bottom:15px;right:15px}
         /* faint certificate watermark */
-.stc-seal-wm{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);width:250px;height:250px;opacity:.05;color:var(--emblem);z-index:0;pointer-events:none}
+.stc-seal-wm{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);width:250px;height:250px;opacity:.035;color:var(--emblem);z-index:0;pointer-events:none}
         /* fold marks */
 .stc-fold{position:absolute;left:0;right:0;height:1px;background:rgba(70,55,35,.055);box-shadow:0 1px 0 rgba(255,250,235,.45);z-index:1;pointer-events:none}
         .stc-fold.stc-a{top:36%}
@@ -205,8 +205,35 @@ export function renderStructuresSection(o = {}) {
         .stc-f-verified{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);font-weight:500;display:inline-flex;align-items:center;gap:9px}
         .stc-f-verified .stc-chk{color:var(--win);font-size:12px}
         .stc-f-versrc{display:block;font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.06em;color:var(--muted);margin-top:6px}
-        .stc-f-action{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink);font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:10px;padding-bottom:2px}
-        .stc-f-action .stc-a{color:var(--ox)}
+        /* AN ACTION, NOT A BUTTON. It stays text so the specification rows above
+           it remain the loudest thing on the card — a filled control here would
+           make the form look like a pricing tier.
+
+           THE UNDERLINE IS ON THE LABEL SPAN, NOT THE BUTTON. A border on the
+           button would run under the arrow too and grow by 4px every time the
+           arrow moved, which reads as the rule stretching rather than the arrow
+           travelling. Wrapping the words means the rule measures the words.
+
+           It is a scaleX transform rather than a border-bottom appearing, so it
+           wipes in from the left instead of switching on, and it composites
+           rather than triggering layout. 200ms ease-out, inside the 180-220 asked
+           for. */
+        .stc-f-action{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#1A150E;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:10px;padding-bottom:2px;background:none;border:0;cursor:pointer}
+        .stc-f-label{position:relative;display:inline-block}
+        .stc-f-label::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;background:var(--ox);
+          transform:scaleX(0);transform-origin:left center;transition:transform 200ms ease-out}
+        .stc-f-action .stc-a{color:var(--ox);display:inline-block;transition:transform 200ms ease-out}
+        .stc-f-action:hover .stc-f-label::after,
+        .stc-f-action:focus-visible .stc-f-label::after{transform:scaleX(1)}
+        .stc-f-action:hover .stc-a,
+        .stc-f-action:focus-visible .stc-a{transform:translateX(4px)}
+        /* A visible focus ring rather than the underline alone: the underline is
+           also the hover state, so on its own it would not tell a keyboard user
+           where focus actually is. Offset outward so it never sits on the type. */
+        .stc-f-action:focus-visible{outline:2px solid var(--ox);outline-offset:4px;border-radius:1px}
+        @media (prefers-reduced-motion:reduce){
+          .stc-f-label::after,.stc-f-action .stc-a{transition:none}
+        }
         /* red wax approval stamp */
 .stc-wax-stamp{position:absolute;left:50%;bottom:-2px;transform:translateX(-50%) rotate(-7deg);width:52px;height:52px;z-index:4;filter:drop-shadow(0 3px 5px rgba(60,20,25,.30))}
         .stc-foot{display:flex;align-items:center;gap:20px;margin-top:40px;padding:16px 24px;border:1px solid var(--line);background:rgba(250,245,232,.5)}
@@ -309,14 +336,14 @@ export function renderStructuresSection(o = {}) {
           <p class="stc-f-body">Stake against your own verified metric. Capital remains locked until settlement. Meet the target and recover your stake with a matched payout. Miss it, and capital settles automatically to the pool.</p>
           <div class="stc-f-fields">
             <div class="stc-f-row"><span class="stc-f-k">Metric</span><span class="stc-f-lead"></span><span class="stc-f-v">Revenue Growth</span></div>
-            <div class="stc-f-row"><span class="stc-f-k">Capital</span><span class="stc-f-lead"></span><span class="stc-f-v">$250 Minimum</span></div>
+            <div class="stc-f-row"><span class="stc-f-k">Capital</span><span class="stc-f-lead"></span><span class="stc-f-v">From $250</span></div>
             <div class="stc-f-row"><span class="stc-f-k">Settlement</span><span class="stc-f-lead"></span><span class="stc-f-v">Automatic</span></div>
             <div class="stc-f-row"><span class="stc-f-k">Source</span><span class="stc-f-lead"></span><span class="stc-f-v">Stripe API</span></div>
             <div class="stc-f-row"><span class="stc-f-k">Window</span><span class="stc-f-lead"></span><span class="stc-f-v">30 Days</span></div>
           </div>
           <div class="stc-f-foot">
             <span class="stc-f-sources"><img class="stc-src-seal" src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="147" height="128" decoding="async"><span class="stc-src-txt"><span class="stc-src-lbl">Verification Sources <span class="stc-dot">·</span> </span>Bank / Stripe / YouTube</span></span>
-            <button type="button" class="stc-f-action" onclick="${soloAction}">${soloLabel} <span class="stc-a">→</span></button>
+            <button type="button" class="stc-f-action" onclick="${soloAction}"><span class="stc-f-label">${soloLabel}</span> <span class="stc-a" aria-hidden="true">→</span></button>
           </div>
         </div>
       </article>
@@ -349,7 +376,7 @@ export function renderStructuresSection(o = {}) {
           </div>
           <div class="stc-f-foot">
             <span class="stc-f-sources"><img class="stc-src-seal" src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="147" height="128" decoding="async"><span class="stc-src-txt"><span class="stc-src-lbl">Verification Sources <span class="stc-dot">·</span> </span>Bank / Stripe / Shopify</span></span>
-            <button type="button" class="stc-f-action" onclick="${rivalAction}">${rivalLabel} <span class="stc-a">→</span></button>
+            <button type="button" class="stc-f-action" onclick="${rivalAction}"><span class="stc-f-label">${rivalLabel}</span> <span class="stc-a" aria-hidden="true">→</span></button>
           </div>
         </div>
       </article>
