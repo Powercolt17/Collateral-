@@ -89,10 +89,28 @@ export function renderActiveContracts() {
                entire app from inside a hero commit. The page ground and the band
                behind it are what meet the header, so they are what changes. The
                inner surfaces — cards, modals, the rivalry board — keep --paper
-               on purpose: they are meant to sit ON the paper, not to be it. */
+               on purpose: they are meant to sit ON the paper, not to be it.
+
+               THE HEADER WASN'T THE WRONG COLOUR — IT HAD NOTHING BEHIND IT.
+               .ch-header is fixed and transparent until you scroll, so the strip
+               it occupies is painted by whatever is underneath, and #app carries
+               a 96px pt-24 that left that band as bare body (#FAF8F5). The bar
+               therefore read near-white against this page's cream while its own
+               declared colour was already #F1E8D3.
+
+               -96 THEN +96 IS THE WHOLE FIX. The landing page cancels the same
+               offset with margin-top: -96px, but it can stop there because its
+               hero is designed to run up under the bar. This page's hero is not,
+               so the ground is pulled up and the content pushed straight back
+               down: the band behind the header becomes page cream and not one
+               element moves. border-box so the restored padding does not add
+               96px to the 100vh floor. */
             .eq {
                 background: #F1E8D3;
                 min-height: 100vh;
+                box-sizing: border-box;
+                margin-top: -96px;
+                padding-top: 96px;
                 font-family: var(--body, 'Public Sans', sans-serif);
                 color: var(--ink, #0E1420);
                 padding-bottom: 100px;
