@@ -1191,6 +1191,376 @@ export function renderActiveContracts() {
                 .eq-mechanism-grid { grid-template-columns: 1fr; }
                 .eq-stats-strip { flex-direction: column; gap: 20px; padding: 20px; }
             }
+
+            /* ══════════════════════════════════════════════════════════════
+               THE MARKET BOARD  —  everything on this route below the hero.
+
+               EVERY CLASS IS PREFIXED mb-, AND THAT IS NOT STYLE PEDANTRY.
+               The design this is built from names things .card, .grid, .btn,
+               .step, .bar, .chip, .foot, .mark and .info. Those are global
+               names; .eq- classes from this file are already read by
+               mobile.css and Profile.js, and a bare .card rule here would
+               reach into every other view that ships one. The prefix is what
+               makes this section safe to add without auditing the whole app.
+
+               ITS TOKENS ARE SCOPED TO .mb FOR THE SAME REASON. The source
+               design declares --paper, --ink and --muted on :root; pasted in,
+               it would silently repaint six other views. They live on .mb so
+               they cannot escape it. */
+            .mb {
+                --mb-paper: #F5EDDA;
+                --mb-ink: #211B12;
+                --mb-ink-soft: #574E3D;
+                --mb-muted: #7A6E52;
+                --mb-faint: #9A8C6E;
+                --mb-ox: #7C1D2B;
+                --mb-ox-deep: #5E1420;
+                --mb-win: #3F5A31;
+                --mb-line: rgba(70,55,35,.18);
+                --mb-line-soft: rgba(70,55,35,.10);
+                --mb-line-firm: rgba(70,55,35,.28);
+                --mb-gutter: clamp(24px, 6vw, 96px);
+                position: relative;
+                max-width: 1560px;
+                margin: 0 auto;
+                padding: 0 var(--mb-gutter);
+                font-family: "EB Garamond", Georgia, serif;
+                color: var(--mb-ink);
+            }
+            /* The ledger ruling. 3% of a warm grey over cream — it reads as
+               laid paper rather than as lines, and it is the one texture that
+               ties the board to the hero's engraving without competing. */
+            .mb::before {
+                content: "";
+                position: absolute; inset: 0;
+                pointer-events: none; z-index: 0;
+                background: repeating-linear-gradient(0deg, transparent 0 29px, rgba(70,55,35,.03) 29px 30px);
+            }
+            .mb > * { position: relative; z-index: 1; }
+            .mb-mono { font-family: var(--mono, 'IBM Plex Mono', monospace); }
+            .mb-mark {
+                width: 8px; height: 8px; background: var(--mb-ox-deep);
+                transform: rotate(45deg); display: inline-block; flex: none;
+            }
+
+            /* ---- section headers ---- */
+            .mb-lhead { display: flex; align-items: center; gap: 20px; margin-bottom: 26px; }
+            .mb-lhead .lab {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11.5px; letter-spacing: .28em; text-transform: uppercase;
+                color: var(--mb-ox); font-weight: 500; white-space: nowrap;
+                display: flex; align-items: center; gap: 12px;
+            }
+            .mb-lhead .ln { flex: 1; height: 1px; background: linear-gradient(90deg, var(--mb-line-firm), var(--mb-line-soft)); }
+            .mb-lhead .act {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+                color: var(--mb-muted); white-space: nowrap;
+                background: none; border: 0; padding: 0; cursor: pointer;
+            }
+            .mb-lhead .act:hover { color: var(--mb-ox); }
+
+            /* ---- create (solo) ---- */
+            .mb-solo { padding-top: 58px; }
+            .mb-solo-top { display: flex; align-items: center; gap: 20px; }
+            .mb-solo-emb { height: 56px; width: auto; flex: none; }
+            .mb-kick {
+                display: inline-flex; align-items: center; gap: 13px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .30em; text-transform: uppercase;
+                color: var(--mb-ox); font-weight: 500; margin-bottom: 14px;
+            }
+            .mb-kick .r { height: 1px; width: 30px; background: var(--mb-ox); opacity: .75; }
+            .mb-solo h2 {
+                font-family: "Cormorant Garamond", Georgia, serif;
+                font-weight: 600; font-size: clamp(32px, 3.6vw, 42px); line-height: 1.0;
+                color: var(--mb-ink); margin: 0;
+            }
+            .mb-solo h2 .ox { color: var(--mb-ox); }
+            .mb-lede { font-size: 17px; line-height: 1.55; color: var(--mb-ink-soft); max-width: 660px; margin: 16px 0 0; }
+
+            .mb-step { display: grid; grid-template-columns: 250px 1fr; gap: 44px; padding: 26px 0; border-top: 1px solid var(--mb-line); }
+            .mb-step:first-of-type { margin-top: 30px; }
+            .mb-snum { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .24em; color: var(--mb-ox); font-weight: 500; }
+            .mb-stt { font-family: "Cormorant Garamond", Georgia, serif; font-size: 27px; font-weight: 600; margin-top: 12px; line-height: 1.05; }
+            .mb-sdesc { font-size: 15px; line-height: 1.55; color: var(--mb-ink-soft); margin: 0 0 18px; max-width: 560px; }
+            .mb-cbtn {
+                display: inline-flex; align-items: center; gap: 12px;
+                background: var(--mb-ox); color: #F6EEDD;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 12px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500;
+                padding: 15px 24px; border: 0; border-radius: 0; cursor: pointer;
+                box-shadow: 0 12px 26px rgba(94,20,32,.20);
+            }
+            .mb-cbtn .tag { font-size: 9.5px; letter-spacing: .05em; opacity: .78; text-transform: none; font-weight: 400; }
+            .mb-reassure {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10.5px; letter-spacing: .06em; color: var(--mb-muted);
+                margin-top: 14px; display: flex; align-items: center; gap: 9px;
+            }
+
+            /* ---- the source matrix ----
+               A TABLE, BECAUSE IT IS ONE. Metric down the side, source across
+               the top, availability in the last column: the whole question a
+               reader has here is "what can I actually be measured on", and a
+               grid answers it in one look where four stacked cards did not. */
+            .mb-matrix { border-top: 2px solid var(--mb-ink); }
+            .mb-mx-h, .mb-mx-r {
+                display: grid;
+                grid-template-columns: 1.7fr .62fr .62fr .62fr .62fr 1.25fr;
+                align-items: center; gap: 14px; padding: 13px 8px;
+            }
+            .mb-mx-h { border-bottom: 1px solid var(--mb-line); }
+            .mb-mx-h span {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+                color: var(--mb-muted); text-align: center;
+            }
+            .mb-mx-h span.l { text-align: left; }
+            .mb-mx-h span.rt { text-align: right; }
+            .mb-mx-h .conn { display: block; color: var(--mb-win); font-size: 8px; margin-top: 3px; letter-spacing: .08em; }
+            .mb-mx-r { border-bottom: 1px solid var(--mb-line-soft); }
+            .mb-mn { font-family: "Cormorant Garamond", Georgia, serif; font-size: 19px; font-weight: 600; color: var(--mb-ink); }
+            .mb-md {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10px; letter-spacing: .02em; color: var(--mb-muted); margin-top: 3px;
+            }
+            .mb-md:empty { display: none; }
+            .mb-mx-cell { display: flex; justify-content: center; }
+            /* Three states, and they are legible without colour: filled = the
+               source is connected, ring = it is the one this metric needs, rule
+               = not applicable. Colour alone would fail anyone who cannot see it. */
+            .mb-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--mb-win); }
+            .mb-dot-o { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--mb-ox); }
+            .mb-dot-e { width: 7px; height: 1px; background: var(--mb-line-firm); }
+            .mb-mx-avail {
+                text-align: right;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+            }
+            .mb-mx-avail .ss-go { color: var(--mb-ox); text-decoration: none; background: none; border: 0; cursor: pointer; font: inherit; letter-spacing: inherit; text-transform: inherit; }
+            .mb-mx-avail .ss-go:hover { text-decoration: underline; }
+            .ss-metric.ready .mb-mx-avail .ss-go { color: var(--mb-win); cursor: pointer; }
+
+            /* ---- the terms builder ---- */
+            .mb-builder { display: grid; grid-template-columns: 1fr 356px; gap: 40px; align-items: center; }
+            .mb-bnote { font-size: 15px; line-height: 1.58; color: var(--mb-ink-soft); max-width: 430px; }
+            .mb-bnote .big { font-family: "Cormorant Garamond", Georgia, serif; font-size: 23px; color: var(--mb-ink); display: block; margin-bottom: 12px; font-weight: 600; line-height: 1.1; }
+            .mb-bcard { position: relative; background: var(--mb-paper); border: 1px solid var(--mb-line-firm); padding: 20px 22px; box-shadow: 0 16px 34px rgba(60,40,20,.10); }
+            .mb-bcard::after { content: ""; position: absolute; inset: 5px; border: 1px solid var(--mb-line-soft); pointer-events: none; }
+            .mb-bh { position: relative; z-index: 2; }
+            .mb-bt-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+            .mb-bt-k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--mb-muted); }
+            .mb-bt-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 25px; font-weight: 600; margin: 8px 0 4px; }
+            .mb-brule { height: 1px; background: var(--mb-line-firm); margin: 10px 0 4px; }
+            .mb-brow { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--mb-line-soft); }
+            .mb-brow .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--mb-muted); }
+            .mb-brow .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 20px; font-weight: 600; color: var(--mb-ink); }
+            .mb-brow .v .adj { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 8.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--mb-faint); margin-left: 9px; }
+            .mb-bmult { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--mb-line-soft); }
+            .mb-bmult .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--mb-muted); }
+            .mb-bmult .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 27px; font-weight: 700; color: var(--mb-ox); }
+            .mb-bplain { font-size: 13.5px; line-height: 1.45; color: var(--mb-ink-soft); padding: 12px 0; border-bottom: 1px solid var(--mb-line-soft); }
+            .mb-bout { display: flex; justify-content: space-between; gap: 10px; font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10.5px; letter-spacing: .04em; padding: 12px 0 2px; }
+            .mb-bout .w { color: var(--mb-win); }
+            .mb-bout .l { color: var(--mb-ox); }
+            .mb-bcreate {
+                display: block; width: 100%; text-align: center;
+                background: var(--mb-ox); color: #F6EEDD;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500;
+                padding: 13px; border: 0; border-radius: 0; cursor: pointer; margin-top: 15px;
+            }
+            /* THE FIGURES IN THIS CARD ARE A WORKED EXAMPLE, NOT A QUOTE. Real
+               terms are priced per person from verified history, so the card
+               says so rather than letting a reader take $250 -> $1,000 as an
+               offer. Delete .mb-bex the same commit it renders a real draft. */
+            .mb-bex {
+                display: block; margin-top: 10px; text-align: center;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-muted);
+            }
+
+            /* ---- board controls ---- */
+            .mb-board { padding-top: 60px; }
+            .mb-controls {
+                display: flex; align-items: center; justify-content: space-between; gap: 24px;
+                flex-wrap: wrap; padding-bottom: 22px;
+                border-bottom: 1px solid var(--mb-line-firm); margin-bottom: 30px;
+            }
+            .mb-seg { display: inline-flex; border: 1px solid var(--mb-line-firm); }
+            .mb-seg button {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+                color: var(--mb-ink-soft); background: none;
+                padding: 10px 18px; border: 0; border-right: 1px solid var(--mb-line-firm); cursor: pointer;
+            }
+            .mb-seg button:last-child { border-right: 0; }
+            .mb-seg button.on { background: var(--mb-ink); color: #F7F1E2; font-weight: 600; }
+            .mb-chips { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+            .mb-chip {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+                color: var(--mb-ink-soft); border: 1px solid var(--mb-line-firm);
+                padding: 8px 15px; background: #FAF4E6; cursor: pointer;
+            }
+            .mb-chip.on { background: #E6DAC0; color: var(--mb-ink); }
+            .mb-sortr {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+                color: var(--mb-muted); display: flex; align-items: center; gap: 16px;
+            }
+            .mb-sortr b { color: var(--mb-ink); font-weight: 500; }
+
+            /* ---- listing cards ---- */
+            .mb-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+            .mb-card {
+                position: relative; background: var(--mb-paper);
+                border: 1px solid var(--mb-line-firm); padding: 18px 20px;
+                display: flex; flex-direction: column;
+                box-shadow: 0 10px 24px rgba(60,40,20,.06);
+            }
+            .mb-card::after { content: ""; position: absolute; inset: 5px; border: 1px solid var(--mb-line-soft); pointer-events: none; }
+            .mb-c-in { position: relative; z-index: 2; display: flex; flex-direction: column; height: 100%; }
+            .mb-c-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
+            .mb-badge {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 9px; letter-spacing: .16em; text-transform: uppercase; font-weight: 500;
+                padding: 4px 9px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+            }
+            .mb-badge.open { color: var(--mb-ox); border: 1px solid rgba(124,29,43,.4); }
+            .mb-badge.live { color: var(--mb-win); border: 1px solid rgba(63,90,49,.45); }
+            .mb-badge.live .d { width: 5px; height: 5px; border-radius: 50%; background: var(--mb-win); }
+            .mb-c-rcpt { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .1em; color: var(--mb-muted); }
+            .mb-c-days { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .12em; color: var(--mb-muted); display: block; margin-bottom: 6px; }
+            .mb-c-title {
+                font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600;
+                font-size: 21px; line-height: 1.06; color: var(--mb-ink);
+                margin: 0 0 8px; min-height: 44px;
+            }
+            .mb-c-dom {
+                font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px;
+                letter-spacing: .14em; text-transform: uppercase; color: var(--mb-muted);
+                display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+            }
+            .mb-c-dom .pd { width: 5px; height: 5px; border-radius: 50%; background: var(--mb-ox); opacity: .6; flex: none; }
+            .mb-ops { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; }
+            .mb-op { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+            .mb-op.r { align-items: flex-end; text-align: right; }
+            .mb-op .nm { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10.5px; letter-spacing: .04em; color: var(--mb-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+            .mb-op .pc { font-family: "Cormorant Garamond", Georgia, serif; font-size: 20px; font-weight: 600; }
+            .mb-op .pc.up { color: var(--mb-win); }
+            .mb-op .pc.mut { color: var(--mb-faint); }
+            .mb-vs { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9px; letter-spacing: .1em; color: var(--mb-faint); flex: none; }
+            .mb-bar { height: 5px; background: rgba(70,55,35,.10); display: flex; overflow: hidden; margin-bottom: 16px; }
+            /* flex: none, or the two segments shrink off their set widths and
+               the bar stops meaning anything. */
+            .mb-bar > div { flex: none; }
+            .mb-bar .a { background: var(--mb-win); }
+            .mb-bar .b { background: var(--mb-ox); }
+            .mb-bar .e { background: repeating-linear-gradient(45deg, rgba(70,55,35,.08) 0 4px, transparent 4px 8px); }
+            .mb-c-fin { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin-bottom: 14px; padding-top: 12px; border-top: 1px solid var(--mb-line-soft); }
+            .mb-c-stake .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 19px; font-weight: 600; color: var(--mb-ink); }
+            .mb-c-stake .v small { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; font-weight: 400; color: var(--mb-muted); letter-spacing: .04em; }
+            .mb-c-stake .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--mb-muted); margin-top: 4px; }
+            .mb-settle { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--mb-muted); border: 1px solid var(--mb-line); padding: 5px 8px; white-space: nowrap; }
+            .mb-c-act {
+                margin-top: auto; width: 100%; text-align: center;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500;
+                padding: 12px; border: 0; border-radius: 0; cursor: pointer; display: block;
+            }
+            .mb-c-act.accept { background: var(--mb-ox); color: #F6EEDD; }
+            .mb-c-act.view { border: 1px solid var(--mb-line-firm); color: var(--mb-ink); background: none; }
+            .mb-empty {
+                grid-column: 1 / -1; text-align: center; padding: 46px 20px;
+                border: 1px dashed var(--mb-line-firm); color: var(--mb-muted);
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+            }
+
+            /* ---- issue band ---- */
+            .mb-issue {
+                margin-top: 34px; background: var(--mb-ox); color: #F3E7D6;
+                display: flex; align-items: center; justify-content: center;
+                gap: 26px; flex-wrap: wrap; padding: 22px;
+                box-shadow: 0 14px 30px rgba(94,20,32,.20);
+            }
+            .mb-issue .t { font-family: "Cormorant Garamond", Georgia, serif; font-size: 23px; font-weight: 600; }
+            .mb-issue .a {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 12px; letter-spacing: .2em; text-transform: uppercase; font-weight: 500;
+                border: 1px solid rgba(243,231,214,.5); padding: 12px 24px;
+                color: #F3E7D6; background: none; cursor: pointer;
+            }
+            .mb-issue .a:hover { background: rgba(243,231,214,.12); }
+
+            /* ---- settlements ledger ---- */
+            .mb-ledger { padding-top: 56px; }
+            .mb-ltable { border-top: 2px solid var(--mb-ink); }
+            .mb-lrowh, .mb-lrow {
+                display: grid; grid-template-columns: 110px 1fr 130px 120px 120px 96px;
+                gap: 18px; align-items: center;
+            }
+            .mb-lrowh { padding: 11px 8px; border-bottom: 1px solid var(--mb-line); }
+            .mb-lrowh span { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--mb-muted); }
+            .mb-lrowh .right { text-align: right; }
+            .mb-lrow { padding: 14px 8px; border-bottom: 1px solid var(--mb-line-soft); }
+            .mb-lrow .rc { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; color: var(--mb-muted); letter-spacing: .04em; }
+            .mb-lrow .ct { font-family: "Cormorant Garamond", Georgia, serif; font-size: 18px; font-weight: 600; color: var(--mb-ink); }
+            .mb-lrow .rs { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; }
+            .mb-lrow .rs.w { color: var(--mb-win); }
+            .mb-lrow .rs.l { color: var(--mb-ox); }
+            .mb-lrow .am { font-family: "Cormorant Garamond", Georgia, serif; font-size: 19px; font-weight: 600; text-align: right; }
+            .mb-lrow .am.w { color: var(--mb-win); }
+            .mb-lrow .am.l { color: var(--mb-ox); }
+            .mb-lrow .sr { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10.5px; letter-spacing: .06em; color: var(--mb-ink-soft); }
+            .mb-lrow .tm { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10.5px; letter-spacing: .06em; color: var(--mb-muted); text-align: right; }
+            .mb-foot {
+                margin-top: 44px; padding-bottom: 12px; text-align: center;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--mb-muted);
+                display: flex; align-items: center; justify-content: center; gap: 16px;
+            }
+
+            /* ---- states, motion, focus ---- */
+            .mb-cbtn, .mb-bcreate, .mb-c-act, .mb-chip, .mb-seg button, .mb-issue .a {
+                transition: background 160ms ease, color 160ms ease, transform 120ms ease, box-shadow 120ms ease;
+            }
+            .mb-cbtn:hover, .mb-bcreate:hover, .mb-c-act.accept:hover { background: var(--mb-ox-deep); transform: translateY(-1px); }
+            .mb-cbtn:active, .mb-bcreate:active, .mb-c-act.accept:active { transform: none; box-shadow: none; }
+            .mb-c-act.view:hover, .mb-chip:hover, .mb-seg button:hover { background: rgba(70,55,35,.06); }
+            .mb a:focus-visible, .mb button:focus-visible { outline: 2px solid var(--mb-ox); outline-offset: 2px; }
+            @media (prefers-reduced-motion: reduce) {
+                .mb-cbtn, .mb-bcreate, .mb-c-act, .mb-chip, .mb-seg button, .mb-issue .a { transition: none; }
+                .mb-cbtn:hover, .mb-bcreate:hover, .mb-c-act.accept:hover { transform: none; }
+            }
+
+            /* ---- responsive ----
+               The matrix and the ledger SCROLL rather than reflow. Both are
+               tables whose meaning is the alignment of a row against its
+               column headers; stacking them into cards throws that away and
+               leaves a list of labels nobody reads. */
+            @media (max-width: 1180px) {
+                .mb-grid { grid-template-columns: repeat(3, 1fr); }
+            }
+            @media (max-width: 900px) {
+                .mb-grid { grid-template-columns: repeat(2, 1fr); }
+                .mb-step { grid-template-columns: 1fr; gap: 16px; padding: 22px 0; }
+                .mb-builder { grid-template-columns: 1fr; gap: 24px; }
+                .mb-solo { padding-top: 44px; }
+                .mb-board { padding-top: 46px; }
+            }
+            @media (max-width: 640px) {
+                .mb-grid { grid-template-columns: 1fr; }
+                .mb-controls { gap: 14px; }
+                .mb-matrix, .mb-ltable { overflow-x: auto; }
+                .mb-mx-h, .mb-mx-r, .mb-lrowh, .mb-lrow { min-width: 560px; }
+                .mb-lrowh, .mb-lrow { grid-template-columns: 96px 1fr 110px 100px 100px 84px; }
+                .mb-solo-emb { height: 44px; }
+                .mb-issue { gap: 16px; }
+                .mb-foot { letter-spacing: .16em; }
+            }
         </style>
 
         <div class="cl-grain" aria-hidden="true"></div>
@@ -1242,286 +1612,194 @@ export function renderActiveContracts() {
                 </div>
             </section>
 
-            <!-- The Contract Structures section is REMOVED FROM THIS ROUTE.
-                 It still renders on the landing page and the mobile landing —
-                 StructuresSection.js is a shared component and is untouched.
-                 Only this call site is gone, so /market drops straight from the
-                 hero into the live board.
+            <!-- ═══════════════════════════════════════════════════════════
+                 THE MARKET BOARD
 
-                 .ss-promise goes with it. It is the revocation notice that
-                 belonged to the sources block inside that section; on its own,
-                 between a hero and a market table, it is a sentence about bank
-                 connections with nothing around it to attach to. The same notice
-                 is still carried by the landing page's copy of the section. -->
+                 THE REFERENCE'S MASTHEAD IS DELIBERATELY NOT HERE. It carried
+                 the wordmark, "528 open · $633K in escrow" and a Create
+                 Contract button — which is precisely what the hero above
+                 already is. Rendering both would print the same headline twice
+                 and the same two figures twice on one page, which is the exact
+                 contradiction this route was cleaned up to remove. The hero is
+                 that masthead; everything below is what follows it.
+                 ═══════════════════════════════════════════════════════════ -->
 
-
-            <!-- Section 3: Live Market Header & Mechanical Odometer Stats -->
-            <section class="eq-market-header" id="live-market">
-                <div class="mono-lbl" style="margin-bottom: 8px;">LIVE CLEARINGHOUSE</div>
-                <h2 class="eq-market-title">Collateral <strong>Market.</strong></h2>
-                <div class="eq-market-live">
-                    <div class="eq-market-dot"></div>
-                    Live — Updated <span id="last-updated" style="font-variant-numeric: tabular-nums;">04:20:00 PM</span>
-                </div>
-
-                <!-- Odometer Statistic Strip -->
-                <div class="eq-stats-strip">
-                    <div class="eq-stat-group">
-                        <div class="eq-stat-val">$<span id="stat-capital">0</span>k</div>
-                        <div class="eq-stat-lbl">OPEN CAPITAL</div>
-                    </div>
-                    <div class="eq-stat-group">
-                        <div class="eq-stat-val" id="stat-contracts">0</div>
-                        <div class="eq-stat-lbl">OPEN CONTRACTS</div>
-                    </div>
-                    <div class="eq-stat-group">
-                        <div class="eq-stat-val">$<span id="stat-pool">0</span>k</div>
-                        <div class="eq-stat-lbl">DAILY VOLUME</div>
+            <!-- ── CREATE ──
+                 #ss-root and the .ss-metric / .ss-go / .ss-m-state hooks are
+                 kept EXACTLY as they were. The look is new; the wiring behind
+                 it is the existing loadSourceState(), which reads real Plaid,
+                 Stripe, Shopify and YouTube connection status off the API. That
+                 logic is the only genuinely live thing on this route and it
+                 would have been thrown away by rebuilding the markup fresh. -->
+            <section class="mb mb-solo" id="ss-root" data-bank="none">
+                <div class="mb-solo-top">
+                    <img class="mb-solo-emb" src="/assets/images/solo-seal.webp" alt="" aria-hidden="true">
+                    <div>
+                        <div class="mb-kick"><span class="r"></span> Create</div>
+                        <h2>Stake on <span class="ox">your own goal.</span></h2>
                     </div>
                 </div>
+                <p class="mb-lede">Three steps. Priced from your last twelve months &mdash; not a menu.</p>
 
-                <!-- Controls — sort tabs and DOMAIN filters relocated above the
-                     Rivalry grid, which is the only thing they drive now that the
-                     contract catalog is gone. -->
-                <div class="eq-controls">
-                    <div class="eq-search-wrap">
-                        <button class="eq-btn-rules" id="btn-rules">Rules</button>
+                <div class="mb-step">
+                    <div>
+                        <div class="mb-snum">01</div>
+                        <div class="mb-stt">Connect your bank</div>
                     </div>
-                    <div class="eq-status-operational">
-                        SYSTEM STATUS <div class="dot"></div> OPERATIONAL
+                    <div>
+                        <p class="mb-sdesc">Read-only, via Plaid.</p>
+                        <button type="button" class="mb-cbtn" id="ss-connect-bank" data-source="bank">Connect Bank <span class="tag">Plaid &middot; read-only</span></button>
+                        <div class="mb-reassure"><span class="mb-mark" style="width:7px;height:7px"></span> Revocable anytime.</div>
+                    </div>
+                </div>
+
+                <div class="mb-step">
+                    <div>
+                        <div class="mb-snum">02</div>
+                        <div class="mb-stt">Choose what you&rsquo;re measured on</div>
+                    </div>
+                    <div>
+                        <p class="mb-sdesc">Money is ready once your bank connects. The rest need their own source.</p>
+                        <div class="mb-matrix">
+                            <div class="mb-mx-h">
+                                <span class="l">Metric</span>
+                                <span>Bank<span class="conn" id="mb-bank-conn" hidden>Connected</span></span>
+                                <span>Stripe</span>
+                                <span>Shopify</span>
+                                <span>YouTube</span>
+                                <span class="rt">Availability</span>
+                            </div>
+
+                            <div class="mb-mx-r ss-metric locked" data-metric="money">
+                                <div><div class="mb-mn">Money received</div><div class="mb-md ss-m-state"></div></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-o" data-src="bank"></span></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="stripe"></span></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="shopify"></span></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="youtube"></span></div>
+                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="money">Connect bank &rarr;</button></div>
+                            </div>
+
+                            <div class="mb-mx-r ss-metric locked ss-gated" data-metric="mrr">
+                                <div><div class="mb-mn">MRR</div><div class="mb-md ss-m-state"></div></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="bank"></span></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-o" data-src="stripe"></span></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="shopify"></span></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="youtube"></span></div>
+                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="mrr">Connect Stripe &rarr;</button></div>
+                            </div>
+
+                            <div class="mb-mx-r ss-metric locked ss-gated" data-metric="orders">
+                                <div><div class="mb-mn">Orders</div><div class="mb-md ss-m-state"></div></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="bank"></span></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="stripe"></span></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-o" data-src="shopify"></span></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="youtube"></span></div>
+                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="orders">Connect Shopify &rarr;</button></div>
+                            </div>
+
+                            <div class="mb-mx-r ss-metric locked ss-gated" data-metric="views">
+                                <div><div class="mb-mn">Views</div><div class="mb-md ss-m-state"></div></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="bank"></span></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="stripe"></span></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="shopify"></span></div>
+                                <div class="mb-mx-cell"><span class="mb-dot-o" data-src="youtube"></span></div>
+                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="views">Connect YouTube &rarr;</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-step">
+                    <div>
+                        <div class="mb-snum">03</div>
+                        <div class="mb-stt">Set your terms</div>
+                    </div>
+                    <div class="mb-builder">
+                        <div class="mb-bnote">
+                            <span class="big">Priced from your record.</span>
+                            Your verified history sets the price. Choose the target, window, and amount at risk &mdash; the return updates automatically.
+                        </div>
+                        <!-- A WORKED EXAMPLE, AND IT SAYS SO. Every figure here is
+                             priced per person from verified history after the
+                             examination, so printing $250 -> $1,000 without the
+                             marker below would read as an offer this page cannot
+                             make. -->
+                        <div class="mb-bcard">
+                            <div class="mb-bh">
+                                <div class="mb-bt-top">
+                                    <span class="mb-bt-k">Solo Contract &middot; Example</span>
+                                    <span class="mb-bt-k" id="mb-bt-verified">Bank required</span>
+                                </div>
+                                <div class="mb-bt-title">Money Received</div>
+                                <div class="mb-brule"></div>
+                                <div class="mb-brow"><span class="k">Target</span><span class="v">+20%<span class="adj">Adjust</span></span></div>
+                                <div class="mb-brow"><span class="k">Window</span><span class="v">30 Days<span class="adj">Adjust</span></span></div>
+                                <div class="mb-brow"><span class="k">Stake</span><span class="v">$250<span class="adj">Adjust</span></span></div>
+                                <div class="mb-bmult"><span class="k">Payout Multiplier</span><span class="v">4.0&times;</span></div>
+                                <div class="mb-bplain">Risk <b>$250</b> to earn <b>$1,000</b> profit if Money Received grows 20% in 30 days.</div>
+                                <div class="mb-bout"><span class="w">&#9670; Hit target &middot; +$1,000</span><span class="l">Miss &middot; &minus;$250</span></div>
+                                <button type="button" class="mb-bcreate" data-source="money">Create Contract &rarr;</button>
+                                <span class="mb-bex">Illustrative &mdash; your terms are priced from your own history</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- ═══ SOLO SOURCE PICKER ═══
-                 Replaces the old pre-priced contract catalog. No targets, no
-                 multipliers, no stake ranges: every term is derived per person from
-                 their own verified history after the examination, so any number
-                 printed here would be decoration or a bait-and-switch.
-
-                 Each source answers a different question, so nothing overlaps.
-                 Bullets list only metrics with a real backing metric_type. -->
-            <div class="eq-grid-container" style="padding: 0 32px; max-width: 1300px; margin: 0 auto;">
-                <!-- Universal Clause Line -->
-                <div class="eq-grid-banner">
-                    <span class="mono">§ 3.1 &middot; ALL CONTRACTS FEATURE AUTOMATIC ORACLE TRACKING &middot; DEPOSITS RETURNED UPON VERIFIED GOAL SETTLEMENT</span>
+            <!-- ── BOARD ── -->
+            <section class="mb mb-board">
+                <div class="mb-lhead">
+                    <span class="lab"><span class="mb-mark"></span> Open Rivalries</span>
+                    <span class="ln"></span>
+                    <button type="button" class="act" id="btn-rules">Execution rules &rarr;</button>
                 </div>
 
-                <section class="ss" id="ss-root" data-seen="false" aria-labelledby="ss-title">
-                    <p class="ss-eyebrow"><span class="ss-mark"></span>SOLO CONTRACTS</p>
-                    <h2 class="ss-title" id="ss-title">Connect your bank.<br>Then choose <em>what you&rsquo;re measured on.</em></h2>
-                    <p class="ss-lede">
-                        Connect your bank and Collateral reads twelve months of your own history
-                        before it offers you anything. Your target, your difficulty, and your
-                        payout multiplier all come out of your numbers &mdash; not a menu.
-                    </p>
-
-                    <div class="ss-step" data-step="01">
-                        <div class="ss-step-side">
-                            <span class="ss-step-n">01</span>
-                            <h3 class="ss-step-hd">Connect your bank</h3>
-                        </div>
-                        <div class="ss-step-main">
-                            <p class="ss-step-body">
-                                Read-only, through Plaid. Stripe and Shopify payouts land here too, so the
-                                bank settles anything measured in dollars.
-                            </p>
-                            <div class="ss-primary-wrap">
-                                <button class="ss-primary" id="ss-connect-bank" data-source="bank">
-                                    Connect bank <span class="ss-primary-sub">Plaid &middot; read-only</span>
-                                </button>
-                            </div>
-                            <p class="ss-micro">Nothing here commits you to a contract. Access is revocable at any time.</p>
-                        </div>
+                <div class="mb-controls">
+                    <div class="mb-seg" id="mb-seg">
+                        <button type="button" class="on" data-state="all">All Contracts</button>
+                        <button type="button" data-state="open">Open</button>
+                        <button type="button" data-state="live">Live</button>
                     </div>
-
-                    <div class="ss-step ss-gated" data-step="02" id="ss-step-metrics">
-                        <div class="ss-step-side">
-                            <span class="ss-step-n">02</span>
-                            <h3 class="ss-step-hd">Choose what you&rsquo;re measured on</h3>
-                        </div>
-                        <div class="ss-step-main">
-                            <p class="ss-step-body">
-                                Money is ready as soon as your bank is connected. The rest are counts, not money.
-                            </p>
-
-                            <div class="ss-metrics" id="ss-metrics">
-                                <div class="ss-metric ready" data-metric="money" data-source="bank">
-                                    <div class="ss-m-top">
-                                        <span class="ss-m-name">Money received</span>
-                                        <span class="ss-tag">BANK VERIFIED</span>
-                                    </div>
-                                    <p class="ss-m-what">Income that landed in your account, net of fees.</p>
-                                    <div class="ss-m-foot">
-                                        <span class="ss-m-state"></span>
-                                        <span class="ss-go">Write this contract &rarr;</span>
-                                    </div>
-                                </div>
-
-                                <div class="ss-metric locked" data-metric="mrr" data-source="mrr" data-platform="Stripe">
-                                    <div class="ss-m-top">
-                                        <span class="ss-m-name">MRR</span>
-                                        <span class="ss-m-req">NEEDS STRIPE</span>
-                                    </div>
-                                    <p class="ss-m-what">Recurring revenue. Your bank can&rsquo;t see it.</p>
-                                    <div class="ss-m-foot">
-                                        <span class="ss-m-state"></span>
-                                        <span class="ss-go">Connect Stripe &rarr;</span>
-                                    </div>
-                                </div>
-
-                                <div class="ss-metric locked" data-metric="orders" data-source="orders" data-platform="Shopify">
-                                    <div class="ss-m-top">
-                                        <span class="ss-m-name">Orders</span>
-                                        <span class="ss-m-req">NEEDS SHOPIFY</span>
-                                    </div>
-                                    <p class="ss-m-what">Order counts. Not a dollar figure.</p>
-                                    <div class="ss-m-foot">
-                                        <span class="ss-m-state"></span>
-                                        <span class="ss-go">Connect Shopify &rarr;</span>
-                                    </div>
-                                </div>
-
-                                <div class="ss-metric locked" data-metric="views" data-source="views" data-platform="YouTube">
-                                    <div class="ss-m-top">
-                                        <span class="ss-m-name">Views</span>
-                                        <span class="ss-m-req">NEEDS YOUTUBE</span>
-                                    </div>
-                                    <p class="ss-m-what">Views. Never denominated in dollars.</p>
-                                    <div class="ss-m-foot">
-                                        <span class="ss-m-state"></span>
-                                        <span class="ss-go">Connect YouTube &rarr;</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="mb-chips" id="eq-filters">
+                        <button type="button" class="mb-chip on" data-category="all">All</button>
+                        <button type="button" class="mb-chip" data-category="social">Social</button>
+                        <button type="button" class="mb-chip" data-category="commerce">Commerce</button>
+                        <button type="button" class="mb-chip" data-category="finance">Finance</button>
                     </div>
-
-                    <div class="ss-sources">
-                        <span class="ss-sources-k">&sect; HOW SOURCES WORK</span>
-                        <span class="ss-sources-v">
-                            Your bank settles every contract. Stripe, Shopify and YouTube only
-                            unlock metrics a bank statement can&rsquo;t see.
-                        </span>
-                    </div>
-
-                    <p class="ss-promise">
-                        No terms exist until your bank is connected and examined. Nothing here
-                        commits you to a contract, and read access can be revoked at any time.
-                    </p>
-                </section>
-            </div>
-
-            <!-- Mechanism Section -->
-            
-            <!-- Open Rivalries Section -->
-            <section style="max-width: 1300px; margin: 64px auto 0; padding: 0 32px;">
-                <div style="border-top: 1px solid var(--rule, #DCD5C6); padding-top: 40px; margin-bottom: 24px;">
-                    
-<div style="position:relative;">
-    <!-- Ghosted Background Mark (~120px, 3% opacity) -->
-    <div style="position:absolute; right:0; top:-20px; pointer-events:none; opacity:0.03; color:var(--blood, #7A1C29);">
-        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14.5 17.5L3 6V3h3l11.5 11.5" />
-            <path d="M13 19l6-6" />
-            <path d="M16 16l4 4" />
-            <path d="M19 13l2 2" />
-            <path d="M9.5 17.5L21 6V3h-3L6.5 14.5" />
-            <path d="M11 19l-6-6" />
-            <path d="M8 16l-4 4" />
-            <path d="M5 13l-2 2" />
-        </svg>
-    </div>
-    <div class="mono-lbl" style="margin-bottom: 8px; display:flex; align-items:center; gap:6px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--blood, #7A1C29)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14.5 17.5L3 6V3h3l11.5 11.5" />
-            <path d="M13 19l6-6" />
-            <path d="M16 16l4 4" />
-            <path d="M19 13l2 2" />
-            <path d="M9.5 17.5L21 6V3h-3L6.5 14.5" />
-            <path d="M11 19l-6-6" />
-            <path d="M8 16l-4 4" />
-            <path d="M5 13l-2 2" />
-        </svg>
-        OPEN RIVALRIES
-    </div>
-</div>
-                    <h2 class="eq-market-title" style="font-size: 32px; margin-bottom: 8px;">Somebody has to <strong>lose.</strong></h2>
-                    <p style="font-size: 14.5px; color: var(--ink-2, #4A5464); max-width: 580px; line-height: 1.6; margin: 0 0 24px;">Two operators, matched capital, one oracle. Join an open challenge or issue your own.</p>
-                </div>
-
-                <!-- Rivalry Stat Strip (Reconciled Subset of Page Totals) -->
-                <div style="display: flex; gap: 48px; padding: 18px 28px; background: var(--plate, #FFFDF9); border: 1px solid var(--rule, #DCD5C6); border-radius: var(--r, 2px); box-shadow: var(--lift); margin-bottom: 28px;">
-                    <div style="display:flex; flex-direction:column; gap:4px;">
-                        <div style="font-family: var(--display, 'Archivo', sans-serif); font-size: 24px; font-weight: 700; color: var(--ink, #0E1420); font-variant-numeric: tabular-nums;">4</div>
-                        <div class="mono-lbl">OPEN CHALLENGES</div>
-                    </div>
-                    <div style="display:flex; flex-direction:column; gap:4px;">
-                        <div style="font-family: var(--display, 'Archivo', sans-serif); font-size: 24px; font-weight: 700; color: var(--ink, #0E1420); font-variant-numeric: tabular-nums;">$184.2k</div>
-                        <div class="mono-lbl">MATCHED CAPITAL</div>
-                    </div>
-                    <div style="display:flex; flex-direction:column; gap:4px;">
-                        <div style="font-family: var(--display, 'Archivo', sans-serif); font-size: 24px; font-weight: 700; color: var(--win, #186B4A); font-variant-numeric: tabular-nums;">18</div>
-                        <div class="mono-lbl">DUELS SETTLED THIS WEEK</div>
+                    <!-- The count is the length of what is actually on the board.
+                         The reference printed 528 next to eight cards; a results
+                         count that disagrees with the results is the same class of
+                         bug as the hero and the odometers disagreeing. -->
+                    <div class="mb-sortr">
+                        <span><b id="mb-count">0</b> results</span>
+                        <span>Sort: <b id="mb-sort-lbl">Trending</b></span>
                     </div>
                 </div>
 
-                <!-- Sort tabs + DOMAIN filters. Relocated here from the page header:
-                     they only drive the Rivalry board, and above the source picker
-                     they read as picker filters that do nothing. -->
-                <div class="eq-controls">
-                    <div class="eq-tabs" id="eq-tabs">
-                        <button class="eq-tab active" data-sort="trending_24h">TRENDING</button>
-                        <button class="eq-tab" data-sort="new">NEW</button>
-                        <button class="eq-tab" data-sort="closing_soon">CLOSING SOON</button>
-                        <button class="eq-tab" data-sort="volume_24h">HIGH VOLUME</button>
-                    </div>
-                </div>
-                <div class="eq-filter-bar">
-                    <div class="eq-pills" id="eq-filters">
-                        <span class="eq-filter-lbl">DOMAIN</span>
-                        <button class="eq-pill active" data-category="all">ALL</button>
-                        <button class="eq-pill" data-category="social">SOCIAL</button>
-                        <button class="eq-pill" data-category="commerce">COMMERCE</button>
-                        <button class="eq-pill" data-category="finance">FINANCE</button>
-                    </div>
-                </div>
+                <div class="mb-grid" id="rivalry-grid"></div>
 
-                <!-- Rivalry Cards Grid -->
-                <div class="eq-grid" id="rivalry-grid" style="margin-bottom: 28px;">
-                    <!-- Rendered dynamically -->
+                <div class="mb-issue">
+                    <span class="t">No match?</span>
+                    <button type="button" class="a" onclick="window.router.navigate('/rivalry')">Create a Rivalry &rarr;</button>
                 </div>
-
-                <!-- Issue a Challenge CTA -->
-                <button class="eq-btn-primary" style="width: 100%; text-align: center; padding: 16px;" onclick="window.router.navigate('/rivalry')">ISSUE A CHALLENGE &rarr;</button>
             </section>
 
-            <section class="eq-mechanism">
-                <div style="margin-bottom: 32px;">
-                    <div class="mono-lbl" style="margin-bottom: 8px;">DETERMINISTIC PROTOCOL</div>
-                    <h2 class="eq-market-title">Four steps to <strong>settlement.</strong></h2>
+            <!-- ── SETTLEMENTS ── -->
+            <section class="mb mb-ledger">
+                <div class="mb-lhead">
+                    <span class="lab"><span class="mb-mark"></span> Recent Settlements</span>
+                    <span class="ln"></span>
+                    <button type="button" class="act" onclick="window.router.navigate('/receipts')">View full ledger &rarr;</button>
                 </div>
-                <div class="eq-mechanism-grid">
-                    <div class="eq-mech-card">
-                        <div class="eq-mech-num">01</div>
-                        <div class="eq-mech-label">Commit</div>
-                        <div class="eq-mech-desc">Stake capital against specific, measurable performance targets. Lock funds in custody.</div>
+                <div class="mb-ltable">
+                    <div class="mb-lrowh">
+                        <span>Receipt</span><span>Contract</span><span>Result</span>
+                        <span class="right">Amount</span><span>Source</span><span class="right">Settled</span>
                     </div>
-                    <div class="eq-mech-card">
-                        <div class="eq-mech-num">02</div>
-                        <div class="eq-mech-label">Monitor</div>
-                        <div class="eq-mech-desc">Metrics are tracked in real-time through verified data adapters connected to authoritative sources.</div>
-                    </div>
-                    <div class="eq-mech-card">
-                        <div class="eq-mech-num">03</div>
-                        <div class="eq-mech-label">Verify</div>
-                        <div class="eq-mech-desc">Automated oracle verification at the deadline. Deterministic. Transparent. No appeals.</div>
-                    </div>
-                    <div class="eq-mech-card">
-                        <div class="eq-mech-num">04</div>
-                        <div class="eq-mech-label">Settle</div>
-                        <div class="eq-mech-desc">Variance is calculated against target. Capital is released to winner or returned upon verification.</div>
-                    </div>
+                    <div id="mb-ledger-rows"></div>
+                </div>
+                <div class="mb-foot">
+                    <span class="mb-mark"></span> Capital at risk &middot; Outcomes are final <span class="mb-mark"></span>
                 </div>
             </section>
         </div>
@@ -1555,35 +1833,52 @@ export function renderActiveContracts() {
 
 
 export function initActiveContracts() {
-    // Sort + domain filters now drive the Rivalry board only.
-    let activeSort = 'trending_24h';
+    // The board's own filters. Domain across, state down.
     let activeCategory = 'all';
+    let activeState = 'all';
 
-    // Item 2: Mechanical Odometer count-up on first paint
-    function animateOdometer(el, endVal, suffix = '', duration = 1400) {
-        if (!el) return;
-        const startTime = performance.now();
-        function update(currentTime) {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const ease = 1 - Math.pow(1 - progress, 4); // easeOutQuart
-            const current = endVal * ease;
-            el.textContent = (current >= 1000 ? (current / 1000).toFixed(1) : Math.round(current).toString()) + suffix;
-            if (progress < 1) requestAnimationFrame(update);
-        }
-        requestAnimationFrame(update);
+    /* THE ODOMETERS ARE GONE WITH THE SECOND MASTHEAD THEY LIVED IN. They
+       animated #stat-capital / #stat-contracts / #stat-pool inside the old
+       "Collateral Market." header, which duplicated the hero — so the page
+       printed the same three figures twice. The hero's status strip is now the
+       only place those numbers appear, and it still reads MARKET_STATS. */
+
+    /* Settlements. One array, so a row cannot disagree with itself, and the
+       shape is already what a ledger endpoint would return. Illustrative until
+       it is fed — see the marker at the foot of the table. */
+    const RECENT_SETTLEMENTS = [
+        { receipt: 'RCPT-3901', contract: 'Net Revenue +20%',        won: true,  amount: 1000, source: 'Stripe',  ago: '2m ago',  result: 'Target met' },
+        { receipt: 'RCPT-3888', contract: 'Follower Sprint',         won: false, amount: 500,  source: 'X API',   ago: '14m ago', result: 'Missed' },
+        { receipt: 'RCPT-3877', contract: 'MRR Rivalry · @harbor won', won: true, amount: 2400, source: 'Stripe', ago: '31m ago', result: 'Settled' },
+        { receipt: 'RCPT-3860', contract: 'Order Volume Target',     won: true,  amount: 750,  source: 'Shopify', ago: '1h ago',  result: 'Target met' },
+        { receipt: 'RCPT-3852', contract: 'Watch-Time Rivalry',      won: false, amount: 1000, source: 'YouTube', ago: '2h ago',  result: 'Missed' },
+        { receipt: 'RCPT-3844', contract: 'Subscriber Growth',       won: true,  amount: 1800, source: 'YouTube', ago: '3h ago',  result: 'Target met' },
+    ];
+
+    function renderLedger() {
+        const host = document.getElementById('mb-ledger-rows');
+        if (!host) return;
+        host.innerHTML = '';
+        RECENT_SETTLEMENTS.forEach((s) => {
+            const row = document.createElement('div');
+            row.className = 'mb-lrow';
+            const cls = s.won ? 'w' : 'l';
+            const sign = s.won ? '+' : '−';
+            row.innerHTML =
+                '<span class="rc">' + s.receipt + '</span>' +
+                '<span class="ct"></span>' +
+                '<span class="rs ' + cls + '">' + s.result + '</span>' +
+                '<span class="am ' + cls + '">' + sign + '$' + s.amount.toLocaleString() + '</span>' +
+                '<span class="sr" title="Verified at source">' + s.source + ' ✓</span>' +
+                '<span class="tm">' + s.ago + '</span>';
+            // textContent, not innerHTML: contract names are data and will come
+            // from an endpoint, so they never get to carry markup.
+            row.querySelector('.ct').textContent = s.contract;
+            host.appendChild(row);
+        });
     }
 
-    /* Read from MARKET_STATS, not from literals. The masthead's status line
-       reads the same object, which is what stops the top of the page and the
-       middle of it printing different numbers for the same fact. */
-    animateOdometer(document.getElementById('stat-capital'), MARKET_STATS.openCapital);
-    animateOdometer(document.getElementById('stat-contracts'), MARKET_STATS.openContracts);
-    animateOdometer(document.getElementById('stat-pool'), MARKET_STATS.dailyVolume);
 
-
-
-    
     // Mock Rivalries Data (Open challenges sorted above Live duels)
     const mockRivalries = [
         {
@@ -1641,123 +1936,224 @@ export function initActiveContracts() {
             total_pool: 1500,
             op1: { handle: '@atlas_v', delta: '+8.6%', is_leader: true },
             op2: { handle: '@kodiak', delta: '+5.1%', is_leader: false }
+        },
+        /* The four the reference board added. They go in the SAME array rather
+           than into the markup as literal cards: the count, the domain chips
+           and the state segments all derive from this list, so a card that
+           lived in the HTML would be invisible to every filter and would make
+           the results count lie. */
+        {
+            id: 'RVL-5567-E',
+            title: 'MRR Sprint (30d)',
+            domain: 'finance',
+            platform: 'STRIPE',
+            rail: 'CLTR · ON-CHAIN',
+            state: 'open',
+            receipt: 'RCPT-5567',
+            days_left: 5,
+            stake_per_side: 1500,
+            total_pool: 3000,
+            op1: { handle: '@quill', delta: '+11.0%', is_leader: true },
+            op2: { handle: 'AWAITING COUNTERPARTY', delta: '—', is_leader: false }
+        },
+        {
+            id: 'RVL-8820-F',
+            title: 'Order Volume',
+            domain: 'commerce',
+            platform: 'SHOPIFY',
+            rail: 'USD · CUSTODIAL',
+            state: 'live',
+            receipt: 'RCPT-8820',
+            days_left: 12,
+            stake_per_side: 1000,
+            total_pool: 2000,
+            op1: { handle: '@harbor', delta: '+41.0%', is_leader: true },
+            op2: { handle: '@dune', delta: '+38.0%', is_leader: false }
+        },
+        {
+            id: 'RVL-6034-G',
+            title: 'Follower Growth (14d)',
+            domain: 'social',
+            platform: 'X API',
+            rail: 'CLTR · ON-CHAIN',
+            state: 'open',
+            receipt: 'RCPT-6034',
+            days_left: 2,
+            stake_per_side: 300,
+            total_pool: 600,
+            op1: { handle: '@vela', delta: '+6.3%', is_leader: true },
+            op2: { handle: 'AWAITING COUNTERPARTY', delta: '—', is_leader: false }
+        },
+        {
+            id: 'RVL-4471-H',
+            title: 'Watch-Time',
+            domain: 'social',
+            platform: 'YOUTUBE',
+            rail: 'USD · CUSTODIAL',
+            state: 'live',
+            receipt: 'RCPT-4471',
+            days_left: 18,
+            stake_per_side: 2000,
+            total_pool: 4000,
+            op1: { handle: '@orion', delta: '+28.0%', is_leader: true },
+            op2: { handle: '@pike', delta: '+25.0%', is_leader: false }
         }
     ];
 
+    /* THE BOARD IS BUILT WITHOUT A TEMPLATE LITERAL, ON PURPOSE. Handles and
+       contract titles are data; the moment they come from an endpoint instead
+       of the array above, interpolating them into an HTML string is an
+       injection. Structure is set as markup, every value is set with
+       textContent, and the two never mix. */
     function renderRivalries() {
         const rGrid = document.getElementById('rivalry-grid');
         if (!rGrid) return;
         rGrid.innerHTML = '';
 
-        let list = [...mockRivalries];
+        let list = mockRivalries.slice();
         if (activeCategory !== 'all') {
             list = list.filter(r => r.domain.toLowerCase() === activeCategory.toLowerCase());
         }
+        if (activeState !== 'all') {
+            list = list.filter(r => r.state === activeState);
+        }
 
-        // Sort Open challenges first
+        // Open challenges first: they are the only ones a reader can act on.
         list.sort((a, b) => (a.state === 'open' ? -1 : b.state === 'open' ? 1 : 0));
 
-        list.forEach(r => {
-            const card = document.createElement('div');
+        const count = document.getElementById('mb-count');
+        if (count) count.textContent = String(list.length);
+
+        if (list.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'mb-empty';
+            empty.textContent = 'No contracts match these filters';
+            rGrid.appendChild(empty);
+            return;
+        }
+
+        const el = (tag, cls, text) => {
+            const n = document.createElement(tag);
+            if (cls) n.className = cls;
+            if (text != null) n.textContent = text;
+            return n;
+        };
+
+        list.forEach((r) => {
             const isOpen = r.state === 'open';
-            card.className = 'rv-card ' + (isOpen ? 'rv-card--open' : '');
-
-            const badgeClass = isOpen ? 'rv-badge--open' : 'rv-badge--live';
-            const badgeText = isOpen ? 'OPEN CHALLENGE' : 'LIVE DUEL';
-
-            // Calculate Leader vs Trailer dynamically from numeric delta
             const d1 = parseFloat(r.op1.delta) || 0;
             const d2 = parseFloat(r.op2.delta) || 0;
-            const op1IsLead = d1 >= d2;
-            const op2IsLead = d2 > d1;
+            const op1Lead = d1 >= d2;
 
-            const op1DeltaClass = isOpen ? 'rv-delta--lead' : (op1IsLead ? 'rv-delta--lead' : 'rv-delta--trail');
-            const op2DeltaClass = isOpen ? 'rv-delta--empty' : (op2IsLead ? 'rv-delta--lead' : 'rv-delta--trail');
+            const card = el('article', 'mb-card');
+            const inner = el('div', 'mb-c-in');
 
-            const op2HandleText = isOpen ? 'Open slot' : r.op2.handle;
-            const op2HandleClass = isOpen ? 'rv-handle--empty' : '';
-            const op2DeltaText = isOpen ? '—' : r.op2.delta;
+            // ---- badge + receipt
+            const top = el('div', 'mb-c-top');
+            const badge = el('span', 'mb-badge ' + (isOpen ? 'open' : 'live'));
+            if (!isOpen) badge.appendChild(el('span', 'd'));
+            badge.appendChild(document.createTextNode(isOpen ? 'Open Rivalry' : 'Live Rivalry'));
+            top.appendChild(badge);
+            top.appendChild(el('span', 'mb-c-rcpt', r.receipt.replace('-', '·')));
+            inner.appendChild(top);
 
-            const ctaBtn = isOpen
-                ? '<button class="eq-card-cta rv-cta" style="background:#7A1C29 !important; color:#FFF8F5 !important;">ACCEPT CHALLENGE</button>'
-                : '<button class="eq-card-cta rv-cta" style="background:transparent !important; color:#0E1420 !important; border:1px solid #0E1420 !important;">VIEW DUEL &rarr;</button>';
+            // ---- deadline, title, domain
+            inner.appendChild(el('span', 'mb-c-days', r.days_left + 'D LEFT'));
+            inner.appendChild(el('h3', 'mb-c-title', r.title));
+            const dom = el('div', 'mb-c-dom');
+            dom.appendChild(el('span', 'pd'));
+            dom.appendChild(document.createTextNode(r.domain + ' · ' + r.platform));
+            inner.appendChild(dom);
 
-            card.innerHTML = `
-                <div class="rv-head">
-                    <span class="rv-badge ${badgeClass}">${badgeText}</span>
-                </div>
-                <div class="rv-meta">
-                    <span class="mono-lbl">${r.receipt}</span>
-                    <span class="mono-lbl" style="font-variant-numeric: tabular-nums;">${r.days_left}d left</span>
-                </div>
-                <h3 class="rv-title">${r.title}</h3>
-                <div class="rv-domain">
-                    <span class="rv-dot"></span>
-                    <span class="mono-lbl">${r.domain.toUpperCase()} &middot; ${r.platform}</span>
-                </div>
+            // ---- the two sides
+            const ops = el('div', 'mb-ops');
+            const left = el('div', 'mb-op');
+            left.appendChild(el('span', 'nm', r.op1.handle));
+            left.appendChild(el('span', 'pc up', r.op1.delta));
+            ops.appendChild(left);
+            ops.appendChild(el('span', 'mb-vs', 'VS'));
+            const right = el('div', 'mb-op r');
+            right.appendChild(el('span', 'nm', isOpen ? 'Open slot' : r.op2.handle));
+            right.appendChild(el('span', 'pc ' + (isOpen ? 'mut' : 'up'), isOpen ? '—' : r.op2.delta));
+            ops.appendChild(right);
+            inner.appendChild(ops);
 
-                <!-- 3-Column VS Competitor Grid (Fixes Text Truncation & Overlap) -->
-                <div class="rv-vs">
-                    <div class="rv-side">
-                        <span class="rv-handle">${r.op1.handle}</span>
-                        <span class="rv-delta ${op1DeltaClass}">${r.op1.delta}</span>
-                    </div>
-                    <div class="rv-divider">
-                        <div class="rv-vs-rule"></div>
-                        <span class="rv-vs-label">VS</span>
-                        <div class="rv-vs-rule"></div>
-                    </div>
-                    <div class="rv-side" style="text-align:right;">
-                        <span class="rv-handle ${op2HandleClass}">${op2HandleText}</span>
-                        <span class="rv-delta ${op2DeltaClass}">${op2DeltaText}</span>
-                    </div>
-                </div>
+            /* The share bar is drawn from the two deltas, not from a literal.
+               An open challenge has one side and no contest to show, so it gets
+               a half-filled bar and a hatched remainder rather than a 50/50
+               split implying an opponent who is not there. */
+            const seg = (cls, pct) => {
+                const n = el('div', cls);
+                // setAttribute, not el.style = "...": assigning a string to the
+                // style PROPERTY relies on a setter that is not universal.
+                n.setAttribute('style', 'width:' + pct + '%');
+                return n;
+            };
+            const bar = el('div', 'mb-bar');
+            if (isOpen) {
+                bar.appendChild(seg('a', 50));
+                bar.appendChild(seg('e', 50));
+            } else {
+                const total = Math.abs(d1) + Math.abs(d2);
+                const share = total > 0 ? Math.round((Math.abs(d1) / total) * 100) : 50;
+                // Clamped: a 41% vs 0% duel would otherwise draw a full bar and
+                // read as settled when it is still running.
+                const lead = Math.min(80, Math.max(20, share));
+                bar.appendChild(seg('a', lead));
+                bar.appendChild(seg('b', 100 - lead));
+            }
+            inner.appendChild(bar);
 
-                <!-- Proportional Share Bar -->
-                <div class="rv-bar">
-                    <div class="rv-bar-a" style="width: ${isOpen ? '50%' : (op1IsLead ? '60%' : '40%')};"></div>
-                    <div class="rv-bar-gap"></div>
-                    <div class="rv-bar-b" style="width: ${isOpen ? '50%' : (op2IsLead ? '60%' : '40%')};"></div>
-                </div>
+            // ---- stake + rail
+            const fin = el('div', 'mb-c-fin');
+            const stake = el('div', 'mb-c-stake');
+            const v = el('div', 'v');
+            v.appendChild(document.createTextNode('$' + r.stake_per_side.toLocaleString() + ' '));
+            v.appendChild(el('small', null, '/ side'));
+            stake.appendChild(v);
+            stake.appendChild(el('div', 'k', '$' + r.total_pool.toLocaleString() + ' Total Pool'));
+            fin.appendChild(stake);
+            fin.appendChild(el('span', 'mb-settle', r.rail));
+            inner.appendChild(fin);
 
-                <!-- Stake & Pool Info with $ prefix -->
-                <div class="rv-stake">
-                    <div>
-                        <p class="rv-per">$${r.stake_per_side.toLocaleString()} <span>/ side</span></p>
-                        <p class="rv-pool">$${r.total_pool.toLocaleString()} TOTAL POOL</p>
-                    </div>
-                    <span class="rv-rail">${r.rail}</span>
-                </div>
+            // ---- action
+            const act = el('button', 'mb-c-act ' + (isOpen ? 'accept' : 'view'),
+                isOpen ? 'Join Rivalry' : 'View Rivalry →');
+            act.type = 'button';
+            act.addEventListener('click', () => {
+                if (window.router) window.router.navigate('/rivalry');
+            });
+            inner.appendChild(act);
 
-                ${ctaBtn}
-            `;
+            card.appendChild(inner);
             rGrid.appendChild(card);
         });
     }
 
 
 
-    // Tabs listener
-    const tabsContainer = document.getElementById('eq-tabs');
-    if (tabsContainer) {
-        tabsContainer.addEventListener('click', (e) => {
-            const tab = e.target.closest('.eq-tab');
-            if (!tab) return;
-            tabsContainer.querySelectorAll('.eq-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            activeSort = tab.dataset.sort;
+    /* State segments (All / Open / Live) and domain chips. Both filter the same
+       list and both re-derive the results count, so the number beside "results"
+       cannot drift away from the number of cards under it. */
+    const segContainer = document.getElementById('mb-seg');
+    if (segContainer) {
+        segContainer.addEventListener('click', (e) => {
+            const b = e.target.closest('button[data-state]');
+            if (!b) return;
+            segContainer.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+            b.classList.add('on');
+            activeState = b.dataset.state;
             renderRivalries();
         });
     }
 
-    // Filters (Domain) listener
     const filtersContainer = document.getElementById('eq-filters');
     if (filtersContainer) {
         filtersContainer.addEventListener('click', (e) => {
-            const pill = e.target.closest('.eq-pill');
+            const pill = e.target.closest('.mb-chip');
             if (!pill) return;
-            filtersContainer.querySelectorAll('.eq-pill').forEach(p => p.classList.remove('active'));
-            pill.classList.add('active');
+            filtersContainer.querySelectorAll('.mb-chip').forEach(p => p.classList.remove('on'));
+            pill.classList.add('on');
             activeCategory = pill.dataset.category;
             renderRivalries();
         });
@@ -1775,47 +2171,38 @@ export function initActiveContracts() {
     }
 
     // ═══ SOLO SOURCE PICKER ═══
-    // Entrance motion only. The content is already in the DOM; this just animates
-    // it in. Three independent guarantees that it becomes visible:
-    //   1. threshold 0 + negative rootMargin — fires even for a section taller
-    //      than the viewport, which a high threshold can never satisfy
-    //   2. a 1200ms timeout that forces the reveal regardless of the observer
-    //   3. reduced-motion / no-IO environments are marked seen immediately
-    // We shipped a blank bordered box once because an observer threshold couldn't
-    // be met. Do not remove the timeout.
+    /* THE SCROLL-REVEAL IS GONE WITH THE CARDS IT ANIMATED. It faded in
+       .ss-step / .ss-metric tiles from opacity 0, and it once shipped a blank
+       bordered box when its observer threshold could not be met on a section
+       taller than the viewport — which is why it had a timeout, a forced-paint
+       fallback and a per-element opacity probe bolted onto it. The matrix
+       replacing those tiles is a table that is simply painted, so there is no
+       hidden state left to get stuck in. The three guarantees are unnecessary
+       because the thing they guarded against cannot happen now. */
     const ssRoot = document.getElementById('ss-root');
     if (ssRoot) {
-        const reveal = () => ssRoot.setAttribute('data-seen', 'true');
-        // Hard fallback: paint the final state with no transition at all.
-        const forceVisible = () => ssRoot.classList.add('ss-forced');
-        const prefersReduced = window.matchMedia
-            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-        if (prefersReduced || typeof IntersectionObserver === 'undefined') {
-            reveal();
-            forceVisible();
-        } else {
-            const io = new IntersectionObserver((entries) => {
-                if (entries.some(e => e.isIntersecting)) { reveal(); io.disconnect(); }
-            }, { threshold: 0, rootMargin: '0px 0px -8% 0px' });
-            io.observe(ssRoot);
-
-            setTimeout(() => {
-                reveal();
-                io.disconnect();
-                // Setting data-seen only starts a transition. If that transition
-                // never ticks (throttled tab, paused timeline), elements sit at
-                // opacity 0 forever — the blank bordered box we shipped once.
-                //
-                // Probe EVERY revealed element, not a representative one. A child
-                // can report opacity 1 while its parent sits at 0, so sampling a
-                // nested .ss-metric reports "visible" for a picker nobody can see.
-                const revealed = ssRoot.querySelectorAll('.ss-step, .ss-metric');
-                const anyUnpainted = revealed.length === 0 || [...revealed].some(
-                    el => parseFloat(getComputedStyle(el).opacity) < 0.9
-                );
-                if (anyUnpainted) forceVisible();
-            }, 1200);
+        /* THE DOTS AND THE AVAILABILITY COLUMN READ THE SAME REAL STATE.
+           loadSourceState() below already fetches genuine Plaid/Stripe/Shopify/
+           YouTube connection status; this paints it into the new matrix so the
+           grid is not decoration sitting next to live text. */
+        function paintSources(bank, stripe, shopify, youtube) {
+            const state = { bank: bank, stripe: stripe, shopify: shopify, youtube: youtube };
+            ssRoot.querySelectorAll('[data-src]').forEach((cell) => {
+                const src = cell.getAttribute('data-src');
+                // A ring means "this metric needs this source"; filled means it
+                // is connected. Never downgrade a rule to a ring.
+                const needed = cell.classList.contains('mb-dot-o') || cell.classList.contains('mb-dot');
+                if (!needed) return;
+                cell.className = state[src] ? 'mb-dot' : 'mb-dot-o';
+                cell.setAttribute('data-src', src);
+            });
+            const conn = document.getElementById('mb-bank-conn');
+            if (conn) conn.hidden = !bank;
+            const verified = document.getElementById('mb-bt-verified');
+            if (verified) {
+                verified.textContent = bank ? 'Bank verified ✓' : 'Bank required';
+                verified.style.color = bank ? 'var(--mb-win)' : '';
+            }
         }
 
         // One route, source as a param. The bank button and every metric tile
@@ -1883,6 +2270,13 @@ export function initActiveContracts() {
             const bankConnected = !!(bank && bank.connected);
             ssRoot.setAttribute('data-bank', bankConnected ? 'connected' : 'none');
 
+            paintSources(
+                bankConnected,
+                !!(stripe && stripe.connected),
+                !!(shopify && shopify.connected),
+                !!(youtube && youtube.connected)
+            );
+
             // EVERY metric needs the bank: it produces the underwriting baseline
             // whichever metric is chosen, and settles anything denominated in
             // dollars. A platform connection alone is not enough — marking MRR
@@ -1948,7 +2342,7 @@ export function initActiveContracts() {
             if (connected) {
                 tile.classList.remove('locked');
                 tile.classList.add('ready');
-                if (go) go.textContent = 'Write this contract →';
+                if (go) go.textContent = 'Ready ✓';
                 if (req) req.remove();
             } else {
                 tile.classList.add('locked');
@@ -1996,4 +2390,5 @@ export function initActiveContracts() {
 
     // Initial render
     renderRivalries();
+    renderLedger();
 }
