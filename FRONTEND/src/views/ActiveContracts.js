@@ -1986,12 +1986,18 @@ export function initActiveContracts() {
         .toLowerCase().replace(/_/g, ' ')
         .replace(/\b[a-z]/g, (c) => c.toUpperCase());
 
-    /** Whole days from now until an ISO deadline; never negative. */
+    /**
+     * Whole days until an ISO deadline. NOT clamped at zero — a rivalry whose
+     * deadline has passed but which is still ACTIVE is awaiting settlement, and
+     * the live board has one in exactly that state right now. Clamping printed
+     * "0D LEFT" on it: technically true, and it tells the reader the wrong
+     * thing. The renderer uses the negative to say what is actually happening.
+     */
     function daysLeft(iso) {
         if (!iso) return null;
         const ms = new Date(iso).getTime() - Date.now();
         if (!isFinite(ms)) return null;
-        return Math.max(0, Math.ceil(ms / 86400000));
+        return Math.ceil(ms / 86400000);
     }
 
     /**
@@ -2232,8 +2238,10 @@ export function initActiveContracts() {
             inner.appendChild(top);
 
             // ---- deadline, title, domain
-            inner.appendChild(el('span', 'mb-c-days',
-                r.days_left == null ? 'NO DEADLINE SET' : r.days_left + 'D LEFT'));
+            const deadline = r.days_left == null
+                ? 'NO DEADLINE SET'
+                : (r.days_left <= 0 ? 'AWAITING SETTLEMENT' : r.days_left + 'D LEFT');
+            inner.appendChild(el('span', 'mb-c-days', deadline));
             inner.appendChild(el('h3', 'mb-c-title', r.title));
             const dom = el('div', 'mb-c-dom');
             dom.appendChild(el('span', 'pd'));
