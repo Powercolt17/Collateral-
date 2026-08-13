@@ -1211,8 +1211,19 @@ export function renderActiveContracts() {
                 --mb-paper: #F5EDDA;
                 --mb-ink: #211B12;
                 --mb-ink-soft: #574E3D;
-                --mb-muted: #7A6E52;
-                --mb-faint: #9A8C6E;
+                /* MEASURED, NOT PICKED. The source design's #7A6E52 lands at
+                   4.12:1 on this cream and 4.31:1 on card paper — under the 4.5
+                   floor, and it carries the receipt numbers, deadlines, rail
+                   tags, ledger heads and the footer. #695F47 is the same hue
+                   walked down until it clears on all three grounds this section
+                   uses: 5.17 page, 5.41 card paper, 4.55 active chip. */
+                --mb-muted: #695F47;
+                /* Only ever on 20px/600 text, which is large by WCAG, so it is
+                   allowed to stay faint. The two places it sat on small text —
+                   the Adjust hints at 8.5px and the VS marks at 9px — now take
+                   --mb-muted, and both were raised to the 10px floor with the
+                   seven other rules in here that were under it. */
+                --mb-faint: #7A6E52;
                 --mb-ox: #7C1D2B;
                 --mb-ox-deep: #5E1420;
                 --mb-win: #3F5A31;
@@ -1292,7 +1303,7 @@ export function renderActiveContracts() {
                 padding: 15px 24px; border: 0; border-radius: 0; cursor: pointer;
                 box-shadow: 0 12px 26px rgba(94,20,32,.20);
             }
-            .mb-cbtn .tag { font-size: 9.5px; letter-spacing: .05em; opacity: .78; text-transform: none; font-weight: 400; }
+            .mb-cbtn .tag { font-size: 10px; letter-spacing: .05em; opacity: .78; text-transform: none; font-weight: 400; }
             .mb-reassure {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 10.5px; letter-spacing: .06em; color: var(--mb-muted);
@@ -1318,7 +1329,7 @@ export function renderActiveContracts() {
             }
             .mb-mx-h span.l { text-align: left; }
             .mb-mx-h span.rt { text-align: right; }
-            .mb-mx-h .conn { display: block; color: var(--mb-win); font-size: 8px; margin-top: 3px; letter-spacing: .08em; }
+            .mb-mx-h .conn { display: block; color: var(--mb-win); font-size: 10px; margin-top: 3px; letter-spacing: .08em; }
             .mb-mx-r { border-bottom: 1px solid var(--mb-line-soft); }
             .mb-mn { font-family: "Cormorant Garamond", Georgia, serif; font-size: 19px; font-weight: 600; color: var(--mb-ink); }
             .mb-md {
@@ -1350,13 +1361,13 @@ export function renderActiveContracts() {
             .mb-bcard::after { content: ""; position: absolute; inset: 5px; border: 1px solid var(--mb-line-soft); pointer-events: none; }
             .mb-bh { position: relative; z-index: 2; }
             .mb-bt-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-            .mb-bt-k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--mb-muted); }
+            .mb-bt-k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--mb-muted); }
             .mb-bt-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 25px; font-weight: 600; margin: 8px 0 4px; }
             .mb-brule { height: 1px; background: var(--mb-line-firm); margin: 10px 0 4px; }
             .mb-brow { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--mb-line-soft); }
             .mb-brow .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--mb-muted); }
             .mb-brow .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 20px; font-weight: 600; color: var(--mb-ink); }
-            .mb-brow .v .adj { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 8.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--mb-faint); margin-left: 9px; }
+            .mb-brow .v .adj { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mb-muted); margin-left: 9px; }
             .mb-bmult { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--mb-line-soft); }
             .mb-bmult .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--mb-muted); }
             .mb-bmult .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 27px; font-weight: 700; color: var(--mb-ox); }
@@ -1378,7 +1389,7 @@ export function renderActiveContracts() {
             .mb-bex {
                 display: block; margin-top: 10px; text-align: center;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-muted);
+                font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-muted);
             }
 
             /* ---- board controls ---- */
@@ -1425,7 +1436,7 @@ export function renderActiveContracts() {
             .mb-c-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
             .mb-badge {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 9px; letter-spacing: .16em; text-transform: uppercase; font-weight: 500;
+                font-size: 10px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500;
                 padding: 4px 9px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
             }
             .mb-badge.open { color: var(--mb-ox); border: 1px solid rgba(124,29,43,.4); }
@@ -1451,7 +1462,7 @@ export function renderActiveContracts() {
             .mb-op .pc { font-family: "Cormorant Garamond", Georgia, serif; font-size: 20px; font-weight: 600; }
             .mb-op .pc.up { color: var(--mb-win); }
             .mb-op .pc.mut { color: var(--mb-faint); }
-            .mb-vs { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9px; letter-spacing: .1em; color: var(--mb-faint); flex: none; }
+            .mb-vs { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .1em; color: var(--mb-muted); flex: none; }
             .mb-bar { height: 5px; background: rgba(70,55,35,.10); display: flex; overflow: hidden; margin-bottom: 16px; }
             /* flex: none, or the two segments shrink off their set widths and
                the bar stops meaning anything. */
@@ -1462,8 +1473,8 @@ export function renderActiveContracts() {
             .mb-c-fin { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin-bottom: 14px; padding-top: 12px; border-top: 1px solid var(--mb-line-soft); }
             .mb-c-stake .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 19px; font-weight: 600; color: var(--mb-ink); }
             .mb-c-stake .v small { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; font-weight: 400; color: var(--mb-muted); letter-spacing: .04em; }
-            .mb-c-stake .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--mb-muted); margin-top: 4px; }
-            .mb-settle { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--mb-muted); border: 1px solid var(--mb-line); padding: 5px 8px; white-space: nowrap; }
+            .mb-c-stake .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--mb-muted); margin-top: 4px; }
+            .mb-settle { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mb-muted); border: 1px solid var(--mb-line); padding: 5px 8px; white-space: nowrap; }
             .mb-c-act {
                 margin-top: auto; width: 100%; text-align: center;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
@@ -1503,7 +1514,7 @@ export function renderActiveContracts() {
                 gap: 18px; align-items: center;
             }
             .mb-lrowh { padding: 11px 8px; border-bottom: 1px solid var(--mb-line); }
-            .mb-lrowh span { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--mb-muted); }
+            .mb-lrowh span { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--mb-muted); }
             .mb-lrowh .right { text-align: right; }
             .mb-lrow { padding: 14px 8px; border-bottom: 1px solid var(--mb-line-soft); }
             .mb-lrow .rc { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; color: var(--mb-muted); letter-spacing: .04em; }
