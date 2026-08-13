@@ -1315,6 +1315,15 @@ export function renderActiveContracts() {
                the top, availability in the last column: the whole question a
                reader has here is "what can I actually be measured on", and a
                grid answers it in one look where four stacked cards did not. */
+            /* SCROLLS AT EVERY WIDTH, not only on phones. Both of these are
+               tables with fixed side columns, and they run out of room well
+               before the 640px breakpoint the scroll rule used to live at — the
+               ledger already overflows at 834. With body carrying
+               overflow-x: hidden that overflow does not push the page or show a
+               scrollbar; it just silently CUTS the right-hand columns off, which
+               is the worst of the three outcomes. Above the point where they
+               fit, auto is inert. */
+            .mb-matrix, .mb-ltable { overflow-x: auto; }
             .mb-matrix { border-top: 2px solid var(--mb-ink); }
             .mb-mx-h, .mb-mx-r {
                 display: grid;
@@ -1565,7 +1574,8 @@ export function renderActiveContracts() {
             @media (max-width: 640px) {
                 .mb-grid { grid-template-columns: 1fr; }
                 .mb-controls { gap: 14px; }
-                .mb-matrix, .mb-ltable { overflow-x: auto; }
+                /* A floor for the scroll containers above, so the columns keep
+                   a readable width inside the scroll instead of crushing. */
                 .mb-mx-h, .mb-mx-r, .mb-lrowh, .mb-lrow { min-width: 560px; }
                 .mb-lrowh, .mb-lrow { grid-template-columns: 96px 1fr 110px 100px 100px 84px; }
                 .mb-solo-emb { height: 44px; }
