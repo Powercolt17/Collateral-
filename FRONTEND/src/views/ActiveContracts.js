@@ -344,8 +344,18 @@ export function renderActiveContracts() {
                    so it never crops and never sits under the type. */
                 .mkh { min-height: 0; }
                 .mkh-inner { flex-direction: column; align-items: stretch; padding: 40px var(--mkh-gutter) 0; }
-                .mkh-copy { width: 100%; max-width: none; }
-                .mkh-h1 { font-size: clamp(44px, 9vw, 64px); }
+                /* ORDER, because the plate is FIRST in the DOM. It is absolutely
+                   positioned on desktop so source order is irrelevant there; the
+                   moment it returns to flow it renders ABOVE the headline.
+                   Explicit order puts the copy first without moving the markup,
+                   which leaves the desktop stacking context alone. */
+                .mkh-copy { width: 100%; max-width: none; order: 1; }
+                .mkh-art { order: 2; }
+                /* !important ANSWERS AN !important. mobile.css sets a bare
+                   h1 { font-size: clamp(24px,7vw,36px) !important } below 768px,
+                   which captured this headline at 27.3px — 7vw of 390 exactly.
+                   No class outranks !important, so this replies in kind. */
+                .mkh h1.mkh-h1 { font-size: clamp(44px, 9vw, 64px) !important; line-height: .98 !important; letter-spacing: .004em !important; }
                 .mkh-lede { max-width: none; }
                 .mkh-art {
                     position: relative; left: auto; right: auto; top: auto; bottom: auto;
