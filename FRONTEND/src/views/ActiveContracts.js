@@ -1291,6 +1291,15 @@ export function renderActiveContracts() {
             .mb-lede { font-size: 17px; line-height: 1.55; color: var(--mb-ink-soft); max-width: 660px; margin: 16px 0 0; }
 
             .mb-step { display: grid; grid-template-columns: 250px 1fr; gap: 44px; padding: 26px 0; border-top: 1px solid var(--mb-line); }
+            /* min-width: 0, WITHOUT WHICH overflow-x: auto DOES NOTHING HERE.
+               A grid item's automatic minimum size is its content's min-content
+               width, so the matrix's 560px row floor grows the COLUMN to 560
+               rather than letting the matrix scroll inside a 327px one. Measured
+               on a 375px phone: the track went to 560 and the scroll container
+               never engaged, and body's overflow-x: hidden then quietly clipped
+               the right of the table — the same silent truncation as the ledger,
+               reached by a different route. */
+            .mb-step > *, .mb-builder > * { min-width: 0; }
             .mb-step:first-of-type { margin-top: 30px; }
             .mb-snum { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .24em; color: var(--mb-ox); font-weight: 500; }
             .mb-stt { font-family: "Cormorant Garamond", Georgia, serif; font-size: 27px; font-weight: 600; margin-top: 12px; line-height: 1.05; }
