@@ -66,10 +66,19 @@ export const MARKET_STATS = {
  */
 export async function loadMarketStats() {
     try {
-        const res = await window.api.getHomepageStats();
+        /* RIVALRY STATS, NOT HOMEPAGE STATS. /v1/market/homepage-stats reports
+           activeContractsCount, which counts solo contracts — the instrument
+           this product no longer sells and which no longer appears on the board
+           below. Reading it put "2 Active" above a board showing one rivalry.
+           /v1/rivalries/stats counts the thing the page is actually about, and
+           reports capital in CENTS where the homepage endpoint used dollars —
+           checked against the live response, because guessing wrong there is a
+           100x error in public. */
+        const res = await window.api.getRivalryStats();
+        const s = (res && res.stats) || {};
         if (!res || res.ok === false) return;
-        MARKET_STATS.openContracts = Number(res.activeContractsCount) || 0;
-        MARKET_STATS.openCapital = Number(res.capitalLocked) || 0;
+        MARKET_STATS.openContracts = Number(s.activeRivalries) || 0;
+        MARKET_STATS.openCapital = Math.round((Number(s.totalCapitalLockedCents) || 0) / 100);
         MARKET_STATS.loaded = true;
     } catch (e) {
         console.error('[Market] stats unavailable:', e);
@@ -79,14 +88,11 @@ export async function loadMarketStats() {
         const el = document.getElementById(id);
         if (el) el.textContent = text;
     };
-    /* "ACTIVE", NOT "OPEN", and the difference is the whole point.
-       activeContractsCount is contracts currently RUNNING with capital locked
-       against them. The board below counts published listings a reader can
-       still take a position in — a different number about a different thing
-       (2 against 48 today). Labelling both "Open" would put two honest figures
-       next to each other and make the page look like it was contradicting
-       itself again. */
-    set('mkh-open', MARKET_STATS.openContractsLabel + ' Active');
+    /* "LIVE", and it means the same thing the board's Live segment means:
+       rivalries currently running with capital locked against them. The strip
+       and the board now count the same population from the same product, so
+       there is no second number on this page for a reader to reconcile. */
+    set('mkh-open', MARKET_STATS.openContractsLabel + ' Live');
     set('mkh-escrow', MARKET_STATS.openCapitalLabel + ' in Escrow');
     // The settlement window is a property of each contract, not of the market,
     // and this endpoint does not report an average. It stays out of the strip
@@ -1568,26 +1574,6 @@ export function renderActiveContracts() {
                 font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500;
                 padding: 12px; border: 0; border-radius: 0; cursor: pointer; display: block;
             }
-            /* Open-listing spec block. Takes the place a rivalry uses for its
-               two operators and share bar, so the two card types stay the same
-               height in the grid without either being padded out. */
-            .mb-spec { margin-bottom: 14px; }
-            .mb-spec-row {
-                display: flex; align-items: baseline; justify-content: space-between;
-                gap: 12px; padding: 5px 0; border-bottom: 1px solid var(--mb-line-soft);
-            }
-            .mb-spec-row:last-child { border-bottom: 0; }
-            .mb-spec-row .k {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
-                color: var(--mb-muted); flex: none;
-            }
-            .mb-spec-row .v {
-                font-family: "Cormorant Garamond", Georgia, serif;
-                font-size: 16px; font-weight: 600; color: var(--mb-ink);
-                text-align: right; min-width: 0;
-            }
-            .mb-spec-row .v.ox { color: var(--mb-ox); font-size: 19px; }
             .mb-c-act.accept { background: var(--mb-ox); color: #F6EEDD; }
             .mb-c-act.view { border: 1px solid var(--mb-line-firm); color: var(--mb-ink); background: none; }
             .mb-empty {
@@ -1735,7 +1721,7 @@ export function renderActiveContracts() {
                     <div class="mkh-strip-in">
                         <span class="mkh-live"><i aria-hidden="true"></i>Live Exchange</span>
                         <span class="mkh-metrics">
-                            <span id="mkh-open">&mdash; Active</span>
+                            <span id="mkh-open">&mdash; Live</span>
                             <i class="d" aria-hidden="true"></i>
                             <span id="mkh-escrow">&mdash; in Escrow</span>
                             <span class="mkh-note">Loading</span>
@@ -1899,7 +1885,7 @@ export function renderActiveContracts() {
 
                 <div class="mb-controls">
                     <div class="mb-seg" id="mb-seg">
-                        <button type="button" class="on" data-state="all">All Contracts</button>
+                        <button type="button" class="on" data-state="all">All Rivalries</button>
                         <button type="button" data-state="open">Open</button>
                         <button type="button" data-state="live">Live</button>
                     </div>
@@ -2108,69 +2094,55 @@ export function initActiveContracts() {
     }
 
     /**
-     * A published market listing -> a card.
+     * RIVALRIES ONLY. /v1/market/listings is deliberately NOT read here.
      *
-     * THESE ARE THE OTHER 48. The board was reading /v1/rivalries only, which
-     * holds exactly one contract, so a market with 48 published listings showed
-     * a single card under a control that says "All Contracts". Head-to-head
-     * rivalries and open listings are different instruments — one has two named
-     * operators racing, the other has a target, a multiplier and capacity — so
-     * they render as different cards rather than being forced into one shape.
+     * It returns 48 published solo contracts — target, multiplier, stake band,
+     * capacity — and pulling them filled the board with an instrument the
+     * product no longer sells. This is a rivalry market: two named operators,
+     * matched capital, one oracle. A solo listing has no opponent and no
+     * contest, so it does not belong on this board at any count.
+     *
+     * TWO SOURCES, BECAUSE THE PUBLIC FEED IS NOT THE WHOLE PICTURE.
+     * /v1/rivalries is public and returns what the market can see;
+     * /v1/rivalries/me returns the signed-in user's own, which can include ones
+     * the public feed does not carry — issued but not yet accepted, or awaiting
+     * funding. Someone looking at their own market should see their own
+     * contracts. Merged and de-duplicated by id, so a rivalry appearing in both
+     * renders once.
      */
-    function toListingCard(l) {
-        const mult = Number(l.multiplier);
-        return {
-            kind: 'listing',
-            id: l.id,
-            title: l.title || titleCase(l.metric_key),
-            domain: String(l.domain || '').toLowerCase() || 'finance',
-            platform: String(l.provider || '').toUpperCase(),
-            state: 'open',
-            receipt: 'RCPT·' + String(l.id || '').slice(0, 6).toUpperCase(),
-            days_left: daysLeft(l.open_until),
-            window_days: Number(l.window_days) || null,
-            target: l.target_hint || null,
-            multiplier: isFinite(mult) && mult > 0 ? mult.toFixed(1) + '×' : null,
-            min_stake: Number(l.min_stake) || 0,
-            max_stake: Number(l.max_stake) || 0,
-            slots_left: Number(l.slots_left),
-        };
-    }
-
     async function loadBoard() {
-        /* Both feeds, in parallel, and one failing does not blank the other.
-           Promise.allSettled rather than all: a dead rivalries endpoint should
-           still leave 48 tradable contracts on the board. */
-        const [rivRes, listRes] = await Promise.allSettled([
-            window.api.getRivalries({ limit: 24 }),
-            window.api.getMarketListings({ limit: 100 }),
-        ]);
+        const calls = [window.api.getRivalries({ limit: 50 })];
+        // Only ask for "mine" when there is a session; unauthenticated it is a
+        // guaranteed 401 and a console error for nothing.
+        const signedIn = !!(window.api.hasAuthToken && window.api.hasAuthToken());
+        if (signedIn) calls.push(window.api.getMyRivalries({ limit: 50 }));
 
-        let cards = [];
+        const settled = await Promise.allSettled(calls);
         let anyOk = false;
+        const byId = new Map();
 
-        if (rivRes.status === 'fulfilled') {
+        settled.forEach((res, i) => {
+            if (res.status !== 'fulfilled') {
+                console.error('[Market] rivalry feed ' + (i === 0 ? 'public' : 'mine') + ' unavailable:', res.reason);
+                return;
+            }
             anyOk = true;
-            const raw = (rivRes.value && rivRes.value.rivalries) || [];
-            await attachProgress(raw);
-            cards = cards.concat(raw.map(toCard).filter(Boolean));
-        } else {
-            console.error('[Market] rivalries unavailable:', rivRes.reason);
+            ((res.value && res.value.rivalries) || []).forEach((r) => {
+                if (r && r.id && !byId.has(r.id)) byId.set(r.id, r);
+            });
+        });
+
+        if (!anyOk) {
+            rivalries = [];
+            boardState = 'error';
+            renderRivalries();
+            return;
         }
 
-        if (listRes.status === 'fulfilled') {
-            anyOk = true;
-            const raw = (listRes.value && listRes.value.listings) || [];
-            cards = cards.concat(
-                raw.filter(l => String(l.state || '').toUpperCase() === 'OPEN')
-                   .map(toListingCard)
-            );
-        } else {
-            console.error('[Market] listings unavailable:', listRes.reason);
-        }
-
-        rivalries = cards;
-        boardState = anyOk ? 'ready' : 'error';
+        const raw = Array.from(byId.values());
+        await attachProgress(raw);
+        rivalries = raw.map(toCard).filter(Boolean);
+        boardState = 'ready';
         renderRivalries();
     }
 
@@ -2276,19 +2248,17 @@ export function initActiveContracts() {
             list = list.filter(r => r.state === activeState);
         }
 
-        /* Rivalries first, then listings; within each, open before live.
-           Head-to-heads are the scarce thing on this board — one against 48
-           listings — and sorting purely by state would bury the only real
-           contest under four rows of templates. */
-        const rank = (x) => (x.kind === 'rivalry' ? 0 : 2) + (x.state === 'open' ? 0 : 1);
-        list.sort((a, b) => rank(a) - rank(b));
+        /* Open challenges first: they are the only ones a reader can act on.
+           A live rivalry is somebody else's contest to watch; an open one is a
+           seat at a table. */
+        list.sort((a, b) => (a.state === 'open' ? -1 : b.state === 'open' ? 1 : 0));
 
         if (count) count.textContent = String(list.length);
 
         if (list.length === 0) {
             notice(rivalries.length === 0
-                ? 'Nothing is open on the market right now'
-                : 'No contracts match these filters');
+                ? 'No rivalries have been issued yet — be the first'
+                : 'No rivalries match these filters');
             return;
         }
 
@@ -2299,84 +2269,7 @@ export function initActiveContracts() {
             return n;
         };
 
-        /* ---- the head of every card is the same, whichever instrument it is:
-               badge, receipt, deadline, title, domain. Only the middle differs. */
-        const cardHead = (r, badgeText, badgeCls) => {
-            const card = el('article', 'mb-card');
-            const inner = el('div', 'mb-c-in');
-            const top = el('div', 'mb-c-top');
-            const badge = el('span', 'mb-badge ' + badgeCls);
-            if (badgeCls === 'live') badge.appendChild(el('span', 'd'));
-            badge.appendChild(document.createTextNode(badgeText));
-            top.appendChild(badge);
-            top.appendChild(el('span', 'mb-c-rcpt', r.receipt));
-            inner.appendChild(top);
-
-            const deadline = r.days_left == null
-                ? 'NO DEADLINE SET'
-                : (r.days_left <= 0
-                    ? (r.kind === 'listing' ? 'CLOSED' : 'AWAITING SETTLEMENT')
-                    : r.days_left + 'D LEFT');
-            inner.appendChild(el('span', 'mb-c-days', deadline));
-            inner.appendChild(el('h3', 'mb-c-title', r.title));
-            const dom = el('div', 'mb-c-dom');
-            dom.appendChild(el('span', 'pd'));
-            dom.appendChild(document.createTextNode(r.domain + ' · ' + r.platform));
-            inner.appendChild(dom);
-            card.appendChild(inner);
-            return { card, inner };
-        };
-
-        /* ---- open market listing ----
-           No opponents to race, so no VS block and no share bar. What a reader
-           needs here is what the contract asks of them: the target, the payout
-           if they hit it, the stake band they can take, and how much capacity
-           is left. */
-        const renderListing = (r) => {
-            const built = cardHead(r, 'Open Contract', 'open');
-            const inner = built.inner;
-
-            const spec = el('div', 'mb-spec');
-            const row = (k, v) => {
-                const n = el('div', 'mb-spec-row');
-                n.appendChild(el('span', 'k', k));
-                n.appendChild(el('span', 'v', v));
-                spec.appendChild(n);
-            };
-            if (r.target) row('Target', String(r.target).replace(/^Target:\s*/i, ''));
-            if (r.window_days) row('Window', r.window_days + ' days');
-            if (r.multiplier) {
-                const n = el('div', 'mb-spec-row');
-                n.appendChild(el('span', 'k', 'Payout'));
-                n.appendChild(el('span', 'v ox', r.multiplier));
-                spec.appendChild(n);
-            }
-            inner.appendChild(spec);
-
-            const fin = el('div', 'mb-c-fin');
-            const stake = el('div', 'mb-c-stake');
-            const v = el('div', 'v');
-            v.appendChild(document.createTextNode(
-                '$' + r.min_stake.toLocaleString() + '–$' + r.max_stake.toLocaleString() + ' '));
-            v.appendChild(el('small', null, 'stake'));
-            stake.appendChild(v);
-            stake.appendChild(el('div', 'k',
-                isFinite(r.slots_left) ? r.slots_left.toLocaleString() + ' slots remaining' : 'Open'));
-            fin.appendChild(stake);
-            inner.appendChild(fin);
-
-            const act = el('button', 'mb-c-act accept', 'Take Position →');
-            act.type = 'button';
-            act.addEventListener('click', () => {
-                if (window.router) window.router.navigate('/contracts/execute?listing=' + encodeURIComponent(r.id));
-            });
-            inner.appendChild(act);
-            rGrid.appendChild(built.card);
-        };
-
         list.forEach((r) => {
-            if (r.kind === 'listing') { renderListing(r); return; }
-
             const isOpen = r.state === 'open';
             /* MEASURED OR NOT — the distinction the old mock could not have.
                A funded rivalry that has not been sampled yet has no progress,
