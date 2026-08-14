@@ -29,6 +29,26 @@ import { db } from '../db/client.js';
 import { rivalries, rivalryMetricSnapshots, rivalryParticipants } from '../db/schema.js';
 import { eq, or, asc, desc, sql } from 'drizzle-orm';
 
+/* The market draws one card per rivalry and pages through the feed, so the
+   default page had to be big enough to be worth a round-trip and the ceiling
+   high enough that a board is fetched in a handful of calls. Clamped rather
+   than trusted: `limit` arrives from the query string, and NaN or a negative
+   silently becomes `slice(0, NaN)` — an empty board — inside listRivalries. */
+const DEFAULT_PAGE = 50;
+const MAX_PAGE = 200;
+
+function pageLimit(raw: unknown): number {
+    const n = parseInt(String(raw ?? ''), 10);
+    if (!Number.isFinite(n) || n <= 0) return DEFAULT_PAGE;
+    return Math.min(n, MAX_PAGE);
+}
+
+function pageOffset(raw: unknown): number {
+    const n = parseInt(String(raw ?? ''), 10);
+    if (!Number.isFinite(n) || n < 0) return 0;
+    return n;
+}
+
 const rivalryRoutes: FastifyPluginAsync = async (fastify) => {
 
     // =========================================================================
@@ -80,8 +100,8 @@ const rivalryRoutes: FastifyPluginAsync = async (fastify) => {
         try {
             const result = await listRivalries({
                 status,
-                limit: limit ? parseInt(limit) : 20,
-                offset: offset ? parseInt(offset) : 0,
+                limit: pageLimit(limit),
+                offset: pageOffset(offset),
             });
             return { ok: true, ...result };
         } catch (err: any) {
@@ -108,8 +128,8 @@ const rivalryRoutes: FastifyPluginAsync = async (fastify) => {
             const result = await listRivalries({
                 userId,
                 status: query.status,
-                limit: query.limit ? parseInt(query.limit) : 20,
-                offset: query.offset ? parseInt(query.offset) : 0,
+                limit: pageLimit(query.limit),
+                offset: pageOffset(query.offset),
             });
             return { ok: true, ...result };
         } catch (err: any) {

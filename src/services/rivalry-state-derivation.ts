@@ -160,6 +160,52 @@ export function deriveRivalryState(events: RivalryLedgerEvent[]): RivalryStatusT
 }
 
 /**
+ * Derive state for READING, never for writing.
+ *
+ * deriveRivalryState() throws the moment a chain contains a transition the
+ * table does not allow, and every caller that reads a list swallowed that throw
+ * and dropped the row. A rivalry with one out-of-order event then existed in
+ * the table and was invisible everywhere — which is how a market carrying
+ * several contracts renders one card.
+ *
+ * Production chains hit this for reasons that are not corruption. Nothing in
+ * production performs ACTIVE → VERIFYING → VERIFIED (see the note in
+ * jobs/rivalry-cron.ts), so a settlement writes RIVALRY_SETTLEMENT_STARTED
+ * straight onto an ACTIVE chain and every later read of that rivalry throws
+ * forever.
+ *
+ * So: the newest state-affecting event still wins — that is what actually
+ * happened to the contract — and the transitions that were not permitted are
+ * RETURNED rather than thrown, so a caller can surface them. Writers keep
+ * using the strict function; nothing here weakens the guard on append.
+ */
+export function deriveRivalryStateLenient(events: RivalryLedgerEvent[]): {
+    state: RivalryStatusType | null;
+    invalidTransitions: Array<{ from: RivalryStatusType; to: RivalryStatusType; eventType: string }>;
+} {
+    const invalidTransitions: Array<{ from: RivalryStatusType; to: RivalryStatusType; eventType: string }> = [];
+    let currentState: RivalryStatusType | null = null;
+
+    for (const event of events) {
+        const nextState = RIVALRY_EVENT_TO_STATE[event.eventType];
+        if (!nextState) continue;
+
+        if (currentState === null) {
+            currentState = nextState;
+            continue;
+        }
+
+        if (!canRivalryTransition(currentState, nextState)) {
+            invalidTransitions.push({ from: currentState, to: nextState, eventType: event.eventType });
+        }
+
+        currentState = nextState;
+    }
+
+    return { state: currentState, invalidTransitions };
+}
+
+/**
  * Derive state with validation but without throwing
  */
 export function deriveRivalryStateWithValidation(events: RivalryLedgerEvent[]): {

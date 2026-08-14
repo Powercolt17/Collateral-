@@ -753,9 +753,14 @@ function getRivalries(params = {}) {
     const qs = q.toString();
     return getPublic(`/v1/rivalries${qs ? '?' + qs : ''}`);
 }
+// limit/offset are forwarded here too. They were dropped, so /me silently
+// returned the server's default page however large a caller asked for — the
+// market pages through both feeds and would have stopped short on this one.
 function getMyRivalries(params = {}) {
     const q = new URLSearchParams();
     if (params.status) q.set('status', params.status);
+    if (params.limit) q.set('limit', String(params.limit));
+    if (params.offset) q.set('offset', String(params.offset));
     const qs = q.toString();
     return get(`/v1/rivalries/me${qs ? '?' + qs : ''}`);
 }

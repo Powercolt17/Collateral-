@@ -1515,6 +1515,14 @@ export function renderActiveContracts() {
                 color: var(--mb-muted); display: flex; align-items: center; gap: 16px;
             }
             .mb-sortr b { color: var(--mb-ink); font-weight: 500; }
+            .mb-sortsel { display: inline-flex; align-items: center; gap: 8px; }
+            .mb-sortsel select {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+                color: var(--mb-ink); background: #FAF4E6;
+                border: 1px solid var(--mb-line-firm); padding: 7px 10px;
+                cursor: pointer; border-radius: 0;
+            }
 
             /* ---- listing cards ---- */
             .mb-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
@@ -1581,6 +1589,53 @@ export function renderActiveContracts() {
                 border: 1px dashed var(--mb-line-firm); color: var(--mb-muted);
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+                display: flex; flex-direction: column; align-items: center; gap: 18px;
+            }
+            /* The one action that can change the state the reader is looking at
+               — retry a failed fetch, or issue the rivalry the filter could not
+               find. Restrained on purpose: an empty market is a real answer,
+               not something to apologise for at volume. */
+            .mb-retry {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+                color: var(--mb-ink); background: none;
+                border: 1px solid var(--mb-line-firm); padding: 10px 20px; cursor: pointer;
+            }
+            .mb-retry:hover { background: rgba(70,55,35,.06); }
+
+            /* ---- load more ---- */
+            .mb-more { grid-column: 1 / -1; display: flex; justify-content: center; padding-top: 10px; }
+            .mb-more-btn {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+                color: var(--mb-ink); background: none;
+                border: 1px solid var(--mb-line-firm); padding: 13px 30px; cursor: pointer;
+            }
+            .mb-more-btn:hover { background: rgba(70,55,35,.06); }
+
+            /* ---- loading skeletons ----
+               Same box as .mb-card so the grid does not reflow when the real
+               cards land. No shimmer: a sweep animation across eight cards is
+               motion for its own sake on a page about settled facts. */
+            .mb-skel { box-shadow: none; border-color: var(--mb-line-soft); }
+            .mb-skel::after { border-color: transparent; }
+            .mb-skel .sk { background: rgba(70,55,35,.07); }
+            .mb-skel .sk-badge { width: 92px; height: 20px; margin-bottom: 14px; }
+            .mb-skel .sk-line { width: 60px; height: 9px; margin-bottom: 8px; }
+            .mb-skel .sk-title { width: 100%; height: 34px; margin-bottom: 20px; }
+            .mb-skel .sk-ops { width: 100%; height: 38px; margin-bottom: 9px; }
+            .mb-skel .sk-bar { width: 100%; height: 5px; margin-bottom: 22px; }
+            .mb-skel .sk-fin { width: 100%; height: 40px; margin-bottom: 14px; }
+            .mb-skel .sk-act { width: 100%; height: 40px; margin-top: auto; }
+            @media (prefers-reduced-motion: no-preference) {
+                .mb-skel { animation: mb-skel-fade 1.6s ease-in-out infinite; }
+            }
+            @keyframes mb-skel-fade { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+            /* Announced to screen readers, invisible on screen — the skeletons
+               are aria-hidden, so without this the wait is silent. */
+            .mb-sr {
+                position: absolute; width: 1px; height: 1px; overflow: hidden;
+                clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
             }
             /* The ledger's own empty and unavailable states. An empty ledger on
                a settlement product is a real answer, so it gets the same weight
@@ -1901,7 +1956,15 @@ export function renderActiveContracts() {
                          bug as the hero and the odometers disagreeing. -->
                     <div class="mb-sortr">
                         <span><b id="mb-count">0</b> results</span>
-                        <span>Sort: <b id="mb-sort-lbl">Trending</b></span>
+                        <label class="mb-sortsel">
+                            <span>Sort:</span>
+                            <select id="mb-sort" aria-label="Sort rivalries">
+                                <option value="trending">Trending</option>
+                                <option value="new">New</option>
+                                <option value="closing">Closing Soon</option>
+                                <option value="volume">High Volume</option>
+                            </select>
+                        </label>
                     </div>
                 </div>
 
@@ -1989,6 +2052,14 @@ export function initActiveContracts() {
     let rivalries = [];
     let boardState = 'loading';   // loading | ready | error
 
+    /* The grid pages rather than dumping the whole market at once. Twelve is
+       three full rows at the 4-up desktop layout and six at the 2-up tablet
+       one, so the first page never ends mid-row. */
+    const PAGE_SIZE = 12;
+    let shown = PAGE_SIZE;
+
+    let activeSort = 'trending';
+
     const PLATFORM_DOMAIN = {
         STRIPE: 'finance', SHOPIFY: 'commerce', AMAZON: 'commerce',
         YOUTUBE: 'social', X: 'social', TWITTER: 'social', PLAID: 'finance',
@@ -2017,12 +2088,29 @@ export function initActiveContracts() {
      * The API's lifecycle states collapse to the two the board filters on.
      * Anything already settled is not a market listing and is dropped — it
      * belongs in the ledger below.
+     *
+     * MATCHED BY NAME, NOT BY FALLTHROUGH. The default used to be 'open', so
+     * every state the list did not name was drawn as a joinable challenge:
+     * DRAW is a settled outcome and rendered as "Open Rivalry · Join"; so did
+     * VERIFYING, VERIFIED and SETTLING, which are the tail of a contest that
+     * has already run. Both lists are now explicit and anything unrecognised
+     * is dropped rather than guessed at, because a wrong badge on this board
+     * invites capital into a contract that has finished.
      */
+    const OPEN_STATES = ['CHALLENGE_ISSUED', 'ISSUED', 'PENDING', 'ACCEPTED', 'BOTH_FUNDED', 'FUNDED'];
+    const LIVE_STATES = ['ACTIVE', 'LIVE', 'IN_PROGRESS', 'VERIFYING', 'VERIFIED', 'SETTLING'];
+    const CLOSED_STATES = ['SETTLED', 'DRAW', 'CANCELLED', 'EXPIRED', 'DECLINED'];
+
     function boardStateOf(state) {
-        const s = String(state || '').toUpperCase();
-        if (s === 'ACTIVE' || s === 'LIVE' || s === 'IN_PROGRESS') return 'live';
-        if (s === 'SETTLED' || s === 'CANCELLED' || s === 'EXPIRED' || s === 'DECLINED') return null;
-        return 'open';   // issued, awaiting acceptance, awaiting funding
+        // A rivalry with no ledger events yet derives to null. It exists, it is
+        // issued, and it is joinable — dropping it would hide a real contract.
+        if (state == null || state === '') return 'open';
+        const s = String(state).toUpperCase();
+        if (LIVE_STATES.includes(s)) return 'live';
+        if (OPEN_STATES.includes(s)) return 'open';
+        if (CLOSED_STATES.includes(s)) return null;
+        console.warn('[Market] unrecognised rivalry state, not listed:', s);
+        return null;
     }
 
     /**
@@ -2036,7 +2124,20 @@ export function initActiveContracts() {
      * "+0.0%" would state a measurement that was never taken.
      */
     async function attachProgress(list) {
-        await Promise.all(list.map(async (r) => {
+        /* SIX AT A TIME. This was Promise.all over the whole board, which was
+           harmless at one rivalry and is a burst of one request per contract
+           at fifty — enough to sit past the browser's per-host connection
+           limit and stall the paint the board is waiting on. A small worker
+           pool keeps the wall-clock close to parallel without the burst. */
+        const CONCURRENCY = 6;
+        let cursor = 0;
+        const worker = async () => {
+            while (cursor < list.length) {
+                const r = list[cursor++];
+                await one(r);
+            }
+        };
+        const one = async (r) => {
             try {
                 const res = await window.api.getRivalryMetrics(r.id);
                 const metrics = (res && res.metrics) || [];
@@ -2056,7 +2157,10 @@ export function initActiveContracts() {
             } catch (e) {
                 /* leave progress unknown; the card renders a dash */
             }
-        }));
+        };
+        await Promise.all(
+            Array.from({ length: Math.min(CONCURRENCY, list.length) }, worker)
+        );
         return list;
     }
 
@@ -2072,6 +2176,10 @@ export function initActiveContracts() {
         const stake = Math.round((Number(r.stakePerSideCents) || 0) / 100);
         const g = r._growth || {};
         const rail = RAIL_LABEL[String(r.settlementRail || 'USD').toUpperCase()] || RAIL_LABEL.USD;
+        const ms = (iso) => {
+            const t = iso ? new Date(iso).getTime() : NaN;
+            return isFinite(t) ? t : null;
+        };
         return {
             kind: 'rivalry',
             id: r.id,
@@ -2090,6 +2198,11 @@ export function initActiveContracts() {
                    delta: fmtPct(g.challenger) },
             op2: { handle: r.opponentUsername ? '@' + r.opponentUsername : null,
                    delta: fmtPct(g.opponent) },
+            /* Sort keys, kept as raw values rather than the formatted strings
+               above — "3D LEFT" and "$2,000" do not order correctly as text. */
+            _created: ms(r.createdAt || r.challengeIssuedAt),
+            _deadline: ms(r.deadlineUtc),
+            _pool: stake * 2,
         };
     }
 
@@ -2110,12 +2223,42 @@ export function initActiveContracts() {
      * contracts. Merged and de-duplicated by id, so a rivalry appearing in both
      * renders once.
      */
+    /* EVERY PAGE, NOT THE FIRST ONE.
+       The board asked for limit: 50 and rendered whatever came back, so a
+       market with more than 50 matching rivalries silently showed 50 and the
+       results count agreed with itself — the one shape of truncation nothing
+       on the page could reveal. The API returns `total` (how many MATCHED, not
+       how many are on this page), so the feed is walked until the collected
+       count reaches it. Bounded by FETCH_CEILING so a runaway total cannot
+       loop forever, and a short page ends the walk regardless. */
+    const PAGE = 50;
+    const FETCH_CEILING = 500;
+
+    async function fetchAll(fetchPage, label) {
+        const out = [];
+        for (let offset = 0; offset < FETCH_CEILING; offset += PAGE) {
+            const res = await fetchPage({ limit: PAGE, offset });
+            const batch = (res && res.rivalries) || [];
+            out.push(...batch);
+            const total = Number(res && res.total);
+            if (batch.length < PAGE) break;
+            if (isFinite(total) && out.length >= total) break;
+        }
+        if (out.length >= FETCH_CEILING) {
+            console.warn('[Market] ' + label + ' feed hit the ' + FETCH_CEILING + '-row fetch ceiling; the board is showing a prefix');
+        }
+        return out;
+    }
+
     async function loadBoard() {
-        const calls = [window.api.getRivalries({ limit: 50 })];
+        boardState = 'loading';
+        renderRivalries();
+
+        const calls = [fetchAll((p) => window.api.getRivalries(p), 'public')];
         // Only ask for "mine" when there is a session; unauthenticated it is a
         // guaranteed 401 and a console error for nothing.
         const signedIn = !!(window.api.hasAuthToken && window.api.hasAuthToken());
-        if (signedIn) calls.push(window.api.getMyRivalries({ limit: 50 }));
+        if (signedIn) calls.push(fetchAll((p) => window.api.getMyRivalries(p), 'mine'));
 
         const settled = await Promise.allSettled(calls);
         let anyOk = false;
@@ -2127,7 +2270,7 @@ export function initActiveContracts() {
                 return;
             }
             anyOk = true;
-            ((res.value && res.value.rivalries) || []).forEach((r) => {
+            res.value.forEach((r) => {
                 if (r && r.id && !byId.has(r.id)) byId.set(r.id, r);
             });
         });
@@ -2143,6 +2286,14 @@ export function initActiveContracts() {
         await attachProgress(raw);
         rivalries = raw.map(toCard).filter(Boolean);
         boardState = 'ready';
+        /* The acceptance test for this page is that the card count equals the
+           number of contracts the query returned, so the two numbers are
+           printed side by side: `fetched` is what the API gave us, `listed` is
+           what the grid can draw, and the difference is entirely settled
+           rivalries, which belong in the ledger below rather than on the
+           board. */
+        console.log('[Market] rivalries fetched: ' + raw.length + ' · listed on board: ' + rivalries.length);
+        shown = PAGE_SIZE;
         renderRivalries();
     }
 
@@ -2229,14 +2380,49 @@ export function initActiveContracts() {
             rGrid.appendChild(n);
         };
 
+        const el = (tag, cls, text) => {
+            const n = document.createElement(tag);
+            if (cls) n.className = cls;
+            if (text != null) n.textContent = text;
+            return n;
+        };
+
+        /* SKELETONS, NOT A SENTENCE. The grid is the page's subject; replacing
+           it with one line of text while the feed loads collapses the layout
+           and then snaps it back. Cards of the right shape hold the space. */
         if (boardState === 'loading') {
             if (count) count.textContent = '—';
-            notice('Loading the board…');
+            for (let i = 0; i < 8; i++) {
+                const sk = el('article', 'mb-card mb-skel');
+                sk.setAttribute('aria-hidden', 'true');
+                const inner = el('div', 'mb-c-in');
+                inner.appendChild(el('div', 'sk sk-badge'));
+                inner.appendChild(el('div', 'sk sk-line'));
+                inner.appendChild(el('div', 'sk sk-title'));
+                inner.appendChild(el('div', 'sk sk-ops'));
+                inner.appendChild(el('div', 'sk sk-bar'));
+                inner.appendChild(el('div', 'sk sk-fin'));
+                inner.appendChild(el('div', 'sk sk-act'));
+                sk.appendChild(inner);
+                rGrid.appendChild(sk);
+            }
+            const live = el('div', 'mb-sr', 'Loading the market board');
+            rGrid.appendChild(live);
             return;
         }
+
+        /* An error is a fact about the request, so it offers the one action
+           that can change it. Silently drawing a card here — any card — would
+           be inventing a contract out of a failed fetch. */
         if (boardState === 'error') {
             if (count) count.textContent = '—';
-            notice('The market is temporarily unavailable');
+            const box = el('div', 'mb-empty');
+            box.appendChild(el('div', null, "Couldn't load the market"));
+            const retry = el('button', 'mb-retry', 'Try again');
+            retry.type = 'button';
+            retry.addEventListener('click', () => { loadBoard(); });
+            box.appendChild(retry);
+            rGrid.appendChild(box);
             return;
         }
 
@@ -2248,28 +2434,31 @@ export function initActiveContracts() {
             list = list.filter(r => r.state === activeState);
         }
 
-        /* Open challenges first: they are the only ones a reader can act on.
-           A live rivalry is somebody else's contest to watch; an open one is a
-           seat at a table. */
-        list.sort((a, b) => (a.state === 'open' ? -1 : b.state === 'open' ? 1 : 0));
+        list.sort(comparatorFor(activeSort));
 
+        /* The count is the filtered length — every time, from the same array
+           the cards are drawn from, so the number beside "results" cannot
+           disagree with the number of cards under it. */
         if (count) count.textContent = String(list.length);
 
         if (list.length === 0) {
-            notice(rivalries.length === 0
-                ? 'No rivalries have been issued yet — be the first'
-                : 'No rivalries match these filters');
+            const box = el('div', 'mb-empty');
+            box.appendChild(el('div', null, emptyLine()));
+            const make = el('button', 'mb-retry', 'Create a Rivalry →');
+            make.type = 'button';
+            make.addEventListener('click', () => {
+                if (window.router) window.router.navigate('/rivalry');
+            });
+            box.appendChild(make);
+            rGrid.appendChild(box);
             return;
         }
 
-        const el = (tag, cls, text) => {
-            const n = document.createElement(tag);
-            if (cls) n.className = cls;
-            if (text != null) n.textContent = text;
-            return n;
-        };
+        // Never page past what is there, and never below one page.
+        shown = Math.max(PAGE_SIZE, Math.min(shown, list.length));
+        const page = list.slice(0, shown);
 
-        list.forEach((r) => {
+        page.forEach((r) => {
             const isOpen = r.state === 'open';
             /* MEASURED OR NOT — the distinction the old mock could not have.
                A funded rivalry that has not been sampled yet has no progress,
@@ -2359,17 +2548,83 @@ export function initActiveContracts() {
             inner.appendChild(fin);
 
             // ---- action
+            /* THIS CARD'S OWN CONTRACT. Every button used to navigate to
+               /rivalry — the create flow — so twenty cards had one destination
+               and none of them opened the contract they described. */
             const act = el('button', 'mb-c-act ' + (isOpen ? 'accept' : 'view'),
                 isOpen ? 'Join Rivalry' : 'View Rivalry →');
             act.type = 'button';
             act.addEventListener('click', () => {
-                if (window.router) window.router.navigate('/rivalry');
+                if (!window.router) return;
+                window.router.navigate(r.id ? '/rivalry/' + r.id : '/rivalry');
             });
             inner.appendChild(act);
 
             card.appendChild(inner);
             rGrid.appendChild(card);
         });
+
+        /* LOAD MORE, NOT INFINITE SCROLL. The ledger sits under this grid and
+           a scroll-triggered append would keep pushing it out of reach. */
+        if (list.length > page.length) {
+            const more = el('div', 'mb-more');
+            const remaining = list.length - page.length;
+            const btn = el('button', 'mb-more-btn',
+                'Load more · ' + remaining + ' remaining');
+            btn.type = 'button';
+            btn.addEventListener('click', () => {
+                shown += PAGE_SIZE;
+                renderRivalries();
+            });
+            more.appendChild(btn);
+            rGrid.appendChild(more);
+        }
+    }
+
+    /* ---- sort ----
+       Four orders, all derived from fields the contract actually carries.
+       There is no engagement metric behind "Trending", so it is not pretending
+       to be one: it is the board's editorial order — open challenges first,
+       because they are the only listings a reader can act on, then the largest
+       pools, then the newest. A live rivalry is somebody else's contest to
+       watch; an open one is a seat at a table.
+
+       Ties break on id throughout, so two contracts with the same stake or the
+       same deadline do not swap places between renders. */
+    function comparatorFor(sort) {
+        const byId = (a, b) => String(a.id).localeCompare(String(b.id));
+        // null sorts last in every ascending order — "no deadline set" is not
+        // "closing soonest".
+        const asc = (x, y) => (x == null ? 1 : y == null ? -1 : x - y);
+        const desc = (x, y) => (x == null ? 1 : y == null ? -1 : y - x);
+
+        if (sort === 'new') {
+            return (a, b) => desc(a._created, b._created) || byId(a, b);
+        }
+        if (sort === 'closing') {
+            return (a, b) => asc(a._deadline, b._deadline) || byId(a, b);
+        }
+        if (sort === 'volume') {
+            return (a, b) => desc(a._pool, b._pool) || byId(a, b);
+        }
+        // trending
+        return (a, b) => {
+            const openFirst = (a.state === 'open' ? 0 : 1) - (b.state === 'open' ? 0 : 1);
+            return openFirst || desc(a._pool, b._pool) || desc(a._created, b._created) || byId(a, b);
+        };
+    }
+
+    /* Three different sentences, because they are three different facts: the
+       market is empty, this category is empty, or this state is empty. One
+       shared "nothing here" tells the reader nothing about which is true. */
+    function emptyLine() {
+        if (rivalries.length === 0) return 'No rivalries have been issued yet — be the first';
+        const cat = activeCategory !== 'all' ? activeCategory : null;
+        const st = activeState !== 'all' ? activeState : null;
+        if (cat && st) return 'No ' + st + ' rivalries in ' + cat;
+        if (cat) return 'No rivalries in ' + cat;
+        if (st) return 'No ' + st + ' rivalries right now';
+        return 'No rivalries match these filters';
     }
 
 
@@ -2385,6 +2640,9 @@ export function initActiveContracts() {
             segContainer.querySelectorAll('button').forEach(x => x.classList.remove('on'));
             b.classList.add('on');
             activeState = b.dataset.state;
+            // Back to page one: keeping the old offset after a filter change
+            // shows "load more" against a set the reader has not seen the top of.
+            shown = PAGE_SIZE;
             renderRivalries();
         });
     }
@@ -2397,6 +2655,19 @@ export function initActiveContracts() {
             filtersContainer.querySelectorAll('.mb-chip').forEach(p => p.classList.remove('on'));
             pill.classList.add('on');
             activeCategory = pill.dataset.category;
+            shown = PAGE_SIZE;
+            renderRivalries();
+        });
+    }
+
+    /* Sort. The label used to be a static <b>Trending</b> beside the count —
+       a control that described an order nothing applied. It is now a real
+       menu, and the order it names is the order the cards are in. */
+    const sortMenu = document.getElementById('mb-sort');
+    if (sortMenu) {
+        sortMenu.addEventListener('change', () => {
+            activeSort = sortMenu.value;
+            shown = PAGE_SIZE;
             renderRivalries();
         });
     }

@@ -14,7 +14,7 @@
 
 import { db, type DbLike } from '../db/client.js';
 import { createHash } from 'crypto';
-import { eq, and, desc, asc, or, sql } from 'drizzle-orm';
+import { eq, and, desc, asc, or, inArray, sql } from 'drizzle-orm';
 import {
     rivalries, rivalryParticipants, rivalryLedgerEvents, rivalryMetricSnapshots,
     users, identities, accountLedgerEvents, connectedAccounts, notifications,
@@ -25,6 +25,7 @@ import {
 } from '../db/schema.js';
 import {
     deriveRivalryState,
+    deriveRivalryStateLenient,
     validateRivalryNotTerminal,
     validateRivalryFromState,
     InvalidRivalryTransitionError,
@@ -571,6 +572,7 @@ export async function listRivalries(options: {
     total: number;
     scanned: number;
     skipped: number;
+    degraded: number;
     truncated: boolean;
 }> {
     const { status, userId, limit = 20, offset = 0 } = options;
@@ -605,12 +607,85 @@ export async function listRivalries(options: {
         .orderBy(desc(rivalries.createdAt))
         .limit(SCAN_CEILING);
 
+    if (allRivalries.length === 0) {
+        return { rivalries: [], total: 0, scanned: 0, skipped: 0, degraded: 0, truncated: false };
+    }
+
+    /* ONE QUERY PER TABLE, NOT ONE PER ROW.
+       This used to run four round-trips for every rivalry on the board —
+       events, participants, and an identity lookup per side. At 24 rivalries
+       that is ~100 sequential queries to draw one grid, and it is the reason
+       the board was slow enough that widening it looked risky. Events,
+       participants and identities are now fetched in three statements and
+       grouped in memory. */
+    const ids = allRivalries.map((r) => r.id);
+
+    const allEvents = await db
+        .select()
+        .from(rivalryLedgerEvents)
+        .where(inArray(rivalryLedgerEvents.rivalryId, ids))
+        .orderBy(asc(rivalryLedgerEvents.timestampUtc));
+
+    const allParticipants = await db
+        .select()
+        .from(rivalryParticipants)
+        .where(inArray(rivalryParticipants.rivalryId, ids));
+
+    const userIds = Array.from(new Set(
+        allRivalries.flatMap((r) => [r.challengerUserId, r.opponentUserId]).filter(Boolean)
+    ));
+    const allIdentities = userIds.length
+        ? await db.select().from(identities).where(inArray(identities.userId, userIds))
+        : [];
+
+    const eventsByRivalry = new Map<string, any[]>();
+    for (const e of allEvents) {
+        const bucket = eventsByRivalry.get(e.rivalryId);
+        if (bucket) bucket.push(e);
+        else eventsByRivalry.set(e.rivalryId, [e]);
+    }
+    const participantsByRivalry = new Map<string, any[]>();
+    for (const p of allParticipants) {
+        const bucket = participantsByRivalry.get(p.rivalryId);
+        if (bucket) bucket.push(p);
+        else participantsByRivalry.set(p.rivalryId, [p]);
+    }
+    const usernameByUserId = new Map<string, string>();
+    for (const i of allIdentities) {
+        if (i.username && !usernameByUserId.has(i.userId)) usernameByUserId.set(i.userId, i.username);
+    }
+
     // Derive state for each and filter
     const results = [];
     let skipped = 0;
+    let degraded = 0;
+
     for (const rivalry of allRivalries) {
         try {
-            const state = await getRivalryState(rivalry.id);
+            /* LENIENT ON READ. The strict derivation throws on any transition
+               the table does not allow, and the old catch below turned that
+               throw into a dropped row — so a single out-of-order event erased
+               a rivalry from the market permanently rather than for one run.
+               That is the bug that left the board rendering a single card.
+
+               Production reaches that state without corruption: nothing
+               performs ACTIVE → VERIFYING → VERIFIED, so a settlement appends
+               SETTLEMENT_STARTED onto an ACTIVE chain and every subsequent
+               read of that rivalry threw. The newest state-affecting event is
+               still what happened, so it is what the board shows; the
+               transitions that were not permitted are counted and reported. */
+            const events = eventsByRivalry.get(rivalry.id) || [];
+            const { state, invalidTransitions } = deriveRivalryStateLenient(events);
+            if (invalidTransitions.length) {
+                degraded++;
+                const t = invalidTransitions[invalidTransitions.length - 1];
+                console.warn(
+                    `[listRivalries] Rivalry ${rivalry.id} has ${invalidTransitions.length} ` +
+                    `disallowed transition(s); latest ${t.from} → ${t.to} (${t.eventType}). ` +
+                    `Listing it at ${state}.`
+                );
+            }
+
             if (status && state !== status) continue;
 
             // PUBLIC LISTING PRIVACY: Hide directed pending challenges from non-participants
@@ -619,33 +694,28 @@ export async function listRivalries(options: {
                 continue; // Skip directed pending challenges in public feed
             }
 
-            const participants = await db
-                .select()
-                .from(rivalryParticipants)
-                .where(eq(rivalryParticipants.rivalryId, rivalry.id));
-
-            // Get usernames
-            const challengerIdentity = await db.select().from(identities).where(eq(identities.userId, rivalry.challengerUserId)).then(r => r[0]);
-            const opponentIdentity = rivalry.opponentUserId
-                ? await db.select().from(identities).where(eq(identities.userId, rivalry.opponentUserId)).then(r => r[0])
-                : null;
-
             results.push({
                 ...rivalry,
                 state,
-                challengerUsername: challengerIdentity?.username || 'unknown',
-                opponentUsername: opponentIdentity?.username || null,
-                participants,
+                challengerUsername: usernameByUserId.get(rivalry.challengerUserId) || 'unknown',
+                opponentUsername: rivalry.opponentUserId
+                    ? (usernameByUserId.get(rivalry.opponentUserId) || 'unknown')
+                    : null,
+                participants: participantsByRivalry.get(rivalry.id) || [],
                 poolCents: rivalry.stakePerSideCents * 2,
+                /* So a caller can tell a clean chain from one that was read
+                   past a bad transition, without having to fetch the ledger. */
+                stateDegraded: invalidTransitions.length > 0,
             });
         } catch (err: any) {
-            /* Still skipped — one corrupt row must not 500 the whole board —
-               but COUNTED and returned, because a rivalry that exists in the
-               table and silently never reaches the market is invisible from the
-               outside. A caller that sees skipped > 0 knows to go looking
-               instead of concluding the market is empty. */
+            /* Nothing in the block above should throw now that derivation does
+               not — this stays so one genuinely malformed row cannot 500 the
+               whole board, and it is COUNTED and returned, because a rivalry
+               that exists in the table and silently never reaches the market is
+               invisible from the outside. A caller that sees skipped > 0 knows
+               to go looking instead of concluding the market is empty. */
             skipped++;
-            console.warn(`[listRivalries] Skipping rivalry ${rivalry.id} — state derivation error: ${err.message}`);
+            console.warn(`[listRivalries] Skipping rivalry ${rivalry.id} — ${err.message}`);
             continue;
         }
     }
@@ -656,6 +726,7 @@ export async function listRivalries(options: {
         total: results.length,      // how many MATCHED, not how many are on this page
         scanned: allRivalries.length,
         skipped,
+        degraded,
         truncated: allRivalries.length >= SCAN_CEILING,
     };
 }
