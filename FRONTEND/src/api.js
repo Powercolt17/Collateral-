@@ -756,6 +756,12 @@ function getRivalries(params = {}) {
 function getMyRivalries(params = {}) {
     const q = new URLSearchParams();
     if (params.status) q.set('status', params.status);
+    /* limit/offset were accepted from the caller and then dropped on the floor.
+       /v1/rivalries/me takes both and defaults limit to 20, so a caller asking
+       for 50 silently got 20 and had no way to reach page two — the cap looked
+       like the end of the data. */
+    if (params.limit) q.set('limit', String(params.limit));
+    if (params.offset) q.set('offset', String(params.offset));
     const qs = q.toString();
     return get(`/v1/rivalries/me${qs ? '?' + qs : ''}`);
 }

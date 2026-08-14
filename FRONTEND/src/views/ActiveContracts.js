@@ -1515,6 +1515,70 @@ export function renderActiveContracts() {
                 color: var(--mb-muted); display: flex; align-items: center; gap: 16px;
             }
             .mb-sortr b { color: var(--mb-ink); font-weight: 500; }
+            /* The sort was a printed word with nothing behind it — the label
+               said "Trending" while the list was ordered open-first, always.
+               It is a real control now, and it inherits the strip's type so
+               the row still reads as one line rather than a form dropped into
+               it. appearance:none because the platform select paints a
+               rounded, system-blue control that belongs to no other surface
+               on this page. */
+            .mb-sortr select {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+                color: var(--mb-ink); background: none; border: 0;
+                border-bottom: 1px solid var(--mb-line-firm);
+                padding: 2px 18px 2px 4px; cursor: pointer;
+                -webkit-appearance: none; appearance: none;
+                background-image: linear-gradient(45deg, transparent 50%, var(--mb-ink-soft) 50%),
+                                  linear-gradient(135deg, var(--mb-ink-soft) 50%, transparent 50%);
+                background-position: calc(100% - 9px) 55%, calc(100% - 5px) 55%;
+                background-size: 4px 4px, 4px 4px;
+                background-repeat: no-repeat;
+            }
+            .mb-sortr select:focus-visible { outline: 2px solid var(--mb-ox); outline-offset: 2px; }
+
+            /* ---- loading skeletons ----
+               Cards, not a sentence. The board's shape is the thing the reader
+               is waiting for, so the wait shows that shape at the count the
+               grid will most likely fill, rather than a line of text that
+               makes the section look broken until it isn't. */
+            .mb-skel {
+                border: 1px solid var(--mb-line-soft); background: var(--mb-paper);
+                padding: 18px 20px; min-height: 268px;
+            }
+            .mb-skel span {
+                display: block; height: 9px; margin-bottom: 12px;
+                background: linear-gradient(90deg, #E9DEC6 25%, #F2E9D6 50%, #E9DEC6 75%);
+                background-size: 200% 100%;
+                animation: mb-shimmer 1.4s linear infinite;
+            }
+            .mb-skel span.w40 { width: 40%; }
+            .mb-skel span.w70 { width: 70%; }
+            .mb-skel span.w90 { width: 90%; }
+            .mb-skel span.tall { height: 30px; margin-top: 20px; }
+            @keyframes mb-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+            @media (prefers-reduced-motion: reduce) {
+                .mb-skel span { animation: none; }
+            }
+
+            /* ---- load more ---- */
+            .mb-more { grid-column: 1 / -1; display: flex; justify-content: center; padding-top: 8px; }
+            .mb-more button {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+                color: var(--mb-ink); background: none;
+                border: 1px solid var(--mb-line-firm); padding: 13px 34px; cursor: pointer;
+            }
+            .mb-more button:hover { background: rgba(70,55,35,.06); }
+            /* The empty state gets a way out of itself. A filtered-to-zero board
+               that only says "nothing here" leaves the reader on a dead end. */
+            .mb-empty .cta {
+                display: inline-block; margin-top: 14px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+                color: var(--mb-ox); background: none; border: 0;
+                border-bottom: 1px solid var(--mb-ox); padding: 0 0 2px; cursor: pointer;
+            }
 
             /* ---- listing cards ---- */
             .mb-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
@@ -1901,7 +1965,14 @@ export function renderActiveContracts() {
                          bug as the hero and the odometers disagreeing. -->
                     <div class="mb-sortr">
                         <span><b id="mb-count">0</b> results</span>
-                        <span>Sort: <b id="mb-sort-lbl">Trending</b></span>
+                        <label for="mb-sort">Sort:
+                            <select id="mb-sort">
+                                <option value="trending">Trending</option>
+                                <option value="new">New</option>
+                                <option value="closing">Closing Soon</option>
+                                <option value="volume">High Volume</option>
+                            </select>
+                        </label>
                     </div>
                 </div>
 
@@ -1965,6 +2036,13 @@ export function initActiveContracts() {
     // The board's own filters. Domain across, state down.
     let activeCategory = 'all';
     let activeState = 'all';
+    let activeSort = 'trending';
+
+    /* HOW MANY CARDS ARE DRAWN, not how many are held. The board fetches and
+       counts the whole market; this is only the slice currently painted, and
+       it resets whenever the filters or the sort change. */
+    const PAGE_SIZE = 12;
+    let visibleCount = PAGE_SIZE;
 
     /* THE ODOMETERS ARE GONE WITH THE SECOND MASTHEAD THEY LIVED IN. They
        animated #stat-capital / #stat-contracts / #stat-pool inside the old
@@ -2086,6 +2164,14 @@ export function initActiveContracts() {
             days_left: daysLeft(r.deadlineUtc),
             stake_per_side: stake,
             total_pool: stake * 2,
+            /* SORT KEYS, KEPT AS NUMBERS RATHER THAN RE-PARSED PER COMPARE.
+               days_left is already rounded up to whole days, so sorting on it
+               would tie every rivalry closing inside the same day and order
+               them arbitrarily. The raw deadline keeps the real ordering.
+               NaN where the field is absent — the comparator sinks those
+               rather than letting them sort as 1970. */
+            _deadline: r.deadlineUtc ? new Date(r.deadlineUtc).getTime() : NaN,
+            _created: r.createdAt ? new Date(r.createdAt).getTime() : NaN,
             op1: { handle: r.challengerUsername ? '@' + r.challengerUsername : 'Challenger',
                    delta: fmtPct(g.challenger) },
             op2: { handle: r.opponentUsername ? '@' + r.opponentUsername : null,
@@ -2110,12 +2196,38 @@ export function initActiveContracts() {
      * contracts. Merged and de-duplicated by id, so a rivalry appearing in both
      * renders once.
      */
+    /* PAGE UNTIL THE FEED IS EXHAUSTED, NOT ONCE.
+       A single ?limit=50 call is a cap, and a cap is indistinguishable from
+       "that is all there is" at the point the board renders it. The endpoint
+       reports `total` — how many MATCHED, not how many are on this page — so
+       the honest read is to keep asking until we hold that many.
+
+       Bounded three ways, because a paging loop against a feed that can change
+       underneath it must not be able to spin: a hard page ceiling, a stop when
+       a page comes back short, and a stop when a page adds nothing new. */
+    const PAGE = 50;
+    const MAX_PAGES = 20;          // 1000 rivalries; the API's own scan ceiling
+    async function fetchAll(fn) {
+        const out = [];
+        for (let p = 0; p < MAX_PAGES; p++) {
+            const res = await fn({ limit: PAGE, offset: p * PAGE });
+            const batch = (res && res.rivalries) || [];
+            out.push(...batch);
+            const total = Number(res && res.total);
+            // Short page means the feed is exhausted regardless of what total
+            // says; an empty one means it was exhausted exactly on a boundary.
+            if (batch.length < PAGE) break;
+            if (isFinite(total) && out.length >= total) break;
+        }
+        return { rivalries: out };
+    }
+
     async function loadBoard() {
-        const calls = [window.api.getRivalries({ limit: 50 })];
+        const calls = [fetchAll(window.api.getRivalries)];
         // Only ask for "mine" when there is a session; unauthenticated it is a
         // guaranteed 401 and a console error for nothing.
         const signedIn = !!(window.api.hasAuthToken && window.api.hasAuthToken());
-        if (signedIn) calls.push(window.api.getMyRivalries({ limit: 50 }));
+        if (signedIn) calls.push(fetchAll(window.api.getMyRivalries));
 
         const settled = await Promise.allSettled(calls);
         let anyOk = false;
@@ -2231,7 +2343,21 @@ export function initActiveContracts() {
 
         if (boardState === 'loading') {
             if (count) count.textContent = '—';
-            notice('Loading the board…');
+            /* Skeleton CARDS, not a sentence. The reader is waiting for a grid,
+               so the wait shows a grid. Eight is the count the board fills at
+               the common breakpoints, and it is deliberately not a promise
+               about how many will arrive. */
+            for (let i = 0; i < 8; i++) {
+                const s = document.createElement('div');
+                s.className = 'mb-skel';
+                s.setAttribute('aria-hidden', 'true');
+                ['w40', 'w90', 'w70', 'tall'].forEach((w) => {
+                    const bar = document.createElement('span');
+                    bar.className = w;
+                    s.appendChild(bar);
+                });
+                rGrid.appendChild(s);
+            }
             return;
         }
         if (boardState === 'error') {
@@ -2248,19 +2374,107 @@ export function initActiveContracts() {
             list = list.filter(r => r.state === activeState);
         }
 
-        /* Open challenges first: they are the only ones a reader can act on.
-           A live rivalry is somebody else's contest to watch; an open one is a
-           seat at a table. */
-        list.sort((a, b) => (a.state === 'open' ? -1 : b.state === 'open' ? 1 : 0));
+        /* ORDER BY THE ACTIVE SORT.
+           This used to be one fixed comparator — open-first — while the strip
+           beside it printed the word "Trending". The label was decoration over
+           an order it did not describe.
+
+           Note the old comparator was also not a valid one: it returned 0 for
+           every live-vs-live pair AND for every open-vs-open pair, so it only
+           ever expressed "open before live" and left everything else to the
+           engine. Each sort below falls back to open-first for exactly that
+           reason — a reader can act on an open rivalry and only watch a live
+           one — but the fallback is now the tiebreak, not the whole rule.
+
+           NaN keys sink instead of sorting as 1970 or as zero: a rivalry with
+           no deadline is not "closing soonest", and one with no createdAt is
+           not the newest thing on the board. */
+        const openFirst = (a, b) => (a.state === 'open' ? -1 : 0) - (b.state === 'open' ? -1 : 0);
+        const byNum = (key, dir) => (a, b) => {
+            const x = a[key], y = b[key];
+            const xn = !isFinite(x), yn = !isFinite(y);
+            if (xn && yn) return openFirst(a, b);
+            if (xn) return 1;          // unknowns to the bottom, both directions
+            if (yn) return -1;
+            return x === y ? openFirst(a, b) : (x < y ? -dir : dir);
+        };
+        const SORTS = {
+            // Biggest pool first — the contests with the most at stake.
+            volume: byNum('total_pool', -1),
+            // Newest issued first.
+            new: byNum('_created', -1),
+            // Nearest deadline first. Rivalries already past their deadline are
+            // awaiting settlement, not closing soon, so they sort after the
+            // ones still running rather than leading the board.
+            /* THREE TIERS, AND THE ORDER BETWEEN THEM IS THE POINT.
+               Still running sorts first and by nearest deadline — that is what
+               "closing soon" means. Past its deadline comes next: it is awaiting
+               settlement, not closing. No deadline at all sorts last, because an
+               unknown is not a date and must not be ranked as though it were.
+
+               Tiering before comparing, rather than checking "is it past" first:
+               a NaN deadline is not past, so a leading past-check let every
+               deadline-less rivalry outrank the ones actually awaiting
+               settlement. */
+            closing: (() => {
+                const soonest = byNum('_deadline', 1);
+                const tier = (r, now) => (!isFinite(r._deadline) ? 2 : (r._deadline <= now ? 1 : 0));
+                return (a, b) => {
+                    const now = Date.now();
+                    const ta = tier(a, now), tb = tier(b, now);
+                    if (ta !== tb) return ta - tb;
+                    return soonest(a, b);
+                };
+            })(),
+            /* Trending has no engagement signal behind it — nothing in the feed
+               counts views, joins or watchers — so it is not going to pretend to
+               be one. It is the board's default reading: what you can act on,
+               then what is closing soonest. Naming it honestly here beats
+               wiring it to a random number and calling it a ranking. */
+            trending: (a, b) => openFirst(a, b) || SORTS.closing(a, b),
+        };
+        list.sort(SORTS[activeSort] || SORTS.trending);
 
         if (count) count.textContent = String(list.length);
 
         if (list.length === 0) {
-            notice(rivalries.length === 0
-                ? 'No rivalries have been issued yet — be the first'
-                : 'No rivalries match these filters');
+            /* Three different facts, three different sentences — and the two
+               that a reader can do something about get the door out. */
+            if (rivalries.length === 0) {
+                notice('No rivalries have been issued yet — be the first');
+            } else {
+                notice('No rivalries match these filters');
+            }
+            const box = rGrid.querySelector('.mb-empty');
+            if (box) {
+                const cta = document.createElement('button');
+                cta.type = 'button';
+                cta.className = 'cta';
+                cta.textContent = 'Create a Rivalry →';
+                cta.addEventListener('click', () => {
+                    if (window.router) window.router.navigate('/rivalry');
+                });
+                box.appendChild(document.createElement('br'));
+                box.appendChild(cta);
+            }
             return;
         }
+
+        /* PAGINATE THE RENDER, NOT THE FETCH. Everything the feed has is
+           already in memory and counted — `N results` is the full filtered
+           length — but dumping hundreds of cards into one grid is a different
+           problem from fetching them. Changing a filter or a sort resets the
+           page, because holding page 3 across a filter change shows a reader
+           the middle of a list they have not seen the start of. */
+        const shown = Math.min(list.length, visibleCount);
+        const page = list.slice(0, shown);
+
+        /* ACCEPTANCE CHECK, LEFT IN. The card count and the array length must
+           agree; this is the line that proves it without counting DOM nodes by
+           hand. */
+        console.debug('[Market] rivalries: %d total, %d after filters, %d rendered',
+            rivalries.length, list.length, page.length);
+
 
         const el = (tag, cls, text) => {
             const n = document.createElement(tag);
@@ -2269,7 +2483,7 @@ export function initActiveContracts() {
             return n;
         };
 
-        list.forEach((r) => {
+        page.forEach((r) => {
             const isOpen = r.state === 'open';
             /* MEASURED OR NOT — the distinction the old mock could not have.
                A funded rivalry that has not been sampled yet has no progress,
@@ -2370,6 +2584,21 @@ export function initActiveContracts() {
             card.appendChild(inner);
             rGrid.appendChild(card);
         });
+
+        /* The remainder is stated, not implied. "Load more" on its own does not
+           tell a reader whether two cards or two hundred are behind it. */
+        if (list.length > shown) {
+            const more = el('div', 'mb-more');
+            const btn = el('button', null, 'Load ' + Math.min(PAGE_SIZE, list.length - shown)
+                + ' more · ' + (list.length - shown) + ' remaining');
+            btn.type = 'button';
+            btn.addEventListener('click', () => {
+                visibleCount += PAGE_SIZE;
+                renderRivalries();
+            });
+            more.appendChild(btn);
+            rGrid.appendChild(more);
+        }
     }
 
 
@@ -2385,6 +2614,7 @@ export function initActiveContracts() {
             segContainer.querySelectorAll('button').forEach(x => x.classList.remove('on'));
             b.classList.add('on');
             activeState = b.dataset.state;
+            visibleCount = PAGE_SIZE;
             renderRivalries();
         });
     }
@@ -2397,6 +2627,18 @@ export function initActiveContracts() {
             filtersContainer.querySelectorAll('.mb-chip').forEach(p => p.classList.remove('on'));
             pill.classList.add('on');
             activeCategory = pill.dataset.category;
+            visibleCount = PAGE_SIZE;
+            renderRivalries();
+        });
+    }
+
+    /* The sort is a control now rather than a printed word. 'change' rather
+       than 'click' so it also fires for keyboard selection. */
+    const sortSelect = document.getElementById('mb-sort');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', () => {
+            activeSort = sortSelect.value;
+            visibleCount = PAGE_SIZE;
             renderRivalries();
         });
     }
