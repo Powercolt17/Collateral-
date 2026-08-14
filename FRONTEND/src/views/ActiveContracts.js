@@ -101,6 +101,19 @@ export async function loadMarketStats() {
     if (note && MARKET_STATS.loaded) note.remove();
 }
 
+/* Platform marks for the availability column, inlined rather than fetched.
+   Four 24px paths cost less than the requests for them, and the matrix must
+   not render a row of broken images if a CDN is slow or blocked.
+
+   aria-hidden and no <title>: each mark sits beside a label that already names
+   its platform, so announcing it would read the platform twice. fill is
+   currentColor throughout, which is what lets the button invert on hover. */
+const GLYPH = {
+    stripe: '<svg class="glyph" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"/></svg>',
+    shopify: '<svg class="glyph" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15.337 23.979l7.216-1.561s-2.604-17.613-2.625-17.73c-.018-.116-.114-.192-.211-.192s-1.929-.136-1.929-.136-1.275-1.274-1.439-1.411c-.045-.037-.075-.057-.121-.074l-.914 21.104h.023zM11.71 11.305s-.81-.424-1.774-.424c-1.447 0-1.504.906-1.504 1.141 0 1.232 3.24 1.715 3.24 4.629 0 2.295-1.44 3.76-3.406 3.76-2.354 0-3.54-1.465-3.54-1.465l.646-2.086s1.245 1.066 2.28 1.066c.675 0 .975-.545.975-.932 0-1.619-2.654-1.694-2.654-4.359-.034-2.237 1.571-4.416 4.827-4.416 1.257 0 1.875.361 1.875.361l-.945 2.715-.02.01zM11.17.83c.136 0 .271.038.405.135-.984.465-2.064 1.639-2.508 3.992-.656.213-1.293.405-1.889.578C7.697 3.75 8.951.84 11.17.84V.83zm1.235 2.949v.135c-.754.232-1.583.484-2.394.736.466-1.777 1.333-2.645 2.085-2.971.193.501.309 1.176.309 2.1zm.539-2.234c.694.074 1.141.867 1.429 1.755-.349.114-.735.231-1.158.366v-.252c0-.752-.096-1.371-.271-1.871v.002zm2.992 1.289c-.02 0-.06.021-.078.021s-.289.075-.714.21c-.423-1.233-1.176-2.37-2.508-2.37h-.115C12.135.209 11.669 0 11.265 0 8.159 0 6.675 3.877 6.21 5.846c-1.194.365-2.063.636-2.16.674-.675.213-.694.232-.772.87-.075.462-1.83 14.063-1.83 14.063L15.009 24l.927-21.166z"/></svg>',
+    youtube: '<svg class="glyph" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>',
+};
+
 export function renderActiveContracts() {
     return `
         <style>
@@ -1393,49 +1406,126 @@ export function renderActiveContracts() {
                fit, auto is inert. */
             .mb-matrix, .mb-ltable { overflow-x: auto; }
             .mb-matrix { border-top: 2px solid var(--mb-ink); }
+            /* PADDING LIVES IN THE CELLS, NOT ON THE ROW, and there is no
+               column gap. The bank column carries a tint the full height of the
+               table — it is the one source that settles every contract, and the
+               band is what says so at a glance. A row gap would cut that band
+               into four floating rectangles, and row padding would leave it
+               short of the header rule and the last border. */
             .mb-mx-h, .mb-mx-r {
                 display: grid;
-                grid-template-columns: 1.7fr .62fr .62fr .62fr .62fr 1.25fr;
-                align-items: center; gap: 14px; padding: 13px 8px;
+                grid-template-columns: 1.9fr .74fr .74fr .74fr .74fr 1.25fr;
+                align-items: center; gap: 0; padding: 0;
+                /* AT EVERY WIDTH, not below 640 like the ledger's floor. The
+                   availability column now holds a bordered button with a
+                   platform mark — about 175px at its narrowest — and 1.25 of
+                   6.11fr only clears that past ~860px. Under it the button used
+                   to squeeze until the label wrapped inside its own border.
+                   Above the point where the table fits, this is inert. */
+                min-width: 880px;
             }
             .mb-mx-h { border-bottom: 1px solid var(--mb-line); }
             .mb-mx-h span {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
-                color: var(--mb-muted); text-align: center;
+                color: var(--mb-muted); text-align: center; padding: 13px 6px; align-self: stretch;
             }
             .mb-mx-h span.l { text-align: left; }
             .mb-mx-h span.rt { text-align: right; }
-            .mb-mx-h .conn { display: block; color: var(--mb-win); font-size: 10px; margin-top: 3px; letter-spacing: .08em; }
+            .mb-mx-h .conn { display: block; color: var(--mb-win); font-size: 10px; margin-top: 4px; letter-spacing: .08em; }
             .mb-mx-r { border-bottom: 1px solid var(--mb-line-soft); }
-            .mb-mn { font-family: "Cormorant Garamond", Georgia, serif; font-size: 19px; font-weight: 600; color: var(--mb-ink); }
+            .mb-mx-r:last-child { border-bottom: 0; }
+            .mb-mx-metric { padding: 16px 6px; }
+            .mb-mn { font-family: "Cormorant Garamond", Georgia, serif; font-size: 20px; font-weight: 600; color: var(--mb-ink); line-height: 1; }
             .mb-md {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 10px; letter-spacing: .02em; color: var(--mb-muted); margin-top: 3px;
+                font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+                color: var(--mb-muted); margin-top: 6px;
             }
             .mb-md:empty { display: none; }
-            .mb-mx-cell { display: flex; justify-content: center; }
+            .mb-mx-cell { display: flex; justify-content: center; align-items: center; padding: 16px 6px; align-self: stretch; }
+            /* The band. Tinted with --mb-win rather than a neutral, because what
+               it marks is the column that is already satisfied. */
+            .mb-bankcol { background: rgba(63,90,49,.07); }
             /* Three states, and they are legible without colour: filled = the
                source is connected, ring = it is the one this metric needs, rule
                = not applicable. Colour alone would fail anyone who cannot see it. */
             .mb-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--mb-win); }
-            .mb-dot-o { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--mb-ox); }
-            .mb-dot-e { width: 7px; height: 1px; background: var(--mb-line-firm); }
-            .mb-mx-avail {
-                text-align: right;
+            .mb-dot-o { width: 11px; height: 11px; border-radius: 50%; border: 1.6px solid var(--mb-ox); }
+            .mb-dot-e { width: 9px; height: 1.5px; background: var(--mb-line-firm); }
+
+            /* ---- the matrix legend ----
+               The three marks above the table, named. The grid is the fastest
+               way to read this section and the slowest to learn; a legend costs
+               one line and removes the guess. */
+            .mb-mx-legend { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; margin-bottom: 14px; }
+            .mb-lg {
+                display: inline-flex; align-items: center; gap: 9px;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+                font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mb-muted);
             }
-            .mb-mx-avail .ss-go { color: var(--mb-ox); text-decoration: none; background: none; border: 0; cursor: pointer; font: inherit; letter-spacing: inherit; text-transform: inherit; }
-            .mb-mx-avail .ss-go:hover { text-decoration: underline; }
-            .ss-metric.ready .mb-mx-avail .ss-go { color: var(--mb-win); cursor: pointer; }
-            /* Source attached, bank still missing. Not an action on this row —
-               it names the outstanding prerequisite, so it is not styled or
-               hovered like the connect links beside it. */
-            .ss-metric.needs-bank .mb-mx-avail .ss-go {
-                color: var(--mb-muted); cursor: default; text-decoration: none;
+            .mb-lg .mb-dot, .mb-lg .mb-dot-o, .mb-lg .mb-dot-e { flex: none; }
+
+            /* ---- the availability column ----
+               A BORDERED BUTTON CARRYING ITS PLATFORM'S MARK, not a text link.
+               Four rows each ending in a differently-worded link read as prose;
+               the logo is what makes "which of these is Shopify" a glance
+               rather than a read. The mark is decorative — the label beside it
+               already names the platform — so the SVGs are aria-hidden. */
+            .mb-mx-avail { display: flex; justify-content: flex-end; align-items: center; padding: 12px 6px; }
+            .mb-mx-avail .ss-go {
+                display: inline-flex; align-items: center; gap: 9px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10.5px; letter-spacing: .13em; text-transform: uppercase; font-weight: 500;
+                color: var(--mb-ox); border: 1px solid rgba(124,29,43,.5);
+                padding: 8px 15px; background: none; cursor: pointer; text-align: left;
+                white-space: nowrap;
+                transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
             }
-            .ss-metric.needs-bank .mb-mx-avail .ss-go:hover { text-decoration: none; }
+            .mb-mx-avail .ss-go:hover { background: var(--mb-ox); color: #F6EEDD; border-color: var(--mb-ox); }
+            .mb-mx-avail .ss-go .glyph { height: 13px; width: auto; fill: currentColor; display: block; flex: none; }
+            .mb-mx-avail .ss-go .arw { opacity: .7; }
+            /* Ready is not an action, so it does not look like one — no hover,
+               no pointer, and the platform mark drops away because the question
+               it answered ("which source does this need") is settled. */
+            .ss-metric.ready .mb-mx-avail .ss-go {
+                color: var(--mb-win); border-color: rgba(63,90,49,.45);
+                background: rgba(63,90,49,.09); cursor: default;
+            }
+            .ss-metric.ready .mb-mx-avail .ss-go:hover {
+                background: rgba(63,90,49,.09); color: var(--mb-win); border-color: rgba(63,90,49,.45);
+            }
+            .ss-metric.ready .mb-mx-avail .ss-go .glyph,
+            .ss-metric.ready .mb-mx-avail .ss-go .arw { display: none; }
+            /* Two rows that are NOT actions, and must not look like one:
+               .needs-bank — its own source is attached and only the bank is
+               outstanding, which is step 01, not a click here.
+               .waiting    — the source is attached and the history is still
+               accruing. There is nothing to click, only time to pass.
+               Both lose the border, the mark, the arrow and the hover. */
+            .ss-metric.needs-bank .mb-mx-avail .ss-go,
+            .ss-metric.waiting .mb-mx-avail .ss-go {
+                color: var(--mb-muted); border-color: transparent; background: none;
+                cursor: default; padding-right: 0;
+            }
+            .ss-metric.needs-bank .mb-mx-avail .ss-go:hover,
+            .ss-metric.waiting .mb-mx-avail .ss-go:hover {
+                background: none; color: var(--mb-muted); border-color: transparent;
+            }
+            .ss-metric.needs-bank .mb-mx-avail .ss-go .glyph,
+            .ss-metric.needs-bank .mb-mx-avail .ss-go .arw,
+            .ss-metric.waiting .mb-mx-avail .ss-go .glyph,
+            .ss-metric.waiting .mb-mx-avail .ss-go .arw { display: none; }
+            /* A legacy rule from the card layout this table replaced still
+               matches — .ss-metric:hover .ss-go gets transform: translateX(4px).
+               It slid a text link, which was fine; it slides a bordered button
+               out of its column, which is not. */
+            .mb-mx-r:hover .mb-mx-avail .ss-go { transform: none; opacity: 1; }
+            .mb-mx-note {
+                margin-top: 16px; display: flex; align-items: center; gap: 9px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--mb-muted);
+            }
 
             /* ---- the terms builder ---- */
             /* align-items: START, not center. Centring a short paragraph against
@@ -1724,7 +1814,9 @@ export function renderActiveContracts() {
                 .mb-controls { gap: 14px; }
                 /* A floor for the scroll containers above, so the columns keep
                    a readable width inside the scroll instead of crushing. */
-                .mb-mx-h, .mb-mx-r, .mb-lrowh, .mb-lrow { min-width: 560px; }
+                /* The matrix carries its own floor above — it needs more than
+                   this now that the availability column holds buttons. */
+                .mb-lrowh, .mb-lrow { min-width: 560px; }
                 .mb-lrowh, .mb-lrow { grid-template-columns: 96px 1fr 110px 100px 100px 84px; }
                 .mb-solo-emb { height: 44px; }
                 .mb-issue { gap: 16px; }
@@ -1840,11 +1932,18 @@ export function renderActiveContracts() {
                         <div class="mb-stt">Choose what you&rsquo;re measured on</div>
                     </div>
                     <div>
-                        <p class="mb-sdesc">Money is ready once your bank connects. The rest need their own source.</p>
+                        <p class="mb-sdesc">Money is ready the moment your bank connects. Everything else is a count your bank can&rsquo;t see &mdash; each unlocks with its own source.</p>
+
+                        <div class="mb-mx-legend">
+                            <span class="mb-lg"><span class="mb-dot"></span> Verified &amp; ready</span>
+                            <span class="mb-lg"><span class="mb-dot-o"></span> Connect to unlock</span>
+                            <span class="mb-lg"><span class="mb-dot-e"></span> Not applicable</span>
+                        </div>
+
                         <div class="mb-matrix">
                             <div class="mb-mx-h">
                                 <span class="l">Metric</span>
-                                <span>Bank<span class="conn" id="mb-bank-conn" hidden>Connected</span></span>
+                                <span class="mb-bankcol">Bank<span class="conn" id="mb-bank-conn" hidden>&#10003; Connected</span></span>
                                 <span>Stripe</span>
                                 <span>Shopify</span>
                                 <span>YouTube</span>
@@ -1852,41 +1951,43 @@ export function renderActiveContracts() {
                             </div>
 
                             <div class="mb-mx-r ss-metric locked" data-metric="money">
-                                <div><div class="mb-mn">Money received</div><div class="mb-md ss-m-state"></div></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-o" data-src="bank"></span></div>
+                                <div class="mb-mx-metric"><div class="mb-mn">Money received</div><div class="mb-md ss-m-state">Income &middot; in dollars</div></div>
+                                <div class="mb-mx-cell mb-bankcol"><span class="mb-dot-o" data-src="bank"></span></div>
                                 <div class="mb-mx-cell"><span class="mb-dot-e" data-src="stripe"></span></div>
                                 <div class="mb-mx-cell"><span class="mb-dot-e" data-src="shopify"></span></div>
                                 <div class="mb-mx-cell"><span class="mb-dot-e" data-src="youtube"></span></div>
-                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="money">Connect bank &rarr;</button></div>
+                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="money"><span class="lbl">Connect bank</span> <span class="arw">&rarr;</span></button></div>
                             </div>
 
                             <div class="mb-mx-r ss-metric locked ss-gated" data-metric="mrr">
-                                <div><div class="mb-mn">MRR</div><div class="mb-md ss-m-state"></div></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="bank"></span></div>
+                                <div class="mb-mx-metric"><div class="mb-mn">MRR</div><div class="mb-md ss-m-state">Recurring revenue</div></div>
+                                <div class="mb-mx-cell mb-bankcol"><span class="mb-dot-e" data-src="bank"></span></div>
                                 <div class="mb-mx-cell"><span class="mb-dot-o" data-src="stripe"></span></div>
                                 <div class="mb-mx-cell"><span class="mb-dot-e" data-src="shopify"></span></div>
                                 <div class="mb-mx-cell"><span class="mb-dot-e" data-src="youtube"></span></div>
-                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="mrr">Connect Stripe &rarr;</button></div>
+                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="mrr">${GLYPH.stripe}<span class="lbl">Connect Stripe</span> <span class="arw">&rarr;</span></button></div>
                             </div>
 
                             <div class="mb-mx-r ss-metric locked ss-gated" data-metric="orders">
-                                <div><div class="mb-mn">Orders</div><div class="mb-md ss-m-state"></div></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="bank"></span></div>
+                                <div class="mb-mx-metric"><div class="mb-mn">Orders</div><div class="mb-md ss-m-state">Order count</div></div>
+                                <div class="mb-mx-cell mb-bankcol"><span class="mb-dot-e" data-src="bank"></span></div>
                                 <div class="mb-mx-cell"><span class="mb-dot-e" data-src="stripe"></span></div>
                                 <div class="mb-mx-cell"><span class="mb-dot-o" data-src="shopify"></span></div>
                                 <div class="mb-mx-cell"><span class="mb-dot-e" data-src="youtube"></span></div>
-                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="orders">Connect Shopify &rarr;</button></div>
+                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="orders">${GLYPH.shopify}<span class="lbl">Connect Shopify</span> <span class="arw">&rarr;</span></button></div>
                             </div>
 
                             <div class="mb-mx-r ss-metric locked ss-gated" data-metric="views">
-                                <div><div class="mb-mn">Views</div><div class="mb-md ss-m-state"></div></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="bank"></span></div>
+                                <div class="mb-mx-metric"><div class="mb-mn">Views</div><div class="mb-md ss-m-state">View count</div></div>
+                                <div class="mb-mx-cell mb-bankcol"><span class="mb-dot-e" data-src="bank"></span></div>
                                 <div class="mb-mx-cell"><span class="mb-dot-e" data-src="stripe"></span></div>
                                 <div class="mb-mx-cell"><span class="mb-dot-e" data-src="shopify"></span></div>
                                 <div class="mb-mx-cell"><span class="mb-dot-o" data-src="youtube"></span></div>
-                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="views">Connect YouTube &rarr;</button></div>
+                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="views">${GLYPH.youtube}<span class="lbl">Connect YouTube</span> <span class="arw">&rarr;</span></button></div>
                             </div>
                         </div>
+
+                        <div class="mb-mx-note"><span class="mb-mark"></span> Your bank settles every contract. Stripe, Shopify and YouTube only unlock metrics a statement can&rsquo;t see.</div>
                     </div>
                 </div>
 
@@ -2818,8 +2919,12 @@ export function initActiveContracts() {
                         badge.classList.add('ss-m-req');
                     }
                     const go = tile && tile.querySelector('.ss-go');
-                    // Not a link: there is nothing to click, only time to pass.
-                    if (go) go.textContent = label ? 'Unlocks ' + label : 'Not enough history yet';
+                    /* Not a link: there is nothing to click, only time to pass.
+                       It has to LOOK unclickable too — left in the connect
+                       button's border with a platform mark and an arrow, "Unlocks
+                       March" reads as an action that does nothing. */
+                    if (tile) tile.classList.add('waiting');
+                    setGoLabel(go, label ? 'Unlocks ' + label : 'Not enough history yet');
                 });
                 return;
             }
@@ -2873,6 +2978,18 @@ export function initActiveContracts() {
          * that cannot price anything — the bait-and-switch the old code was
          * guarding against, which it did by mislabelling the row instead.
          */
+        /* THE LABEL, NOT THE BUTTON. These buttons now carry a platform mark
+           and an arrow alongside their text, and `go.textContent = '...'`
+           replaces all of it — the SVG and the arrow would be wiped the first
+           time source state was painted, which is on load. Everything that
+           rewords a row goes through here. */
+        function setGoLabel(go, text) {
+            if (!go) return;
+            const lbl = go.querySelector('.lbl');
+            if (lbl) lbl.textContent = text;
+            else go.textContent = text;
+        }
+
         function applyCardState(metric, sourceConnected, platform, bankConnected) {
             const tile = ssRoot.querySelector('.ss-metric[data-metric="' + metric + '"]');
             if (!tile) return;
@@ -2883,21 +3000,25 @@ export function initActiveContracts() {
             tile.classList.toggle('ready', ready);
             tile.classList.toggle('locked', !ready);
             tile.classList.toggle('needs-bank', !!sourceConnected && !bankConnected);
+            /* Cleared here, set only by the history branch that follows this
+               call — otherwise a row that was waiting on history stays greyed
+               out after the history lands. */
+            tile.classList.remove('waiting');
 
             if (ready) {
-                if (go) go.textContent = 'Ready ✓';
+                setGoLabel(go, 'Ready ✓');
                 if (req) req.remove();
                 return;
             }
             if (!go) return;
             if (!sourceConnected) {
-                go.textContent = platform === 'bank'
-                    ? 'Connect bank →'
-                    : 'Connect ' + platform + ' →';
+                setGoLabel(go, platform === 'bank'
+                    ? 'Connect bank'
+                    : 'Connect ' + platform);
             } else {
                 // Its own source is attached; the only thing left is the bank,
                 // and that is step 01 rather than an action on this row.
-                go.textContent = 'Bank required';
+                setGoLabel(go, 'Bank required');
             }
         }
 
@@ -2919,7 +3040,7 @@ export function initActiveContracts() {
                 tile.classList.remove('locked');
                 tile.classList.add('ready');
                 state.textContent = 'Ready — ' + monthsHave + ' months of history';
-                if (go) go.textContent = 'Write this contract →';
+                setGoLabel(go, 'Write this contract →');
                 const req = tile.querySelector('.ss-m-req');
                 if (req) req.remove();
                 const alt = tile.querySelector('.ss-m-alt');
