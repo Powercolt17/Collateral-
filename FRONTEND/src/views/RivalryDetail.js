@@ -734,7 +734,12 @@ export async function initRivalryDetail(params) {
                 targetValue: challTargetValue,
             },
             opponent: {
-                name: '@' + (r.opponentUsername || 'unknown'),
+                /* "Open slot", not "@unknown". An open challenge has no
+                   opponent yet — that is the whole reason it is joinable, and
+                   it is what the market card the reader clicked through from
+                   says. Naming the empty seat "@unknown" drew this page as a
+                   duel against a person who does not exist. */
+                name: r.opponentUsername ? '@' + r.opponentUsername : 'Open slot',
                 growth: oppGrowth,
                 baseline: oppBaseline,
                 currentValue: oppCurrentValue,

@@ -107,10 +107,26 @@ export async function getRivalryWithState(rivalryId: string) {
     const [rivalry] = await db.select().from(rivalries).where(eq(rivalries.id, rivalryId));
     if (!rivalry) return null;
 
-    const state = await getRivalryState(rivalryId);
+    /* LENIENT, FOR THE SAME REASON THE LISTING IS.
+       This is a read path — its only caller is getRivalryDetail — and the
+       strict derivation throws on the very chains the market now lists. That
+       combination is worse than either half: the board shows a rivalry, the
+       reader clicks it, GET /v1/rivalries/:id throws, the route turns it into
+       a 500 and the page says "RIVALRY NOT FOUND" about a contract that
+       plainly exists. Every card on the board has to open. */
+    const events = await getRivalryEvents(rivalryId);
+    const { state, invalidTransitions } = deriveRivalryStateLenient(events);
+    if (invalidTransitions.length) {
+        const t = invalidTransitions[invalidTransitions.length - 1];
+        console.warn(
+            `[getRivalryWithState] Rivalry ${rivalryId} has ${invalidTransitions.length} ` +
+            `disallowed transition(s); latest ${t.from} → ${t.to} (${t.eventType}). Reading it at ${state}.`
+        );
+    }
+
     const participants = await db.select().from(rivalryParticipants).where(eq(rivalryParticipants.rivalryId, rivalryId));
 
-    return { rivalry, state, participants };
+    return { rivalry, state, participants, stateDegraded: invalidTransitions.length > 0 };
 }
 
 // =============================================================================
@@ -735,11 +751,19 @@ export async function getRivalryDetail(rivalryId: string) {
     const result = await getRivalryWithState(rivalryId);
     if (!result) return null;
 
-    const { rivalry, state, participants } = result;
+    const { rivalry, state, participants, stateDegraded } = result;
 
     // Get usernames
     const challengerIdentity = await db.select().from(identities).where(eq(identities.userId, rivalry.challengerUserId)).then(r => r[0]);
-    const opponentIdentity = await db.select().from(identities).where(eq(identities.userId, rivalry.opponentUserId)).then(r => r[0]);
+    /* GUARDED, BECAUSE AN OPEN RIVALRY HAS NO OPPONENT — and an open rivalry
+       is exactly what the market's "Join Rivalry" card opens. Unguarded this
+       queried identities for userId = null, matched nothing, and reported the
+       empty seat as an opponent named "unknown"; the detail page then drew a
+       duel against a person who does not exist. listRivalries already made
+       this distinction, and the two read paths must agree. */
+    const opponentIdentity = rivalry.opponentUserId
+        ? await db.select().from(identities).where(eq(identities.userId, rivalry.opponentUserId)).then(r => r[0])
+        : null;
 
     // Get events
     const events = await getRivalryEvents(rivalryId);
@@ -755,11 +779,14 @@ export async function getRivalryDetail(rivalryId: string) {
         ...rivalry,
         state,
         challengerUsername: challengerIdentity?.username || 'unknown',
-        opponentUsername: opponentIdentity?.username || 'unknown',
+        // null, not "unknown": the seat is open, and the market card, the
+        // detail page and the share card all key off that distinction.
+        opponentUsername: rivalry.opponentUserId ? (opponentIdentity?.username || 'unknown') : null,
         participants,
         events,
         metrics,
         poolCents: rivalry.stakePerSideCents * 2,
+        stateDegraded,
     };
 }
 

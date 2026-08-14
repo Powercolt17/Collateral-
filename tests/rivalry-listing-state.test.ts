@@ -132,6 +132,30 @@ describe('deriveRivalryStateLenient', () => {
         expect(lenient.invalidTransitions).toHaveLength(0);
     });
 
+    /* THE BOARD AND THE DETAIL PAGE MUST AGREE ON WHAT EXISTS.
+       Making only the listing lenient is worse than making neither: the market
+       shows a rivalry, the reader clicks it, GET /v1/rivalries/:id throws, the
+       route turns that into a 500, and the page reports "RIVALRY NOT FOUND"
+       about a contract sitting on the board behind it. Both read paths derive
+       through this function for that reason. */
+    it('reads the same chains the listing lists', () => {
+        const chains = [
+            chain(RivalryEventType.RIVALRY_CREATED, RivalryEventType.RIVALRY_ACTIVATED),
+            chain(
+                RivalryEventType.RIVALRY_CREATED,
+                RivalryEventType.RIVALRY_ACCEPTED,
+                RivalryEventType.RIVALRY_BOTH_FUNDED,
+                RivalryEventType.RIVALRY_ACTIVATED,
+                RivalryEventType.RIVALRY_SETTLEMENT_STARTED,
+            ),
+        ];
+        for (const events of chains) {
+            expect(() => deriveRivalryState(events)).toThrow(InvalidRivalryTransitionError);
+            expect(() => deriveRivalryStateLenient(events)).not.toThrow();
+            expect(deriveRivalryStateLenient(events).state).not.toBeNull();
+        }
+    });
+
     /* Writers must keep the guard. If the lenient function ever replaced the
        strict one on append, the ledger stops being able to reject a bad
        transition at all. */
