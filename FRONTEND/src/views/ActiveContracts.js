@@ -1330,53 +1330,106 @@ export function renderActiveContracts() {
             }
             .mb-lhead .act:hover { color: var(--mb-ox); }
 
-            /* ---- create (solo) ---- */
+            /* ---- create (solo) ----
+               ONE CARD THAT ADVANCES IN PLACE, not three stacked sections.
+               The previous layout printed all three steps at once down a 250px
+               rail, which meant the terms builder and a contract preview were
+               both on screen before a source existed to price either of them —
+               so the only honest thing they could show was a worked example
+               with a disclaimer under it. A wizard can ask for one thing at a
+               time and therefore never has to invent the next thing. */
             .mb-solo { padding-top: 58px; }
-            .mb-solo-top { display: flex; align-items: center; gap: 20px; }
-            .mb-solo-emb { height: 64px; width: auto; flex: none; }
-            .mb-kick {
-                display: inline-flex; align-items: center; gap: 13px;
+            .mb-w-col { max-width: 920px; margin: 0 auto; }
+            .mb-w-head { text-align: center; margin-bottom: 20px; }
+            .mb-w-head .k {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 11px; letter-spacing: .30em; text-transform: uppercase;
-                color: var(--mb-ox); font-weight: 500; margin-bottom: 14px;
+                color: var(--mb-ox); font-weight: 500;
             }
-            .mb-kick .r { height: 1px; width: 30px; background: var(--mb-ox); opacity: .75; }
-            .mb-solo h2 {
+            .mb-w-head h2 {
                 font-family: "Cormorant Garamond", Georgia, serif;
-                font-weight: 600; font-size: clamp(32px, 3.6vw, 42px); line-height: 1.0;
-                color: var(--mb-ink); margin: 0;
+                font-weight: 600; font-size: clamp(30px, 3.4vw, 40px); line-height: 1.02;
+                color: var(--mb-ink); margin: 9px 0 0;
             }
-            .mb-solo h2 .ox { color: var(--mb-ox); }
-            .mb-lede { font-size: 17px; line-height: 1.55; color: var(--mb-ink-soft); max-width: 660px; margin: 16px 0 0; }
+            .mb-w-head h2 .ox { color: var(--mb-ox); }
+            .mb-lede { font-size: 16px; line-height: 1.55; color: var(--mb-ink-soft); margin: 10px 0 0; }
 
-            .mb-step { display: grid; grid-template-columns: 250px 1fr; gap: 44px; padding: 26px 0; border-top: 1px solid var(--mb-line); }
-            /* min-width: 0, WITHOUT WHICH overflow-x: auto DOES NOTHING HERE.
-               A grid item's automatic minimum size is its content's min-content
-               width, so the matrix's 560px row floor grows the COLUMN to 560
-               rather than letting the matrix scroll inside a 327px one. Measured
-               on a 375px phone: the track went to 560 and the scroll container
-               never engaged, and body's overflow-x: hidden then quietly clipped
-               the right of the table — the same silent truncation as the ledger,
-               reached by a different route. */
-            .mb-step > *, .mb-builder > * { min-width: 0; }
-            .mb-step:first-of-type { margin-top: 30px; }
-            .mb-snum { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .24em; color: var(--mb-ox); font-weight: 500; }
-            .mb-stt { font-family: "Cormorant Garamond", Georgia, serif; font-size: 27px; font-weight: 600; margin-top: 12px; line-height: 1.05; }
-            .mb-sdesc { font-size: 15px; line-height: 1.55; color: var(--mb-ink-soft); margin: 0 0 18px; max-width: 560px; }
-            .mb-cbtn {
-                display: inline-flex; align-items: center; gap: 12px;
-                background: var(--mb-ox); color: #F6EEDD;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 12px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500;
-                padding: 15px 24px; border: 0; border-radius: 0; cursor: pointer;
-                box-shadow: 0 12px 26px rgba(94,20,32,.20);
+            .mb-wiz { background: var(--mb-paper); border: 1px solid var(--mb-line-firm); box-shadow: 0 26px 60px rgba(60,40,20,.16); }
+            .mb-wiz-top {
+                display: flex; align-items: center; justify-content: space-between; gap: 20px;
+                padding: 18px 28px; border-bottom: 1px solid var(--mb-line);
             }
-            .mb-cbtn .tag { font-size: 10px; letter-spacing: .05em; opacity: .78; text-transform: none; font-weight: 400; }
-            .mb-reassure {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 10.5px; letter-spacing: .06em; color: var(--mb-muted);
-                margin-top: 14px; display: flex; align-items: center; gap: 9px;
+            .mb-wiz-brand { display: flex; align-items: center; gap: 13px; }
+            .mb-wiz-brand img { height: 34px; width: auto; flex: none; }
+            .mb-wiz-brand .nm { font-family: "Cormorant Garamond", Georgia, serif; font-size: 17px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+            .mb-wiz-brand .sb { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--mb-ox); }
+
+            /* The stepper is a list of the three steps, in order, with the
+               current one marked — an <ol> with aria-current, so it is the same
+               fact to a screen reader that the discs are to everyone else. */
+            .mb-stp { display: flex; align-items: center; list-style: none; margin: 0; padding: 0; }
+            .mb-stp .n { display: flex; align-items: center; gap: 9px; }
+            .mb-stp .disc {
+                width: 26px; height: 26px; border-radius: 50%;
+                display: flex; align-items: center; justify-content: center;
+                font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px;
+                border: 1.4px solid var(--mb-line-firm); color: var(--mb-muted); background: var(--mb-paper);
+                flex: none; transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
             }
+            .mb-stp .disc.done { background: var(--mb-win); border-color: var(--mb-win); color: #F1EAD8; }
+            .mb-stp .disc.on { background: var(--mb-ox); border-color: var(--mb-ox); color: #F6EEDD; box-shadow: 0 0 0 4px rgba(124,29,43,.13); }
+            .mb-stp .lb { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--mb-muted); }
+            .mb-stp .lb.act { color: var(--mb-ink); }
+            .mb-stp .bar { width: 34px; height: 1px; background: var(--mb-line-firm); margin: 0 12px; flex: none; }
+
+            .mb-wiz-body { padding: 26px 28px 8px; }
+            /* min-width: 0, WITHOUT WHICH overflow-x: auto DOES NOTHING on the
+               matrix inside. A flex/grid item's automatic minimum size is its
+               content's min-content width, so the matrix's row floor would grow
+               this container rather than letting the table scroll inside it —
+               and body's overflow-x: hidden then silently CUTS the right-hand
+               columns instead of showing a scrollbar. */
+            .mb-wiz-body > * { min-width: 0; }
+            .mb-wiz-foot {
+                display: flex; align-items: center; justify-content: space-between; gap: 18px;
+                padding: 18px 28px; border-top: 1px solid var(--mb-line); background: rgba(250,244,230,.5);
+            }
+            .mb-wstep { display: none; }
+            .mb-wstep.on { display: block; }
+
+            /* A finished step collapses to one line: the check, what was chosen,
+               and the way back to it. */
+            .mb-srow {
+                display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+                padding: 13px 16px; border: 1px solid var(--mb-line);
+                background: rgba(250,244,230,.75); margin-bottom: 12px;
+            }
+            .mb-srow .ic {
+                width: 22px; height: 22px; border-radius: 50%; background: var(--mb-win); color: #F1EAD8;
+                display: flex; align-items: center; justify-content: center; font-size: 12px; flex: none;
+            }
+            .mb-srow .lab {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase;
+                color: var(--mb-muted); width: 66px; flex: none;
+            }
+            .mb-srow .g { width: 17px; height: 17px; color: var(--mb-ink-soft); flex: none; }
+            .mb-srow .val { font-family: "Cormorant Garamond", Georgia, serif; font-size: 19px; font-weight: 600; }
+            .mb-srow .val small { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; font-weight: 400; color: var(--mb-muted); margin-left: 8px; }
+            .mb-srow .edit {
+                margin-left: auto; background: none; border: 0; cursor: pointer;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--mb-ox);
+            }
+            .mb-srow .edit:hover { text-decoration: underline; }
+
+            .mb-act-head {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+                color: var(--mb-ox); margin: 6px 0 13px; font-weight: 500;
+            }
+            .mb-act-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 26px; font-weight: 600; margin: 0 0 4px; line-height: 1.05; }
+            .mb-act-sub { font-size: 14px; line-height: 1.5; color: var(--mb-ink-soft); margin: 0 0 18px; }
 
             /* ---- the source matrix ----
                A TABLE, BECAUSE IT IS ONE. Metric down the side, source across
@@ -1393,96 +1446,305 @@ export function renderActiveContracts() {
                fit, auto is inert. */
             .mb-matrix, .mb-ltable { overflow-x: auto; }
             .mb-matrix { border-top: 2px solid var(--mb-ink); }
+            /* NO GAP, AND THE PADDING LIVES IN THE CELLS. A column gap would cut
+               the bank column's tint into four floating blocks; with the cells
+               stretched edge to edge it reads as one continuous spine down the
+               table, which is the point — the bank is the column every other
+               row depends on. */
             .mb-mx-h, .mb-mx-r {
                 display: grid;
-                grid-template-columns: 1.7fr .62fr .62fr .62fr .62fr 1.25fr;
-                align-items: center; gap: 14px; padding: 13px 8px;
+                grid-template-columns: 1.9fr .74fr .74fr .74fr .74fr 1.32fr;
+                align-items: center; gap: 0; padding: 0;
             }
             .mb-mx-h { border-bottom: 1px solid var(--mb-line); }
             .mb-mx-h span {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
                 color: var(--mb-muted); text-align: center;
+                display: flex; flex-direction: column; justify-content: center; align-items: center;
+                align-self: stretch; padding: 13px 8px;
             }
-            .mb-mx-h span.l { text-align: left; }
-            .mb-mx-h span.rt { text-align: right; }
-            .mb-mx-h .conn { display: block; color: var(--mb-win); font-size: 10px; margin-top: 3px; letter-spacing: .08em; }
+            .mb-mx-h span.l { text-align: left; align-items: flex-start; }
+            .mb-mx-h span.rt { text-align: right; align-items: flex-end; }
+            /* The chip states a fact, so it appears only when the fact is true.
+               #ss-root already carries data-bank, set by loadSourceState(). */
+            .mb-mx-h .conn { display: none; color: var(--mb-win); font-size: 8.5px; margin-top: 4px; letter-spacing: .12em; }
+            #ss-root[data-bank="connected"] .mb-mx-h .conn { display: block; }
             .mb-mx-r { border-bottom: 1px solid var(--mb-line-soft); }
-            .mb-mn { font-family: "Cormorant Garamond", Georgia, serif; font-size: 19px; font-weight: 600; color: var(--mb-ink); }
+            .mb-mx-r:last-child { border-bottom: 0; }
+            /* .ss-metric (the shared hook these rows still answer to) paints card
+               stock and a left rule for the old two-up tiles. In the table the
+               rows sit on the parchment itself, and .ready must not repaint the
+               row pink — the READY badge in the last column carries that state. */
+            .mb-matrix .mb-mx-r,
+            .mb-matrix .mb-mx-r.ready { background: transparent; border-left: 0; }
+            .mb-mx-metric { padding: 15px 8px; min-width: 0; }
+            .mb-mn { font-family: "Cormorant Garamond", Georgia, serif; font-size: 20px; font-weight: 600; color: var(--mb-ink); line-height: 1.05; }
             .mb-md {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 10px; letter-spacing: .02em; color: var(--mb-muted); margin-top: 3px;
+                font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase;
+                color: var(--mb-muted); margin-top: 6px;
             }
             .mb-md:empty { display: none; }
-            .mb-mx-cell { display: flex; justify-content: center; }
+            .mb-mx-cell { display: flex; justify-content: center; align-items: center; align-self: stretch; padding: 15px 6px; }
+            /* Warm neutral, not green: the tint marks the column, it does not
+               claim the bank is attached. That claim is the ✓ CONNECTED chip. */
+            .mb-bankcol { background: rgba(70,55,35,.05); }
             /* Three states, and they are legible without colour: filled = the
                source is connected, ring = it is the one this metric needs, rule
                = not applicable. Colour alone would fail anyone who cannot see it. */
-            .mb-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--mb-win); }
-            .mb-dot-o { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--mb-ox); }
-            .mb-dot-e { width: 7px; height: 1px; background: var(--mb-line-firm); }
+            .mb-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--mb-win); flex: none; }
+            .mb-dot-o { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--mb-ox); flex: none; }
+            .mb-dot-e { width: 7px; height: 1px; background: var(--mb-line-firm); flex: none; }
+            /* The key, above the table. Four rows of dots with no legend made the
+               reader infer three states from context; naming them costs one line. */
+            .mb-mx-legend { display: flex; align-items: center; flex-wrap: wrap; gap: 9px 26px; margin: 16px 0 14px; }
+            .mb-lg {
+                display: inline-flex; align-items: center; gap: 9px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mb-muted);
+            }
             .mb-mx-avail {
-                text-align: right;
+                display: flex; justify-content: flex-end; align-items: center;
+                padding: 11px 8px 11px 6px;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
             }
-            .mb-mx-avail .ss-go { color: var(--mb-ox); text-decoration: none; background: none; border: 0; cursor: pointer; font: inherit; letter-spacing: inherit; text-transform: inherit; }
-            .mb-mx-avail .ss-go:hover { text-decoration: underline; }
-            .ss-metric.ready .mb-mx-avail .ss-go { color: var(--mb-win); cursor: pointer; }
-            /* Source attached, bank still missing. Not an action on this row —
-               it names the outstanding prerequisite, so it is not styled or
-               hovered like the connect links beside it. */
-            .ss-metric.needs-bank .mb-mx-avail .ss-go {
-                color: var(--mb-muted); cursor: default; text-decoration: none;
+            /* THE BRAND MARKS ARE BACKGROUNDS, NOT CHILD <svg>s. applyCardState()
+               drives this button through textContent — "Connect Stripe →",
+               "Ready ✓", "Bank required" — which replaces every child node. An
+               inline icon would survive exactly until the first state refresh. */
+            .mb-mx-avail .ss-go {
+                display: inline-flex; align-items: center;
+                color: var(--mb-ox); text-decoration: none; cursor: pointer;
+                background-color: transparent; background-repeat: no-repeat;
+                background-position: 14px 50%; background-size: 13px 13px;
+                border: 1px solid rgba(124,29,43,.45); border-radius: 0;
+                padding: 9px 15px; text-align: left;
+                font: inherit; letter-spacing: inherit; text-transform: inherit;
+                transition: background-color 150ms ease, border-color 150ms ease;
             }
-            .ss-metric.needs-bank .mb-mx-avail .ss-go:hover { text-decoration: none; }
+            .mb-mx-avail .ss-go:hover { background-color: rgba(124,29,43,.08); border-color: var(--mb-ox); text-decoration: none; }
+            /* .ss-metric:hover .ss-go nudges the old tile's text link sideways.
+               A bordered button sliding out from under its own row is not that. */
+            .ss-metric:hover .mb-mx-avail .ss-go { transform: none; opacity: 1; }
+            .mb-mx-avail .ss-go[data-source="mrr"] {
+                padding-left: 35px;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237C1D2B'%3E%3Cpath d='M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z'/%3E%3C/svg%3E");
+            }
+            .mb-mx-avail .ss-go[data-source="orders"] {
+                padding-left: 35px;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237C1D2B'%3E%3Cpath d='M15.337 23.979l7.216-1.561s-2.604-17.613-2.625-17.73c-.018-.116-.114-.192-.211-.192s-1.929-.136-1.929-.136-1.275-1.274-1.439-1.411c-.045-.037-.075-.057-.121-.074l-.914 21.104h.023zM11.71 11.305s-.81-.424-1.774-.424c-1.447 0-1.504.906-1.504 1.141 0 1.232 3.24 1.715 3.24 4.629 0 2.295-1.44 3.76-3.406 3.76-2.354 0-3.54-1.465-3.54-1.465l.646-2.086s1.245 1.066 2.28 1.066c.675 0 .975-.545.975-.932 0-1.619-2.654-1.694-2.654-4.359-.034-2.237 1.571-4.416 4.827-4.416 1.257 0 1.875.361 1.875.361l-.945 2.715-.02.01zM11.17.83c.136 0 .271.038.405.135-.984.465-2.064 1.639-2.508 3.992-.656.213-1.293.405-1.889.578C7.697 3.75 8.951.84 11.17.84V.83zm1.235 2.949v.135c-.754.232-1.583.484-2.394.736.466-1.777 1.333-2.645 2.085-2.971.193.501.309 1.176.309 2.1zm.539-2.234c.694.074 1.141.867 1.429 1.755-.349.114-.735.231-1.158.366v-.252c0-.752-.096-1.371-.271-1.871v.002zm2.992 1.289c-.02 0-.06.021-.078.021s-.289.075-.714.21c-.423-1.233-1.176-2.37-2.508-2.37h-.115C12.135.209 11.669 0 11.265 0 8.159 0 6.675 3.877 6.21 5.846c-1.194.365-2.063.636-2.16.674-.675.213-.694.232-.772.87-.075.462-1.83 14.063-1.83 14.063L15.009 24l.927-21.166z'/%3E%3C/svg%3E");
+            }
+            .mb-mx-avail .ss-go[data-source="views"] {
+                padding-left: 35px;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237C1D2B'%3E%3Cpath d='M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'/%3E%3C/svg%3E");
+            }
+            /* Ready is a state, not an errand: green badge, no brand mark, no
+               "connect" affordance to click through. */
+            .mb-matrix .ss-metric.ready .mb-mx-avail .ss-go {
+                color: var(--mb-win); border-color: rgba(63,90,49,.45);
+                background-color: rgba(63,90,49,.09); background-image: none;
+                padding-left: 15px;
+            }
+            .mb-matrix .ss-metric.ready .mb-mx-avail .ss-go:hover {
+                background-color: rgba(63,90,49,.16); border-color: var(--mb-win);
+            }
+            /* Source attached but bank still missing, or waiting on history to
+               accrue. Neither is an action on this row — it names the outstanding
+               prerequisite — so neither gets a button's border or a brand mark. */
+            .mb-matrix .ss-metric.needs-bank .mb-mx-avail .ss-go,
+            .mb-matrix .ss-metric.waiting .mb-mx-avail .ss-go {
+                color: var(--mb-muted); cursor: default; text-decoration: none;
+                background: none; border-color: transparent; padding: 9px 0;
+            }
+            .mb-matrix .ss-metric.needs-bank .mb-mx-avail .ss-go:hover,
+            .mb-matrix .ss-metric.waiting .mb-mx-avail .ss-go:hover {
+                background: none; border-color: transparent; text-decoration: none;
+            }
+            .mb-mx-note {
+                margin-top: 16px; display: flex; align-items: center; gap: 9px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--mb-muted);
+            }
 
-            /* ---- the terms builder ---- */
-            /* align-items: START, not center. Centring a short paragraph against
-               a tall card floated the explanation into the middle of the row and
-               left a band of empty parchment above and below it — the most
-               visibly unfinished thing on the page. Starting both and nudging
-               the note down by the card's own top padding lines it up with the
-               card's title block, which is the top third. */
-            .mb-builder { display: grid; grid-template-columns: 1fr 356px; gap: 40px; align-items: start; }
-            .mb-bnote { font-size: 15px; line-height: 1.58; color: var(--mb-ink-soft); max-width: 430px; padding-top: 26px; }
-            .mb-bnote .big { font-family: "Cormorant Garamond", Georgia, serif; font-size: 23px; color: var(--mb-ink); display: block; margin-bottom: 10px; font-weight: 600; line-height: 1.1; }
-            /* The card sets the row's height, so compressing the row means
-               compressing the card: padding, row rhythm and the two display
-               figures all come down together rather than one being squeezed. */
-            .mb-bcard { position: relative; background: var(--mb-paper); border: 1px solid var(--mb-line-firm); padding: 11px 18px; box-shadow: 0 16px 34px rgba(60,40,20,.10); }
-            .mb-bcard::after { content: ""; position: absolute; inset: 5px; border: 1px solid var(--mb-line-soft); pointer-events: none; }
-            .mb-bh { position: relative; z-index: 2; }
-            .mb-bt-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-            .mb-bt-k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--mb-muted); }
-            .mb-bt-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 20px; font-weight: 600; margin: 4px 0 1px; }
-            .mb-brule { height: 1px; background: var(--mb-line-firm); margin: 5px 0 1px; }
-            .mb-brow { display: flex; align-items: center; justify-content: space-between; padding: 2px 0; border-bottom: 1px solid var(--mb-line-soft); }
-            .mb-brow .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--mb-muted); }
-            .mb-brow .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 17px; font-weight: 600; color: var(--mb-ink); }
-            .mb-brow .v .adj { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mb-muted); margin-left: 9px; }
-            .mb-bmult { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--mb-line-soft); }
-            .mb-bmult .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--mb-muted); }
-            .mb-bmult .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 21px; font-weight: 700; color: var(--mb-ox); }
-            .mb-bplain { font-size: 12.5px; line-height: 1.35; color: var(--mb-ink-soft); padding: 6px 0; border-bottom: 1px solid var(--mb-line-soft); }
-            .mb-bout { display: flex; justify-content: space-between; gap: 10px; font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10.5px; letter-spacing: .04em; padding: 6px 0 2px; }
-            .mb-bout .w { color: var(--mb-win); }
-            .mb-bout .l { color: var(--mb-ox); }
-            .mb-bcreate {
-                display: block; width: 100%; text-align: center;
+            /* ---- choosing a metric ----
+               The spine is the selection, and it is on the LEFT edge of the row
+               rather than a fill across it: the bank column already carries a
+               tint, and two washes in one row stopped reading as two different
+               facts. */
+            .mb-mx-r.mb-selectable { cursor: pointer; }
+            .mb-mx-r.mb-selectable:hover { background: rgba(70,55,35,.03); }
+            .mb-matrix .mb-mx-r.sel,
+            .mb-matrix .mb-mx-r.sel.ready { background: rgba(124,29,43,.05); position: relative; }
+            .mb-mx-r.sel::before {
+                content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+                width: 3px; background: var(--mb-ox);
+            }
+            /* Chosen: solid, because it is the one row the footer's Continue is
+               about. Ready-but-unchosen stays the green badge. */
+            .mb-matrix .ss-metric.sel .mb-mx-avail .ss-go {
+                background-color: var(--mb-ox); background-image: none;
+                border-color: var(--mb-ox); color: #F6EEDD; padding-left: 15px;
+            }
+            .mb-matrix .ss-metric.sel .mb-mx-avail .ss-go:hover { background-color: var(--mb-ox-deep); border-color: var(--mb-ox-deep); }
+
+            /* ---- terms ---- */
+            .mb-field { margin-bottom: 22px; }
+            .mb-flabel { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-bottom: 10px; }
+            .mb-flabel .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--mb-muted); }
+            .mb-flabel .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 25px; font-weight: 600; line-height: 1; }
+            .mb-hint { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9.5px; letter-spacing: .06em; color: var(--mb-muted); margin-top: 9px; }
+            .mb-range { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 2px; background: rgba(70,55,35,.14); outline: none; display: block; }
+            .mb-range::-webkit-slider-thumb {
+                -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+                background: var(--mb-ox); border: 2px solid var(--mb-paper);
+                box-shadow: 0 2px 5px rgba(94,20,32,.3); cursor: pointer;
+            }
+            .mb-range::-moz-range-thumb {
+                width: 16px; height: 16px; border-radius: 50%;
+                background: var(--mb-ox); border: 2px solid var(--mb-paper); cursor: pointer;
+            }
+            .mb-ticks { display: flex; justify-content: space-between; margin-top: 9px; font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9px; color: var(--mb-faint); }
+            .mb-pills { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+            .mb-pill {
+                font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .06em;
+                color: var(--mb-ink-soft); border: 1px solid var(--mb-line-firm);
+                padding: 9px 15px; background: rgba(250,244,230,.75); cursor: pointer;
+                transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+            }
+            .mb-pill.on { background: var(--mb-ink); color: #F6EEDD; border-color: var(--mb-ink); }
+            /* Legible but inert: a window this tier does not run, or a stake
+               below its floor. Not hidden — the reader should see the ladder. */
+            .mb-pill[disabled] { opacity: .42; cursor: not-allowed; }
+            .mb-stakein {
+                display: inline-flex; align-items: center; border: 1px solid var(--mb-line-firm);
+                background: rgba(250,244,230,.75); font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 13px; padding: 8px 12px;
+            }
+            .mb-stakein .cur { color: var(--mb-muted); margin-right: 3px; }
+            .mb-stakein input {
+                border: 0; background: transparent; font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 13px; width: 62px; outline: none; color: var(--mb-ink);
+            }
+            .mb-payout {
+                display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin-top: 4px;
+                padding: 15px 20px; border: 1px solid var(--mb-line-firm); background: rgba(250,244,230,.75);
+            }
+            .mb-payout .mult { font-family: "Cormorant Garamond", Georgia, serif; font-size: 34px; font-weight: 700; color: var(--mb-ox); line-height: 1; }
+            .mb-payout .mk { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-muted); margin-top: 4px; }
+            .mb-payout .plain { flex: 1 1 260px; font-size: 14px; line-height: 1.45; color: var(--mb-ink-soft); }
+            .mb-payout .plain b { color: var(--mb-ink); }
+            .mb-payout .out { text-align: right; font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; line-height: 1.7; font-weight: 500; }
+            .mb-payout .out .w { color: var(--mb-win); }
+            .mb-payout .out .l { color: var(--mb-ox); }
+            /* No price yet, or none that can be quoted. The strip says which,
+               instead of showing a multiplier nothing produced. */
+            .mb-payout.mb-unpriced { color: var(--mb-muted); }
+            .mb-payout.mb-unpriced .mult { color: var(--mb-faint); }
+
+            /* ---- the certificate ----
+               ONE FRAME. Registration ticks at the corners, not a second border
+               inside the first: a nested double border is a print effect this
+               page uses nowhere else and it reads as a box in a box. */
+            .mb-contract { position: relative; margin-top: 12px; padding: 26px 14px 10px; }
+            .mb-contract .reg { position: absolute; width: 13px; height: 13px; border: 1.3px solid var(--mb-faint); opacity: .85; }
+            .mb-contract .reg.tl { top: 0; left: 2px; border-right: 0; border-bottom: 0; }
+            .mb-contract .reg.tr { top: 0; right: 2px; border-left: 0; border-bottom: 0; }
+            .mb-contract .reg.bl { bottom: 2px; left: 2px; border-right: 0; border-top: 0; }
+            .mb-contract .reg.br { bottom: 2px; right: 2px; border-left: 0; border-top: 0; }
+            .mb-doc-h { display: flex; align-items: center; justify-content: space-between; gap: 14px; border-bottom: 1px solid var(--mb-line-firm); padding-bottom: 11px; }
+            .mb-doc-h .a { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9px; letter-spacing: .24em; text-transform: uppercase; color: var(--mb-muted); }
+            .mb-doc-h .f { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--mb-ox); }
+            .mb-doc-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 28px; font-weight: 600; margin: 14px 0 3px; line-height: 1.05; }
+            .mb-doc-sub { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--mb-ink-soft); margin-bottom: 14px; }
+            .mb-dled { border-top: 1px solid var(--mb-line-soft); }
+            .mb-drow { display: grid; grid-template-columns: 150px 1fr max-content; align-items: center; gap: 14px; padding: 8px 0; border-bottom: 1px solid var(--mb-line-soft); }
+            .mb-drow .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-muted); }
+            .mb-drow .lead { height: 1px; border-bottom: 1px dotted rgba(70,55,35,.3); }
+            .mb-drow .v { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; color: var(--mb-ink); font-weight: 500; text-align: right; }
+            .mb-drow .v.ox { color: var(--mb-ox); }
+            .mb-clauses { margin: 16px 0 4px; }
+            .mb-citem {
+                display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left;
+                padding: 9px 0; border: 0; border-bottom: 1px solid var(--mb-line-soft);
+                background: none; cursor: pointer; font: inherit;
+            }
+            .mb-cbox {
+                width: 16px; height: 16px; border: 1.4px solid var(--mb-line-firm);
+                display: flex; align-items: center; justify-content: center;
+                color: transparent; font-size: 11px; flex: none; margin-top: 2px;
+            }
+            .mb-citem.checked .mb-cbox { border-color: var(--mb-win); color: var(--mb-win); }
+            .mb-ctxt { font-size: 14px; line-height: 1.45; color: var(--mb-ink-soft); }
+            .mb-ctxt b { color: var(--mb-ink); font-weight: 600; }
+            .mb-sign { display: flex; align-items: flex-end; justify-content: space-between; gap: 36px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--mb-line-firm); }
+            .mb-sig { flex: 1; min-width: 0; }
+            .mb-sig .line { border-bottom: 1px solid var(--mb-ink); padding: 4px 6px 5px; min-height: 38px; display: flex; align-items: flex-end; }
+            .mb-sig .line .nm { font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; font-size: 27px; color: var(--mb-ink); }
+            .mb-sig .line .ph { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--mb-faint); }
+            .mb-sig .lb { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 8.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-muted); margin-top: 7px; }
+            .mb-docwax { width: 52px; height: 52px; flex: none; }
+            .mb-docwax.empty { border: 1px dashed var(--mb-line-firm); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+            .mb-docwax.empty span { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 7px; letter-spacing: .1em; color: var(--mb-faint); text-align: center; line-height: 1.3; }
+            .mb-docwax svg { display: block; width: 100%; height: 100%; animation: mb-stamp 260ms cubic-bezier(.2,.8,.3,1); }
+            @keyframes mb-stamp { from { transform: scale(1.5) rotate(-8deg); opacity: 0; } to { transform: none; opacity: 1; } }
+
+            /* ---- executed ---- */
+            .mb-exec { position: relative; overflow: hidden; text-align: center; padding: 22px 20px 10px; }
+            .mb-exec-wm {
+                position: absolute; left: 50%; top: 56%; transform: translate(-50%,-50%);
+                font-family: "Cormorant Garamond", Georgia, serif; font-weight: 700;
+                font-size: 250px; line-height: 1; color: rgba(70,55,35,.05); pointer-events: none; z-index: 0;
+            }
+            .mb-exec > * { position: relative; z-index: 1; }
+            .mb-exec .seal { width: 70px; height: 70px; margin: 0 auto 16px; }
+            .mb-exec .et { font-family: "Cormorant Garamond", Georgia, serif; font-size: 30px; font-weight: 600; }
+            .mb-exec .es { font-size: 15px; line-height: 1.5; color: var(--mb-ink-soft); margin-top: 8px; }
+            .mb-exec .eline { display: inline-flex; gap: 22px; flex-wrap: wrap; justify-content: center; margin-top: 20px; padding: 14px 24px; border: 1px solid var(--mb-line); background: rgba(250,244,230,.75); }
+            .mb-exec .eline .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 8.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-muted); }
+            .mb-exec .eline .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: 18px; font-weight: 600; margin-top: 3px; }
+            .mb-exec-next {
+                margin-top: 18px; font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: var(--mb-muted);
+                display: inline-flex; align-items: center; gap: 10px;
+            }
+
+            /* ---- wizard buttons ---- */
+            .mb-wbtn {
+                display: inline-flex; align-items: center; justify-content: center; gap: 11px;
                 background: var(--mb-ox); color: #F6EEDD;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500;
-                padding: 11px; border: 0; border-radius: 0; cursor: pointer; margin-top: 8px;
+                font-size: 11.5px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500;
+                padding: 14px 26px; border: 0; border-radius: 0; cursor: pointer;
+                box-shadow: 0 12px 26px rgba(94,20,32,.2);
+                transition: background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
             }
-            /* THE FIGURES IN THIS CARD ARE A WORKED EXAMPLE, NOT A QUOTE. Real
-               terms are priced per person from verified history, so the card
-               says so rather than letting a reader take $250 -> $1,000 as an
-               offer. Delete .mb-bex the same commit it renders a real draft. */
-            .mb-bex {
-                display: block; margin-top: 6px; text-align: center;
+            .mb-wbtn:hover { background: var(--mb-ox-deep); transform: translateY(-1px); }
+            .mb-wbtn:active { transform: none; }
+            .mb-wbtn[disabled] { opacity: .45; cursor: not-allowed; box-shadow: none; transform: none; background: var(--mb-ox); }
+            /* The label is replaced while the write is in flight, so the width is
+               pinned first — a button that shrinks mid-request moves the footer
+               under the reader's cursor. */
+            .mb-wbtn.mb-busy { pointer-events: none; opacity: .8; }
+            .mb-gbtn {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-muted);
+                font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+                color: var(--mb-ink-soft); background: none; border: 0; cursor: pointer;
+                display: inline-flex; align-items: center; gap: 9px; padding: 6px 0;
+            }
+            .mb-gbtn:hover { color: var(--mb-ink); }
+            .mb-footnote {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--mb-muted);
+                display: flex; align-items: center; gap: 9px;
+            }
+            /* A failed write is reported where the action was taken, and the
+               button stays available to try again. */
+            .mb-werr {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10px; letter-spacing: .06em; color: var(--mb-ox);
+                display: flex; align-items: center; gap: 9px;
             }
 
             /* ---- board controls ---- */
@@ -1515,9 +1777,26 @@ export function renderActiveContracts() {
                 color: var(--mb-muted); display: flex; align-items: center; gap: 16px;
             }
             .mb-sortr b { color: var(--mb-ink); font-weight: 500; }
+            .mb-sort {
+                background: none; border: 0; cursor: pointer; padding: 4px 0;
+                font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit;
+                display: inline-flex; align-items: center; gap: 6px;
+            }
+            .mb-sort:hover { color: var(--mb-ink); }
 
             /* ---- listing cards ---- */
             .mb-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+            /* The board's shape while it loads, so the section does not collapse
+               to one line of text and then jump to four rows of cards. It is
+               plainly empty — no shimmer pretending to be data. */
+            .mb-skel { border: 1px solid var(--mb-line); background: rgba(250,244,230,.45); padding: 18px 20px; min-height: 300px; }
+            .mb-skel span { display: block; background: rgba(70,55,35,.07); }
+            .mb-skel .a { height: 14px; width: 45%; margin-bottom: 18px; }
+            .mb-skel .b { height: 28px; width: 82%; margin-bottom: 10px; }
+            .mb-skel .c { height: 12px; width: 60%; margin-bottom: 26px; }
+            .mb-skel .d { height: 5px; width: 100%; margin-bottom: 26px; }
+            .mb-skel .e { height: 20px; width: 40%; margin-bottom: 30px; }
+            .mb-skel .f { height: 38px; width: 100%; }
             .mb-card {
                 position: relative; background: var(--mb-paper);
                 border: 1px solid var(--mb-line-firm); padding: 18px 20px;
@@ -1636,17 +1915,26 @@ export function renderActiveContracts() {
                 display: flex; align-items: center; justify-content: center; gap: 16px;
             }
 
+            /* ---- the divider between the two ways in ---- */
+            .mb-sep { display: flex; align-items: center; gap: 22px; margin: 60px auto 40px; max-width: 920px; }
+            .mb-sep .ln { flex: 1; height: 1px; background: var(--mb-line-firm); }
+            .mb-sep span { font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; font-size: 24px; color: var(--mb-ink-soft); }
+
             /* ---- states, motion, focus ---- */
-            .mb-cbtn, .mb-bcreate, .mb-c-act, .mb-chip, .mb-seg button, .mb-issue .a {
+            .mb-c-act, .mb-chip, .mb-seg button, .mb-issue .a {
                 transition: background 160ms ease, color 160ms ease, transform 120ms ease, box-shadow 120ms ease;
             }
-            .mb-cbtn:hover, .mb-bcreate:hover, .mb-c-act.accept:hover { background: var(--mb-ox-deep); transform: translateY(-1px); }
-            .mb-cbtn:active, .mb-bcreate:active, .mb-c-act.accept:active { transform: none; box-shadow: none; }
+            .mb-c-act.accept:hover { background: var(--mb-ox-deep); transform: translateY(-1px); }
+            .mb-c-act.accept:active { transform: none; box-shadow: none; }
             .mb-c-act.view:hover, .mb-chip:hover, .mb-seg button:hover { background: rgba(70,55,35,.06); }
-            .mb a:focus-visible, .mb button:focus-visible { outline: 2px solid var(--mb-ox); outline-offset: 2px; }
+            .mb a:focus-visible, .mb button:focus-visible, .mb input:focus-visible { outline: 2px solid var(--mb-ox); outline-offset: 2px; }
             @media (prefers-reduced-motion: reduce) {
-                .mb-cbtn, .mb-bcreate, .mb-c-act, .mb-chip, .mb-seg button, .mb-issue .a { transition: none; }
-                .mb-cbtn:hover, .mb-bcreate:hover, .mb-c-act.accept:hover { transform: none; }
+                .mb-c-act, .mb-chip, .mb-seg button, .mb-issue .a,
+                .mb-wbtn, .mb-pill, .mb-stp .disc, .mb-mx-avail .ss-go { transition: none; }
+                .mb-c-act.accept:hover, .mb-wbtn:hover { transform: none; }
+                /* The seal stamps in on signing. Under reduced motion it is
+                   simply there — the fact is the seal, not the impact. */
+                .mb-docwax svg { animation: none; }
             }
 
             /* ---- responsive ----
@@ -1659,19 +1947,41 @@ export function renderActiveContracts() {
             }
             @media (max-width: 900px) {
                 .mb-grid { grid-template-columns: repeat(2, 1fr); }
-                .mb-step { grid-template-columns: 1fr; gap: 16px; padding: 22px 0; }
-                .mb-builder { grid-template-columns: 1fr; gap: 24px; }
                 .mb-solo { padding-top: 44px; }
                 .mb-board { padding-top: 46px; }
+                /* The wizard stays a single centred column at every width — it
+                   is already one, so tablet only loses padding, never structure. */
+                .mb-wiz-top, .mb-wiz-body, .mb-wiz-foot { padding-left: 20px; padding-right: 20px; }
+                .mb-sep { margin: 46px auto 32px; }
+            }
+            @media (max-width: 760px) {
+                /* The stepper keeps its discs and drops its words: three labelled
+                   nodes plus two rules do not fit beside the wordmark, and the
+                   disc is the part that carries position. The <ol> still reads in
+                   full to a screen reader. */
+                .mb-stp .lb { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+                .mb-stp .bar { width: 20px; margin: 0 8px; }
+                .mb-wiz-foot { flex-wrap: wrap; gap: 12px; }
+                .mb-wiz-foot .mb-wbtn { flex: 1 1 100%; }
+                .mb-sign { flex-direction: column; align-items: stretch; gap: 20px; }
+                .mb-docwax { align-self: flex-end; }
             }
             @media (max-width: 640px) {
                 .mb-grid { grid-template-columns: 1fr; }
                 .mb-controls { gap: 14px; }
+                /* Filters scroll sideways rather than stacking into a tall block
+                   that pushes the board off the first screen. */
+                .mb-chips, .mb-seg { overflow-x: auto; flex-wrap: nowrap; max-width: 100%; }
                 /* A floor for the scroll containers above, so the columns keep
                    a readable width inside the scroll instead of crushing. */
-                .mb-mx-h, .mb-mx-r, .mb-lrowh, .mb-lrow { min-width: 560px; }
+                /* 760, not 560: the availability column now carries a bordered
+                   button with a brand mark rather than a bare text link, and it
+                   wraps to two lines under about 720. */
+                .mb-mx-h, .mb-mx-r { min-width: 760px; }
+                .mb-lrowh, .mb-lrow { min-width: 560px; }
                 .mb-lrowh, .mb-lrow { grid-template-columns: 96px 1fr 110px 100px 100px 84px; }
-                .mb-solo-emb { height: 44px; }
+                .mb-drow { grid-template-columns: 108px 1fr max-content; gap: 10px; }
+                .mb-exec-wm { font-size: 170px; }
                 .mb-issue { gap: 16px; }
                 .mb-foot { letter-spacing: .16em; }
             }
@@ -1743,134 +2053,135 @@ export function renderActiveContracts() {
                  ═══════════════════════════════════════════════════════════ -->
 
             <!-- ── CREATE ──
+                 ONE CARD THAT ADVANCES IN PLACE.
+
                  #ss-root and the .ss-metric / .ss-go / .ss-m-state hooks are
                  kept EXACTLY as they were. The look is new; the wiring behind
-                 it is the existing loadSourceState(), which reads real Plaid,
-                 Stripe, Shopify and YouTube connection status off the API. That
-                 logic is the only genuinely live thing on this route and it
-                 would have been thrown away by rebuilding the markup fresh. -->
+                 step 1 is the existing loadSourceState(), which reads real
+                 Plaid, Stripe, Shopify and YouTube connection status off the
+                 API — the only genuinely live thing this section had, and it
+                 would have been thrown away by rebuilding the markup fresh.
+
+                 Every step past the first is EMPTY IN THE MARKUP. The terms and
+                 the certificate are written by the wizard from the terms
+                 preview the server returns for this operator, so there is no
+                 pass where a stake, a multiplier or a payout exists in the HTML
+                 before anything priced it. -->
             <section class="mb mb-solo" id="ss-root" data-bank="none">
-                <div class="mb-solo-top">
-                    <!-- THE SITE'S OWN WAX SEAL, NOT THE SOLO ILLUSTRATION.
-                         solo-seal.webp is a 1024² picture with a pale cream
-                         square baked in and heavy margins, so at 56px it read as
-                         a tiny image inside a box — and it is navy, which
-                         belongs to no other mark on this page. This is the same
-                         oxblood seal the Contract Structures cards carry, with
-                         real transparency (no rectangle at any size) and a 147px
-                         source at 64 CSS px, so it stays sharp at 2x. -->
-                    <img class="mb-solo-emb" src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="64" height="56">
-                    <div>
-                        <div class="mb-kick"><span class="r"></span> Create</div>
+                <div class="mb-w-col">
+                    <div class="mb-w-head">
+                        <div class="k">Create &middot; Solo Contract</div>
                         <h2>Stake on <span class="ox">your own goal.</span></h2>
+                        <p class="mb-lede">Three steps &mdash; connect your source, set your terms, sign. Priced from your own record.</p>
                     </div>
-                </div>
-                <p class="mb-lede">Three steps. Priced from your last twelve months &mdash; not a menu.</p>
 
-                <div class="mb-step">
-                    <div>
-                        <div class="mb-snum">01</div>
-                        <div class="mb-stt">Connect your bank</div>
-                    </div>
-                    <div>
-                        <p class="mb-sdesc">Read-only, via Plaid.</p>
-                        <button type="button" class="mb-cbtn" id="ss-connect-bank" data-source="bank">Connect Bank <span class="tag">Plaid &middot; read-only</span></button>
-                        <div class="mb-reassure"><span class="mb-mark" style="width:7px;height:7px"></span> Revocable anytime.</div>
-                    </div>
-                </div>
-
-                <div class="mb-step">
-                    <div>
-                        <div class="mb-snum">02</div>
-                        <div class="mb-stt">Choose what you&rsquo;re measured on</div>
-                    </div>
-                    <div>
-                        <p class="mb-sdesc">Money is ready once your bank connects. The rest need their own source.</p>
-                        <div class="mb-matrix">
-                            <div class="mb-mx-h">
-                                <span class="l">Metric</span>
-                                <span>Bank<span class="conn" id="mb-bank-conn" hidden>Connected</span></span>
-                                <span>Stripe</span>
-                                <span>Shopify</span>
-                                <span>YouTube</span>
-                                <span class="rt">Availability</span>
-                            </div>
-
-                            <div class="mb-mx-r ss-metric locked" data-metric="money">
-                                <div><div class="mb-mn">Money received</div><div class="mb-md ss-m-state"></div></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-o" data-src="bank"></span></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="stripe"></span></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="shopify"></span></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="youtube"></span></div>
-                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="money">Connect bank &rarr;</button></div>
-                            </div>
-
-                            <div class="mb-mx-r ss-metric locked ss-gated" data-metric="mrr">
-                                <div><div class="mb-mn">MRR</div><div class="mb-md ss-m-state"></div></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="bank"></span></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-o" data-src="stripe"></span></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="shopify"></span></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="youtube"></span></div>
-                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="mrr">Connect Stripe &rarr;</button></div>
-                            </div>
-
-                            <div class="mb-mx-r ss-metric locked ss-gated" data-metric="orders">
-                                <div><div class="mb-mn">Orders</div><div class="mb-md ss-m-state"></div></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="bank"></span></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="stripe"></span></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-o" data-src="shopify"></span></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="youtube"></span></div>
-                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="orders">Connect Shopify &rarr;</button></div>
-                            </div>
-
-                            <div class="mb-mx-r ss-metric locked ss-gated" data-metric="views">
-                                <div><div class="mb-mn">Views</div><div class="mb-md ss-m-state"></div></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="bank"></span></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="stripe"></span></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-e" data-src="shopify"></span></div>
-                                <div class="mb-mx-cell"><span class="mb-dot-o" data-src="youtube"></span></div>
-                                <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="views">Connect YouTube &rarr;</button></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-step">
-                    <div>
-                        <div class="mb-snum">03</div>
-                        <div class="mb-stt">Set your terms</div>
-                    </div>
-                    <div class="mb-builder">
-                        <div class="mb-bnote">
-                            <span class="big">Priced from your record.</span>
-                            Your verified history sets the price. Choose the target, window, and amount at risk &mdash; the return updates automatically.
-                        </div>
-                        <!-- A WORKED EXAMPLE, AND IT SAYS SO. Every figure here is
-                             priced per person from verified history after the
-                             examination, so printing $250 -> $1,000 without the
-                             marker below would read as an offer this page cannot
-                             make. -->
-                        <div class="mb-bcard">
-                            <div class="mb-bh">
-                                <div class="mb-bt-top">
-                                    <span class="mb-bt-k">Solo Contract &middot; Example</span>
-                                    <span class="mb-bt-k" id="mb-bt-verified">Bank required</span>
+                    <div class="mb-wiz" id="mb-wiz">
+                        <div class="mb-wiz-top">
+                            <div class="mb-wiz-brand">
+                                <!-- The site's own oxblood seal, at 34px. -->
+                                <img src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="34" height="30">
+                                <div>
+                                    <div class="nm">Collateral</div>
+                                    <div class="sb">Solo Contract</div>
                                 </div>
-                                <div class="mb-bt-title">Money Received</div>
-                                <div class="mb-brule"></div>
-                                <div class="mb-brow"><span class="k">Target</span><span class="v">+20%<span class="adj">Adjust</span></span></div>
-                                <div class="mb-brow"><span class="k">Window</span><span class="v">30 Days<span class="adj">Adjust</span></span></div>
-                                <div class="mb-brow"><span class="k">Stake</span><span class="v">$250<span class="adj">Adjust</span></span></div>
-                                <div class="mb-bmult"><span class="k">Payout Multiplier</span><span class="v">4.0&times;</span></div>
-                                <div class="mb-bplain">Risk <b>$250</b> to earn <b>$1,000</b> profit if Money Received grows 20% in 30 days.</div>
-                                <div class="mb-bout"><span class="w">&#9670; Hit target &middot; +$1,000</span><span class="l">Miss &middot; &minus;$250</span></div>
-                                <button type="button" class="mb-bcreate" data-source="money">Create Contract &rarr;</button>
-                                <span class="mb-bex">Illustrative &mdash; your terms are priced from your own history</span>
                             </div>
+                            <ol class="mb-stp" id="mb-stp" aria-label="Contract steps">
+                                <li class="n" data-node="0"><span class="disc on" aria-hidden="true">1</span><span class="lb act">Connect</span></li>
+                                <li class="bar" aria-hidden="true"></li>
+                                <li class="n" data-node="1"><span class="disc" aria-hidden="true">2</span><span class="lb">Terms</span></li>
+                                <li class="bar" aria-hidden="true"></li>
+                                <li class="n" data-node="2"><span class="disc" aria-hidden="true">3</span><span class="lb">Sign</span></li>
+                            </ol>
                         </div>
+
+                        <div class="mb-wiz-body">
+                            <!-- ── STEP 1 · connect & choose ── -->
+                            <div class="mb-wstep on" data-step="1">
+                                <div class="mb-act-head">Step 1 of 3 &middot; Connect &amp; choose</div>
+                                <h3 class="mb-act-title">Connect your source, pick a metric</h3>
+                                <p class="mb-act-sub">Money settles through your bank. Connect Stripe, Shopify or YouTube to unlock the counts a statement can&rsquo;t see.</p>
+
+                                <div class="mb-mx-legend">
+                                    <span class="mb-lg"><span class="mb-dot"></span> Verified &amp; ready</span>
+                                    <span class="mb-lg"><span class="mb-dot-o"></span> Connect to unlock</span>
+                                    <span class="mb-lg"><span class="mb-dot-e"></span> Not applicable</span>
+                                </div>
+
+                                <div class="mb-matrix">
+                                    <div class="mb-mx-h">
+                                        <span class="l">Metric</span>
+                                        <span class="mb-bankcol">Bank<span class="conn" id="mb-bank-conn">&#10003; Connected</span></span>
+                                        <span>Stripe</span>
+                                        <span>Shopify</span>
+                                        <span>YouTube</span>
+                                        <span class="rt">Choose</span>
+                                    </div>
+
+                                    <!-- The static descriptor and the live state line are two
+                                         different .mb-md rows. .ss-m-state is the one the JS
+                                         writes ("4 of 6 months — unlocks in March") and it is
+                                         :empty-collapsed until it has something to say, so the
+                                         usual row shows one line, not a blank second one. -->
+                                    <div class="mb-mx-r ss-metric locked" data-metric="money">
+                                        <div class="mb-mx-metric"><div class="mb-mn">Money received</div><div class="mb-md">Income &middot; in dollars</div><div class="mb-md ss-m-state"></div></div>
+                                        <div class="mb-mx-cell mb-bankcol"><span class="mb-dot-o" data-src="bank"></span></div>
+                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="stripe"></span></div>
+                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="shopify"></span></div>
+                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="youtube"></span></div>
+                                        <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="money">Connect bank &rarr;</button></div>
+                                    </div>
+
+                                    <div class="mb-mx-r ss-metric locked ss-gated" data-metric="mrr">
+                                        <div class="mb-mx-metric"><div class="mb-mn">MRR</div><div class="mb-md">Recurring revenue</div><div class="mb-md ss-m-state"></div></div>
+                                        <div class="mb-mx-cell mb-bankcol"><span class="mb-dot-e" data-src="bank"></span></div>
+                                        <div class="mb-mx-cell"><span class="mb-dot-o" data-src="stripe"></span></div>
+                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="shopify"></span></div>
+                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="youtube"></span></div>
+                                        <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="mrr">Connect Stripe &rarr;</button></div>
+                                    </div>
+
+                                    <div class="mb-mx-r ss-metric locked ss-gated" data-metric="orders">
+                                        <div class="mb-mx-metric"><div class="mb-mn">Orders</div><div class="mb-md">Order count</div><div class="mb-md ss-m-state"></div></div>
+                                        <div class="mb-mx-cell mb-bankcol"><span class="mb-dot-e" data-src="bank"></span></div>
+                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="stripe"></span></div>
+                                        <div class="mb-mx-cell"><span class="mb-dot-o" data-src="shopify"></span></div>
+                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="youtube"></span></div>
+                                        <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="orders">Connect Shopify &rarr;</button></div>
+                                    </div>
+
+                                    <div class="mb-mx-r ss-metric locked ss-gated" data-metric="views">
+                                        <div class="mb-mx-metric"><div class="mb-mn">Views</div><div class="mb-md">View count</div><div class="mb-md ss-m-state"></div></div>
+                                        <div class="mb-mx-cell mb-bankcol"><span class="mb-dot-e" data-src="bank"></span></div>
+                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="stripe"></span></div>
+                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="shopify"></span></div>
+                                        <div class="mb-mx-cell"><span class="mb-dot-o" data-src="youtube"></span></div>
+                                        <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="views">Connect YouTube &rarr;</button></div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-mx-note"><span class="mb-mark"></span> Your bank settles every contract. Stripe, Shopify and YouTube only unlock metrics a statement can&rsquo;t see.</div>
+                            </div>
+
+                            <!-- ── STEP 2 · terms ── written by the wizard -->
+                            <div class="mb-wstep" data-step="2" id="mb-wstep-2"></div>
+
+                            <!-- ── STEP 3 · review & sign ── written by the wizard -->
+                            <div class="mb-wstep" data-step="3" id="mb-wstep-3"></div>
+
+                            <!-- ── EXECUTED ── written from the created contract -->
+                            <div class="mb-wstep" data-step="done" id="mb-wstep-done"></div>
+                        </div>
+
+                        <div class="mb-wiz-foot" id="mb-wiz-foot"></div>
                     </div>
                 </div>
             </section>
+
+            <div class="mb mb-sep">
+                <span class="ln"></span>
+                <span>Or &mdash; take on an open rival</span>
+                <span class="ln"></span>
+            </div>
 
             <!-- ── BOARD ── -->
             <section class="mb mb-board">
@@ -1901,7 +2212,11 @@ export function renderActiveContracts() {
                          bug as the hero and the odometers disagreeing. -->
                     <div class="mb-sortr">
                         <span><b id="mb-count">0</b> results</span>
-                        <span>Sort: <b id="mb-sort-lbl">Trending</b></span>
+                        <!-- A REAL CONTROL. This was static text with a ▾ on it,
+                             which reads as a menu and did nothing when pressed;
+                             it cycles the three orders the board can actually
+                             put the cards in. -->
+                        <button type="button" class="mb-sort" id="mb-sort">Sort: <b id="mb-sort-lbl">Trending</b> <span aria-hidden="true">&#9662;</span></button>
                     </div>
                 </div>
 
@@ -1965,6 +2280,14 @@ export function initActiveContracts() {
     // The board's own filters. Domain across, state down.
     let activeCategory = 'all';
     let activeState = 'all';
+    // The three orders the board can actually put cards in. Only orders that
+    // can be derived from fields every card carries are offered.
+    const SORTS = [
+        { key: 'trending', label: 'Trending' },
+        { key: 'ending', label: 'Ending soonest' },
+        { key: 'stake', label: 'Largest stake' },
+    ];
+    let activeSort = 'trending';
 
     /* THE ODOMETERS ARE GONE WITH THE SECOND MASTHEAD THEY LIVED IN. They
        animated #stat-capital / #stat-contracts / #stat-pool inside the old
@@ -2231,7 +2554,27 @@ export function initActiveContracts() {
 
         if (boardState === 'loading') {
             if (count) count.textContent = '—';
-            notice('Loading the board…');
+            /* The board's own shape while it loads. Four placeholders, because
+               four is the grid — NOT because four rivalries are expected; the
+               count beside them stays an em dash until the real length is
+               known, so nothing here implies a number. */
+            for (let i = 0; i < 4; i++) {
+                const sk = document.createElement('div');
+                sk.className = 'mb-skel';
+                sk.setAttribute('aria-hidden', 'true');
+                ['a', 'b', 'c', 'd', 'e', 'f'].forEach((c) => {
+                    const s = document.createElement('span');
+                    s.className = c;
+                    sk.appendChild(s);
+                });
+                rGrid.appendChild(sk);
+            }
+            const live = document.createElement('div');
+            live.className = 'mb-empty';
+            live.setAttribute('role', 'status');
+            live.setAttribute('style', 'position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)');
+            live.textContent = 'Loading the board';
+            rGrid.appendChild(live);
             return;
         }
         if (boardState === 'error') {
@@ -2248,10 +2591,25 @@ export function initActiveContracts() {
             list = list.filter(r => r.state === activeState);
         }
 
-        /* Open challenges first: they are the only ones a reader can act on.
-           A live rivalry is somebody else's contest to watch; an open one is a
-           seat at a table. */
-        list.sort((a, b) => (a.state === 'open' ? -1 : b.state === 'open' ? 1 : 0));
+        /* Sorting runs on the WHOLE filtered list, not on a page of it, so the
+           first card is the first card of the market and not of a slice.
+
+           Trending is "open challenges first": they are the only ones a reader
+           can act on. A live rivalry is somebody else's contest to watch; an
+           open one is a seat at a table. Deadlines that have passed sort last
+           under "ending soonest" rather than first — they are awaiting
+           settlement, not urgent. */
+        if (activeSort === 'ending') {
+            list.sort((a, b) => {
+                const av = a.days_left == null || a.days_left <= 0 ? Infinity : a.days_left;
+                const bv = b.days_left == null || b.days_left <= 0 ? Infinity : b.days_left;
+                return av - bv;
+            });
+        } else if (activeSort === 'stake') {
+            list.sort((a, b) => (b.stake_per_side || 0) - (a.stake_per_side || 0));
+        } else {
+            list.sort((a, b) => (a.state === 'open' ? -1 : b.state === 'open' ? 1 : 0));
+        }
 
         if (count) count.textContent = String(list.length);
 
@@ -2389,6 +2747,21 @@ export function initActiveContracts() {
         });
     }
 
+    /* Cycles the order and re-renders from the same full list the filters read,
+       so sorting never changes WHICH rivalries are on the board — only where
+       they sit on it, and the results count is untouched. */
+    const sortBtn = document.getElementById('mb-sort');
+    if (sortBtn) {
+        sortBtn.addEventListener('click', () => {
+            const i = SORTS.findIndex(s => s.key === activeSort);
+            const next = SORTS[(i + 1) % SORTS.length];
+            activeSort = next.key;
+            const lbl = document.getElementById('mb-sort-lbl');
+            if (lbl) lbl.textContent = next.label;
+            renderRivalries();
+        });
+    }
+
     const filtersContainer = document.getElementById('eq-filters');
     if (filtersContainer) {
         filtersContainer.addEventListener('click', (e) => {
@@ -2438,45 +2811,17 @@ export function initActiveContracts() {
                 cell.className = state[src] ? 'mb-dot' : 'mb-dot-o';
                 cell.setAttribute('data-src', src);
             });
+            // The chip is also gated in CSS off #ss-root[data-bank]; setting the
+            // attribute here keeps it correct if the stylesheet ever moves.
             const conn = document.getElementById('mb-bank-conn');
             if (conn) conn.hidden = !bank;
-            const verified = document.getElementById('mb-bt-verified');
-            if (verified) {
-                verified.textContent = bank ? 'Bank verified ✓' : 'Bank required';
-                verified.style.color = bank ? 'var(--mb-win)' : '';
-            }
         }
 
-        // One route, source as a param. The bank button and every metric tile
-        // funnel through the same destination — platform connects are progressive
-        // disclosure, not separate flows.
-        ssRoot.querySelectorAll('[data-source]').forEach((el) => {
-            el.addEventListener('click', (e) => {
-                const source = el.getAttribute('data-source');
-                if (!source) return;
-                e.preventDefault();
-
-                // Bank connect happens in an embedded Plaid Link modal — the user
-                // keeps their place on /market and the card re-renders on success.
-                if (el.id === 'ss-connect-bank') {
-                    if (window.app && typeof window.app.connectBank === 'function') {
-                        window.app.connectBank(() => { loadSourceState(); });
-                    }
-                    return;
-                }
-
-                if (!window.router) return;
-                // Metric selection requires the bank. Without it there is no
-                // baseline and no settlement rail, so the click cannot proceed —
-                // this is the bait-and-switch guard, not decoration.
-                const gated = el.closest('.ss-gated');
-                if (gated && ssRoot.getAttribute('data-bank') !== 'connected') {
-                    document.getElementById('ss-connect-bank')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    return;
-                }
-                window.router.navigate('/solo/new?source=' + encodeURIComponent(source));
-            });
-        });
+        /* THE ROW CLICK USED TO NAVIGATE TO /solo/new. That route does not
+           exist in the router and never has, so every metric in this table led
+           to a blank page. The wizard below owns the click now: a ready metric
+           is selected in place, an unconnected one starts its real connect
+           flow, and nobody leaves /market to write a contract. */
 
         // Flip once the bank connection is confirmed.
         window.app = window.app || {};
@@ -2548,6 +2893,8 @@ export function initActiveContracts() {
                     }
                     const go = tile && tile.querySelector('.ss-go');
                     // Not a link: there is nothing to click, only time to pass.
+                    // .waiting strips the button chrome so it does not offer one.
+                    if (tile) tile.classList.add('waiting');
                     if (go) go.textContent = label ? 'Unlocks ' + label : 'Not enough history yet';
                 });
                 return;
@@ -2612,12 +2959,21 @@ export function initActiveContracts() {
             tile.classList.toggle('ready', ready);
             tile.classList.toggle('locked', !ready);
             tile.classList.toggle('needs-bank', !!sourceConnected && !bankConnected);
+            tile.classList.remove('waiting');
+
+            // The dots are painted by paintSources() from the same fetch, so
+            // they are not re-derived here — one mechanism, not two.
 
             if (ready) {
-                if (go) go.textContent = 'Ready ✓';
+                // A chosen row says so. This runs again on every state refresh,
+                // and overwriting "Selected ✓" with "Ready ✓" would silently
+                // un-say the choice while leaving the wine spine drawn.
+                if (go) go.textContent = tile.classList.contains('sel') ? 'Selected ✓' : 'Ready ✓';
                 if (req) req.remove();
                 return;
             }
+            // Not ready any more: whatever was chosen here is no longer choosable.
+            tile.classList.remove('sel');
             if (!go) return;
             if (!sourceConnected) {
                 go.textContent = platform === 'bank'
@@ -2658,6 +3014,895 @@ export function initActiveContracts() {
                     + (unlocksLabel ? ' — unlocks ' + unlocksLabel : '');
             }
         };
+
+        /* ═══════════════════════════════════════════════════════════════
+           THE SOLO CONTRACT WIZARD
+
+           One card, three steps, one state object. Steps 2, 3 and the
+           executed state are BUILT HERE rather than sitting in the markup,
+           because none of them can be honestly drawn before something has
+           been priced — and everything they show is priced by the server.
+
+           WHAT IS ACTUALLY ADJUSTABLE, AND WHY IT IS NOT A FREE SLIDER.
+           POST /v1/contracts system-calculates the payout and ignores any
+           figure the client sends. The levers it honours are the risk tier
+           (which fixes the target and the window) and the stake. A
+           continuous 5–50% target with a multiplier of target/5 — the
+           reference's placeholder — would have let someone set +12% over
+           60 days at 2.4x and then be written a different contract at a
+           different price. The slider is therefore the tier ladder: three
+           stops, each carrying the real target, window and multiplier that
+           GET /v1/contracts/terms-preview reports for THIS operator.
+
+           For bank income that preview is derived from their own trailing
+           months (their hit rate sets their multiplier, so no two people
+           see the same line). For the platform metrics it is the fixed
+           tier table. Either way the number on screen is the number the
+           write path will apply.
+           ═══════════════════════════════════════════════════════════════ */
+
+        /** metric key -> what it is, and which API it settles against. */
+        const WIZ_METRICS = {
+            money: {
+                label: 'Money received', short: 'Money Received',
+                platform: 'PLAID', metricType: 'NET_INCOME_DEPOSITS',
+                oracle: 'Bank · Plaid (read-only)', kind: 'money',
+                verified: 'Bank verified', connectVia: 'bank',
+            },
+            /* REVENUE, not MRR. /v1/oracle/preview and the write path's Stripe
+               branch both measure net settled revenue over the window — there
+               is no MRR series behind this platform today. Writing the contract
+               as MRR would name a quantity nothing on the settlement side
+               computes, and it would settle on revenue anyway. */
+            mrr: {
+                label: 'MRR', short: 'Recurring revenue',
+                platform: 'STRIPE', metricType: 'REVENUE', oracleMetric: 'revenue',
+                oracle: 'Stripe · read-only', kind: 'money',
+                verified: 'Stripe verified', connectVia: 'stripe',
+            },
+            /* NO ORACLE METRIC, AND THAT IS THE POINT. The Shopify adapter
+               snapshots netCents — revenue — whatever metric is asked for; there
+               is no order-count baseline anywhere in the system. Without one, a
+               target order count would be a number this page made up, so the row
+               connects and then says plainly that it cannot be priced yet. */
+            orders: {
+                label: 'Orders', short: 'Orders',
+                platform: 'SHOPIFY', metricType: 'ORDER_COUNT', oracleMetric: null,
+                noBaseline: 'Shopify reports revenue, not order count — this metric cannot be priced yet',
+                oracle: 'Shopify · read-only', kind: 'count',
+                verified: 'Shopify verified', connectVia: 'shopify',
+            },
+            views: {
+                label: 'Views', short: 'Views',
+                platform: 'YOUTUBE', metricType: 'VIEWS', oracleMetric: 'youtube_views',
+                oracle: 'YouTube · read-only', kind: 'count',
+                verified: 'YouTube verified', connectVia: 'youtube',
+            },
+        };
+
+        const CLAUSES = [
+            ['I authorize ', 'read-only', ' verification through my connected source.'],
+            ['My capital is ', 'locked in escrow', ' until settlement — no early withdrawal.'],
+            ['The outcome is ', 'read from my data and final', ' — no appeals.'],
+        ];
+
+        const wiz = {
+            step: 1,
+            metric: null,
+            terms: null,        // the server's terms preview for this platform
+            termsError: null,
+            tierIdx: 0,
+            stake: null,        // dollars
+            baseline: null,     // absolute baseline for non-PLAID platforms
+            clauses: [false, false, false],
+            busy: false,
+            signError: null,
+            contract: null,     // what the server actually created
+        };
+
+        const wizBody = document.getElementById('mb-wiz');
+        const wizFoot = document.getElementById('mb-wiz-foot');
+        const wizStepEls = ssRoot.querySelectorAll('.mb-wstep');
+
+        function wEl(tag, cls, text) {
+            const n = document.createElement(tag);
+            if (cls) n.className = cls;
+            if (text != null) n.textContent = text;
+            return n;
+        }
+        const money0 = (n) => '$' + Math.round(n).toLocaleString('en-US');
+        const money2 = (n) => '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const countFmt = (n) => Math.round(n).toLocaleString('en-US');
+
+        /** The chosen tier's terms, or null while nothing has been priced. */
+        function currentTier() {
+            if (!wiz.terms || !wiz.terms.tiers) return null;
+            return wiz.terms.tiers[wiz.tierIdx] || null;
+        }
+
+        /**
+         * THE ONE PRICING FUNCTION. It does no arithmetic of its own beyond
+         * stake × multiplier — the multiplier, the target and the window all
+         * come from the server's preview, which is the same policy the write
+         * path applies. Returns null when nothing has been priced yet, so
+         * callers render an honest blank instead of a plausible number.
+         */
+        function price() {
+            const t = currentTier();
+            if (!t || !t.available || t.payoutMultiplier == null) return null;
+            const stake = Number(wiz.stake);
+            if (!isFinite(stake) || stake <= 0) return null;
+            return {
+                tier: t,
+                multiplier: t.payoutMultiplier,
+                windowDays: t.windowDays,
+                // payout = the total returned; profit = what is won on top.
+                payoutIfMet: Math.round(stake * t.payoutMultiplier),
+                profitIfMet: Math.round(stake * t.payoutMultiplier) - Math.round(stake),
+            };
+        }
+
+        /** The absolute figure this contract settles on, in the metric's own unit. */
+        function targetDisplay() {
+            const t = currentTier();
+            if (!t) return null;
+            const m = WIZ_METRICS[wiz.metric];
+            if (t.targetCents != null) return money0(t.targetCents / 100) + ' this window';
+            if (wiz.baseline != null && t.growthPct != null) {
+                const abs = Math.ceil(wiz.baseline * (1 + t.growthPct / 100));
+                return (m.kind === 'money' ? money0(abs / 100) : countFmt(abs))
+                    + ' (+' + t.growthPct + '%)';
+            }
+            return t.growthPct != null ? '+' + t.growthPct + '%' : null;
+        }
+
+        /** The threshold POSTed with the contract, in the platform's own unit. */
+        function targetThreshold() {
+            const t = currentTier();
+            if (!t) return null;
+            if (t.targetCents != null) return t.targetCents;
+            if (wiz.baseline != null && t.growthPct != null) {
+                return Math.ceil(wiz.baseline * (1 + t.growthPct / 100));
+            }
+            return null;
+        }
+
+        function deadlineIso() {
+            const t = currentTier();
+            // Bank income settles on the operator's own pay cycle, which the
+            // preview computes; everything else runs the tier's window.
+            if (wiz.terms && wiz.terms.suggestedDeadlineUtc) return wiz.terms.suggestedDeadlineUtc;
+            const days = (t && t.windowDays) || 30;
+            return new Date(Date.now() + days * 86400000).toISOString();
+        }
+
+        function settleLabel(iso) {
+            try {
+                return new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+            } catch (e) { return '—'; }
+        }
+
+        // ---- step 1 · choosing -------------------------------------------------
+
+        function metricRow(metric) {
+            return ssRoot.querySelector('.ss-metric[data-metric="' + metric + '"]');
+        }
+
+        function selectMetric(metric) {
+            wiz.metric = metric;
+            // A different source prices differently, so nothing priced under the
+            // old one survives the change.
+            wiz.terms = null; wiz.termsError = null; wiz.stake = null; wiz.baseline = null; wiz.tierIdx = 0;
+            ssRoot.querySelectorAll('.mb-mx-r').forEach((r) => r.classList.remove('sel'));
+            const row = metricRow(metric);
+            if (row) {
+                row.classList.add('sel');
+                const go = row.querySelector('.ss-go');
+                if (go) go.textContent = 'Selected ✓';
+            }
+            // Any row that lost the selection goes back to stating its own state.
+            ssRoot.querySelectorAll('.ss-metric.ready').forEach((r) => {
+                if (r === row) return;
+                const go = r.querySelector('.ss-go');
+                if (go) go.textContent = 'Ready ✓';
+            });
+            renderFoot();
+        }
+
+        /**
+         * One click, two meanings, decided by what is actually connected:
+         * a ready row is chosen, an unconnected one starts its real connect
+         * flow. Nothing here navigates away — /solo/new does not exist, and
+         * sending someone to it was a dead end.
+         */
+        function metricAction(metric) {
+            const row = metricRow(metric);
+            if (!row) return;
+            if (row.classList.contains('waiting')) return;   // history still accruing
+
+            if (row.classList.contains('ready')) { selectMetric(metric); return; }
+
+            // Its own source is attached but the bank is not: the bank is the
+            // outstanding prerequisite, so that is the flow to start.
+            const via = row.classList.contains('needs-bank')
+                ? 'bank'
+                : WIZ_METRICS[metric].connectVia;
+
+            if (via === 'bank') {
+                if (window.app && typeof window.app.connectBank === 'function') {
+                    window.app.connectBank(() => { loadSourceState(); });
+                }
+                return;
+            }
+            // connectSource() owns the popup, the CSRF state and the polling for
+            // every platform on this site; duplicating it here would be a second
+            // OAuth implementation to keep in step with the first.
+            if (window.app && typeof window.app.connectSource === 'function') {
+                connectProxy(via);
+                const go = row.querySelector('.ss-go');
+                if (go) go.textContent = 'Opening ' + via + '…';
+                window.app.connectSource(via);
+            }
+        }
+
+        /**
+         * connectSource() drives a button it finds by id, and it rewrites that
+         * button's innerHTML with a spinner and then "✓ Connected". Pointing it
+         * at the matrix cell would destroy the cell; pointing it at nothing makes
+         * it return without starting the flow at all. So it is handed an
+         * offscreen stand-in, and the row keeps saying what the row says.
+         */
+        function connectProxy(source) {
+            let p = document.getElementById(source + '-btn');
+            if (p) return p;
+            p = document.createElement('button');
+            p.type = 'button';
+            p.id = source + '-btn';
+            p.setAttribute('aria-hidden', 'true');
+            p.setAttribute('tabindex', '-1');
+            p.setAttribute('style', 'position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);');
+            ssRoot.appendChild(p);
+            return p;
+        }
+
+        ssRoot.querySelectorAll('.mb-mx-r.ss-metric').forEach((row) => {
+            const metric = row.getAttribute('data-metric');
+            row.classList.add('mb-selectable');
+            row.addEventListener('click', () => metricAction(metric));
+            const go = row.querySelector('.ss-go');
+            if (go) {
+                // The button is the keyboard-reachable control; the row is a
+                // convenience on top of it, so the click must not run twice.
+                go.addEventListener('click', (e) => { e.stopPropagation(); metricAction(metric); });
+            }
+        });
+
+        // ---- pricing -----------------------------------------------------------
+
+        /**
+         * Reads the terms the write path will apply, plus the baseline for the
+         * platforms whose target is a growth rate over one. Both are reads.
+         */
+        async function loadTerms() {
+            const m = WIZ_METRICS[wiz.metric];
+            wiz.terms = null; wiz.termsError = null; wiz.baseline = null;
+            renderStep2();
+
+            let res;
+            try {
+                res = await window.api.getTermsPreview(m.platform);
+            } catch (e) {
+                console.error('[Wizard] terms preview unavailable:', e);
+                wiz.termsError = e && e.status === 401
+                    ? 'Sign in to price a contract against your record'
+                    : 'Terms are temporarily unavailable — try again in a moment';
+                renderStep2(); renderFoot();
+                return;
+            }
+
+            if (!res || res.ok === false) {
+                wiz.termsError = res && res.code === 'INCOME_HISTORY_UNAVAILABLE'
+                    ? 'Your bank history has not been read yet — reconnect or wait for the first sync'
+                    : 'This source cannot be priced yet';
+                renderStep2(); renderFoot();
+                return;
+            }
+            // A growth target with nothing to grow from is not a target. Said
+            // here rather than at the sign button, where it would be a dead end
+            // three steps in.
+            if (!res.pricedFromHistory && !m.oracleMetric) {
+                wiz.termsError = m.noBaseline || 'This metric cannot be priced yet';
+                renderStep2(); renderFoot();
+                return;
+            }
+            wiz.terms = res;
+
+            // First AVAILABLE tier, not simply the first: an operator whose
+            // history does not support All In should not open on it.
+            const firstOpen = (res.tiers || []).findIndex(t => t.available);
+            wiz.tierIdx = firstOpen >= 0 ? firstOpen : 0;
+
+            const t = currentTier();
+            if (t && wiz.stake == null) wiz.stake = Math.round((t.minStakeUsdCents || 10000) / 100);
+
+            // A growth target needs something to grow from.
+            if (!res.pricedFromHistory && m.oracleMetric) {
+                try {
+                    const pv = await window.api.getProviderPreview(m.platform, m.oracleMetric);
+                    const b = pv && (pv.current_baseline != null ? pv.current_baseline : pv.baseline_value);
+                    if (typeof b === 'number' && isFinite(b)) wiz.baseline = b;
+                } catch (e) {
+                    console.warn('[Wizard] baseline preview unavailable:', e);
+                }
+                if (wiz.baseline == null) {
+                    /* The target for these platforms is a growth rate, and the
+                       threshold the contract settles on is baseline × (1+rate).
+                       Without the baseline there is no threshold to agree to —
+                       so this is said now, not at the sign button. */
+                    wiz.termsError = 'Your ' + m.platform.toLowerCase()
+                        + ' baseline could not be read — reconnect the source, or try again shortly';
+                    renderStep2(); renderFoot();
+                    return;
+                }
+            }
+            renderStep2(); renderFoot();
+        }
+
+        function clampStake(v) {
+            const t = currentTier();
+            const min = t ? Math.round((t.minStakeUsdCents || 0) / 100) : 0;
+            const max = t ? Math.round((t.maxStakeUsdCents || 0) / 100) : 0;
+            let n = Math.round(Number(v) || 0);
+            if (min && n < min) n = min;
+            if (max && n > max) n = max;
+            return n;
+        }
+
+        // ---- step 2 · terms ----------------------------------------------------
+
+        function summaryRow(kind) {
+            const m = WIZ_METRICS[wiz.metric];
+            const row = wEl('div', 'mb-srow');
+            const ic = wEl('span', 'ic', '✓');
+            ic.setAttribute('aria-hidden', 'true');
+            row.appendChild(ic);
+            row.appendChild(wEl('span', 'lab', kind === 'source' ? 'Source' : 'Terms'));
+
+            const val = wEl('span', 'val');
+            if (kind === 'source') {
+                // The mark is decorative; "Verified" is said in words beside it.
+                val.appendChild(document.createTextNode(m.label));
+                val.appendChild(wEl('small', null, m.verified));
+            } else {
+                const p = price();
+                const t = currentTier();
+                val.appendChild(document.createTextNode(
+                    (t && t.label ? t.label : 'Terms') + ' · ' + ((t && t.windowDays) || '—') + ' days'));
+                val.appendChild(wEl('small', null, p
+                    ? money0(wiz.stake) + ' at risk · ' + p.multiplier.toFixed(1) + '×'
+                    : 'not priced'));
+            }
+            row.appendChild(val);
+
+            const edit = wEl('button', 'edit', 'Edit');
+            edit.type = 'button';
+            edit.addEventListener('click', () => goStep(kind === 'source' ? 1 : 2));
+            row.appendChild(edit);
+            return row;
+        }
+
+        function payoutStrip() {
+            const strip = wEl('div', 'mb-payout');
+            const p = price();
+            const m = WIZ_METRICS[wiz.metric];
+
+            const left = wEl('div');
+            left.appendChild(wEl('div', 'mult', p ? p.multiplier.toFixed(1) + '×' : '—'));
+            left.appendChild(wEl('div', 'mk', 'Payout'));
+            strip.appendChild(left);
+
+            const plain = wEl('div', 'plain');
+            if (!p) {
+                strip.classList.add('mb-unpriced');
+                const t = currentTier();
+                plain.textContent = t && !t.available
+                    ? (t.unavailableReason || 'This tier is not available on your record yet.')
+                    : 'Choose an amount to see what it returns.';
+                strip.appendChild(plain);
+                return strip;
+            }
+
+            const tgt = targetDisplay();
+            plain.appendChild(document.createTextNode('Risk '));
+            plain.appendChild(wEl('b', null, money0(wiz.stake)));
+            plain.appendChild(document.createTextNode(' to earn '));
+            plain.appendChild(wEl('b', null, money0(p.profitIfMet)));
+            plain.appendChild(document.createTextNode(
+                ' profit if ' + m.short + ' reaches ' + (tgt || 'the target')
+                + ' in ' + p.windowDays + ' days.'));
+            strip.appendChild(plain);
+
+            const out = wEl('div', 'out');
+            out.appendChild(wEl('div', 'w', '◆ Hit · +' + money0(p.profitIfMet)));
+            out.appendChild(wEl('div', 'l', 'Miss · −' + money0(wiz.stake)));
+            strip.appendChild(out);
+            return strip;
+        }
+
+        function renderStep2() {
+            const host = document.getElementById('mb-wstep-2');
+            if (!host || !wiz.metric) return;
+            host.innerHTML = '';
+            host.appendChild(summaryRow('source'));
+            host.appendChild(wEl('div', 'mb-act-head', 'Step 2 of 3 · Set your terms'));
+            const h = wEl('h3', 'mb-act-title', 'Put capital on your target');
+            host.appendChild(h);
+
+            if (wiz.termsError) {
+                host.appendChild(wEl('p', 'mb-act-sub', wiz.termsError));
+                return;
+            }
+            if (!wiz.terms) {
+                host.appendChild(wEl('p', 'mb-act-sub', 'Reading your record…'));
+                return;
+            }
+
+            host.appendChild(wEl('p', 'mb-act-sub', wiz.terms.pricedFromHistory
+                ? 'Priced from your last ' + (wiz.terms.monthsAnalyzed || 'twelve') + ' months — a harder target pays more.'
+                : 'Priced from your verified record — a harder target pays more.'));
+
+            const tiers = wiz.terms.tiers || [];
+            const t = currentTier();
+
+            // ---- the target ladder
+            const f1 = wEl('div', 'mb-field');
+            const l1 = wEl('div', 'mb-flabel');
+            l1.appendChild(wEl('span', 'k', 'Target'));
+            l1.appendChild(wEl('span', 'v', targetDisplay() || '—'));
+            f1.appendChild(l1);
+            const range = document.createElement('input');
+            range.type = 'range'; range.className = 'mb-range';
+            range.min = '0'; range.max = String(Math.max(0, tiers.length - 1)); range.step = '1';
+            range.value = String(wiz.tierIdx);
+            range.setAttribute('aria-label', 'Target difficulty');
+            range.addEventListener('input', function () {
+                wiz.tierIdx = Number(this.value) || 0;
+                wiz.stake = clampStake(wiz.stake);
+                renderStep2(); renderFoot();
+            });
+            f1.appendChild(range);
+            const ticks = wEl('div', 'mb-ticks');
+            tiers.forEach((tt) => ticks.appendChild(wEl('span', null,
+                tt.label + (tt.growthPct != null ? ' +' + tt.growthPct + '%' : ''))));
+            f1.appendChild(ticks);
+            if (t && !t.available) {
+                f1.appendChild(wEl('div', 'mb-hint', t.unavailableReason || 'Not available on your record yet'));
+            }
+            host.appendChild(f1);
+
+            // ---- the window, which the tier sets
+            const f2 = wEl('div', 'mb-field');
+            const l2 = wEl('div', 'mb-flabel');
+            l2.appendChild(wEl('span', 'k', 'Window'));
+            f2.appendChild(l2);
+            const wp = wEl('div', 'mb-pills');
+            tiers.forEach((tt, i) => {
+                const b = wEl('button', 'mb-pill' + (i === wiz.tierIdx ? ' on' : ''), tt.windowDays + ' Days');
+                b.type = 'button';
+                if (!tt.available) b.disabled = true;
+                b.addEventListener('click', () => {
+                    wiz.tierIdx = i; wiz.stake = clampStake(wiz.stake);
+                    renderStep2(); renderFoot();
+                });
+                wp.appendChild(b);
+            });
+            f2.appendChild(wp);
+            f2.appendChild(wEl('div', 'mb-hint',
+                'The window comes with the target — a harder target runs shorter.'));
+            host.appendChild(f2);
+
+            // ---- the stake
+            const f3 = wEl('div', 'mb-field');
+            const l3 = wEl('div', 'mb-flabel');
+            l3.appendChild(wEl('span', 'k', 'Amount at risk'));
+            f3.appendChild(l3);
+            const sp = wEl('div', 'mb-pills');
+            const min = t ? Math.round((t.minStakeUsdCents || 0) / 100) : 0;
+            const max = t ? Math.round((t.maxStakeUsdCents || 0) / 100) : 0;
+            [100, 250, 500, 1000].forEach((v) => {
+                const b = wEl('button', 'mb-pill' + (v === wiz.stake ? ' on' : ''), money0(v));
+                b.type = 'button';
+                if ((min && v < min) || (max && v > max)) b.disabled = true;
+                b.addEventListener('click', () => { wiz.stake = clampStake(v); renderStep2(); renderFoot(); });
+                sp.appendChild(b);
+            });
+            const box = wEl('span', 'mb-stakein');
+            box.appendChild(wEl('span', 'cur', '$'));
+            const inp = document.createElement('input');
+            inp.type = 'text'; inp.inputMode = 'numeric';
+            inp.value = wiz.stake == null ? '' : String(wiz.stake);
+            inp.setAttribute('aria-label', 'Amount at risk in dollars');
+            inp.addEventListener('input', function () {
+                const digits = this.value.replace(/[^0-9]/g, '');
+                wiz.stake = digits ? Number(digits) : null;
+                // Not clamped ON INPUT: snapping "1" up to "100" mid-keystroke
+                // makes the field impossible to type into. Clamped on blur.
+                refreshPayoutOnly();
+            });
+            inp.addEventListener('blur', function () {
+                wiz.stake = clampStake(wiz.stake);
+                renderStep2(); renderFoot();
+            });
+            box.appendChild(inp);
+            sp.appendChild(box);
+            f3.appendChild(sp);
+            if (min || max) {
+                f3.appendChild(wEl('div', 'mb-hint',
+                    'This tier takes ' + money0(min) + ' to ' + money0(max) + '.'));
+            }
+            host.appendChild(f3);
+
+            host.appendChild(payoutStrip());
+        }
+
+        /** Retype the strip without rebuilding the field the caret is in. */
+        function refreshPayoutOnly() {
+            const host = document.getElementById('mb-wstep-2');
+            if (!host) return;
+            const old = host.querySelector('.mb-payout');
+            if (old) host.replaceChild(payoutStrip(), old);
+            renderFoot();
+        }
+
+        // ---- step 3 · review & sign -------------------------------------------
+
+        function docRow(k, v, ox) {
+            const r = wEl('div', 'mb-drow');
+            r.appendChild(wEl('span', 'k', k));
+            r.appendChild(wEl('span', 'lead'));
+            r.appendChild(wEl('span', 'v' + (ox ? ' ox' : ''), v));
+            return r;
+        }
+
+        function renderStep3() {
+            const host = document.getElementById('mb-wstep-3');
+            if (!host || !wiz.metric) return;
+            const p = price();
+            const m = WIZ_METRICS[wiz.metric];
+            host.innerHTML = '';
+            host.appendChild(summaryRow('source'));
+            host.appendChild(summaryRow('terms'));
+            host.appendChild(wEl('div', 'mb-act-head', 'Step 3 of 3 · Review & sign'));
+            host.appendChild(wEl('h3', 'mb-act-title', 'Sign to execute'));
+            host.appendChild(wEl('p', 'mb-act-sub',
+                'Signing places your capital in escrow and records the contract on the public ledger.'));
+
+            const doc = wEl('div', 'mb-contract');
+            ['tl', 'tr', 'bl', 'br'].forEach((c) => {
+                const s = wEl('span', 'reg ' + c);
+                s.setAttribute('aria-hidden', 'true');
+                doc.appendChild(s);
+            });
+            const dh = wEl('div', 'mb-doc-h');
+            dh.appendChild(wEl('span', 'a', 'Performance Agreement · Solo'));
+            dh.appendChild(wEl('span', 'f', 'Form S · 01'));
+            doc.appendChild(dh);
+
+            const t = currentTier();
+            doc.appendChild(wEl('h4', 'mb-doc-title',
+                m.short + ' · ' + (t && t.label ? t.label : '')));
+            doc.appendChild(wEl('div', 'mb-doc-sub', 'Stake against your own verified record'));
+
+            const led = wEl('div', 'mb-dled');
+            led.appendChild(docRow('Stake at risk', wiz.stake != null ? money2(wiz.stake) : '—'));
+            led.appendChild(docRow('Target',
+                (targetDisplay() || '—') + (p ? ' in ' + p.windowDays + ' days' : '')));
+            led.appendChild(docRow('Payout if met', p ? '+' + money2(p.payoutIfMet) : '—', true));
+            led.appendChild(docRow('Oracle', m.oracle));
+            led.appendChild(docRow('Settlement', 'Automatic · ' + settleLabel(deadlineIso())));
+            doc.appendChild(led);
+
+            const cl = wEl('div', 'mb-clauses');
+            CLAUSES.forEach((parts, i) => {
+                const b = wEl('button', 'mb-citem' + (wiz.clauses[i] ? ' checked' : ''));
+                b.type = 'button';
+                b.setAttribute('aria-pressed', wiz.clauses[i] ? 'true' : 'false');
+                const box = wEl('span', 'mb-cbox', '✓');
+                box.setAttribute('aria-hidden', 'true');
+                b.appendChild(box);
+                const txt = wEl('span', 'mb-ctxt');
+                txt.appendChild(document.createTextNode(parts[0]));
+                txt.appendChild(wEl('b', null, parts[1]));
+                txt.appendChild(document.createTextNode(parts[2]));
+                b.appendChild(txt);
+                b.addEventListener('click', () => {
+                    wiz.clauses[i] = !wiz.clauses[i];
+                    b.classList.toggle('checked', wiz.clauses[i]);
+                    b.setAttribute('aria-pressed', wiz.clauses[i] ? 'true' : 'false');
+                    renderFoot();
+                });
+                cl.appendChild(b);
+            });
+            doc.appendChild(cl);
+
+            const sign = wEl('div', 'mb-sign');
+            const sig = wEl('div', 'mb-sig');
+            const line = wEl('div', 'line');
+            line.appendChild(wEl('span', 'ph', 'Sign to execute'));
+            sig.appendChild(line);
+            sig.appendChild(wEl('div', 'lb', 'Signature · Operator'));
+            sign.appendChild(sig);
+            const wax = wEl('div', 'mb-docwax empty');
+            const ws = wEl('span');
+            ws.appendChild(document.createTextNode('Seal on'));
+            ws.appendChild(document.createElement('br'));
+            ws.appendChild(document.createTextNode('signing'));
+            wax.appendChild(ws);
+            sign.appendChild(wax);
+            doc.appendChild(sign);
+
+            host.appendChild(doc);
+        }
+
+        /** The wax "C", drawn rather than fetched so it stamps in instantly. */
+        function sealSvg(size) {
+            const NS = 'http://www.w3.org/2000/svg';
+            const svg = document.createElementNS(NS, 'svg');
+            svg.setAttribute('viewBox', '0 0 60 60');
+            svg.setAttribute('width', String(size));
+            svg.setAttribute('height', String(size));
+            svg.setAttribute('role', 'img');
+            const title = document.createElementNS(NS, 'title');
+            title.textContent = 'Sealed';
+            svg.appendChild(title);
+            const d = 'M30 4 C40 4 47 12 50 22 C53 30 56 34 54 42 C52 50 44 56 34 56 C22 57 12 52 8 42 C4 33 6 24 10 17 C14 10 20 4 30 4 Z';
+            const body = document.createElementNS(NS, 'path');
+            body.setAttribute('d', d); body.setAttribute('fill', '#5E1420');
+            svg.appendChild(body);
+            const edge = document.createElementNS(NS, 'path');
+            edge.setAttribute('d', d); edge.setAttribute('fill', 'none');
+            edge.setAttribute('stroke', '#4E0F19'); edge.setAttribute('stroke-width', '1.2');
+            svg.appendChild(edge);
+            const ring = document.createElementNS(NS, 'circle');
+            ring.setAttribute('cx', '30'); ring.setAttribute('cy', '30'); ring.setAttribute('r', '16.5');
+            ring.setAttribute('fill', 'none'); ring.setAttribute('stroke', 'rgba(255,235,220,.16)');
+            ring.setAttribute('stroke-width', '1');
+            svg.appendChild(ring);
+            const c = document.createElementNS(NS, 'text');
+            c.setAttribute('x', '30'); c.setAttribute('y', '37');
+            c.setAttribute('font-family', 'Cormorant Garamond,serif');
+            c.setAttribute('font-size', '21'); c.setAttribute('font-weight', '700');
+            c.setAttribute('fill', '#F0DAC7'); c.setAttribute('text-anchor', 'middle');
+            c.textContent = 'C';
+            svg.appendChild(c);
+            return svg;
+        }
+
+        function operatorName() {
+            try {
+                const u = window.api.getStoredUser && window.api.getStoredUser();
+                return (u && (u.displayName || u.username || u.email)) || 'Operator';
+            } catch (e) { return 'Operator'; }
+        }
+
+        // ---- executed ----------------------------------------------------------
+
+        function renderExecuted() {
+            const host = document.getElementById('mb-wstep-done');
+            const c = wiz.contract;
+            if (!host || !c) return;
+            host.innerHTML = '';
+            const ex = wEl('div', 'mb-exec');
+            const wm = wEl('div', 'mb-exec-wm', 'C');
+            wm.setAttribute('aria-hidden', 'true');
+            ex.appendChild(wm);
+            const seal = wEl('div', 'seal');
+            seal.appendChild(sealSvg(70));
+            ex.appendChild(seal);
+            ex.appendChild(wEl('div', 'et', 'Contract executed.'));
+            ex.appendChild(wEl('div', 'es',
+                'Your capital is in escrow. Settlement is automatic on '
+                + settleLabel(c.deadline) + ' — no further action needed.'));
+
+            const line = wEl('div', 'eline');
+            const item = (k, v) => {
+                const d = wEl('div');
+                d.appendChild(wEl('div', 'k', k));
+                d.appendChild(wEl('div', 'v', v));
+                return d;
+            };
+            line.appendChild(item('Contract', c.receipt));
+            line.appendChild(item('At risk', money2(c.stake)));
+            line.appendChild(item('Payout if met', c.payout != null ? '+' + money2(c.payout) : '—'));
+            line.appendChild(item('Settles', settleLabel(c.deadline)));
+            ex.appendChild(line);
+
+            const next = wEl('div', 'mb-exec-next');
+            next.appendChild(wEl('span', 'mb-mark'));
+            next.appendChild(document.createTextNode('Verified every 6 hours · You will be notified at settlement'));
+            ex.appendChild(next);
+            host.appendChild(ex);
+        }
+
+        /**
+         * WRITE FIRST, CELEBRATE SECOND. The executed state is only shown once
+         * the server has actually created the contract and returned its id and
+         * deadline — a seal stamped on a request that failed would be the one
+         * lie this product cannot afford.
+         */
+        async function signContract() {
+            if (wiz.busy) return;
+            const p = price();
+            const threshold = targetThreshold();
+            const m = WIZ_METRICS[wiz.metric];
+            if (!p || threshold == null) {
+                wiz.signError = 'These terms could not be priced — go back and choose again';
+                renderFoot();
+                return;
+            }
+
+            wiz.busy = true; wiz.signError = null;
+            renderFoot();
+
+            let res;
+            try {
+                res = await window.api.createContract({
+                    platform: m.platform,
+                    metricType: m.metricType,
+                    condition: { operator: 'GTE', threshold: threshold, deadline: deadlineIso() },
+                    lockAmountUsdCents: Math.round(wiz.stake * 100),
+                    riskTier: p.tier.riskTier,
+                });
+            } catch (e) {
+                console.error('[Wizard] contract create failed:', e);
+                wiz.busy = false;
+                wiz.signError = (e && e.message) ? e.message : 'The contract could not be created';
+                renderFoot();
+                return;
+            }
+
+            const created = res && (res.contract || res);
+            if (!res || res.ok === false || !created || !created.id) {
+                wiz.busy = false;
+                wiz.signError = (res && (res.error || res.message)) || 'The contract could not be created';
+                renderFoot();
+                return;
+            }
+
+            // The signature and the seal go onto the document that was signed.
+            const line = document.querySelector('#mb-wstep-3 .mb-sig .line');
+            if (line) { line.innerHTML = ''; line.appendChild(wEl('span', 'nm', operatorName())); }
+            const wax = document.querySelector('#mb-wstep-3 .mb-docwax');
+            if (wax) { wax.className = 'mb-docwax'; wax.innerHTML = ''; wax.appendChild(sealSvg(52)); }
+
+            wiz.busy = false;
+            wiz.contract = {
+                id: created.id,
+                // The record hash is the contract's own identifier — the same one
+                // the board prints on a card. A sequential "CM·S·0001" would be a
+                // number this page invented.
+                receipt: 'RCPT·' + String(created.recordHash || created.id || '').slice(0, 6).toUpperCase(),
+                stake: (created.lockAmountUsdCents != null ? created.lockAmountUsdCents / 100 : wiz.stake),
+                payout: (created.payoutAmountUsdCents != null ? created.payoutAmountUsdCents / 100 : p.payoutIfMet),
+                deadline: created.deadline || created.deadlineUtc || deadlineIso(),
+            };
+            renderExecuted();
+            goStep('done');
+        }
+
+        // ---- navigation & footer ----------------------------------------------
+
+        function goStep(s) {
+            wiz.step = s;
+            if (s === 2) {
+                // Re-price on every entry: the source may have changed, and a
+                // stale multiplier is worse than a slow one.
+                if (!wiz.terms && !wiz.termsError) loadTerms(); else renderStep2();
+            }
+            if (s === 3) renderStep3();
+            render();
+            if (wizBody && typeof wizBody.scrollIntoView === 'function') {
+                wizBody.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function render() {
+            wizStepEls.forEach((el) => {
+                el.classList.toggle('on', el.getAttribute('data-step') === String(wiz.step));
+            });
+            const idx = wiz.step === 'done' ? 3 : wiz.step - 1;
+            ssRoot.querySelectorAll('#mb-stp .n').forEach((node, i) => {
+                const disc = node.querySelector('.disc');
+                const lb = node.querySelector('.lb');
+                disc.classList.remove('on', 'done');
+                if (wiz.step === 'done' || i < idx) disc.classList.add('done');
+                else if (i === idx) disc.classList.add('on');
+                lb.classList.toggle('act', i === idx && wiz.step !== 'done');
+                if (i === idx && wiz.step !== 'done') node.setAttribute('aria-current', 'step');
+                else node.removeAttribute('aria-current');
+            });
+            renderFoot();
+        }
+
+        function footBtn(label, onClick, disabled) {
+            const b = wEl('button', 'mb-wbtn', label);
+            b.type = 'button';
+            if (disabled) b.disabled = true;
+            else b.addEventListener('click', onClick);
+            return b;
+        }
+        function footGhost(label, onClick) {
+            const b = wEl('button', 'mb-gbtn', label);
+            b.type = 'button';
+            b.addEventListener('click', onClick);
+            return b;
+        }
+        function footNote(text) {
+            const n = wEl('span', 'mb-footnote');
+            n.appendChild(wEl('span', 'mb-mark'));
+            n.appendChild(document.createTextNode(text));
+            return n;
+        }
+
+        function renderFoot() {
+            if (!wizFoot) return;
+            wizFoot.innerHTML = '';
+
+            if (wiz.step === 1) {
+                wizFoot.appendChild(footNote('Read-only · revocable anytime'));
+                wizFoot.appendChild(footBtn('Continue → Set terms',
+                    () => goStep(2), !wiz.metric));
+                return;
+            }
+            if (wiz.step === 2) {
+                wizFoot.appendChild(footGhost('← Back', () => goStep(1)));
+                wizFoot.appendChild(footBtn('Continue → Review',
+                    () => goStep(3), !price()));
+                return;
+            }
+            if (wiz.step === 3) {
+                /* A failed write keeps BOTH the reason and the way back. The
+                   button below stays live, so the retry is simply pressing it
+                   again — nothing was written, so there is nothing to undo. */
+                const left = wEl('span');
+                left.setAttribute('style', 'display:flex;flex-direction:column;gap:6px;align-items:flex-start');
+                left.appendChild(footGhost('← Back', () => goStep(2)));
+                if (wiz.signError) {
+                    const e = wEl('span', 'mb-werr');
+                    e.appendChild(wEl('span', 'mb-mark'));
+                    e.appendChild(document.createTextNode(wiz.signError));
+                    e.setAttribute('role', 'status');
+                    left.appendChild(e);
+                }
+                wizFoot.appendChild(left);
+                const ready = wiz.clauses.every(Boolean) && !!price();
+                const label = wiz.busy
+                    ? 'Placing in escrow…'
+                    : 'Sign & Seal · Place ' + (wiz.stake != null ? money0(wiz.stake) : '—') + ' in escrow';
+                const b = footBtn(label, signContract, !ready || wiz.busy);
+                if (wiz.busy) b.classList.add('mb-busy');
+                wizFoot.appendChild(b);
+                return;
+            }
+            wizFoot.appendChild(footNote('Recorded on the public ledger'));
+            const group = wEl('span');
+            group.setAttribute('style', 'display:flex;gap:22px;align-items:center');
+            group.appendChild(footGhost('Create another →', () => {
+                wiz.metric = null; wiz.terms = null; wiz.termsError = null;
+                wiz.stake = null; wiz.baseline = null; wiz.tierIdx = 0;
+                wiz.clauses = [false, false, false]; wiz.contract = null; wiz.signError = null;
+                ssRoot.querySelectorAll('.mb-mx-r').forEach((r) => r.classList.remove('sel'));
+                loadSourceState();
+                goStep(1);
+            }));
+            const view = footBtn('View contract →', () => {
+                if (window.router && wiz.contract) window.router.navigate('/contract/' + wiz.contract.id);
+            });
+            group.appendChild(view);
+            wizFoot.appendChild(group);
+        }
+
+        render();
     }
 
     /* Paint the loading state first, then go and get the real thing. Each of

@@ -390,6 +390,11 @@ const contractWriteRoutes: FastifyPluginAsync = async (fastify) => {
                         baseline: contract.baselineJson,
                         deadline: contract.deadlineUtc.toISOString(),
                         lockAmountUsdCents: contract.lockAmountUsdCents,
+                        // The SYSTEM-CALCULATED payout, returned rather than left
+                        // for the caller to re-derive. A builder that prints
+                        // "payout if met" after creating a contract was otherwise
+                        // quoting its own arithmetic back at itself.
+                        payoutAmountUsdCents: systemPayoutUsdCents,
                         recordHash: contract.recordHash,
                         createdAt: contract.createdAt.toISOString(),
                         bindingId: bindingId || null,

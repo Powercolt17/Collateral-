@@ -475,6 +475,19 @@ export async function createContract(params) {
     return post('/v1/contracts', params);
 }
 
+/**
+ * The terms POST /v1/contracts WILL apply, read before anything is written.
+ *
+ * The write path system-calculates the multiplier and payout and ignores
+ * whatever the client sends, so a builder that priced a contract itself would
+ * be printing a number the server is about to overrule. This reads the same
+ * policy the write path reads — the operator's own deposit history for PLAID,
+ * the fixed tier table for everything else.
+ */
+export async function getTermsPreview(platform) {
+    return get(`/v1/contracts/terms-preview?platform=${encodeURIComponent(platform)}`);
+}
+
 export async function getContracts() {
     return get('/v1/contracts');
 }
@@ -828,6 +841,7 @@ export default {
 
     // Contracts
     createContract,
+    getTermsPreview,
     getContracts,
     getContract,
     getContractMetric,
