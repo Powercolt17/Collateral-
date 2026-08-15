@@ -1,6 +1,28 @@
-// RivalryDetail.js — /rivalry/:id detail page
-// Spectator-grade view of a single head-to-head duel
-// Redesigned to match a premium financial instrument (Bloomberg / Stripe / Polymarket aesthetic)
+// RivalryDetail.js — /rivalry/:id
+//
+// A spectator view of one head-to-head duel, in the same wine-and-cream
+// ledger system as the market board.
+//
+// EVERY FIGURE ON THIS PAGE IS DERIVED FROM THE CONTRACT OR THE ORACLE.
+// The record carries baselines, per-side percentage deltas, the growth
+// target and a full verification series, so the standings, the chart, the
+// countdown and the event log are all reads. Two things the previous version
+// printed are gone rather than kept:
+//
+//   - THE WIN-PROBABILITY BAR. It was computed as
+//         50 + (challengerGrowth - opponentGrowth) * 4, clamped to 10..90
+//     and labelled "MODEL ESTIMATE". There is no model — that is a straight
+//     line through the current margin with an arbitrary slope, and no part of
+//     the backend produces or records it. On a page whose whole claim is
+//     "verified at the source", a made-up probability next to real oracle
+//     readings is the most expensive thing that could be on it. The lead
+//     margin it was derived from IS real and is stated plainly instead.
+//
+//   - "ORACLE · EVERY 6H" as a constant. The cadence is measured from the
+//     gaps between actual verifications.
+//
+// Tokens are scoped to .rv for the same reason the board's are scoped to .mb:
+// declaring --paper/--ink on :root would silently repaint every other view.
 
 import api from '../api.js';
 import { showAlert, showConfirm } from '../modal.js';
@@ -9,666 +31,327 @@ import { collateralFullLoader } from '../components/CollateralLoader.js';
 export function renderRivalryDetail() {
     return `
         <style>
-            :root {
-                --rvd-ease: cubic-bezier(0.16, 1, 0.3, 1);
-                --rvd-dur: 0.3s;
-                --rvd-brand: #8B2020; /* Muted brand burgundy */
-                --rvd-green: #154726; /* Muted brand green */
-                --rvd-border: #e5e5e5;
-                --rvd-bg-sub: #fafafa;
-                --rvd-text-primary: #111111;
-                --rvd-text-secondary: #555555;
-            }
-            .rvd {
-                background: #ffffff;
-                min-height: calc(100vh - 72px);
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-                color: var(--rvd-text-primary);
-                line-height: 1.5;
-            }
-
-            /* ── Compressed Hero Header ── */
-            .rvd-hero {
+            .rv {
+                --rv-parch: #EEE5D8;
+                --rv-paper: #F5EDDA;
+                --rv-paper2: #FAF4E6;
+                --rv-ink: #211B12;
+                --rv-ink-soft: #574E3D;
+                /* MEASURED, NOT PICKED. The reference's #7A6E52 lands at 4.12:1
+                   on this cream — under the 4.5 floor — and it carries every
+                   label, timestamp and status on the page. #695F47 is the same
+                   hue walked down until it clears on both grounds used here:
+                   5.17 on parchment, 5.41 on card paper. */
+                --rv-muted: #695F47;
+                --rv-faint: #8A7C5E;
+                --rv-ox: #7C1D2B;
+                --rv-ox-deep: #5E1420;
+                --rv-win: #4E6B3E;
+                --rv-line: rgba(70,55,35,.18);
+                --rv-line-soft: rgba(70,55,35,.10);
+                --rv-line-firm: rgba(70,55,35,.28);
+                --rv-wintint: rgba(78,107,62,.08);
+                --rv-oxtint: rgba(124,29,43,.06);
+                --rv-gutter: clamp(20px, 5vw, 60px);
                 position: relative;
-                overflow: hidden;
-                border-bottom: 1px solid var(--rvd-border);
-                background: #ffffff;
-            }
-            .rvd-hero-inner {
-                max-width: 1200px;
+                max-width: 1160px;
                 margin: 0 auto;
-                padding: 24px 64px 20px;
-                position: relative;
+                padding: 46px var(--rv-gutter) 80px;
+                background: var(--rv-parch);
+                font-family: "EB Garamond", Georgia, serif;
+                color: var(--rv-ink);
+                -webkit-font-smoothing: antialiased;
             }
-            
-            /* Breadcrumbs */
-            .rvd-breadcrumb {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 10px;
-                font-weight: 500;
-                letter-spacing: 0.15em;
-                text-transform: uppercase;
-                color: #ccc;
-                margin-bottom: 16px;
+            /* The ledger ruling, the same 3% warm grey the board uses. */
+            .rv::before {
+                content: "";
+                position: absolute; inset: 0;
+                pointer-events: none; z-index: 0;
+                background: repeating-linear-gradient(0deg, transparent 0 29px, rgba(70,55,35,.025) 29px 30px);
             }
-            .rvd-breadcrumb a {
-                color: #888;
-                text-decoration: none;
-                transition: color var(--rvd-dur) var(--rvd-ease);
+            .rv > * { position: relative; z-index: 1; }
+            .rv-mono { font-family: var(--mono, 'IBM Plex Mono', monospace); }
+
+            .rv-mark {
+                width: 8px; height: 8px; background: var(--rv-ox-deep);
+                transform: rotate(45deg); display: inline-block; flex: none;
             }
-            .rvd-breadcrumb a:hover {
-                color: var(--rvd-text-primary);
+            .rv-livedot {
+                width: 8px; height: 8px; border-radius: 50%; background: var(--rv-win);
+                display: inline-block; flex: none; box-shadow: 0 0 0 3px rgba(78,107,62,.18);
             }
-            .rvd-breadcrumb span {
-                color: var(--rvd-brand);
-                font-weight: 700;
+            .rv-livedot.ox { background: var(--rv-ox); box-shadow: 0 0 0 3px rgba(124,29,43,.16); }
+            .rv-livedot.mut { background: var(--rv-faint); box-shadow: none; }
+            /* Screen-reader text for marks that are otherwise a glyph alone. */
+            .rv-sr {
+                position: absolute; width: 1px; height: 1px;
+                overflow: hidden; clip-path: inset(50%); white-space: nowrap;
             }
 
-            /* UFC Tale-of-the-Tape battle card layout */
-            .rvd-battle-card {
-                display: flex;
-                border: 1px solid var(--rvd-border);
-                background: #ffffff;
-                margin-bottom: 24px;
-                transition: all var(--rvd-dur) var(--rvd-ease);
-                position: relative;
-                overflow: hidden;
+            /* ---- header ---- */
+            .rv-kick {
+                display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .28em; text-transform: uppercase;
+                color: var(--rv-ox); font-weight: 500; margin-bottom: 20px;
             }
-            .rvd-battle-card:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 8px 24px rgba(0,0,0,0.03);
+            .rv-kick .r { height: 1px; width: 28px; background: var(--rv-ox); opacity: .75; }
+            .rv-kick .st { display: inline-flex; align-items: center; gap: 7px; color: var(--rv-win); }
+            .rv-kick .st.ox { color: var(--rv-ox); }
+            .rv-kick .st.mut { color: var(--rv-muted); }
+
+            .rv-head {
+                display: flex; align-items: flex-start; justify-content: space-between;
+                gap: 40px; flex-wrap: wrap;
+                padding-bottom: 22px; border-bottom: 1px solid var(--rv-line-firm);
             }
-            .rvd-competitor-side {
-                flex: 1;
-                padding: 28px 36px;
-                transition: all var(--rvd-dur) var(--rvd-ease);
-                position: relative;
+            .rv-matchup { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+            /* The handles are IDENTITIES, so they are set in the mono face the
+               rest of the site uses for identity and data, never the display
+               serif — the serif is for the figures. */
+            .rv-mh {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: clamp(21px, 3vw, 31px); font-weight: 500; letter-spacing: .01em; line-height: 1;
             }
-            .rvd-competitor-side.is-leading {
-                background: #fafbfa;
+            .rv-mh.lead { color: var(--rv-win); }
+            .rv-mh.trail { color: var(--rv-ox); }
+            .rv-mh.even { color: var(--rv-ink); }
+            .rv-vsd { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+            .rv-vsd .d { width: 8px; height: 8px; background: var(--rv-ox-deep); transform: rotate(45deg); }
+            .rv-vsd span { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9px; letter-spacing: .2em; color: var(--rv-muted); }
+            .rv-sub {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .1em; color: var(--rv-muted); margin-top: 14px;
             }
-            .rvd-competitor-side.is-trailing {
-                background: #ffffff;
+            .rv-pool { text-align: right; flex: none; }
+            .rv-pool .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--rv-muted); }
+            .rv-pool .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(34px, 4.4vw, 46px); font-weight: 600; line-height: 1; margin-top: 4px; }
+            .rv-pool .s { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .06em; color: var(--rv-muted); margin-top: 6px; }
+
+            /* ---- facts register ----
+               METADATA ONLY. "Current leader" deliberately does not appear
+               here: the duel below states it, and a page that answers "who is
+               winning" in three places will eventually answer it three
+               different ways. */
+            .rv-facts {
+                display: grid; grid-template-columns: repeat(4, 1fr);
+                border: 1px solid var(--rv-line); margin: 20px 0 8px; background: var(--rv-paper2);
             }
-            .rvd-battle-vs {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                width: 64px;
-                background: var(--rvd-bg-sub);
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 12px;
-                font-weight: 800;
-                color: #ccc;
-                border-left: 1px solid var(--rvd-border);
-                border-right: 1px solid var(--rvd-border);
-                flex-shrink: 0;
+            .rv-fact { padding: 13px 20px; border-left: 1px solid var(--rv-line-soft); min-width: 0; }
+            .rv-fact:first-child { border-left: 0; }
+            .rv-fact .k {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+                color: var(--rv-muted); margin-bottom: 7px;
+            }
+            .rv-fact .v {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 13px; letter-spacing: .02em; color: var(--rv-ink); font-weight: 500;
+                display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+            }
+            .rv-fact .v.win { color: var(--rv-win); }
+            .rv-fact .v.ox { color: var(--rv-ox); }
+
+            /* ---- section heads ---- */
+            .rv-shead { display: flex; align-items: center; gap: 18px; margin: 44px 0 20px; }
+            .rv-shead.hero { margin-top: 36px; }
+            .rv-shead .lab {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 12px; letter-spacing: .26em; text-transform: uppercase;
+                color: var(--rv-ox); font-weight: 500; white-space: nowrap;
+                display: flex; align-items: center; gap: 11px;
+            }
+            .rv-shead .ln { flex: 1; height: 1px; background: linear-gradient(90deg, var(--rv-line-firm), var(--rv-line-soft)); }
+            .rv-shead .rt {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted);
+                white-space: nowrap;
             }
 
-            /* Competitor typography hierarchy */
-            .rvd-comp-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-                margin-bottom: 12px;
+            /* ---- the duel, which is the page ---- */
+            .rv-duelbox {
+                border: 1px solid var(--rv-line-firm); background: var(--rv-paper);
+                box-shadow: 0 22px 48px rgba(60,40,20,.10); padding: 28px 30px 24px;
             }
-            .rvd-comp-role {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 9px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.12em;
-                color: #888;
+            .rv-leadby {
+                text-align: center; font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+                color: var(--rv-muted); padding-bottom: 4px;
             }
-            .rvd-comp-name {
-                font-size: 16px;
-                font-weight: 700;
-                color: var(--rvd-text-primary);
-                letter-spacing: -0.02em;
-                margin-top: 2px;
+            .rv-leadby b { font-weight: 600; }
+            .rv-leadby b.win { color: var(--rv-win); }
+            .rv-leadby b.ox { color: var(--rv-ox); }
+
+            .rv-duel { display: grid; grid-template-columns: 1fr 96px 1fr; align-items: stretch; margin-top: 20px; }
+            .rv-side {
+                position: relative; background: var(--rv-paper2);
+                border: 1px solid var(--rv-line-firm); padding: 26px 28px; min-width: 0;
             }
-            .rvd-comp-pct-val {
-                font-family: 'Sora', 'Inter', sans-serif;
-                font-size: 40px;
-                font-weight: 800;
-                letter-spacing: -1.5px;
-                line-height: 1;
-                margin: 12px 0 6px;
+            .rv-side.lead { border-top: 3px solid var(--rv-win); }
+            .rv-side.trail { border-top: 3px solid var(--rv-ox); }
+            .rv-side.even { border-top: 3px solid var(--rv-line-firm); }
+            .rv-side .reg { position: absolute; width: 11px; height: 11px; border: 1.2px solid var(--rv-faint); opacity: .8; }
+            .rv-side .reg.bl { bottom: 12px; left: 12px; border-right: 0; border-top: 0; }
+            .rv-s-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+            .rv-s-role { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--rv-muted); }
+            .rv-s-badge {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500;
+                padding: 4px 11px; white-space: nowrap;
             }
-            .rvd-comp-pct-val.leading { color: var(--rvd-green); }
-            .rvd-comp-pct-val.trailing { color: var(--rvd-brand); }
-            
-            .rvd-comp-metrics-row {
-                display: flex;
-                justify-content: space-between;
-                padding-top: 14px;
-                border-top: 1px solid #f4f4f4;
-                margin-top: 14px;
+            .rv-s-badge.lead { color: var(--rv-win); background: var(--rv-wintint); border: 1px solid rgba(78,107,62,.4); }
+            .rv-s-badge.trail { color: var(--rv-ox); background: var(--rv-oxtint); border: 1px solid rgba(124,29,43,.4); }
+            .rv-s-badge.even { color: var(--rv-muted); border: 1px solid var(--rv-line-firm); }
+            .rv-s-name { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 20px; font-weight: 500; margin-bottom: 6px; color: var(--rv-ink); overflow-wrap: anywhere; }
+            .rv-s-pct { font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(46px, 6vw, 66px); font-weight: 600; line-height: .92; letter-spacing: -.01em; }
+            .rv-s-pct.win { color: var(--rv-win); }
+            .rv-s-pct.los { color: var(--rv-ox); }
+            .rv-s-pct.mut { color: var(--rv-muted); }
+            .rv-s-delta { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .04em; color: var(--rv-muted); margin-top: 9px; }
+            .rv-s-delta .up { color: var(--rv-win); }
+            .rv-s-delta .dn { color: var(--rv-ox); }
+            .rv-s-metrics { display: flex; justify-content: space-between; gap: 16px; margin: 22px 0 12px; padding-top: 16px; border-top: 1px solid var(--rv-line-soft); }
+            .rv-s-metrics .m { min-width: 0; }
+            .rv-s-metrics .m .mk { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--rv-muted); margin-bottom: 5px; }
+            .rv-s-metrics .m .mv { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 14px; color: var(--rv-ink); font-weight: 500; }
+            .rv-s-metrics .m.r { text-align: right; }
+            .rv-s-metrics .m.r .mv { color: var(--rv-ox); }
+            .rv-s-prog { height: 6px; background: rgba(70,55,35,.1); overflow: hidden; margin-bottom: 13px; }
+            .rv-s-prog .f { height: 100%; transition: width 180ms ease; }
+            .rv-side.lead .rv-s-prog .f { background: var(--rv-win); }
+            .rv-side.trail .rv-s-prog .f { background: var(--rv-ox); }
+            .rv-side.even .rv-s-prog .f { background: var(--rv-muted); }
+            .rv-s-tag {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted);
+                display: inline-flex; align-items: center; gap: 7px;
             }
-            .rvd-comp-metric-block {
-                display: flex;
-                flex-direction: column;
-                gap: 2px;
+            .rv-s-tag .d { width: 5px; height: 5px; border-radius: 50%; background: var(--rv-faint); flex: none; }
+            .rv-vscol { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 0 6px; }
+            .rv-vscol .m { width: 10px; height: 10px; background: var(--rv-ox-deep); transform: rotate(45deg); }
+            .rv-vscol .vt { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .2em; color: var(--rv-muted); }
+            /* One line about the money, under both panels — not repeated inside
+               each one, where it read as two different facts. */
+            .rv-escrow {
+                text-align: center; font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--rv-muted);
+                margin-top: 22px; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
             }
-            .rvd-comp-metric-lbl {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 8px;
-                text-transform: uppercase;
-                letter-spacing: 0.08em;
-                color: #999;
-            }
-            .rvd-comp-metric-val {
-                font-size: 13px;
-                font-weight: 700;
-                color: var(--rvd-text-primary);
-            }
-            .rvd-comp-metric-val.target {
-                color: var(--rvd-brand);
+            .rv-escrow.paid { color: var(--rv-win); }
+            .rv-escrow .hash { color: var(--rv-faint); letter-spacing: .04em; overflow-wrap: anywhere; }
+
+            /* ---- chart ---- */
+            .rv-chartcard { border: 1px solid var(--rv-line-firm); background: var(--rv-paper); padding: 22px 26px 18px; box-shadow: 0 10px 24px rgba(60,40,20,.05); }
+            .rv-chart-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+            .rv-legend { display: flex; gap: 20px; flex-wrap: wrap; }
+            .rv-lg { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; color: var(--rv-ink-soft); }
+            .rv-lg .sw { width: 14px; height: 3px; flex: none; }
+            .rv-lg .sw.g { background: var(--rv-win); }
+            .rv-lg .sw.o { background: var(--rv-ox); }
+            /* SCROLLS RATHER THAN SHRINKS. Squeezing the plot below about 640
+               takes the axis labels under the legibility floor; the reader can
+               push it sideways instead. */
+            .rv-chart-scroll { overflow-x: auto; }
+            .rv-chart { display: block; width: 100%; min-width: 640px; height: auto; }
+            .rv-chart-empty {
+                padding: 44px 8px; text-align: center; color: var(--rv-muted);
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
             }
 
-            /* Competitor status badges */
-            .rvd-badge {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 9px;
-                font-weight: 800;
-                text-transform: uppercase;
-                letter-spacing: 0.06em;
-                padding: 3px 8px;
-                border-radius: 2px;
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-            }
-            .rvd-badge.leading-badge {
-                background: rgba(21, 71, 38, 0.08);
-                color: var(--rvd-green);
-            }
-            .rvd-badge.trailing-badge {
-                background: rgba(139, 32, 32, 0.06);
-                color: var(--rvd-brand);
-            }
-            .rvd-badge.hit-badge {
-                background: rgba(21, 71, 38, 0.08);
-                color: var(--rvd-green);
-            }
-            .rvd-badge.miss-badge {
-                background: rgba(139, 32, 32, 0.06);
-                color: var(--rvd-brand);
-            }
-            .rvd-badge .dot {
-                width: 4px;
-                height: 4px;
-                border-radius: 50%;
-            }
-            .rvd-badge.hit-badge .dot { background: var(--rvd-green); }
-            .rvd-badge.miss-badge .dot { background: var(--rvd-brand); }
+            /* ---- oracle log ---- */
+            .rv-olog { display: flex; flex-direction: column; gap: 10px; }
+            .rv-oev { border: 1px solid rgba(78,107,62,.5); background: var(--rv-paper2); padding: 16px 20px; box-shadow: 0 0 0 1px rgba(78,107,62,.1); }
+            .rv-oev-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+            .rv-oev-title { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .08em; color: var(--rv-ink); font-weight: 500; display: inline-flex; align-items: center; gap: 9px; }
+            .rv-oev-time { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; color: var(--rv-muted); }
+            .rv-oev-body { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; line-height: 1.8; color: var(--rv-ink-soft); }
+            .rv-oev-body .ar { color: var(--rv-muted); }
+            .rv-oev-body b.win { color: var(--rv-win); }
+            .rv-oev-body b.ox { color: var(--rv-ox); }
+            .rv-oev-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rv-line-soft); }
+            .rv-oev-margin { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; color: var(--rv-muted); }
+            .rv-oev-status { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; color: var(--rv-win); display: inline-flex; align-items: center; gap: 7px; }
+            .rv-oevc { display: grid; grid-template-columns: 88px 1fr max-content; align-items: center; gap: 20px; border: 1px solid var(--rv-line); background: var(--rv-paper2); padding: 13px 20px; }
+            .rv-oevc .t { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; color: var(--rv-muted); }
+            .rv-oevc .d { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; color: var(--rv-ink-soft); overflow-wrap: anywhere; }
+            .rv-oevc .d b { color: var(--rv-ink); }
+            .rv-oevc .s { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--rv-win); white-space: nowrap; }
+            .rv-oevc.secure .s { color: var(--rv-ox); }
+            .rv-oevc.settle .s { color: var(--rv-ox); }
 
-            /* ── Rivalry Momentum Bar ── */
-            .rvd-rivalry-bar-wrapper {
-                margin-bottom: 24px;
+            /* ---- actions (pre-active states keep their controls) ---- */
+            .rv-actions {
+                display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+                margin-top: 24px; padding: 18px 22px;
+                border: 1px solid var(--rv-line-firm); background: var(--rv-paper);
             }
-            .rvd-rivalry-bar-hdr {
-                display: flex;
-                justify-content: space-between;
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 10px;
-                color: var(--rvd-text-secondary);
-                text-transform: uppercase;
-                font-weight: 700;
-                margin-bottom: 8px;
-                letter-spacing: 0.08em;
+            .rv-abtn {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 12px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500;
+                padding: 13px 24px; border: 0; cursor: pointer;
+                transition: background 160ms ease, transform 140ms ease;
             }
-            .rvd-rivalry-bar-track {
-                height: 10px;
-                background: #f0f0f0;
-                border: 1px solid var(--rvd-border);
-                display: flex;
-                position: relative;
-                overflow: hidden;
+            .rv-abtn.accept, .rv-abtn.fund { background: var(--rv-ox); color: #F6EEDD; box-shadow: 0 12px 26px rgba(94,20,32,.2); }
+            .rv-abtn.accept:hover, .rv-abtn.fund:hover { background: var(--rv-ox-deep); transform: translateY(-1px); }
+            .rv-abtn.accept:active, .rv-abtn.fund:active { transform: none; }
+            .rv-abtn.decline { background: none; color: var(--rv-ink-soft); border: 1px solid var(--rv-line-firm); }
+            .rv-abtn.decline:hover { background: rgba(70,55,35,.06); }
+            .rv-abtn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
+            .rv-astatus { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted); }
+
+            /* ---- footer ---- */
+            .rv-foot {
+                margin-top: 44px; display: flex; align-items: center; justify-content: space-between;
+                gap: 24px; flex-wrap: wrap; padding: 20px 26px;
+                border: 1px solid var(--rv-line-firm); background: var(--rv-paper);
             }
-            .rvd-rivalry-bar-fill {
-                height: 100%;
-                transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            .rv-foot .t { font-family: "Cormorant Garamond", Georgia, serif; font-size: 19px; font-weight: 600; }
+            .rv-foot .s { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted); margin-top: 4px; }
+            .rv-foot .seal { width: 48px; height: 48px; flex: none; }
+            .rv-back {
+                display: inline-flex; align-items: center; gap: 9px; margin-top: 26px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+                color: var(--rv-muted); background: none; border: 0; cursor: pointer;
             }
-            .rvd-rivalry-bar-fill.challenger {
-                background: var(--rvd-green);
-            }
-            .rvd-rivalry-bar-fill.opponent {
-                background: var(--rvd-brand);
-            }
-            .rvd-rivalry-bar-divider {
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                width: 2px;
-                background: #ffffff;
-                z-index: 2;
-                transform: translateX(-50%);
-                transition: left 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            .rv-back:hover { color: var(--rv-ox); }
+            .rv-notice {
+                padding: 60px 8px; text-align: center; color: var(--rv-muted);
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
             }
 
-            /* ── Monospaced Countdown Grid ── */
-            .rvd-countdown-grid {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                border: 1px solid var(--rvd-border);
-                background: #ffffff;
-                text-align: center;
-                margin-bottom: 24px;
-            }
-            .rvd-countdown-slot {
-                border-right: 1px solid var(--rvd-border);
-                padding: 16px 0;
-                transition: all var(--rvd-dur) var(--rvd-ease);
-            }
-            .rvd-countdown-slot:last-child {
-                border-right: none;
-            }
-            .rvd-countdown-num {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 32px;
-                font-weight: 800;
-                color: var(--rvd-text-primary);
-                line-height: 1;
-            }
-            .rvd-countdown-num.seconds {
-                color: var(--rvd-brand);
-            }
-            .rvd-countdown-lbl {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 9px;
-                color: #888;
-                text-transform: uppercase;
-                letter-spacing: 0.1em;
-                margin-top: 4px;
-                font-weight: 700;
-            }
+            .rv a:focus-visible, .rv button:focus-visible { outline: 2px solid var(--rv-ox); outline-offset: 2px; }
 
-            /* ── Status Bar ── */
-            .rvd-status-bar {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 14px 20px;
-                background: var(--rvd-bg-sub);
-                border: 1px solid var(--rvd-border);
+            /* ---- responsive ---- */
+            @media (max-width: 900px) {
+                .rv-facts { grid-template-columns: repeat(2, 1fr); }
+                .rv-fact:nth-child(3) { border-left: 0; }
+                .rv-fact:nth-child(n+3) { border-top: 1px solid var(--rv-line-soft); }
+                .rv-s-metrics { flex-direction: column; gap: 12px; }
+                .rv-s-metrics .m.r { text-align: left; }
             }
-            .rvd-status-badge {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 11px;
-                font-weight: 700;
-                letter-spacing: 0.08em;
-                text-transform: uppercase;
-                display: flex;
-                align-items: center;
-                gap: 6px;
+            @media (max-width: 760px) {
+                /* The two panels stack and the VS column becomes a rule between
+                   them — a 96px gutter with a diamond in it is a desktop idea. */
+                .rv-duel { grid-template-columns: 1fr; }
+                .rv-vscol { flex-direction: row; gap: 14px; padding: 14px 0; }
+                .rv-vscol::before, .rv-vscol::after { content: ""; flex: 1; height: 1px; background: var(--rv-line-firm); }
+                .rv-head { gap: 22px; }
+                .rv-pool { text-align: left; }
+                .rv-oevc { grid-template-columns: 1fr; gap: 8px; }
+                .rv-duelbox { padding: 20px 18px 18px; }
+                .rv-chartcard { padding: 18px 16px 14px; }
             }
-            .rvd-status-badge.live { color: var(--rvd-green); }
-            .rvd-status-badge.pending { color: #d97706; }
-            .rvd-status-badge.ended { color: #888; }
-            .rvd-status-badge .dot {
-                width: 6px;
-                height: 6px;
-                border-radius: 50%;
-            }
-            .rvd-status-badge.live .dot { background: var(--rvd-green); animation: cl-core-pulse 1.5s infinite; }
-            .rvd-status-badge.pending .dot { background: #d97706; }
-            .rvd-status-badge.ended .dot { background: #888; }
-
-            .rvd-provider-pill {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 9px;
-                font-weight: 700;
-                letter-spacing: 0.06em;
-                color: #ffffff;
-                text-transform: uppercase;
-                padding: 3px 8px;
-            }
-
-            /* ── Performance Chart Area (Dominates the page, 40% taller) ── */
-            .rvd-chart-section {
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 0 64px 24px;
-            }
-            .rvd-chart-panel {
-                background: #ffffff;
-                border: 1px solid var(--rvd-border);
-            }
-            .rvd-chart-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 20px 24px 12px;
-                border-bottom: 1px solid #f9f9f9;
-            }
-            .rvd-chart-title {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 11px;
-                font-weight: 700;
-                letter-spacing: 0.12em;
-                color: var(--rvd-text-secondary);
-                text-transform: uppercase;
-            }
-            .rvd-chart-legend {
-                display: flex;
-                gap: 16px;
-                align-items: center;
-            }
-            .rvd-chart-legend-item {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 11px;
-                font-weight: 600;
-                color: var(--rvd-text-secondary);
-            }
-            .rvd-chart-legend-dot {
-                width: 8px;
-                height: 8px;
-                border-radius: 50%;
-            }
-
-            .rvd-chart-metrics {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                border-bottom: 1px solid #f4f4f4;
-            }
-            .rvd-chart-metric-card {
-                padding: 20px 24px;
-                display: flex;
-                flex-direction: column;
-                gap: 2px;
-            }
-            .rvd-chart-metric-card:first-child {
-                border-right: 1px solid #f4f4f4;
-            }
-            .rvd-chart-metric-card.right {
-                text-align: right;
-            }
-            .rvd-chart-metric-label {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 9px;
-                font-weight: 700;
-                color: #888;
-                text-transform: uppercase;
-                letter-spacing: 0.08em;
-            }
-            .rvd-chart-metric-value {
-                font-size: 24px;
-                font-weight: 800;
-                color: var(--rvd-text-primary);
-                letter-spacing: -0.5px;
-                line-height: 1.1;
-            }
-            .rvd-chart-metric-change {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 12px;
-                font-weight: 700;
-                margin-left: 6px;
-            }
-            .rvd-chart-metric-card.right .rvd-chart-metric-change {
-                margin-left: 0;
-                margin-right: 6px;
-            }
-            .rvd-chart-metric-change.positive { color: var(--rvd-green); }
-            .rvd-chart-metric-change.negative { color: var(--rvd-brand); }
-            
-            .rvd-chart-metric-target {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 10px;
-                color: #777;
-                margin-top: 4px;
-            }
-
-            .rvd-chart-canvas {
-                position: relative;
-                height: 440px; /* Centerpiece chart made 40% taller */
-                width: 100%;
-                box-sizing: border-box;
-                padding: 10px 0;
-            }
-            
-            /* SVG transitions for real-time Bloomberg chart extensions */
-            .rvd-chart-canvas svg path {
-                transition: d 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            }
-            .rvd-chart-canvas svg circle {
-                transition: cx 0.8s cubic-bezier(0.16, 1, 0.3, 1), cy 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            }
-            
-            /* Barely visible, premium pulsing live point */
-            @keyframes cl-graph-pulse {
-                0%, 100% { transform: scale(1); opacity: 0.85; transform-origin: center; }
-                50% { transform: scale(1.35); opacity: 1; transform-origin: center; }
-            }
-            .live-endpoint-dot {
-                animation: cl-graph-pulse 2s ease-in-out infinite;
-                transform-box: fill-box;
-            }
-
-            .rvd-chart-footer {
-                display: flex;
-                justify-content: space-between;
-                padding: 12px 24px 16px;
-                border-top: 1px solid #fcfcfc;
-            }
-            .rvd-chart-footer span {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 10px;
-                color: #bbb;
-            }
-
-            /* ── Oracle Event Log Ticker Feed ── */
-            .rvd-activity-container {
-                max-width: 1200px;
-                margin: 0 auto 24px;
-                padding: 0 64px;
-            }
-            .rvd-activity-card {
-                background: #ffffff;
-                border: 1px solid var(--rvd-border);
-                padding: 20px 24px;
-            }
-            .rvd-activity-hdr {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 10px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.12em;
-                color: var(--rvd-text-secondary);
-                margin-bottom: 12px;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                border-bottom: 1px solid #f8f8f8;
-                padding-bottom: 8px;
-            }
-            .rvd-activity-list {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-                display: flex;
-                flex-direction: column;
-                gap: 16px; /* Increased separation for console feed readability */
-            }
-            .rvd-activity-item {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 11px;
-                color: #333;
-                background: #fbfbfb;
-                border: 1px solid #f0f0f0;
-                padding: 12px 16px;
-                transition: all var(--rvd-dur) var(--rvd-ease);
-            }
-            .rvd-activity-item.flash-update {
-                border-color: var(--rvd-green);
-                background: rgba(21, 71, 38, 0.02);
-            }
-            .rvd-activity-item-hdr {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 8px;
-                border-bottom: 1px dashed #e8e8e8;
-                padding-bottom: 6px;
-            }
-            .rvd-activity-line-left {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .rvd-activity-bullet {
-                width: 4px;
-                height: 4px;
-                background: #ccc;
-                border-radius: 50%;
-            }
-            .rvd-activity-bullet.active {
-                background: var(--rvd-green);
-                animation: cl-core-pulse 1.5s infinite;
-            }
-            .rvd-activity-time {
-                color: #888;
-                font-size: 10px;
-                font-weight: 700;
-            }
-
-            /* ── 3-Column Protocol Panels ── */
-            .rvd-grid {
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 0 64px 32px;
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 24px;
-            }
-            .rvd-panel {
-                background: #ffffff;
-                border: 1px solid var(--rvd-border);
-                padding: 24px;
-                transition: all var(--rvd-dur) var(--rvd-ease);
-            }
-            .rvd-panel:hover {
-                transform: translateY(-2px);
-                border-color: var(--rvd-text-primary);
-                box-shadow: 0 8px 24px rgba(0,0,0,0.04);
-            }
-            .rvd-panel-hdr {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin-bottom: 20px;
-                border-bottom: 1px solid #f8f8f8;
-                padding-bottom: 10px;
-            }
-            .rvd-panel-icon {
-                color: #555;
-                display: flex;
-                align-items: center;
-            }
-            .rvd-panel-title {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 11px;
-                font-weight: 700;
-                letter-spacing: 0.15em;
-                text-transform: uppercase;
-                color: var(--rvd-text-primary);
-                margin: 0;
-            }
-            .rvd-row {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 12px 0;
-                border-bottom: 1px solid #f8f8f8;
-            }
-            .rvd-row:last-child {
-                border-bottom: none;
-            }
-            
-            /* Muted labels and bold values to focus user attention instantly */
-            .rvd-row-label {
-                font-size: 12px;
-                font-weight: 500;
-                color: #666;
-            }
-            .rvd-row-value {
-                font-size: 13px;
-                font-weight: 800;
-                color: var(--rvd-text-primary);
-                font-family: 'JetBrains Mono', monospace;
-            }
-
-            /* ── Warning Banner ── */
-            .rvd-warning {
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 0 64px 32px;
-            }
-            .rvd-warning-inner {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                background: #fafafa;
-                padding: 16px 20px;
-                border: 1px solid var(--rvd-border);
-                border-left: 3px solid var(--rvd-brand);
-            }
-            .rvd-warning-text {
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 10px;
-                font-weight: 600;
-                letter-spacing: 0.08em;
-                color: #555;
-                text-transform: uppercase;
-                line-height: 1.5;
-            }
-
-            /* ── Actions & Share Row ── */
-            .rvd-actions-row {
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 0 64px 20px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                gap: 20px;
-            }
-            .rvd-share-group {
-                display: flex;
-                gap: 8px;
-            }
-            .rvd-share-btn {
-                height: 48px;
-                padding: 0 24px;
-                border: 1px solid var(--rvd-border);
-                background: #ffffff;
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 10px;
-                font-weight: 700;
-                letter-spacing: 0.08em;
-                color: #666;
-                cursor: pointer;
-                transition: all var(--rvd-dur) var(--rvd-ease);
-            }
-            .rvd-share-btn:hover {
-                border-color: var(--rvd-text-primary);
-                color: var(--rvd-text-primary);
-                transform: translateY(-1px);
-            }
-
-            /* Loading Skeleton / Pulse */
-            @keyframes cl-core-pulse {
-                0%, 100% { transform: scale(0.85); opacity: 0.6; }
-                50% { transform: scale(1.15); opacity: 1; }
+            @media (prefers-reduced-motion: reduce) {
+                .rv-abtn, .rv-s-prog .f { transition: none; }
+                .rv-abtn.accept:hover, .rv-abtn.fund:hover { transform: none; }
             }
         </style>
 
-        <div class="rvd" id="rvd-container">
-            ${collateralFullLoader('Loading rivalry details...')}
+        <div class="rv" id="rvd-container">
+            ${collateralFullLoader('Loading rivalry…')}
         </div>
     `;
 }
@@ -679,1223 +362,918 @@ export async function initRivalryDetail(params) {
 
     const id = params?.id || window.location.pathname.split('/rivalry/')[1] || '';
 
-    // ── Maps ──
-    const STATE_TO_STATUS = {
-        CHALLENGE_ISSUED: 'pending', ACCEPTED: 'pending',
-        BOTH_FUNDED: 'active', ACTIVE: 'active', VERIFYING: 'active',
-        VERIFIED: 'active', SETTLING: 'active',
-        SETTLED: 'settled', DRAW: 'settled',
-        DECLINED: 'settled', EXPIRED: 'settled', CANCELLED: 'settled',
+    if (window._rvdCdInterval) { clearInterval(window._rvdCdInterval); window._rvdCdInterval = null; }
+    if (window._rvdPoll) { clearInterval(window._rvdPoll); window._rvdPoll = null; }
+
+    const reduceMotion = window.matchMedia
+        && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const METRIC_LABELS = {
+        REVENUE: 'Revenue Growth', MRR: 'Recurring Revenue', FOLLOWERS: 'Follower Growth',
+        SUBSCRIBERS: 'Subscriber Growth', VIEWS: 'Views Growth', IMPRESSIONS: 'Impression Growth',
+        GROSS_SALES: 'Sales Growth', ORDER_COUNT: 'Order Growth', CHARGE_VOLUME: 'Charge Volume',
+        NET_INCOME_DEPOSITS: 'Income Received',
     };
-    const METRIC_LABELS = { REVENUE: 'Revenue Growth', FOLLOWERS: 'Follower Growth', SUBSCRIBERS: 'Subscriber Growth', VIEWS: 'Views Growth', GROSS_SALES: 'Sales Growth', ORDER_COUNT: 'Order Growth' };
-    const PLATFORM_MAP = { STRIPE: 'stripe', X: 'x', YOUTUBE: 'youtube', SHOPIFY: 'shopify', AMAZON: 'amazon' };
+    const MONETARY = ['REVENUE', 'MRR', 'GROSS_SALES', 'CHARGE_VOLUME', 'NET_INCOME_DEPOSITS'];
+    const UNIT_NOUN = {
+        REVENUE: 'revenue', MRR: 'MRR', GROSS_SALES: 'sales', CHARGE_VOLUME: 'volume',
+        NET_INCOME_DEPOSITS: 'received', FOLLOWERS: 'followers', SUBSCRIBERS: 'subscribers',
+        VIEWS: 'views', IMPRESSIONS: 'impressions', ORDER_COUNT: 'orders',
+    };
 
-    function transformDetail(r) {
-        const challPart = r.participants?.find(p => p.role === 'challenger');
-        const oppPart = r.participants?.find(p => p.role === 'opponent');
-        const now = new Date();
-        const end = r.deadlineUtc ? new Date(r.deadlineUtc) : new Date((new Date(r.activatedAt || r.createdAt)).getTime() + (r.durationDays || 30) * 86400000);
-        const daysLeft = Math.max(0, Math.ceil((end - now) / 86400000));
+    // ── tiny DOM helpers; every value goes in as text, never as markup ──
+    const el = (tag, cls, text) => {
+        const n = document.createElement(tag);
+        if (cls) n.className = cls;
+        if (text != null) n.textContent = text;
+        return n;
+    };
+    const svgEl = (tag, attrs) => {
+        const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        Object.keys(attrs || {}).forEach(k => n.setAttribute(k, String(attrs[k])));
+        return n;
+    };
+    /** A ✓ is decoration; the word beside it is what gets read out. */
+    const withMark = (parent, word, glyph) => {
+        parent.appendChild(document.createTextNode(word + ' '));
+        const g = el('span', null, glyph);
+        g.setAttribute('aria-hidden', 'true');
+        parent.appendChild(g);
+        return parent;
+    };
 
-        const targetPct = parseFloat(r.targetGrowthPct || r.rivalry?.targetGrowthPct || 15);
-        const challBaseline = parseFloat(challPart?.baselineValue || 0);
-        const oppBaseline = parseFloat(oppPart?.baselineValue || 0);
-        const challGrowthRaw = parseFloat(challPart?.percentageDelta || challPart?.percentage_delta || challPart?.growthPercent || 0);
-        const oppGrowthRaw = parseFloat(oppPart?.percentageDelta || oppPart?.percentage_delta || oppPart?.growthPercent || 0);
-        const challGrowth = challGrowthRaw < 0 ? 0 : challGrowthRaw;
-        const oppGrowth = oppGrowthRaw < 0 ? 0 : oppGrowthRaw;
-        const challCurrentValue = challBaseline > 0 ? Math.round(challBaseline * (1 + challGrowth / 100)) : 0;
-        const oppCurrentValue = oppBaseline > 0 ? Math.round(oppBaseline * (1 + oppGrowth / 100)) : 0;
-        const challTargetValue = challBaseline > 0 ? Math.round(challBaseline * (1 + targetPct / 100)) : 0;
-        const oppTargetValue = oppBaseline > 0 ? Math.round(oppBaseline * (1 + targetPct / 100)) : 0;
-        const prov = PLATFORM_MAP[r.platform] || (r.platform || 'stripe').toLowerCase();
-        const isMonetary = prov === 'stripe' || prov === 'shopify' || prov === 'amazon';
+    const pad2 = (n) => String(n).padStart(2, '0');
+    const fmtDate = (d) => {
+        try {
+            return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        } catch (e) { return '—'; }
+    };
+    const fmtClock = (d) => {
+        try {
+            const t = new Date(d);
+            return pad2(t.getHours()) + ':' + pad2(t.getMinutes()) + ':' + pad2(t.getSeconds());
+        } catch (e) { return '—'; }
+    };
+    const ago = (d) => {
+        const ms = Date.now() - new Date(d).getTime();
+        if (!isFinite(ms) || ms < 0) return '';
+        const h = Math.floor(ms / 3600000);
+        if (h < 1) return Math.max(1, Math.floor(ms / 60000)) + 'm ago';
+        if (h < 48) return h + 'h ago';
+        return Math.floor(h / 24) + 'd ago';
+    };
+    const pct2 = (v) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(2) + '%';
 
-        const isActive = ['BOTH_FUNDED','ACTIVE','VERIFYING','VERIFIED','SETTLING'].includes(r.state);
-        const challFunded = !!challPart?.funded;
-        const oppFunded = !!oppPart?.funded;
+    // ═══════════════════════════════════════════════════════════════════
+    // Fetch. The contract and its verification series are two reads and
+    // neither blocks the other; a dead metrics endpoint costs the chart and
+    // the log, not the page.
+    // ═══════════════════════════════════════════════════════════════════
+    let raw = null;
+    let series = [];
+    const [rRes, mRes] = await Promise.allSettled([
+        api.getRivalry(id),
+        api.getRivalryMetrics(id),
+    ]);
+    if (rRes.status === 'fulfilled' && rRes.value && rRes.value.rivalry) raw = rRes.value.rivalry;
+    if (mRes.status === 'fulfilled' && mRes.value && Array.isArray(mRes.value.metrics)) series = mRes.value.metrics;
 
-        return {
-            id: r.id,
-            status: STATE_TO_STATUS[r.state] || 'active',
-            state: r.state,
-            metric: METRIC_LABELS[r.metricType] || r.metricType || 'Revenue Growth',
-            metricType: r.metricType || 'FOLLOWERS',
-            provider: prov,
-            isMonetary,
-            isActive,
-            challFunded,
-            oppFunded,
-            challenger: {
-                name: '@' + (r.challengerUsername || 'unknown'),
-                growth: challGrowth,
-                baseline: challBaseline,
-                currentValue: challCurrentValue,
-                targetValue: challTargetValue,
-            },
-            opponent: {
-                name: '@' + (r.opponentUsername || 'unknown'),
-                growth: oppGrowth,
-                baseline: oppBaseline,
-                currentValue: oppCurrentValue,
-                targetValue: oppTargetValue,
-            },
-            stake: (r.stakePerSideCents || 0) / 100,
-            daysLeft: isActive ? daysLeft : r.durationDays || 30,
-            totalDays: r.durationDays || 30,
-            targetGrowthPct: targetPct,
-            rivalryTier: r.rivalryTier || r.rivalry?.rivalryTier || 'DUEL',
-            metrics: r.metrics || [],
-            _rawState: r.state,
-            _challengerUserId: r.challengerUserId,
-            _opponentUserId: r.opponentUserId,
-            _activatedAt: r.activatedAt || r.createdAt,
-            _deadlineUtc: r.deadlineUtc,
-        };
-    }
-
-    // ── Fetch live rivalry ──
-    let rivalry = null;
-    try {
-        const res = await api.getRivalry(id);
-        if (res.ok && res.rivalry) {
-            rivalry = transformDetail(res.rivalry);
-        }
-    } catch (e) {
-        console.log('[RivalryDetail] API error:', e.message);
-    }
-
-    if (!rivalry) {
-        container.innerHTML = `
-            <div class="rvd-loading">
-                <div class="rvd-loading-text">RIVALRY NOT FOUND</div>
-                <a href="#" onclick="event.preventDefault();window.router.navigate('/market?type=rivalry')" style="color:#5C1A1B; font-size:13px; margin-top:16px; display:inline-block;">← Back to Rivalries</a>
-            </div>`;
+    if (!raw) {
+        container.innerHTML = '';
+        const n = el('div', 'rv-notice', 'Rivalry not found');
+        container.appendChild(n);
+        const back = el('button', 'rv-back', '← Back to the market');
+        back.type = 'button';
+        back.addEventListener('click', () => window.router && window.router.navigate('/market'));
+        container.appendChild(back);
         return;
     }
 
-    const isLeading = rivalry.challenger.growth >= rivalry.opponent.growth;
-    const totalGrowth = Math.abs(rivalry.challenger.growth) + Math.abs(rivalry.opponent.growth);
-    const leftPct = totalGrowth > 0 ? Math.round((Math.abs(rivalry.challenger.growth) / totalGrowth) * 100) : 50;
-    const rightPct = 100 - leftPct;
-    const isPending = rivalry.state === 'CHALLENGE_ISSUED';
-    const isAccepted = rivalry.state === 'ACCEPTED';
-    const isPreActive = isPending || isAccepted;
-    const statusClass = rivalry.isActive ? 'live' : isPreActive ? 'pending' : 'ended';
-    const statusLabel = rivalry.isActive ? 'LIVE' : isPending ? 'AWAITING OPPONENT' : isAccepted ? 'AWAITING FUNDS' : 'SETTLED';
-    const timeLabel = rivalry.daysLeft <= 0 ? 'Completed' : `${rivalry.daysLeft}d remaining of ${rivalry.totalDays}d`;
-    const pool = rivalry.stake * 2;
+    /* ── the derived model ───────────────────────────────────────────────
+       Everything the page prints comes out of here, and everything here
+       comes out of the record or the oracle series. */
+    function build(r, metrics) {
+        const parts = r.participants || [];
+        const chall = parts.find(p => p.role === 'challenger') || {};
+        const opp = parts.find(p => p.role === 'opponent') || {};
+        const metricType = r.metricType || 'REVENUE';
+        const monetary = MONETARY.indexOf(metricType) !== -1;
+        const targetPct = parseFloat(r.targetGrowthPct || 0) || 0;
+        const meta = r.settlementMetadata || {};
 
-    // Estimate probability based on margin of performance
-    const margin = Math.abs(rivalry.challenger.growth - rivalry.opponent.growth);
-    const rawChallProb = 50 + (rivalry.challenger.growth - rivalry.opponent.growth) * 4;
-    const challProb = Math.max(10, Math.min(90, Math.round(rawChallProb)));
-    const oppProb = 100 - challProb;
+        const fmtVal = (v) => {
+            if (v == null || !isFinite(v)) return '—';
+            return monetary
+                ? '$' + Math.round(v / 100).toLocaleString('en-US')
+                : Math.round(v).toLocaleString('en-US');
+        };
 
-    function getProviderColor(p) {
-        const c = { stripe: '#635bff', x: '#111', youtube: '#ff0000', shopify: '#96bf48', amazon: '#ff9900' };
-        return c[p] || '#111';
-    }
+        // one entry per verification instant, both sides together
+        const byTime = new Map();
+        metrics.forEach((m) => {
+            const t = new Date(m.fetchedAt).getTime();
+            if (!isFinite(t)) return;
+            if (!byTime.has(t)) byTime.set(t, {});
+            byTime.get(t)[m.userId] = Number(m.metricValue);
+        });
+        const stamps = Array.from(byTime.keys()).sort((a, b) => a - b);
 
-    function fmtMetric(val) {
-        if (!val && val !== 0) return '--';
-        if (rivalry.isMonetary) return '$' + (val / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-        return Math.round(val).toLocaleString('en-US');
-    }
-    function metricUnit() {
-        const m = rivalry.metricType || '';
-        if (m.includes('SUBSCRIBER')) return 'subscribers';
-        if (m.includes('FOLLOWER')) return 'followers';
-        if (m.includes('VIEW')) return 'views';
-        if (m.includes('REVENUE')) return 'revenue';
-        if (m.includes('ORDER')) return 'orders';
-        if (m.includes('SALE')) return 'sales';
-        return 'metric';
-    }
-
-    const _cdEndTime = rivalry._deadlineUtc ? new Date(rivalry._deadlineUtc).getTime() : new Date(new Date(rivalry._activatedAt || Date.now()).getTime() + (rivalry.totalDays) * 86400000).getTime();
-    const _cdDiff = Math.max(0, _cdEndTime - Date.now());
-    const _cdDays = Math.floor(_cdDiff / 86400000);
-    const _cdHours = String(Math.floor((_cdDiff % 86400000) / 3600000)).padStart(2, '0');
-    const _cdMins = String(Math.floor((_cdDiff % 3600000) / 60000)).padStart(2, '0');
-    const _cdSecs = String(Math.floor((_cdDiff % 60000) / 1000)).padStart(2, '0');
-
-    // ── Build Hero Markup ──
-    container.innerHTML = `
-        <div class="rvd-hero">
-            <div class="rvd-hero-inner">
-                
-                <!-- Breadcrumbs & Header Strip -->
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--rvd-border); padding-bottom:16px; margin-bottom:20px;">
-                    <div>
-                        <div class="rvd-breadcrumb" style="margin-bottom:4px;">
-                            <a href="#" onclick="event.preventDefault();window.router.navigate('/market?type=rivalry')">Rivalry</a> <span>/ ${rivalry.id.substring(0, 12)}…</span>
-                        </div>
-                        <div class="rvd-status-badge ${statusClass}">
-                            <span class="dot"></span>
-                            ${statusLabel} &middot; ${rivalry.metric}
-                        </div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="font-family:'JetBrains Mono', monospace; font-size:9px; color:#888; text-transform:uppercase; letter-spacing:0.12em; font-weight:700;">Total Prize Pool</div>
-                        <div style="font-size:38px; font-weight:800; color:#111; font-family:'Sora','Inter',sans-serif; letter-spacing:-1.5px; line-height:1;">$${pool.toLocaleString()}</div>
-                        <div style="font-family:'Inter',sans-serif; font-size:11px; color:#666; margin-top:2px;">$${rivalry.stake.toLocaleString()} per side</div>
-                    </div>
-                </div>
-
-                <!-- Versus experience center: instant eye scan of who is winning, margin, stakes, and time -->
-                <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; border:1px solid var(--rvd-border); background:#fafafa; padding:16px 20px; margin-bottom:24px;">
-                    <div>
-                        <div style="font-family:'JetBrains Mono', monospace; font-size:9px; color:#777; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;">Current Leader</div>
-                        <div style="font-size:15px; font-weight:700; color:#111; margin-top:4px; text-transform:uppercase;">
-                            ${rivalry.challenger.growth === rivalry.opponent.growth ? 'TIED' : (isLeading ? rivalry.challenger.name : rivalry.opponent.name)}
-                        </div>
-                    </div>
-                    <div>
-                        <div style="font-family:'JetBrains Mono', monospace; font-size:9px; color:#777; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;">Lead</div>
-                        <div style="font-size:15px; font-weight:700; color:var(--rvd-green); margin-top:4px;">
-                            ${rivalry.challenger.growth === rivalry.opponent.growth ? '0.00%' : `+${margin.toFixed(2)}% &middot; ${isLeading ? 'Challenger' : 'Opponent'}`}
-                        </div>
-                    </div>
-                    <div>
-                        <div style="font-family:'JetBrains Mono', monospace; font-size:9px; color:#777; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;">Contract Status</div>
-                        <div style="font-size:14px; font-weight:700; color:#111; margin-top:5px; display:flex; align-items:center; gap:5px;">
-                            <span style="width:5px; height:5px; border-radius:50%; background:${statusClass === 'live' ? 'var(--rvd-green)' : '#111'}; display:inline-block;"></span>
-                            ${statusLabel}
-                        </div>
-                    </div>
-                    <div>
-                        <div style="font-family:'JetBrains Mono', monospace; font-size:9px; color:#777; text-transform:uppercase; letter-spacing:0.08em; font-weight:700;">Time Remaining</div>
-                        <div style="font-size:15px; font-weight:700; color:#111; margin-top:4px;">${timeLabel}</div>
-                    </div>
-                </div>
-
-                <!-- Probability of Winning Estimated Model Widget -->
-                <div style="border:1px solid var(--rvd-border); background:#ffffff; padding:18px 24px; margin-bottom:24px;">
-                    <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono', monospace; font-size:9px; color:#777; text-transform:uppercase; font-weight:700; margin-bottom:6px; letter-spacing:0.08em;">
-                        <span>Probability of Winning</span>
-                        <span style="color:var(--rvd-green); font-weight:800;">Model Estimate (Based on Delta Margin)</span>
-                    </div>
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-                        <span style="font-size:14px; font-weight:700; color:#111;">
-                            ${rivalry.challenger.name} 
-                            <span style="color:var(--rvd-green); font-weight:800; font-family:'JetBrains Mono',monospace; margin-left:4px;">${challProb}%</span>
-                        </span>
-                        <span style="font-size:14px; font-weight:700; color:#111; text-align:right;">
-                            <span style="color:var(--rvd-brand); font-weight:800; font-family:'JetBrains Mono',monospace; margin-right:4px;">${oppProb}%</span> 
-                            ${rivalry.opponent.name}
-                        </span>
-                    </div>
-                    <div style="height:4px; background:#f0f0f0; display:flex; position:relative; overflow:hidden;">
-                        <div style="width:${challProb}%; height:100%; background:var(--rvd-green); transition:width 0.8s var(--rvd-ease);"></div>
-                        <div style="width:${oppProb}%; height:100%; background:var(--rvd-brand); transition:width 0.8s var(--rvd-ease);"></div>
-                    </div>
-                </div>
-
-                <!-- Unified UFC battle-card style layout with emotional delta updates -->
-                <div class="rvd-battle-card">
-                    
-                    <!-- Challenger Side -->
-                    <div class="rvd-competitor-side challenger-side ${isLeading ? 'is-leading' : 'is-trailing'}" style="border-left: ${isLeading ? '3px solid var(--rvd-green)' : 'none'};">
-                        <div class="rvd-comp-header">
-                            <div>
-                                <span class="rvd-comp-role">Challenger</span>
-                                <div class="rvd-comp-name">${rivalry.challenger.name}</div>
-                            </div>
-                            <span class="rvd-badge ${isLeading ? 'leading-badge' : 'trailing-badge'}">
-                                ${isLeading ? 'LEADING' : 'TRAILING'}
-                            </span>
-                        </div>
-                        
-                        <div class="rvd-comp-pct-val ${isLeading ? 'leading' : 'trailing'}">
-                            <span class="count-up-pct" data-target="${rivalry.challenger.growth}">${rivalry.challenger.growth > 0 ? '+' : ''}${rivalry.challenger.growth.toFixed(2)}%</span>
-                        </div>
-                        
-                        <!-- Last update delta momentum metrics -->
-                        <div style="font-family:'JetBrains Mono', monospace; font-size:10px; color:${isLeading ? 'var(--rvd-green)' : '#888'}; font-weight:700; margin-top:2px;">
-                            ${isLeading ? '▲ +0.22% in last oracle verification' : '▼ -0.04% in last update'}
-                        </div>
-
-                        <div class="rvd-comp-metrics-row">
-                            <div class="rvd-comp-metric-block">
-                                <span class="rvd-comp-metric-lbl">Current Metric</span>
-                                <span class="rvd-comp-metric-val" data-live-role="challenger">${fmtMetric(rivalry.challenger.currentValue)} ${metricUnit()}</span>
-                            </div>
-                            <div class="rvd-comp-metric-block" style="text-align:right;">
-                                <span class="rvd-comp-metric-lbl">Target Metric (+${rivalry.targetGrowthPct}%)</span>
-                                <span class="rvd-comp-metric-val target">${fmtMetric(rivalry.challenger.targetValue)} ${metricUnit()}</span>
-                            </div>
-                        </div>
-
-                        <div style="display:flex; gap:6px; align-items:center; margin-top:14px;">
-                            <span class="rvd-badge ${rivalry.challenger.growth >= rivalry.targetGrowthPct ? 'hit-badge' : 'miss-badge'}">
-                                <span class="dot"></span>
-                                ${rivalry.challenger.growth >= rivalry.targetGrowthPct ? 'TARGET HIT' : 'TARGET MISSED'}
-                            </span>
-                            ${rivalry.challFunded ? '<span class="rvd-badge" style="background:#f4f4f4; color:#666;">LOCKED</span>' : '<span class="rvd-badge" style="background:#fef3c7; color:#d97706;">PENDING</span>'}
-                        </div>
-                    </div>
-
-                    <!-- VS Divider -->
-                    <div class="rvd-battle-vs">VS</div>
-
-                    <!-- Opponent Side -->
-                    <div class="rvd-competitor-side opponent-side ${!isLeading ? 'is-leading' : 'is-trailing'}" style="border-right: ${!isLeading ? '3px solid var(--rvd-green)' : 'none'};">
-                        <div class="rvd-comp-header">
-                            <div>
-                                <span class="rvd-comp-role">Opponent</span>
-                                <div class="rvd-comp-name">${rivalry.opponent.name}</div>
-                            </div>
-                            <span class="rvd-badge ${!isLeading ? 'leading-badge' : 'trailing-badge'}">
-                                ${!isLeading ? 'LEADING' : 'TRAILING'}
-                            </span>
-                        </div>
-                        
-                        <div class="rvd-comp-pct-val ${!isLeading ? 'leading' : 'trailing'}">
-                            <span class="count-up-pct" data-target="${rivalry.opponent.growth}">${rivalry.opponent.growth > 0 ? '+' : ''}${rivalry.opponent.growth.toFixed(2)}%</span>
-                        </div>
-                        
-                        <!-- Last update delta momentum metrics -->
-                        <div style="font-family:'JetBrains Mono', monospace; font-size:10px; color:${!isLeading ? 'var(--rvd-green)' : 'var(--rvd-brand)'}; font-weight:700; margin-top:2px;">
-                            ${!isLeading ? '▲ +0.15% in last oracle verification' : '▼ -0.08% in last update'}
-                        </div>
-
-                        <div class="rvd-comp-metrics-row">
-                            <div class="rvd-comp-metric-block">
-                                <span class="rvd-comp-metric-lbl">Current Metric</span>
-                                <span class="rvd-comp-metric-val" data-live-role="opponent">${fmtMetric(rivalry.opponent.currentValue)} ${metricUnit()}</span>
-                            </div>
-                            <div class="rvd-comp-metric-block" style="text-align:right;">
-                                <span class="rvd-comp-metric-lbl">Target Metric (+${rivalry.targetGrowthPct}%)</span>
-                                <span class="rvd-comp-metric-val target">${fmtMetric(rivalry.opponent.targetValue)} ${metricUnit()}</span>
-                            </div>
-                        </div>
-
-                        <div style="display:flex; gap:6px; align-items:center; margin-top:14px;">
-                            <span class="rvd-badge ${rivalry.opponent.growth >= rivalry.targetGrowthPct ? 'hit-badge' : 'miss-badge'}">
-                                <span class="dot"></span>
-                                ${rivalry.opponent.growth >= rivalry.targetGrowthPct ? 'TARGET HIT' : 'TARGET MISSED'}
-                            </span>
-                            ${rivalry.oppFunded ? '<span class="rvd-badge" style="background:#f4f4f4; color:#666;">LOCKED</span>' : '<span class="rvd-badge" style="background:#fef3c7; color:#d97706;">PENDING</span>'}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Live Rivalry Meter (Tug-of-war visual representation) -->
-                <div class="rvd-rivalry-bar-wrapper">
-                    <div class="rvd-rivalry-bar-hdr">
-                        <span>${rivalry.challenger.name} ($${rivalry.stake.toLocaleString()})</span>
-                        <span style="color:${isLeading ? 'var(--rvd-green)' : 'var(--rvd-brand)'}; font-weight:800; font-size:11px; display:flex; align-items:center; gap:4px;">
-                            Lead &middot; +${margin.toFixed(2)}% &middot; ${rivalry.challenger.growth === rivalry.opponent.growth ? 'Tied' : (isLeading ? `${rivalry.challenger.name} ahead` : `${rivalry.opponent.name} ahead`)}
-                        </span>
-                        <span>${rivalry.opponent.name} ($${rivalry.stake.toLocaleString()})</span>
-                    </div>
-                    <div class="rvd-rivalry-bar-track">
-                        <div class="rvd-rivalry-bar-fill challenger" style="width:${leftPct}%;"></div>
-                        <div class="rvd-rivalry-bar-divider" style="left:${leftPct}%;"></div>
-                        <div class="rvd-rivalry-bar-fill opponent" style="width:${rightPct}%;"></div>
-                    </div>
-                </div>
-
-                <!-- Expiring Monospaced Countdown Grid -->
-                <div class="rvd-countdown-grid" id="rvd-countdown">
-                    <div class="rvd-countdown-slot">
-                        <span class="rvd-countdown-num" id="rvd-cd-days">${_cdDays}</span>
-                        <div class="rvd-countdown-lbl">DAYS</div>
-                    </div>
-                    <div class="rvd-countdown-slot">
-                        <span class="rvd-countdown-num" id="rvd-cd-hours">${_cdHours}</span>
-                        <div class="rvd-countdown-lbl">HOURS</div>
-                    </div>
-                    <div class="rvd-countdown-slot">
-                        <span class="rvd-countdown-num" id="rvd-cd-mins">${_cdMins}</span>
-                        <div class="rvd-countdown-lbl">MINUTES</div>
-                    </div>
-                    <div class="rvd-countdown-slot">
-                        <span class="rvd-countdown-num seconds" id="rvd-cd-secs">${_cdSecs}</span>
-                        <div class="rvd-countdown-lbl">SECONDS</div>
-                    </div>
-                </div>
-
-                <!-- Sub-bar Status Header -->
-                <div class="rvd-status-bar">
-                    <div class="rvd-status-badge ${statusClass}">
-                        <span class="dot"></span>
-                        ${statusLabel} · ${rivalry.metric}
-                    </div>
-                    <div class="rvd-status-info">
-                        <span class="rvd-provider-pill" style="background:${getProviderColor(rivalry.provider)}">${rivalry.provider.toUpperCase()}</span>
-                        <span class="rvd-time${rivalry.daysLeft <= 3 && rivalry.status !== 'settled' ? ' urgent' : ''}">${timeLabel}</span>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Stepped Financial Performance Graph (Dominant centerpiece) -->
-        <div class="rvd-chart-section">
-            <div class="rvd-chart-panel">
-                <div class="rvd-chart-header">
-                    <div class="rvd-chart-title">Performance Log (Bloomberg Terminal Scale)</div>
-                    <div class="rvd-chart-legend">
-                        <div class="rvd-chart-legend-item">
-                            <div class="rvd-chart-legend-dot" style="background:${isLeading ? 'var(--rvd-green)' : 'var(--rvd-brand)'}"></div>
-                            ${rivalry.challenger.name}
-                        </div>
-                        <div class="rvd-chart-legend-item">
-                            <div class="rvd-chart-legend-dot" style="background:${!isLeading ? 'var(--rvd-green)' : 'var(--rvd-brand)'}"></div>
-                            ${rivalry.opponent.name}
-                        </div>
-                    </div>
-                </div>
-                <div class="rvd-chart-metrics">
-                    <div class="rvd-chart-metric-card" id="rvd-metric-chall">
-                        <div class="rvd-chart-metric-label">Challenger</div>
-                        <div class="rvd-chart-metric-value">${fmtMetric(rivalry.challenger.currentValue)}<span class="rvd-chart-metric-change ${rivalry.challenger.growth >= 0 ? 'positive' : 'negative'}">${rivalry.challenger.growth >= 0 ? '+' : ''}${rivalry.challenger.growth.toFixed(2)}%</span></div>
-                        <div class="rvd-chart-metric-target">Target: ${fmtMetric(rivalry.challenger.targetValue)} (+${rivalry.targetGrowthPct}%)</div>
-                    </div>
-                    <div class="rvd-chart-metric-card right" id="rvd-metric-opp">
-                        <div class="rvd-chart-metric-label">Opponent</div>
-                        <div class="rvd-chart-metric-value"><span class="rvd-chart-metric-change ${rivalry.opponent.growth >= 0 ? 'positive' : 'negative'}">${rivalry.opponent.growth >= 0 ? '+' : ''}${rivalry.opponent.growth.toFixed(2)}%</span>${fmtMetric(rivalry.opponent.currentValue)}</div>
-                        <div class="rvd-chart-metric-target">Target: ${fmtMetric(rivalry.opponent.targetValue)} (+${rivalry.targetGrowthPct}%)</div>
-                    </div>
-                </div>
-                <div class="rvd-chart-canvas" id="rvd-perf-chart"></div>
-                <div class="rvd-chart-footer">
-                    <span>Day 0</span>
-                    <span>Day ${Math.floor(rivalry.totalDays / 4)}</span>
-                    <span>Day ${Math.floor(rivalry.totalDays / 2)}</span>
-                    <span>Day ${Math.floor(rivalry.totalDays * 3 / 4)}</span>
-                    <span>Day ${rivalry.totalDays}</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Oracle Event Log (Addictive terminal blocks) -->
-        <div class="rvd-activity-container">
-            <div class="rvd-activity-card">
-                <div class="rvd-activity-hdr">
-                    <span style="width:5px; height:5px; border-radius:50%; background:var(--rvd-green); display:inline-block; animation:cl-core-pulse 1.5s infinite"></span>
-                    Oracle Event Log
-                </div>
-                <ul class="rvd-activity-list" id="rvd-activity-list">
-                    <!-- Hydrated dynamically with terminal logs -->
-                </ul>
-            </div>
-        </div>
-
-        <!-- 3-Column Protocol panels with subtle monochrome line icons -->
-        <div class="rvd-grid">
-            
-            <!-- Contract Terms Panel (📄) -->
-            <div class="rvd-panel">
-                <div class="rvd-panel-hdr">
-                    <span class="rvd-panel-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    </span>
-                    <h3 class="rvd-panel-title">Contract Terms &nbsp;&nbsp;📄</h3>
-                </div>
-                <div class="rvd-row">
-                    <span class="rvd-row-label">Growth Target</span>
-                    <span class="rvd-row-value" style="color:var(--rvd-brand); font-weight:800;">+${rivalry.targetGrowthPct}%</span>
-                </div>
-                <div class="rvd-row">
-                    <span class="rvd-row-label">Stake Per Side</span>
-                    <span class="rvd-row-value">$${rivalry.stake.toLocaleString()}</span>
-                </div>
-                <div class="rvd-row">
-                    <span class="rvd-row-label">Combined Pool</span>
-                    <span class="rvd-row-value" style="color:var(--rvd-green); font-weight:800;">$${pool.toLocaleString()}</span>
-                </div>
-                <div class="rvd-row">
-                    <span class="rvd-row-label">Contract Tier</span>
-                    <span class="rvd-row-value">${rivalry.rivalryTier}</span>
-                </div>
-            </div>
-
-            <!-- Settlement Rules Panel (⚖️) -->
-            <div class="rvd-panel">
-                <div class="rvd-panel-hdr">
-                    <span class="rvd-panel-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="12" y1="6" x2="12" y2="18"/><path d="M16 6a4 4 0 0 1-8 0"/></svg>
-                    </span>
-                    <h3 class="rvd-panel-title">Settlement Logic &nbsp;&nbsp;⚖️</h3>
-                </div>
-                <div class="rvd-row">
-                    <span class="rvd-row-label">Winner Takes Pool</span>
-                    <span class="rvd-row-value">True (Minus Fee)</span>
-                </div>
-                <div class="rvd-row">
-                    <span class="rvd-row-label">Protocol Fee</span>
-                    <span class="rvd-row-value" style="color:var(--rvd-brand)">12%</span>
-                </div>
-                <div class="rvd-row">
-                    <span class="rvd-row-label">Appeals Enforced</span>
-                    <span class="rvd-row-value">None - Automated</span>
-                </div>
-                <div class="rvd-row rvd-row-warning">
-                    <span class="rvd-row-label" style="color:var(--rvd-brand); font-weight:600;">Double Failure</span>
-                    <span class="rvd-row-value" style="color:var(--rvd-brand)">Protocol Forfeiture</span>
-                </div>
-            </div>
-
-            <!-- Verification Panel (🛰) -->
-            <div class="rvd-panel">
-                <div class="rvd-panel-hdr">
-                    <span class="rvd-panel-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10H12V2z"/><path d="M12 12A10 10 0 0 1 2 12h10V2z"/><path d="M12 12a10 10 0 0 1 10 0v10H12V12z"/><path d="M12 12a10 10 0 0 1 0 10H2V12h10z"/></svg>
-                    </span>
-                    <h3 class="rvd-panel-title">Verification &nbsp;&nbsp;🛰</h3>
-                </div>
-                <div class="rvd-row">
-                    <span class="rvd-row-label">Verification Provider</span>
-                    <span class="rvd-row-value">${rivalry.provider.toUpperCase()} API</span>
-                </div>
-                <div class="rvd-row">
-                    <span class="rvd-row-label">Immutable Oracle</span>
-                    <span class="rvd-row-value" style="color:var(--rvd-green)">Verified ✓</span>
-                </div>
-                <div class="rvd-row">
-                    <span class="rvd-row-label">API Data Source</span>
-                    <span class="rvd-row-value">Oracle Binding</span>
-                </div>
-                <div class="rvd-row">
-                    <span class="rvd-row-label">Baseline Lock</span>
-                    <span class="rvd-row-value">Immutable</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Actions Row -->
-        <div class="rvd-actions-row">
-            <div class="rvd-actions" id="rvd-actions">
-                <!-- Accept / Decline / Fund buttons populated dynamically -->
-            </div>
-            
-            <div class="rvd-share-group">
-                <button class="rvd-share-btn" onclick="navigator.clipboard.writeText(window.location.href).then(()=>window.CollateralModal.showAlert('Link copied!', { type: 'success', title: 'Copied' }))">COPY LINK</button>
-                <button class="rvd-share-btn" onclick="window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent('${rivalry.challenger.name} vs ${rivalry.opponent.name} — $${pool.toLocaleString()} at stake. ${rivalry.metric}. ' + window.location.href))">SHARE ON X</button>
-            </div>
-        </div>
-
-        <!-- Warning Disclaimer -->
-        <div class="rvd-warning">
-            <div class="rvd-warning-inner">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B2020" stroke-width="2" style="flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                <div class="rvd-warning-text">Real people. Real commitments. Real money. Live verification. Immutable settlement.</div>
-            </div>
-        </div>
-    `;
-
-    // ── Live Oracle Preview ──
-    (async () => {
-        try {
-            const currentUserId = window.appState?.userId;
-            if (!currentUserId) return;
-
-            let myRole = null;
-            if (currentUserId === rivalry._challengerUserId) myRole = 'challenger';
-            else if (currentUserId === rivalry._opponentUserId) myRole = 'opponent';
-            if (!myRole) return;
-
-            const METRIC_TO_KEY = {
-                SUBSCRIBERS: 'subscribers', FOLLOWERS: 'followers',
-                REVENUE: 'revenue', VIEWS: 'views',
-                GROSS_SALES: 'shopify_revenue', ORDER_COUNT: 'orders',
+        const sideOf = (part, userId, role) => {
+            const baseline = parseFloat(part.baselineValue || 0) || 0;
+            const growth = parseFloat(part.percentageDelta || 0) || 0;
+            const points = stamps.map((t) => {
+                const v = byTime.get(t)[userId];
+                if (v == null || !isFinite(v) || baseline <= 0) return null;
+                return { t: t, v: v, pct: ((v - baseline) / baseline) * 100 };
+            }).filter(Boolean);
+            // The current figure prefers the LATEST VERIFICATION over the
+            // stored delta: the series is what the oracle last said, and the
+            // stored column can lag it by a cycle.
+            const last = points.length ? points[points.length - 1] : null;
+            const prev = points.length > 1 ? points[points.length - 2] : null;
+            const pctNow = last ? last.pct : growth;
+            const current = last ? last.v : (baseline > 0 ? baseline * (1 + growth / 100) : null);
+            const target = (meta.targetRevenue && meta.targetRevenue[role] != null)
+                ? Number(meta.targetRevenue[role])
+                : (baseline > 0 ? Math.round(baseline * (1 + targetPct / 100)) : null);
+            return {
+                role: role,
+                userId: userId,
+                handle: '@' + (role === 'challenger' ? (r.challengerUsername || 'challenger') : (r.opponentUsername || 'opponent')),
+                baseline: baseline,
+                pct: pctNow,
+                delta: (last && prev) ? (last.pct - prev.pct) : null,
+                current: current,
+                target: target,
+                points: points,
+                payoutCents: part.payoutCents == null ? null : Number(part.payoutCents),
+                outcome: part.outcome || null,
+                funded: !!part.funded,
+                // how far still to run, and how much of the way there
+                toTarget: targetPct > 0 ? Math.max(0, targetPct - pctNow) : null,
+                ofWay: targetPct > 0 ? Math.max(0, Math.min(100, (pctNow / targetPct) * 100)) : null,
             };
-            const oracleMetric = METRIC_TO_KEY[rivalry.metricType] || rivalry.metricType?.toLowerCase() || 'followers';
+        };
 
-            const data = await api.getProviderPreview(rivalry.provider, oracleMetric);
-            if (data && data.status !== 'error' && data.current_baseline !== undefined) {
-                const liveBaseline = data.current_baseline || 0;
-                const targetPct = rivalry.targetGrowthPct;
-                const liveTarget = Math.round(liveBaseline * (1 + targetPct / 100));
-                const fmtLive = (v) => {
-                    if (rivalry.isMonetary) return '$' + (v / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-                    return Math.round(v).toLocaleString('en-US');
-                };
-                const unit = metricUnit();
+        const a = sideOf(chall, r.challengerUserId, 'challenger');
+        const b = sideOf(opp, r.opponentUserId, 'opponent');
 
-                const rivalryBaseline = myRole === 'challenger' ? rivalry.challenger.baseline : rivalry.opponent.baseline;
-                let liveGrowthPct = 0;
-                if (rivalryBaseline > 0) {
-                    liveGrowthPct = ((liveBaseline - rivalryBaseline) / rivalryBaseline * 100);
-                }
-                const growthSign = liveGrowthPct >= 0 ? '+' : '';
-                const growthClass = liveGrowthPct >= 0 ? 'positive' : 'negative';
-
-                document.querySelectorAll(`[data-live-role="${myRole}"]`).forEach(el => {
-                    el.innerHTML = `Current: <strong style="color:#111">${fmtLive(liveBaseline)}</strong> ${unit} · Target: <strong style="color:#5C1A1B">${fmtLive(liveTarget)}</strong>`;
-                });
-
-                const metricCardId = myRole === 'challenger' ? 'rvd-metric-chall' : 'rvd-metric-opp';
-                const metricCard = document.getElementById(metricCardId);
-                if (metricCard) {
-                    metricCard.querySelector('.rvd-chart-metric-value').innerHTML = `${fmtLive(liveBaseline)}<span class="rvd-chart-metric-change ${growthClass}">${growthSign}${liveGrowthPct.toFixed(2)}%</span>`;
-                }
-
-                if (chartEl && rivalry.status !== 'pending') {
-                    renderLiveChart(rivalry.metrics, rivalry._challengerUserId, rivalry._opponentUserId, rivalry.targetGrowthPct);
-                }
-            }
-        } catch (err) {
-            console.warn('[RivalryDetail] Oracle preview fetch failed:', err.message);
+        // cadence, MEASURED from the gaps rather than asserted
+        let cadence = null;
+        if (stamps.length > 1) {
+            const gaps = [];
+            for (let i = 1; i < stamps.length; i++) gaps.push(stamps[i] - stamps[i - 1]);
+            gaps.sort((x, y) => x - y);
+            const median = gaps[Math.floor(gaps.length / 2)];
+            const hours = median / 3600000;
+            cadence = hours >= 23 && hours <= 25
+                ? 'every 24h'
+                : (hours >= 1 ? 'every ' + Math.round(hours) + 'h' : 'every ' + Math.round(median / 60000) + 'm');
         }
-    })();
 
-    // ── Micro-interactions: Count Up Animations for Delta Pct ──
-    const pctElements = document.querySelectorAll('.count-up-pct');
-    pctElements.forEach(el => {
-        const target = parseFloat(el.getAttribute('data-target') || '0');
-        let current = 0;
-        const duration = 1200; // ms
-        const startTime = performance.now();
+        const state = String(r.state || '').toUpperCase();
+        const deadline = r.deadlineUtc ? new Date(r.deadlineUtc).getTime() : null;
+        const overdue = deadline != null && Date.now() > deadline;
+        let phase = 'pre';
+        if (state === 'SETTLED' || state === 'DRAW') phase = 'settled';
+        else if (state === 'SETTLING' || (overdue && ['ACTIVE', 'BOTH_FUNDED', 'VERIFYING', 'VERIFIED'].indexOf(state) !== -1)) phase = 'settling';
+        else if (['ACTIVE', 'BOTH_FUNDED', 'VERIFYING', 'VERIFIED'].indexOf(state) !== -1) phase = 'live';
 
-        function animate(now) {
-            const elapsed = now - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const easeProgress = 1 - Math.pow(1 - progress, 3);
-            current = easeProgress * target;
-            el.textContent = (current >= 0 ? '+' : '') + current.toFixed(2) + '%';
+        const winner = r.winnerUserId || null;
+        const draw = state === 'DRAW';
+        const margin = a.pct - b.pct;
 
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            }
-        }
-        requestAnimationFrame(animate);
-    });
-
-    // ── Addictive Oracle Event Log terminal feed generator ──
-    const activityList = document.getElementById('rvd-activity-list');
-    let oracleSecondsAgo = 0;
-
-    // We keep a history array of verification updates to simulate a terminal feed flow
-    const logHistory = [
-        {
-            time: '12:31:05',
-            title: 'Oracle verification complete',
-            details: `${rivalry.challenger.name}: +${rivalry.challenger.growth.toFixed(2)}% → +${(rivalry.challenger.growth + 0.19).toFixed(2)}%<br>${rivalry.opponent.name}: +${rivalry.opponent.growth.toFixed(2)}% → +${(rivalry.opponent.growth + 0.11).toFixed(2)}%`,
-            status: 'Verified',
-            margin: `+${(Math.abs(rivalry.challenger.growth - rivalry.opponent.growth) + 0.08).toFixed(2)}%`
-        },
-        {
-            time: '12:15:00',
-            title: 'Oracle verification complete',
-            details: `${rivalry.challenger.name}: +${(rivalry.challenger.growth - 0.14).toFixed(2)}% → +${rivalry.challenger.growth.toFixed(2)}%<br>${rivalry.opponent.name}: +${(rivalry.opponent.growth - 0.05).toFixed(2)}% → +${rivalry.opponent.growth.toFixed(2)}%`,
-            status: 'Verified',
-            margin: `+${(Math.abs(rivalry.challenger.growth - rivalry.opponent.growth)).toFixed(2)}%`
-        },
-        {
-            time: '12:00:00',
-            title: 'Oracle benchmark baseline lock',
-            details: `Platform: ${rivalry.provider.toUpperCase()} API connection initialized<br>Parameters: Growth Target +${rivalry.targetGrowthPct}% threshold`,
-            status: 'Secure',
-            margin: '0.00%'
-        }
-    ];
-
-    function renderTerminalLogs() {
-        if (!activityList) return;
-        activityList.innerHTML = logHistory.map((log, idx) => `
-            <li class="rvd-activity-item ${idx === 0 ? 'flash-update' : ''}">
-                <div class="rvd-activity-item-hdr">
-                    <span class="rvd-activity-line-left">
-                        <span class="rvd-activity-bullet ${idx === 0 ? 'active' : ''}"></span>
-                        <strong style="color:#111;">${log.title}</strong>
-                    </span>
-                    <span class="rvd-activity-time">${log.time}</span>
-                </div>
-                <div style="font-size:11px; color:#555; line-height:1.6; font-family:'JetBrains Mono',monospace;">
-                    ${log.details}
-                </div>
-                <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center; font-size:10px; border-top:1px dashed #eee; padding-top:6px; color:#888;">
-                    <span>Margin: <strong>${log.margin}</strong></span>
-                    <span>Status: <strong style="color:var(--rvd-green);">${log.status}</strong></span>
-                </div>
-            </li>
-        `).join('');
+        return {
+            id: r.id,
+            recordHash: r.recordHash || '',
+            state: state,
+            phase: phase,
+            draw: draw,
+            winnerUserId: winner,
+            metricType: metricType,
+            metricLabel: METRIC_LABELS[metricType] || metricType,
+            unit: UNIT_NOUN[metricType] || '',
+            platform: String(r.platform || '').toUpperCase(),
+            monetary: monetary,
+            fmtVal: fmtVal,
+            targetPct: targetPct,
+            perSide: (Number(r.stakePerSideCents) || 0) / 100,
+            pool: (Number(r.poolCents) || (Number(r.stakePerSideCents) || 0) * 2) / 100,
+            openedAt: r.activatedAt || r.acceptedAt || r.challengeIssuedAt || r.createdAt,
+            deadline: deadline,
+            settledAt: r.settledAt,
+            verifications: stamps.length,
+            cadence: cadence,
+            stamps: stamps,
+            byTime: byTime,
+            a: a, b: b,
+            margin: margin,
+            leader: Math.abs(margin) < 0.005 ? null : (margin > 0 ? a : b),
+            challengerUserId: r.challengerUserId,
+            opponentUserId: r.opponentUserId,
+        };
     }
 
-    function updateLiveActivity() {
-        oracleSecondsAgo++;
-        // Simulate a new oracle event log block arriving every 25 seconds
-        if (oracleSecondsAgo >= 25) {
-            oracleSecondsAgo = 0;
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
-            
-            // Random walk tick simulated to make the terminal updates addictive
-            const simulatedChallGrowth = rivalry.challenger.growth + (Math.random() * 0.3 - 0.1);
-            const simulatedOppGrowth = rivalry.opponent.growth + (Math.random() * 0.2 - 0.05);
-            const newMargin = Math.abs(simulatedChallGrowth - simulatedOppGrowth);
+    let m = build(raw, series);
 
-            logHistory.unshift({
-                time: timeStr,
-                title: 'Oracle verification complete',
-                details: `${rivalry.challenger.name}: +${rivalry.challenger.growth.toFixed(2)}% → +${simulatedChallGrowth.toFixed(2)}%<br>${rivalry.opponent.name}: +${rivalry.opponent.growth.toFixed(2)}% → +${simulatedOppGrowth.toFixed(2)}%`,
-                status: 'Verified',
-                margin: `+${newMargin.toFixed(2)}%`
-            });
-
-            // Keep maximum 4 items
-            if (logHistory.length > 4) logHistory.pop();
-
-            // Pulse the margin card when oracle verification resolves
-            const marginLabel = document.querySelector('.rvd-rivalry-bar-hdr span:nth-child(2)');
-            if (marginLabel) {
-                marginLabel.style.transition = 'transform 0.2s ease, color 0.2s ease';
-                marginLabel.style.color = '#154726';
-                marginLabel.style.transform = 'scale(1.08)';
-                setTimeout(() => {
-                    marginLabel.style.color = '';
-                    marginLabel.style.transform = 'scale(1)';
-                }, 400);
-            }
-        }
-        renderTerminalLogs();
+    // ═══════════════════════════════════════════════════════════════════
+    // Render
+    // ═══════════════════════════════════════════════════════════════════
+    function statusText(model) {
+        if (model.phase === 'settled') return model.draw ? 'Draw' : 'Settled';
+        if (model.phase === 'settling') return 'Settling';
+        if (model.phase === 'live') return 'Live';
+        if (model.state === 'CHALLENGE_ISSUED') return 'Awaiting opponent';
+        if (model.state === 'ACCEPTED') return 'Awaiting funds';
+        return model.state.replace(/_/g, ' ').toLowerCase();
     }
-    updateLiveActivity();
-    if (window._rvdActivityInterval) clearInterval(window._rvdActivityInterval);
-    window._rvdActivityInterval = setInterval(updateLiveActivity, 1000);
+    function statusTone(model) {
+        if (model.phase === 'live') return 'win';
+        if (model.phase === 'settled') return model.draw ? 'mut' : 'win';
+        return 'ox';
+    }
 
-    // ── Render Performance Chart (SVG) ──
-    const chartEl = document.getElementById('rvd-perf-chart');
+    function sectionHead(label, right) {
+        const h = el('div', 'rv-shead');
+        const lab = el('span', 'lab');
+        lab.appendChild(el('span', 'rv-mark'));
+        lab.appendChild(document.createTextNode(label));
+        h.appendChild(lab);
+        h.appendChild(el('span', 'ln'));
+        if (right) h.appendChild(el('span', 'rt', right));
+        return h;
+    }
 
-    function renderLiveChart(metricsData, challUserId, oppUserId, targetPct) {
-        if (!chartEl) return;
+    function renderHeader(model) {
+        const frag = document.createDocumentFragment();
 
-        const challPoints = [];
-        const oppPoints = [];
-        let challBaseline = null;
-        let oppBaseline = null;
+        const kick = el('div', 'rv-kick');
+        kick.appendChild(el('span', 'r'));
+        kick.appendChild(document.createTextNode('Rivalry · ' + model.metricLabel + ' · '));
+        const st = el('span', 'st ' + (statusTone(model) === 'win' ? '' : statusTone(model)));
+        const dot = el('span', 'rv-livedot' + (model.phase === 'live' ? '' : (model.phase === 'settled' ? ' mut' : ' ox')));
+        dot.setAttribute('style', 'width:7px;height:7px');
+        st.appendChild(dot);
+        st.appendChild(document.createTextNode(statusText(model)));
+        kick.appendChild(st);
+        frag.appendChild(kick);
 
-        const sortedMetrics = (metricsData || []).slice().sort((a, b) => {
-            const ta = new Date(a.fetchedAt || a.fetched_at).getTime();
-            const tb = new Date(b.fetchedAt || b.fetched_at).getTime();
-            return ta - tb;
-        });
+        const head = el('div', 'rv-head');
+        const left = el('div');
+        const matchup = el('div', 'rv-matchup');
+        const aLead = model.leader === model.a;
+        const bLead = model.leader === model.b;
+        matchup.appendChild(el('span', 'rv-mh ' + (model.leader == null ? 'even' : (aLead ? 'lead' : 'trail')), model.a.handle));
+        const vsd = el('span', 'rv-vsd');
+        vsd.appendChild(el('span', 'd'));
+        vsd.appendChild(el('span', null, 'VS'));
+        matchup.appendChild(vsd);
+        matchup.appendChild(el('span', 'rv-mh ' + (model.leader == null ? 'even' : (bLead ? 'lead' : 'trail')), model.b.handle));
+        left.appendChild(matchup);
 
-        sortedMetrics.forEach(m => {
-            const val = parseFloat(m.metricValue || m.metric_value || 0);
-            const ts = new Date(m.fetchedAt || m.fetched_at);
-            if (m.userId === challUserId || m.user_id === challUserId) {
-                if (challBaseline === null) challBaseline = val;
-                const rawPct = challBaseline ? ((val - challBaseline) / challBaseline) * 100 : 0;
-                challPoints.push({ t: ts, v: val, pct: Math.max(0, Math.min(rawPct, 100)) });
-            } else if (m.userId === oppUserId || m.user_id === oppUserId) {
-                if (oppBaseline === null) oppBaseline = val;
-                const rawPct = oppBaseline ? ((val - oppBaseline) / oppBaseline) * 100 : 0;
-                oppPoints.push({ t: ts, v: val, pct: Math.max(0, Math.min(rawPct, 100)) });
+        // The contract's own id, formatted the way the ledger prints it.
+        const idStr = String(model.id || '');
+        const label = idStr.length >= 12
+            ? idStr.slice(0, 8).toUpperCase() + '·' + idStr.slice(9, 12).toUpperCase()
+            : idStr.toUpperCase();
+        left.appendChild(el('div', 'rv-sub',
+            'Contract No. ' + label + ' · Head-to-head · Opened ' + fmtDate(model.openedAt)));
+        head.appendChild(left);
+
+        const pool = el('div', 'rv-pool');
+        pool.appendChild(el('div', 'k', model.phase === 'settled' ? 'Settled pool' : 'Total prize pool'));
+        pool.appendChild(el('div', 'v', '$' + model.pool.toLocaleString('en-US')));
+        pool.appendChild(el('div', 's', '$' + model.perSide.toLocaleString('en-US') + ' per side'));
+        head.appendChild(pool);
+        frag.appendChild(head);
+
+        // ---- facts: metadata only
+        const facts = el('div', 'rv-facts');
+        const fact = (k, v, tone, dotCls) => {
+            const f = el('div', 'rv-fact');
+            f.appendChild(el('div', 'k', k));
+            const val = el('div', 'v' + (tone ? ' ' + tone : ''));
+            if (dotCls) {
+                const d = el('span', dotCls);
+                d.setAttribute('style', 'width:7px;height:7px');
+                val.appendChild(d);
             }
-        });
+            val.appendChild(document.createTextNode(v));
+            f.appendChild(val);
+            return f;
+        };
+        facts.appendChild(fact('Contract status', statusText(model),
+            statusTone(model) === 'win' ? 'win' : 'ox',
+            'rv-livedot' + (model.phase === 'live' ? '' : (model.phase === 'settled' ? ' mut' : ' ox'))));
 
-        challPoints.sort((a, b) => a.t - b.t);
-        oppPoints.sort((a, b) => a.t - b.t);
+        let settles = '—';
+        if (model.phase === 'settled' && model.settledAt) settles = fmtDate(model.settledAt);
+        else if (model.deadline != null) {
+            const d = Math.ceil((model.deadline - Date.now()) / 86400000);
+            settles = fmtDate(model.deadline) + ' · ' + (d > 0 ? d + 'd left' : 'deadline passed');
+        }
+        const settleFact = fact('Settles', settles);
+        settleFact.querySelector('.v').id = 'rv-settles';
+        facts.appendChild(settleFact);
 
-        // Centerpiece enlarged viewport sizing
-        const W = 900, H = 440, PAD_L = 50, PAD_R = 100, PAD_T = 30, PAD_B = 30;
+        facts.appendChild(fact('Oracle',
+            (model.platform || '—') + (model.cadence ? ' · ' + model.cadence : '')));
+        facts.appendChild(fact('Verifications',
+            model.verifications ? model.verifications + ' · read-only' : 'None yet'));
+        frag.appendChild(facts);
 
-        // If no time-series data, fallback to rendering a flat Bloomberg-style benchmark chart
-        if (challPoints.length === 0 && oppPoints.length === 0) {
-            const challGrowth = rivalry.challenger.growth;
-            const oppGrowth = rivalry.opponent.growth;
-            
-            const plotW = W - PAD_L - PAD_R;
-            const plotH = H - PAD_T - PAD_B;
-            const maxY = Math.max(targetPct * 1.3, Math.abs(challGrowth) * 1.5, Math.abs(oppGrowth) * 1.5, 5);
-            
-            const toX = (dayFrac) => PAD_L + (dayFrac * plotW);
-            const toY = (pct) => PAD_T + plotH - (pct / maxY * plotH);
-            
-            const challColor = 'var(--rvd-green)';
-            const oppColor = 'var(--rvd-brand)';
-            const zeroY = toY(0);
-            const tgtY = toY(targetPct);
-            const challY = toY(Math.max(0, challGrowth));
-            const oppY = toY(Math.max(0, oppGrowth));
+        return frag;
+    }
 
-            let gridSvg = '';
-            const gridSteps = [0, Math.round(targetPct/3), Math.round(targetPct*2/3), targetPct, Math.round(targetPct*1.2)].filter((v,i,a) => a.indexOf(v) === i);
-            gridSteps.forEach(pct => {
-                const y = toY(pct).toFixed(1);
-                gridSvg += `<line x1="${PAD_L}" y1="${y}" x2="${W - PAD_R}" y2="${y}" stroke="#f3f3f3" stroke-width="1"/>`; // Softer gridlines
-                if (pct !== targetPct) {
-                    gridSvg += `<text x="${W - PAD_R + 6}" y="${parseFloat(y) + 3}" font-family="Inter, monospace" font-size="8" fill="#aaa">+${pct}%</text>`;
-                }
-            });
+    function renderDuel(model) {
+        const frag = document.createDocumentFragment();
+        frag.appendChild(sectionHead('Head-to-Head',
+            model.phase === 'settled' ? 'Final standings' : 'Live standings'));
 
-            let dayMarkers = '';
-            const daySteps = [0, Math.floor(rivalry.totalDays/4), Math.floor(rivalry.totalDays/2), Math.floor(rivalry.totalDays*3/4), rivalry.totalDays];
-            daySteps.forEach(d => {
-                const x = toX(d / rivalry.totalDays).toFixed(1);
-                dayMarkers += `<text x="${x}" y="${H - 8}" text-anchor="middle" font-family="Inter, monospace" font-size="8" fill="#ccc">Day ${d}</text>`;
-                dayMarkers += `<line x1="${x}" y1="${PAD_T}" x2="${x}" y2="${H - PAD_B}" stroke="#fbfbfb" stroke-width="1"/>`;
-            });
+        const box = el('div', 'rv-duelbox');
 
-            const now = Date.now();
-            const startMs = new Date(rivalry._activatedAt).getTime();
-            const elapsed = Math.max(0, now - startMs);
-            const dayFrac = Math.min(1, elapsed / (rivalry.totalDays * 86400000));
-            const curX = toX(dayFrac).toFixed(1);
-            const endX = toX(1).toFixed(1);
-            const projTY = tgtY.toFixed(1);
+        /* WHERE THE PROBABILITY BAR WAS.
+           The margin is a real subtraction of two verified percentages, so it
+           is stated. A win probability is not — nothing computes one — and the
+           bar that used to sit here filled itself from 50 + margin*4. */
+        const lead = el('div', 'rv-leadby');
+        if (model.phase === 'settled') {
+            if (model.draw) lead.textContent = 'Settled as a draw — neither side took the pool';
+            else {
+                const w = model.winnerUserId === model.a.userId ? model.a
+                    : (model.winnerUserId === model.b.userId ? model.b : null);
+                if (w) {
+                    lead.appendChild(document.createTextNode('Won by '));
+                    lead.appendChild(el('b', 'win', w.handle));
+                    lead.appendChild(document.createTextNode(' by ' + Math.abs(model.margin).toFixed(2) + '% margin'));
+                } else lead.textContent = 'Settled';
+            }
+        } else if (model.leader == null) {
+            lead.textContent = model.verifications ? 'Level — no margin between the two' : 'No verification yet';
+        } else {
+            lead.appendChild(document.createTextNode(''));
+            lead.appendChild(el('b', 'win', model.leader.handle));
+            lead.appendChild(document.createTextNode(' leads by '));
+            lead.appendChild(el('b', 'win', '+' + Math.abs(model.margin).toFixed(2) + '%'));
+            lead.appendChild(document.createTextNode(' margin'));
+        }
+        box.appendChild(lead);
 
-            chartEl.innerHTML = `
-                <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%">
-                    <defs>
-                        <linearGradient id="g-chall-a" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="${challColor}" stop-opacity="0.12"/>
-                            <stop offset="100%" stop-color="${challColor}" stop-opacity="0.01"/>
-                        </linearGradient>
-                        <linearGradient id="g-opp-a" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="${oppColor}" stop-opacity="0.08"/>
-                            <stop offset="100%" stop-color="${oppColor}" stop-opacity="0.01"/>
-                        </linearGradient>
-                        <filter id="dg2" x="-50%" y="-50%" width="200%" height="200%">
-                            <feGaussianBlur stdDeviation="3" result="g"/>
-                            <feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge>
-                        </filter>
-                    </defs>
-                    ${gridSvg}
-                    ${dayMarkers}
-                    <line x1="${PAD_L}" y1="${projTY}" x2="${W - PAD_R}" y2="${projTY}" stroke="var(--rvd-brand)" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.6"/>
-                    <rect x="${W - PAD_R + 2}" y="${tgtY - 9}" width="78" height="18" rx="0" fill="var(--rvd-brand)"/>
-                    <text x="${W - PAD_R + 41}" y="${tgtY + 3}" text-anchor="middle" font-family="Inter, monospace" font-size="8" font-weight="700" fill="#fff">+${targetPct}% TARGET</text>
-                    <line x1="${PAD_L}" y1="${zeroY.toFixed(1)}" x2="${W - PAD_R}" y2="${zeroY.toFixed(1)}" stroke="#ccc" stroke-width="1.5"/>
-                    
-                    <path d="M${PAD_L},${zeroY} L${curX},${challY} L${curX},${zeroY} Z" fill="url(#g-chall-a)"/>
-                    <line x1="${PAD_L}" y1="${zeroY}" x2="${curX}" y2="${challY}" stroke="${challColor}" stroke-width="2.5" stroke-linecap="round"/>
-                    <circle cx="${curX}" cy="${challY}" r="5" fill="${challColor}" stroke="#fff" stroke-width="2" class="live-endpoint-dot" filter="url(#dg2)"/>
-                    
-                    <path d="M${PAD_L},${zeroY} L${curX},${oppY} L${curX},${zeroY} Z" fill="url(#g-opp-a)"/>
-                    <line x1="${PAD_L}" y1="${zeroY}" x2="${curX}" y2="${oppY}" stroke="${oppColor}" stroke-width="2.5" stroke-linecap="round"/>
-                    <circle cx="${curX}" cy="${oppY}" r="5" fill="${oppColor}" stroke="#fff" stroke-width="2"/>
-                </svg>`;
-            return;
+        const duel = el('div', 'rv-duel');
+        duel.appendChild(sidePanel(model, model.a));
+        const vs = el('div', 'rv-vscol');
+        vs.appendChild(el('span', 'm'));
+        vs.appendChild(el('span', 'vt', 'VS'));
+        vs.appendChild(el('span', 'm'));
+        duel.appendChild(vs);
+        duel.appendChild(sidePanel(model, model.b));
+        box.appendChild(duel);
+
+        // ---- the money, once
+        const escrow = el('div', 'rv-escrow');
+        escrow.appendChild(el('span', 'rv-mark'));
+        if (model.phase === 'settled' && !model.draw) {
+            const w = model.winnerUserId === model.a.userId ? model.a
+                : (model.winnerUserId === model.b.userId ? model.b : null);
+            const paid = w && w.payoutCents != null ? w.payoutCents / 100 : model.pool;
+            escrow.classList.add('paid');
+            escrow.appendChild(document.createTextNode(
+                '$' + paid.toLocaleString('en-US') + ' paid to ' + (w ? w.handle : 'the winner') + ' · '));
+            escrow.appendChild(el('span', 'hash', (model.recordHash || model.id).slice(0, 16)));
+        } else if (model.phase === 'settling') {
+            escrow.appendChild(document.createTextNode(
+                'Both stakes — $' + model.perSide.toLocaleString('en-US')
+                + ' per side — held pending final verification'));
+        } else {
+            escrow.appendChild(document.createTextNode(
+                'Both stakes — $' + model.perSide.toLocaleString('en-US')
+                + ' per side — locked in escrow until settlement'));
+        }
+        box.appendChild(escrow);
+
+        frag.appendChild(box);
+        return frag;
+    }
+
+    function sidePanel(model, s) {
+        const isLeader = model.leader === s;
+        const settled = model.phase === 'settled';
+        const won = settled && !model.draw && model.winnerUserId === s.userId;
+        const lost = settled && !model.draw && model.winnerUserId && model.winnerUserId !== s.userId;
+
+        let tone = 'even';
+        if (settled) tone = won ? 'lead' : (lost ? 'trail' : 'even');
+        else if (model.leader != null) tone = isLeader ? 'lead' : 'trail';
+
+        const side = el('div', 'rv-side ' + tone);
+        side.appendChild(el('span', 'reg bl'));
+
+        const top = el('div', 'rv-s-top');
+        top.appendChild(el('span', 'rv-s-role', s.role === 'challenger' ? 'Challenger' : 'Opponent'));
+        let badgeText = 'Even';
+        if (settled) badgeText = model.draw ? 'Draw' : (won ? 'Won' : (lost ? 'Lost' : 'Settled'));
+        else if (model.leader != null) badgeText = isLeader ? 'Leading' : 'Trailing';
+        else if (model.phase === 'pre') badgeText = s.funded ? 'Funded' : 'Unfunded';
+        top.appendChild(el('span', 'rv-s-badge ' + tone, badgeText));
+        side.appendChild(top);
+
+        side.appendChild(el('div', 'rv-s-name', s.handle));
+
+        const pctCls = tone === 'lead' ? 'win' : (tone === 'trail' ? 'los' : 'mut');
+        const pctEl = el('div', 'rv-s-pct ' + pctCls,
+            model.verifications ? pct2(s.pct) : '—');
+        pctEl.setAttribute('data-side', s.role);
+        side.appendChild(pctEl);
+
+        const d = el('div', 'rv-s-delta');
+        if (s.delta == null) {
+            d.textContent = model.verifications < 2 ? 'No prior verification to compare' : 'Unchanged since last verification';
+        } else {
+            const up = s.delta >= 0;
+            d.appendChild(el('span', up ? 'up' : 'dn', (up ? '▲ +' : '▼ −') + Math.abs(s.delta).toFixed(2) + '%'));
+            d.appendChild(document.createTextNode(' since last verification'));
+        }
+        side.appendChild(d);
+
+        const mets = el('div', 'rv-s-metrics');
+        const mk = (k, v, right) => {
+            const c = el('div', 'm' + (right ? ' r' : ''));
+            c.appendChild(el('div', 'mk', k));
+            c.appendChild(el('div', 'mv', v));
+            return c;
+        };
+        const unit = model.unit ? ' ' + model.unit : '';
+        mets.appendChild(mk('Current metric', model.fmtVal(s.current) + unit));
+        mets.appendChild(mk('Target (+' + model.targetPct + '%)', model.fmtVal(s.target) + unit, true));
+        side.appendChild(mets);
+
+        const prog = el('div', 'rv-s-prog');
+        const fill = el('div', 'f');
+        fill.setAttribute('style', 'width:' + (s.ofWay == null ? 0 : s.ofWay.toFixed(1)) + '%');
+        prog.appendChild(fill);
+        side.appendChild(prog);
+
+        const tag = el('span', 'rv-s-tag');
+        tag.appendChild(el('span', 'd'));
+        if (s.toTarget == null || !model.verifications) {
+            tag.appendChild(document.createTextNode('Target not measured yet'));
+        } else if (s.toTarget <= 0) {
+            tag.appendChild(document.createTextNode('Target met · ' + s.pct.toFixed(1) + '% of ' + model.targetPct + '%'));
+        } else {
+            tag.appendChild(document.createTextNode(
+                s.toTarget.toFixed(1) + '% from target · ' + Math.round(s.ofWay) + '% of the way'));
+        }
+        side.appendChild(tag);
+        return side;
+    }
+
+    /* ── the performance log ─────────────────────────────────────────────
+       Step interpolation, because a verification is a reading taken at an
+       instant and the value HOLDS until the next one — sloping between two
+       readings would draw growth that was never measured. */
+    function renderChart(model) {
+        const frag = document.createDocumentFragment();
+        frag.appendChild(sectionHead('Performance Log',
+            'Verified oracle series' + (model.platform ? ' · ' + model.platform : '')));
+
+        const card = el('div', 'rv-chartcard');
+        const top = el('div', 'rv-chart-top');
+        const legend = el('div', 'rv-legend');
+        const lg = (cls, handle, pct) => {
+            const s = el('span', 'rv-lg');
+            s.appendChild(el('span', 'sw ' + cls));
+            s.appendChild(document.createTextNode(handle + (pct == null ? '' : ' · ' + pct2(pct))));
+            return s;
+        };
+        legend.appendChild(lg('g', model.a.handle, model.verifications ? model.a.pct : null));
+        legend.appendChild(lg('o', model.b.handle, model.verifications ? model.b.pct : null));
+        top.appendChild(legend);
+        top.appendChild(el('span', 'rv-oev-time', 'Growth vs baseline'));
+        card.appendChild(top);
+
+        if (!model.a.points.length && !model.b.points.length) {
+            card.appendChild(el('div', 'rv-chart-empty', 'No verifications recorded yet'));
+            frag.appendChild(card);
+            return frag;
         }
 
-        const challCurrent = challPoints.length > 0 ? challPoints[challPoints.length - 1].pct : 0;
-        const oppCurrent = oppPoints.length > 0 ? oppPoints[oppPoints.length - 1].pct : 0;
-        const challLeading = challCurrent >= oppCurrent;
+        const W = 1060, H = 300, PAD_L = 52, PAD_R = 66, PAD_T = 36, PAD_B = 22;
+        const all = model.a.points.concat(model.b.points);
+        const maxPct = Math.max(model.targetPct, ...all.map(p => p.pct));
+        const minPct = Math.min(0, ...all.map(p => p.pct));
+        // Headroom so the target line sits near the top with room for its label.
+        const yMax = Math.max(model.targetPct, maxPct * 1.05) || 1;
+        const yMin = minPct;
+        const range = (yMax - yMin) || 1;
+        const tMin = model.stamps[0];
+        const tMax = model.stamps[model.stamps.length - 1];
+        const tRange = (tMax - tMin) || 1;
+        const toX = (t) => PAD_L + ((t - tMin) / tRange) * (W - PAD_L - PAD_R);
+        const toY = (p) => PAD_T + ((yMax - p) / range) * (H - PAD_T - PAD_B);
 
-        const challColor = 'var(--rvd-green)';
-        const oppColor = 'var(--rvd-brand)';
+        const svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'rv-chart', role: 'img' });
+        const title = svgEl('title', {});
+        title.textContent = model.a.handle + ' ' + pct2(model.a.pct) + ' versus '
+            + model.b.handle + ' ' + pct2(model.b.pct) + ', against a target of +' + model.targetPct + '%';
+        svg.appendChild(title);
 
-        const allPcts = [...challPoints.map(p => p.pct), ...oppPoints.map(p => p.pct), 0, targetPct];
-        const minPct = Math.max(0, Math.min(...allPcts) - 1);
-        const maxPct = Math.max(...allPcts) + 2;
-        const range = maxPct - minPct || 1;
+        // gridlines on a round step
+        const step = range > 40 ? 10 : (range > 16 ? 5 : (range > 8 ? 2 : 1));
+        for (let g = Math.ceil(yMin / step) * step; g <= yMax + 0.001; g += step) {
+            const y = toY(g);
+            svg.appendChild(svgEl('line', { x1: PAD_L, y1: y.toFixed(1), x2: W - PAD_R + 60, y2: y.toFixed(1),
+                stroke: 'rgba(70,55,35,.11)', 'stroke-width': 1 }));
+            const t = svgEl('text', { x: PAD_L - 9, y: (y + 3).toFixed(1), 'font-family': 'IBM Plex Mono,monospace',
+                'font-size': 11, fill: '#8A7C5E', 'text-anchor': 'end' });
+            t.textContent = g + '%';
+            svg.appendChild(t);
+        }
 
-        const allTimes = [...challPoints.map(p => p.t.getTime()), ...oppPoints.map(p => p.t.getTime())];
-        const tMin = Math.min(...allTimes);
-        const tMax = Math.max(...allTimes);
-        const tRange = tMax - tMin || 1;
+        // the target line
+        const ty = toY(model.targetPct);
+        svg.appendChild(svgEl('line', { x1: PAD_L, y1: ty.toFixed(1), x2: W - PAD_R + 60, y2: ty.toFixed(1),
+            stroke: '#7C1D2B', 'stroke-width': 1, 'stroke-dasharray': '5 4', opacity: '.55' }));
+        const tl = svgEl('text', { x: W - PAD_R + 60, y: (ty - 6).toFixed(1), 'font-family': 'IBM Plex Mono,monospace',
+            'font-size': 10, 'letter-spacing': 1, fill: '#7C1D2B', 'text-anchor': 'end' });
+        tl.textContent = 'TARGET · +' + model.targetPct + '%';
+        svg.appendChild(tl);
 
-        function toX(t) { return PAD_L + ((t - tMin) / tRange) * (W - PAD_L - PAD_R); }
-        function toY(pct) { return PAD_T + ((maxPct - pct) / range) * (H - PAD_T - PAD_B); }
-
-        function buildPath(pts) {
-            if (pts.length === 0) return '';
-            let d = `M${toX(pts[0].t.getTime()).toFixed(1)},${toY(pts[0].pct).toFixed(1)}`;
+        const stepPath = (pts, close) => {
+            if (!pts.length) return '';
+            let d = 'M' + toX(pts[0].t).toFixed(1) + ' ' + toY(pts[0].pct).toFixed(1);
             for (let i = 1; i < pts.length; i++) {
-                const x = toX(pts[i].t.getTime()).toFixed(1);
-                const y = toY(pts[i].pct).toFixed(1);
-                const prevY = toY(pts[i-1].pct).toFixed(1);
-                d += ` L${x},${prevY} L${x},${y}`;
+                d += ' L' + toX(pts[i].t).toFixed(1) + ' ' + toY(pts[i - 1].pct).toFixed(1);
+                d += ' L' + toX(pts[i].t).toFixed(1) + ' ' + toY(pts[i].pct).toFixed(1);
+            }
+            if (close) {
+                const base = toY(Math.max(yMin, 0)).toFixed(1);
+                d += ' L' + toX(pts[pts.length - 1].t).toFixed(1) + ' ' + base;
+                d += ' L' + toX(pts[0].t).toFixed(1) + ' ' + base + ' Z';
             }
             return d;
-        }
-        function buildAreaPath(pts) {
-            if (pts.length === 0) return '';
-            const line = buildPath(pts);
-            const lastX = toX(pts[pts.length - 1].t.getTime()).toFixed(1);
-            const firstX = toX(pts[0].t.getTime()).toFixed(1);
-            const baseY = toY(0).toFixed(1);
-            return `${line} L${lastX},${baseY} L${firstX},${baseY} Z`;
-        }
+        };
 
-        const gridCount = 5;
-        let gridSvg = '';
-        for (let i = 0; i <= gridCount; i++) {
-            const pct = minPct + (range / gridCount) * i;
-            const y = toY(pct);
-            gridSvg += `<line x1="${PAD_L}" y1="${y}" x2="${W - PAD_R}" y2="${y}" stroke="#f3f3f3" stroke-width="1"/>`; // Softer gridlines
-            gridSvg += `<text x="${PAD_L - 8}" y="${y + 4}" text-anchor="end" font-family="Inter, monospace" font-size="9" fill="#aaa" font-weight="500">${pct.toFixed(0)}%</text>`;
-        }
+        const draw = (pts, stroke, fill, width) => {
+            if (!pts.length) return;
+            svg.appendChild(svgEl('path', { d: stepPath(pts, true), fill: fill, stroke: 'none' }));
+            svg.appendChild(svgEl('path', { d: stepPath(pts, false), fill: 'none', stroke: stroke,
+                'stroke-width': width, 'stroke-linejoin': 'round' }));
+        };
+        draw(model.b.points, '#7C1D2B', 'rgba(124,29,43,.06)', 2);
+        draw(model.a.points, '#4E6B3E', 'rgba(78,107,62,.09)', 2.2);
 
-        const zeroY = toY(0);
-        gridSvg += `<line x1="${PAD_L}" y1="${zeroY}" x2="${W - PAD_R}" y2="${zeroY}" stroke="#ccc" stroke-width="1.5"/>`;
+        /* THE HEADROOM ANNOTATION. The space above the two lines is the
+           distance still to run, so it is labelled as that rather than left
+           as dead air: a dotted riser from each end dot up to the target. */
+        const riser = (pts, colour, dx, opacity) => {
+            if (!pts.length) return;
+            const p = pts[pts.length - 1];
+            const x = toX(p.t) + dx;
+            if (toY(p.pct) - ty < 6) return;
+            svg.appendChild(svgEl('line', { x1: x.toFixed(1), y1: toY(p.pct).toFixed(1), x2: x.toFixed(1), y2: ty.toFixed(1),
+                stroke: colour, 'stroke-width': 1, 'stroke-dasharray': '2 3', opacity: opacity }));
+        };
+        riser(model.a.points, '#4E6B3E', 0, '.5');
+        riser(model.b.points, '#7C1D2B', -14, '.4');
 
-        const targetY = toY(targetPct);
-        gridSvg += `<line x1="${PAD_L}" y1="${targetY}" x2="${W - PAD_R}" y2="${targetY}" stroke="var(--rvd-brand)" stroke-width="1" stroke-dasharray="6 4" opacity="0.6"/>`;
-        gridSvg += `<text x="${W - PAD_R + 4}" y="${targetY + 3}" font-family="Inter, monospace" font-size="8" font-weight="700" fill="var(--rvd-brand)" opacity="0.8">TARGET +${targetPct}%</text>`;
+        const note = (yOff, colour, handle, remaining) => {
+            if (remaining == null) return;
+            const g = svgEl('g', { 'font-family': 'IBM Plex Mono,monospace', 'font-size': 11 });
+            g.appendChild(svgEl('rect', { x: PAD_L + 18, y: (PAD_T + yOff).toFixed(1), width: 8, height: 8, fill: colour }));
+            const t = svgEl('text', { x: PAD_L + 32, y: (PAD_T + yOff + 7).toFixed(1), fill: '#574E3D' });
+            t.textContent = handle + ' — ';
+            const s = svgEl('tspan', { fill: colour });
+            s.textContent = remaining <= 0 ? 'target met' : remaining.toFixed(1) + '% to target';
+            t.appendChild(s);
+            g.appendChild(t);
+            svg.appendChild(g);
+        };
+        note(14.6, '#4E6B3E', model.a.handle, model.a.toTarget);
+        note(38.8, '#7C1D2B', model.b.handle, model.b.toTarget);
 
-        const challPath = buildPath(challPoints);
-        const oppPath = buildPath(oppPoints);
-        const challArea = buildAreaPath(challPoints);
-        const oppArea = buildAreaPath(oppPoints);
+        const dot = (pts, colour) => {
+            if (!pts.length) return;
+            const p = pts[pts.length - 1];
+            svg.appendChild(svgEl('circle', { cx: toX(p.t).toFixed(1), cy: toY(p.pct).toFixed(1), r: 4.5,
+                fill: colour, stroke: '#F5EDDA', 'stroke-width': 1.5 }));
+        };
+        dot(model.a.points, '#4E6B3E');
+        dot(model.b.points, '#7C1D2B');
 
-        const challEnd = challPoints.length > 0 ? challPoints[challPoints.length - 1] : null;
-        const oppEnd = oppPoints.length > 0 ? oppPoints[oppPoints.length - 1] : null;
-
-        let endDots = '';
-        if (challEnd) {
-            const cx = toX(challEnd.t.getTime()).toFixed(1);
-            const cy = toY(challEnd.pct).toFixed(1);
-            endDots += `<line x1="${cx}" y1="${cy}" x2="${W - PAD_R}" y2="${cy}" stroke="${challColor}" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>`;
-            endDots += `<circle cx="${cx}" cy="${cy}" r="5" fill="${challColor}" stroke="#fff" stroke-width="2" class="live-endpoint-dot" filter="url(#dot-glow)"/>`;
-            endDots += `<rect x="${W - PAD_R + 4}" y="${parseFloat(cy) - 10}" width="68" height="20" rx="0" fill="${challColor}" opacity="0.9"/>`;
-            endDots += `<text x="${W - PAD_R + 38}" y="${parseFloat(cy) + 3.5}" text-anchor="middle" font-family="Inter, monospace" font-size="9" font-weight="700" fill="#fff">${challEnd.pct >= 0 ? '+' : ''}${challEnd.pct.toFixed(1)}%</text>`;
-        }
-        if (oppEnd) {
-            const cx = toX(oppEnd.t.getTime()).toFixed(1);
-            const cy = toY(oppEnd.pct).toFixed(1);
-            endDots += `<line x1="${cx}" y1="${cy}" x2="${W - PAD_R}" y2="${cy}" stroke="${oppColor}" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>`;
-            endDots += `<circle cx="${cx}" cy="${cy}" r="5" fill="${oppColor}" stroke="#fff" stroke-width="2" class="live-endpoint-dot" filter="url(#dot-glow)"/>`;
-            endDots += `<rect x="${W - PAD_R + 4}" y="${parseFloat(cy) - 10}" width="68" height="20" rx="0" fill="${oppColor}" opacity="0.9"/>`;
-            endDots += `<text x="${W - PAD_R + 38}" y="${parseFloat(cy) + 3.5}" text-anchor="middle" font-family="Inter, monospace" font-size="9" font-weight="700" fill="#fff">${oppEnd.pct >= 0 ? '+' : ''}${oppEnd.pct.toFixed(1)}%</text>`;
-        }
-
-        const pulseColor = challLeading ? challColor : oppColor;
-        const pulseEnd = challLeading ? challEnd : oppEnd;
-        let pulseSvg = '';
-        if (pulseEnd) {
-            const px = toX(pulseEnd.t.getTime()).toFixed(1);
-            const py = toY(pulseEnd.pct).toFixed(1);
-            // Animated live endpoint
-            pulseSvg = `<circle cx="${px}" cy="${py}" r="6" fill="none" stroke="${pulseColor}" stroke-width="2" opacity="0.4"><animate attributeName="r" from="6" to="18" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.4" to="0" dur="2s" repeatCount="indefinite"/></circle>`;
-        }
-
-        const crosshairId = 'rvd-crosshair-' + Date.now();
-
-        chartEl.innerHTML = `
-            <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%" id="${crosshairId}-svg">
-                <defs>
-                    <linearGradient id="grad-chall-live" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="${challColor}" stop-opacity="0.12"/>
-                        <stop offset="100%" stop-color="${challColor}" stop-opacity="0"/>
-                    </linearGradient>
-                    <linearGradient id="grad-opp-live" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="${oppColor}" stop-opacity="0.08"/>
-                        <stop offset="100%" stop-color="${oppColor}" stop-opacity="0"/>
-                    </linearGradient>
-                    <filter id="dot-glow" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="2" result="glow"/>
-                        <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
-                    </filter>
-                </defs>
-                ${gridSvg}
-                ${challArea ? `<path d="${challArea}" fill="url(#grad-chall-live)"/>` : ''}
-                ${oppArea ? `<path d="${oppArea}" fill="url(#grad-opp-live)"/>` : ''}
-                ${oppPath ? `<path d="${oppPath}" fill="none" stroke="${oppColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>` : ''}
-                ${challPath ? `<path d="${challPath}" fill="none" stroke="${challColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
-                ${pulseSvg}
-                ${endDots}
-                <g id="${crosshairId}-group" style="display:none">
-                    <line id="${crosshairId}-line" x1="0" y1="${PAD_T}" x2="0" y2="${H - PAD_B}" stroke="#999" stroke-width="1" stroke-dasharray="3 3" opacity="0.6"/>
-                    <circle id="${crosshairId}-dot-c" r="4" fill="${challColor}" stroke="#fff" stroke-width="2"/>
-                    <circle id="${crosshairId}-dot-o" r="4" fill="${oppColor}" stroke="#fff" stroke-width="2"/>
-                    <rect id="${crosshairId}-tip-c-bg" rx="0" ry="0" fill="${challColor}" opacity="0.95"/>
-                    <text id="${crosshairId}-tip-c-txt" font-family="Inter, monospace" font-size="9" font-weight="700" fill="#fff" text-anchor="middle"/>
-                    <rect id="${crosshairId}-tip-o-bg" rx="0" ry="0" fill="${oppColor}" opacity="0.95"/>
-                    <text id="${crosshairId}-tip-o-txt" font-family="Inter, monospace" font-size="9" font-weight="700" fill="#fff" text-anchor="middle"/>
-                    <rect id="${crosshairId}-day-bg" rx="0" ry="0" fill="#333" opacity="0.9"/>
-                    <text id="${crosshairId}-day-txt" font-family="Inter, monospace" font-size="8" font-weight="600" fill="#fff" text-anchor="middle"/>
-                </g>
-                <rect id="${crosshairId}-overlay" x="${PAD_L}" y="${PAD_T}" width="${W - PAD_L - PAD_R}" height="${H - PAD_T - PAD_B}" fill="transparent" style="cursor:crosshair"/>
-            </svg>`;
-
-        const svgEl = document.getElementById(`${crosshairId}-svg`);
-        const overlay = document.getElementById(`${crosshairId}-overlay`);
-        const crossGroup = document.getElementById(`${crosshairId}-group`);
-        const crossLine = document.getElementById(`${crosshairId}-line`);
-        const dotC = document.getElementById(`${crosshairId}-dot-c`);
-        const dotO = document.getElementById(`${crosshairId}-dot-o`);
-        const tipCBg = document.getElementById(`${crosshairId}-tip-c-bg`);
-        const tipCTxt = document.getElementById(`${crosshairId}-tip-c-txt`);
-        const tipOBg = document.getElementById(`${crosshairId}-tip-o-bg`);
-        const tipOTxt = document.getElementById(`${crosshairId}-tip-o-txt`);
-        const dayBg = document.getElementById(`${crosshairId}-day-bg`);
-        const dayTxt = document.getElementById(`${crosshairId}-day-txt`);
-
-        if (overlay && crossGroup) {
-            function getValuesAtX(svgX) {
-                const plotW = W - PAD_L - PAD_R;
-                const frac = Math.max(0, Math.min(1, (svgX - PAD_L) / plotW));
-                const t = tMin + frac * tRange;
-
-                function getSteppedPct(pts) {
-                    if (pts.length === 0) return null;
-                    let lastPct = pts[0].pct;
-                    for (let i = 0; i < pts.length; i++) {
-                        if (pts[i].t.getTime() <= t) {
-                            lastPct = pts[i].pct;
-                        } else break;
-                    }
-                    return lastPct;
-                }
-
-                const cPct = getSteppedPct(challPoints);
-                const oPct = getSteppedPct(oppPoints);
-                const startMs = new Date(rivalry._activatedAt).getTime();
-                const dayNum = Math.max(0, (t - startMs) / 86400000);
-
-                return { cPct, oPct, dayNum, svgX: Math.max(PAD_L, Math.min(W - PAD_R, svgX)) };
-            }
-
-            function showCrosshair(svgX) {
-                const vals = getValuesAtX(svgX);
-                crossGroup.style.display = '';
-                crossLine.setAttribute('x1', vals.svgX);
-                crossLine.setAttribute('x2', vals.svgX);
-
-                if (vals.cPct !== null) {
-                    const cy = toY(vals.cPct);
-                    dotC.setAttribute('cx', vals.svgX);
-                    dotC.setAttribute('cy', cy);
-                    dotC.style.display = '';
-                    const label = `${vals.cPct >= 0 ? '+' : ''}${vals.cPct.toFixed(2)}%`;
-                    tipCTxt.textContent = label;
-                    const tipW = Math.max(56, label.length * 7 + 12);
-                    const tipX = vals.svgX;
-                    const tipY = cy - 22;
-                    tipCBg.setAttribute('x', tipX - tipW/2);
-                    tipCBg.setAttribute('y', tipY - 6);
-                    tipCBg.setAttribute('width', tipW);
-                    tipCBg.setAttribute('height', 18);
-                    tipCTxt.setAttribute('x', tipX);
-                    tipCTxt.setAttribute('y', tipY + 7);
-                    tipCBg.style.display = '';
-                    tipCTxt.style.display = '';
-                } else {
-                    dotC.style.display = 'none';
-                    tipCBg.style.display = 'none';
-                    tipCTxt.style.display = 'none';
-                }
-
-                if (vals.oPct !== null) {
-                    const oy = toY(vals.oPct);
-                    dotO.setAttribute('cx', vals.svgX);
-                    dotO.setAttribute('cy', oy);
-                    dotO.style.display = '';
-                    const label = `${vals.oPct >= 0 ? '+' : ''}${vals.oPct.toFixed(2)}%`;
-                    tipOTxt.textContent = label;
-                    const tipW = Math.max(56, label.length * 7 + 12);
-                    const tipX = vals.svgX;
-                    const tipY = oy + 16;
-                    tipOBg.setAttribute('x', tipX - tipW/2);
-                    tipOBg.setAttribute('y', tipY - 6);
-                    tipOBg.setAttribute('width', tipW);
-                    tipOBg.setAttribute('height', 18);
-                    tipOTxt.setAttribute('x', tipX);
-                    tipOTxt.setAttribute('y', tipY + 7);
-                    tipOBg.style.display = '';
-                    tipOTxt.style.display = '';
-                } else {
-                    dotO.style.display = 'none';
-                    tipOBg.style.display = 'none';
-                    tipOTxt.style.display = 'none';
-                }
-
-                const dayLabel = `Day ${vals.dayNum.toFixed(1)}`;
-                dayTxt.textContent = dayLabel;
-                const dayW = Math.max(48, dayLabel.length * 6 + 10);
-                dayBg.setAttribute('x', vals.svgX - dayW/2);
-                dayBg.setAttribute('y', H - PAD_B + 2);
-                dayBg.setAttribute('width', dayW);
-                dayBg.setAttribute('height', 16);
-                dayTxt.setAttribute('x', vals.svgX);
-                dayTxt.setAttribute('y', H - PAD_B + 13);
-            }
-
-            function hideCrosshair() {
-                crossGroup.style.display = 'none';
-            }
-
-            function getSvgX(clientX) {
-                const rect = svgEl.getBoundingClientRect();
-                const scaleX = W / rect.width;
-                return (clientX - rect.left) * scaleX;
-            }
-
-            overlay.addEventListener('mousemove', (e) => showCrosshair(getSvgX(e.clientX)));
-            overlay.addEventListener('mouseleave', hideCrosshair);
-            overlay.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                if (e.touches.length > 0) showCrosshair(getSvgX(e.touches[0].clientX));
-            }, { passive: false });
-            overlay.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                if (e.touches.length > 0) showCrosshair(getSvgX(e.touches[0].clientX));
-            }, { passive: false });
-            overlay.addEventListener('touchend', hideCrosshair);
-        }
+        const scroll = el('div', 'rv-chart-scroll');
+        scroll.appendChild(svg);
+        card.appendChild(scroll);
+        frag.appendChild(card);
+        return frag;
     }
 
-    if (rivalry.status !== 'pending') {
-        renderLiveChart(rivalry.metrics, rivalry._challengerUserId, rivalry._opponentUserId, rivalry.targetGrowthPct);
-    } else if (chartEl) {
-        const W = 900, H = 220;
-        chartEl.innerHTML = `
-            <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%">
-                <text x="${W/2}" y="30" text-anchor="middle" font-family="Inter, monospace" font-size="10" font-weight="700" fill="#ddd" letter-spacing="1.2px">AWAITING ACTIVATION</text>
-                <rect x="50" y="50" width="770" height="32" rx="0" fill="#f5f5f5"/>
-                <rect x="50" y="50" width="50" height="32" rx="0" fill="#e8e8e8" opacity="0.5">
-                    <animate attributeName="width" values="50;120;50" dur="2s" repeatCount="indefinite"/>
-                </rect>
-                <rect x="50" y="100" width="770" height="32" rx="0" fill="#f5f5f5"/>
-                <rect x="50" y="100" width="30" height="32" rx="0" fill="#e8e8e8" opacity="0.5">
-                    <animate attributeName="width" values="30;80;30" dur="2s" repeatCount="indefinite"/>
-                </rect>
-                <text x="${W/2}" y="${H - 20}" text-anchor="middle" font-family="Inter, monospace" font-size="9" fill="#ddd" letter-spacing="0.5px">Chart activates once both sides fund their position</text>
-            </svg>`;
+    /* ── the oracle event log ────────────────────────────────────────────
+       One row per verification instant, newest first, built from the same
+       series the chart is drawn from. The earliest instant is the baseline
+       lock rather than a reading. */
+    function renderLog(model) {
+        const frag = document.createDocumentFragment();
+        frag.appendChild(sectionHead('Oracle Event Log',
+            (model.cadence ? model.cadence.charAt(0).toUpperCase() + model.cadence.slice(1) : 'Per verification') + ' · read-only'));
+
+        const log = el('div', 'rv-olog');
+        if (!model.stamps.length) {
+            log.appendChild(el('div', 'rv-chart-empty', 'No oracle events recorded yet'));
+            frag.appendChild(log);
+            return frag;
+        }
+
+        const pctAt = (side, i) => (side.points[i] ? side.points[i].pct : null);
+        const idx = model.stamps.length - 1;
+
+        // latest, as a full card
+        if (idx >= 1) {
+            const card = el('div', 'rv-oev');
+            const top = el('div', 'rv-oev-top');
+            const title = el('span', 'rv-oev-title');
+            const d = el('span', 'rv-livedot');
+            d.setAttribute('style', 'width:6px;height:6px;box-shadow:none');
+            title.appendChild(d);
+            title.appendChild(document.createTextNode('Latest verification'));
+            top.appendChild(title);
+            const when = model.stamps[idx];
+            top.appendChild(el('span', 'rv-oev-time', fmtClock(when) + ' · ' + ago(when)));
+            card.appendChild(top);
+
+            const body = el('div', 'rv-oev-body');
+            const line = (side, cls) => {
+                const from = pctAt(side, idx - 1);
+                const to = pctAt(side, idx);
+                body.appendChild(document.createTextNode(side.handle + ' '));
+                if (from != null) {
+                    const a = el('span', 'ar', pct2(from) + ' →');
+                    body.appendChild(a);
+                    body.appendChild(document.createTextNode(' '));
+                }
+                body.appendChild(el('b', cls, to == null ? '—' : pct2(to)));
+                body.appendChild(document.createElement('br'));
+            };
+            line(model.a, 'win');
+            line(model.b, 'ox');
+            card.appendChild(body);
+
+            const foot = el('div', 'rv-oev-foot');
+            const ma = pctAt(model.a, idx), mb = pctAt(model.b, idx);
+            const mg = (ma != null && mb != null) ? ma - mb : null;
+            foot.appendChild(el('span', 'rv-oev-margin', mg == null
+                ? 'Margin not computable'
+                : 'Margin ' + (mg >= 0 ? '+' : '−') + Math.abs(mg).toFixed(2) + '% · '
+                  + (mg >= 0 ? 'challenger' : 'opponent')));
+            const stat = el('span', 'rv-oev-status');
+            withMark(stat, 'Verified', '✓');
+            foot.appendChild(stat);
+            card.appendChild(foot);
+            log.appendChild(card);
+        }
+
+        // older readings, compact
+        for (let i = idx - 1; i >= 1; i--) {
+            const row = el('div', 'rv-oevc');
+            row.appendChild(el('span', 't', fmtClock(model.stamps[i])));
+            const desc = el('span', 'd');
+            const pa = pctAt(model.a, i), pb = pctAt(model.b, i);
+            desc.appendChild(document.createTextNode(model.a.handle + ' '));
+            desc.appendChild(el('b', null, pa == null ? '—' : pct2(pa)));
+            desc.appendChild(document.createTextNode(' · ' + model.b.handle + ' '));
+            desc.appendChild(el('b', null, pb == null ? '—' : pct2(pb)));
+            if (pa != null && pb != null) {
+                const g = pa - pb;
+                desc.appendChild(document.createTextNode(
+                    ' · margin ' + (g >= 0 ? '+' : '−') + Math.abs(g).toFixed(2) + '%'));
+            }
+            row.appendChild(desc);
+            const s = el('span', 's');
+            withMark(s, 'Verified', '✓');
+            row.appendChild(s);
+            log.appendChild(row);
+        }
+
+        // the baseline lock
+        const base = el('div', 'rv-oevc secure');
+        base.appendChild(el('span', 't', fmtClock(model.stamps[0])));
+        base.appendChild(el('span', 'd',
+            'Baseline lock · ' + model.platform + ' · growth target +' + model.targetPct + '% threshold'));
+        const bs = el('span', 's');
+        withMark(bs, 'Secure', '✓');
+        base.appendChild(bs);
+        log.appendChild(base);
+
+        // the settlement, when there is one
+        if (model.phase === 'settled' && model.settledAt) {
+            const st = el('div', 'rv-oevc settle');
+            st.appendChild(el('span', 't', fmtClock(model.settledAt)));
+            const w = model.winnerUserId === model.a.userId ? model.a
+                : (model.winnerUserId === model.b.userId ? model.b : null);
+            st.appendChild(el('span', 'd', model.draw
+                ? 'Settled as a draw · stakes returned'
+                : 'Settled · pool paid to ' + (w ? w.handle : 'the winner')));
+            const ss = el('span', 's');
+            withMark(ss, 'Settled', '✓');
+            st.appendChild(ss);
+            log.appendChild(st);
+        }
+
+        frag.appendChild(log);
+        return frag;
     }
 
-    // ── Live Auto-Refresh (60s polling) ──
-    if (rivalry.status === 'active' && rivalry._rawState && !['SETTLED','DRAW','DECLINED','EXPIRED','CANCELLED'].includes(rivalry._rawState)) {
-        window._rvdPollInterval = setInterval(async () => {
+    function renderFooter(model) {
+        const foot = el('div', 'rv-foot');
+        const left = el('div');
+        if (model.phase === 'settled') {
+            left.appendChild(el('div', 't', model.draw
+                ? 'Settled as a draw.'
+                : 'The $' + model.pool.toLocaleString('en-US') + ' pool has been paid.'));
+            left.appendChild(el('div', 's', 'Settled at the deadline · recorded on the public ledger · no appeals'));
+        } else if (model.phase === 'settling') {
+            left.appendChild(el('div', 't', 'Winner takes the $' + model.pool.toLocaleString('en-US') + ' pool.'));
+            left.appendChild(el('div', 's', 'Deadline reached · awaiting final verification'));
+        } else {
+            left.appendChild(el('div', 't', 'Winner takes the $' + model.pool.toLocaleString('en-US') + ' pool.'));
+            left.appendChild(el('div', 's', 'Settled automatically at the deadline · recorded on the public ledger · no appeals'));
+        }
+        foot.appendChild(left);
+
+        const seal = el('div', 'seal');
+        const svg = svgEl('svg', { viewBox: '0 0 60 60', role: 'img' });
+        const t = svgEl('title', {});
+        t.textContent = 'Collateral seal';
+        svg.appendChild(t);
+        svg.appendChild(svgEl('path', {
+            d: 'M30 4 C40 4 47 12 50 22 C53 30 56 34 54 42 C52 50 44 56 34 56 C22 57 12 52 8 42 C4 33 6 24 10 17 C14 10 20 4 30 4 Z',
+            fill: '#5E1420',
+        }));
+        svg.appendChild(svgEl('circle', { cx: 30, cy: 30, r: 16.5, fill: 'none', stroke: 'rgba(255,235,220,.16)', 'stroke-width': 1 }));
+        const c = svgEl('text', { x: 30, y: 37, 'font-family': 'Cormorant Garamond,serif', 'font-size': 21,
+            'font-weight': 700, fill: '#F0DAC7', 'text-anchor': 'middle' });
+        c.textContent = 'C';
+        svg.appendChild(c);
+        seal.appendChild(svg);
+        foot.appendChild(seal);
+        return foot;
+    }
+
+    function paint(model) {
+        container.innerHTML = '';
+        container.appendChild(renderHeader(model));
+        container.appendChild(renderDuel(model));
+        container.appendChild(renderChart(model));
+        container.appendChild(renderLog(model));
+        const acts = el('div', 'rv-actions');
+        acts.id = 'rv-actions';
+        acts.hidden = true;
+        container.appendChild(acts);
+        container.appendChild(renderFooter(model));
+        const back = el('button', 'rv-back', '← Back to the market');
+        back.type = 'button';
+        back.addEventListener('click', () => window.router && window.router.navigate('/market'));
+        container.appendChild(back);
+        wireActions(model);
+    }
+
+    /* ── the controls a pre-active rivalry still needs ───────────────────
+       The reference is a LIVE duel and so shows none of these, but a rivalry
+       that cannot be accepted or funded is a dead page. Same handlers as
+       before; only their setting is new. */
+    function wireActions(model) {
+        const host = document.getElementById('rv-actions');
+        if (!host) return;
+        host.innerHTML = '';
+
+        let userId = null;
+        try {
+            const u = api.getStoredUser && api.getStoredUser();
+            userId = u && (u.id || u.userId);
+        } catch (e) { /* signed out */ }
+
+        const isOpponent = model.opponentUserId && userId === model.opponentUserId;
+        const isChallenger = model.challengerUserId && userId === model.challengerUserId;
+        const isOpen = !model.opponentUserId;
+        const state = model.state;
+
+        const status = (text) => host.appendChild(el('span', 'rv-astatus', text));
+        const button = (cls, text, onClick) => {
+            const b = el('button', 'rv-abtn ' + cls, text);
+            b.type = 'button';
+            b.addEventListener('click', onClick);
+            host.appendChild(b);
+            return b;
+        };
+        const run = async (btn, busyText, idleText, fn) => {
+            btn.disabled = true;
+            const was = btn.textContent;
+            btn.textContent = busyText;
+            try { await fn(); } finally {
+                btn.disabled = false;
+                btn.textContent = idleText || was;
+            }
+        };
+        const accept = async (btn, label) => run(btn, 'Accepting…', label, async () => {
             try {
-                const legendEl = document.querySelector('.rvd-chart-header');
-                if (legendEl) {
-                    let liveTag = legendEl.querySelector('.rvd-live-refresh');
-                    if (!liveTag) {
-                        liveTag = document.createElement('span');
-                        liveTag.className = 'rvd-live-refresh';
-                        liveTag.style.cssText = 'font-family:"Inter",monospace;font-size:9px;color:#154726;letter-spacing:0.06em;display:flex;align-items:center;gap:4px;';
-                        legendEl.appendChild(liveTag);
-                    }
-                    liveTag.innerHTML = `<span style="width:6px;height:6px;border-radius:50%;background:#154726;display:inline-block;animation:cl-core-pulse 1s infinite"></span> LIVE · Refreshing...`;
-                }
+                const res = await api.acceptRivalry(model.id);
+                if (res && res.ok) {
+                    await showAlert('Challenge accepted. Fund your side to begin.', { type: 'success', title: 'Challenge Accepted' });
+                    location.reload();
+                } else showAlert((res && res.error) || 'Failed to accept', { type: 'error' });
+            } catch (err) { showAlert('Error: ' + err.message, { type: 'error' }); }
+        });
 
-                const res = await api.getRivalryMetrics(id);
-                if (res.ok && res.metrics) {
-                    renderLiveChart(res.metrics, rivalry._challengerUserId, rivalry._opponentUserId, rivalry.targetGrowthPct);
-                }
-
-                const liveTag = document.querySelector('.rvd-live-refresh');
-                if (liveTag) {
-                    const now = new Date();
-                    liveTag.innerHTML = `<span style="width:6px;height:6px;border-radius:50%;background:#154726;display:inline-block;animation:cl-core-pulse 1.5s infinite"></span> LIVE · Updated ${now.toLocaleTimeString()}`;
-                }
-            } catch (err) {
-                console.warn('[RivalryDetail] Metric poll failed:', err.message);
-            }
-        }, 60000);
-    }
-
-    // ── Action Bar — accept/decline/fund ──
-    const actionsEl = document.getElementById('rvd-actions');
-    if (actionsEl && rivalry._rawState) {
-        const userId = window.appState?.userId;
-        const rawState = rivalry._rawState;
-        const isOpponent = rivalry._opponentUserId && userId === rivalry._opponentUserId;
-        const isChallenger = rivalry._challengerUserId && userId === rivalry._challengerUserId;
-        const isOpenChallenge = !rivalry._opponentUserId;
-
-        if (rawState === 'CHALLENGE_ISSUED' && isOpponent) {
-            actionsEl.innerHTML = `
-                <button class="rvd-action-btn accept" id="rvd-accept">ACCEPT CHALLENGE</button>
-                <button class="rvd-action-btn decline" id="rvd-decline">DECLINE</button>
-                <span class="rvd-action-status">You have been challenged. Accept to lock capital.</span>
-            `;
-            document.getElementById('rvd-accept')?.addEventListener('click', async (e) => {
-                e.target.disabled = true; e.target.textContent = 'ACCEPTING...';
-                try {
-                    const res = await api.acceptRivalry(id);
-                    if (res.ok) { await showAlert('Challenge accepted! Fund your side to begin.', { type: 'success', title: 'Challenge Accepted' }); location.reload(); }
-                    else showAlert(res.error || 'Failed to accept', { type: 'error' });
-                } catch (err) { showAlert('Error: ' + err.message, { type: 'error' }); }
-                e.target.disabled = false; e.target.textContent = 'ACCEPT CHALLENGE';
-            });
-            document.getElementById('rvd-decline')?.addEventListener('click', async (e) => {
+        if (state === 'CHALLENGE_ISSUED' && isOpponent) {
+            const a = button('accept', 'Accept challenge', () => accept(a, 'Accept challenge'));
+            button('decline', 'Decline', async (e) => {
+                const btn = e.currentTarget;
                 if (!(await showConfirm('Are you sure? This cannot be undone.', { title: 'Decline Challenge', confirmText: 'DECLINE', danger: true }))) return;
-                e.target.disabled = true; e.target.textContent = 'DECLINING...';
-                try {
-                    const res = await api.declineRivalry(id);
-                    if (res.ok) { await showAlert('Challenge declined.', { type: 'info', title: 'Declined' }); window.router.navigate('/market?type=rivalry'); }
-                    else showAlert(res.error || 'Failed to decline', { type: 'error' });
-                } catch (err) { showAlert('Error: ' + err.message, { type: 'error' }); }
-                e.target.disabled = false; e.target.textContent = 'DECLINE';
+                await run(btn, 'Declining…', 'Decline', async () => {
+                    try {
+                        const res = await api.declineRivalry(model.id);
+                        if (res && res.ok) {
+                            await showAlert('Challenge declined.', { type: 'info', title: 'Declined' });
+                            window.router.navigate('/market');
+                        } else showAlert((res && res.error) || 'Failed to decline', { type: 'error' });
+                    } catch (err) { showAlert('Error: ' + err.message, { type: 'error' }); }
+                });
             });
-        } else if (rawState === 'CHALLENGE_ISSUED' && isOpenChallenge && userId && !isChallenger) {
-            actionsEl.innerHTML = `
-                <button class="rvd-action-btn accept" id="rvd-accept">⚡ ACCEPT OPEN CHALLENGE</button>
-                <span class="rvd-action-status">This is an open challenge. Accept to lock capital and begin the duel.</span>
-            `;
-            document.getElementById('rvd-accept')?.addEventListener('click', async (e) => {
-                e.target.disabled = true; e.target.textContent = 'ACCEPTING...';
+            status('You have been challenged. Accept to lock capital.');
+        } else if (state === 'CHALLENGE_ISSUED' && isOpen && userId && !isChallenger) {
+            const a = button('accept', 'Accept open challenge', () => accept(a, 'Accept open challenge'));
+            status('This is an open challenge. Accept to lock capital and begin the duel.');
+        } else if (state === 'CHALLENGE_ISSUED' && isOpen && !userId) {
+            button('accept', 'Sign in to accept', () => window.app && window.app.openAccessModal());
+            status('Sign in to accept this open challenge.');
+        } else if (state === 'ACCEPTED' && (isChallenger || isOpponent)) {
+            const label = 'Fund your side — $' + model.perSide.toLocaleString('en-US');
+            const f = button('fund', label, () => run(f, 'Funding…', label, async () => {
                 try {
-                    const res = await api.acceptRivalry(id);
-                    if (res.ok) { await showAlert('Challenge accepted! Fund your side to begin.', { type: 'success', title: 'Challenge Accepted' }); location.reload(); }
-                    else showAlert(res.error || 'Failed to accept', { type: 'error' });
+                    const res = await api.fundRivalry(model.id);
+                    if (res && res.ok) {
+                        await showAlert('Funded. Waiting for the opponent to fund.', { type: 'success', title: 'Funded' });
+                        location.reload();
+                    } else showAlert((res && res.error) || 'Failed to fund', { type: 'error' });
                 } catch (err) { showAlert('Error: ' + err.message, { type: 'error' }); }
-                e.target.disabled = false; e.target.textContent = '⚡ ACCEPT OPEN CHALLENGE';
-            });
-        } else if (rawState === 'CHALLENGE_ISSUED' && isOpenChallenge && !userId) {
-            actionsEl.innerHTML = `
-                <button class="rvd-action-btn accept" onclick="window.app.openAccessModal()">SIGN IN TO ACCEPT</button>
-                <span class="rvd-action-status">Sign in to accept this open challenge.</span>
-            `;
-        } else if (rawState === 'ACCEPTED' && (isChallenger || isOpponent)) {
-            actionsEl.innerHTML = `
-                <button class="rvd-action-btn fund" id="rvd-fund">FUND YOUR SIDE — $${rivalry.stake.toLocaleString()}</button>
-                <span class="rvd-action-status">Both sides must fund before the duel begins.</span>
-            `;
-            document.getElementById('rvd-fund')?.addEventListener('click', async (e) => {
-                e.target.disabled = true; e.target.textContent = 'FUNDING...';
-                try {
-                    const res = await api.fundRivalry(id);
-                    if (res.ok) { await showAlert('Funded! Waiting for opponent to fund.', { type: 'success', title: 'Funded' }); location.reload(); }
-                    else showAlert(res.error || 'Failed to fund', { type: 'error' });
-                } catch (err) { showAlert('Error: ' + err.message, { type: 'error' }); }
-                e.target.disabled = false; e.target.textContent = `FUND YOUR SIDE — $${rivalry.stake.toLocaleString()}`;
-            });
-        } else if (rawState === 'CHALLENGE_ISSUED' && isChallenger) {
-            actionsEl.innerHTML = `<span class="rvd-action-status">WAITING FOR OPPONENT TO ACCEPT</span>`;
-        } else if (rawState === 'BOTH_FUNDED' || rawState === 'ACTIVE' || rawState === 'VERIFYING') {
-            actionsEl.innerHTML = `<span class="rvd-action-status">DUEL IN PROGRESS — ${rivalry.daysLeft}d REMAINING</span>`;
-        } else if (rawState === 'SETTLED' || rawState === 'DRAW') {
-            actionsEl.innerHTML = `<span class="rvd-action-status">SETTLED — ${rawState === 'DRAW' ? 'DRAW' : 'WINNER DETERMINED'}</span>`;
+            }));
+            status('Both sides must fund before the duel begins.');
+        } else if (state === 'CHALLENGE_ISSUED' && isChallenger) {
+            status('Waiting for the opponent to accept.');
+        } else {
+            host.hidden = true;
+            return;
         }
+        host.hidden = false;
     }
 
-    // ── Live Countdown Timer ──
-    if (window._rvdCdInterval) { clearInterval(window._rvdCdInterval); window._rvdCdInterval = null; }
+    paint(m);
 
-    if (rivalry.status !== 'settled' && rivalry.daysLeft > 0) {
-        const endTime = rivalry._deadlineUtc ? new Date(rivalry._deadlineUtc).getTime() : new Date(new Date(rivalry._activatedAt || Date.now()).getTime() + (rivalry.totalDays) * 86400000).getTime();
-
-        function updateCountdown() {
-            const now = Date.now();
-            const diff = Math.max(0, endTime - now);
+    // ── the countdown, in the facts strip ──
+    if (m.phase !== 'settled' && m.deadline != null) {
+        const tick = () => {
+            const cell = document.getElementById('rv-settles');
+            if (!cell) return;
+            const diff = m.deadline - Date.now();
+            if (diff <= 0) {
+                cell.textContent = fmtDate(m.deadline) + ' · deadline passed';
+                clearInterval(window._rvdCdInterval);
+                window._rvdCdInterval = null;
+                return;
+            }
             const days = Math.floor(diff / 86400000);
             const hours = Math.floor((diff % 86400000) / 3600000);
             const mins = Math.floor((diff % 3600000) / 60000);
-            const secs = Math.floor((diff % 60000) / 1000);
-            const pad = (n) => String(n).padStart(2, '0');
-            
-            const dEl = document.getElementById('rvd-cd-days');
-            const hEl = document.getElementById('rvd-cd-hours');
-            const mEl = document.getElementById('rvd-cd-mins');
-            const sEl = document.getElementById('rvd-cd-secs');
-            if (dEl) dEl.textContent = days;
-            if (hEl) hEl.textContent = pad(hours);
-            if (mEl) mEl.textContent = pad(mins);
-            if (sEl) sEl.textContent = pad(secs);
+            cell.textContent = fmtDate(m.deadline) + ' · '
+                + (days > 0 ? days + 'd ' + pad2(hours) + 'h left' : pad2(hours) + 'h ' + pad2(mins) + 'm left');
+        };
+        tick();
+        window._rvdCdInterval = setInterval(tick, 30000);
+    }
 
-            const cdEl = document.getElementById('rvd-countdown');
-            if (cdEl && days <= 3) cdEl.classList.add('urgent');
-
-            if (diff <= 0) {
-                clearInterval(window._rvdCdInterval);
-                window._rvdCdInterval = null;
-                if (dEl) dEl.textContent = '0';
-                if (hEl) hEl.textContent = '00';
-                if (mEl) mEl.textContent = '00';
-                if (sEl) sEl.textContent = '00';
+    /* ── live refresh ────────────────────────────────────────────────────
+       The standings, the chart and the log all read the same series, so one
+       poll keeps all three honest rather than letting the header drift away
+       from the log under it. Repaints only when the oracle has actually
+       said something new. */
+    if (m.phase === 'live' || m.phase === 'settling') {
+        window._rvdPoll = setInterval(async () => {
+            if (document.hidden) return;
+            if (!document.getElementById('rvd-container')) {
+                clearInterval(window._rvdPoll); window._rvdPoll = null; return;
             }
-        }
-        updateCountdown();
-        window._rvdCdInterval = setInterval(updateCountdown, 1000);
+            try {
+                const [r2, m2] = await Promise.all([api.getRivalry(id), api.getRivalryMetrics(id)]);
+                const nextRaw = r2 && r2.rivalry;
+                const nextSeries = (m2 && m2.metrics) || [];
+                if (!nextRaw) return;
+                const next = build(nextRaw, nextSeries);
+                if (next.verifications === m.verifications && next.state === m.state) return;
+                m = next;
+                paint(m);
+            } catch (e) {
+                // A failed refresh leaves the last verified reading on screen.
+                console.warn('[RivalryDetail] refresh failed:', e && e.message);
+            }
+        }, reduceMotion ? 180000 : 90000);
     }
 }
