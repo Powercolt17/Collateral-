@@ -305,9 +305,15 @@ export function initDuelSection() {
         });
         previous = new Map(duels.map((d) => [d.id, { a: d.a.pct, b: d.b.pct }]));
 
+        /* THE CARD'S OWN CONTRACT, not the rivalry index. The card already
+           carries data-id — every one of these buttons was sending the reader
+           to the list instead of to the duel they had just clicked on. */
         grid.querySelectorAll('.dl-duel').forEach((btn) => {
             btn.addEventListener('click', () => {
-                if (window.router) window.router.navigate('/rivalry');
+                if (!window.router) return;
+                const card = btn.closest('[data-id]');
+                const id = card && card.getAttribute('data-id');
+                window.router.navigate(id ? '/rivalry/' + encodeURIComponent(id) : '/rivalry');
             });
         });
     };

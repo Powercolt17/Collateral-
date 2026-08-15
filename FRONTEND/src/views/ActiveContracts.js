@@ -2716,12 +2716,20 @@ export function initActiveContracts() {
             fin.appendChild(el('span', 'mb-settle', r.rail));
             inner.appendChild(fin);
 
-            // ---- action
+            /* ---- action
+               THIS CONTRACT, not the rivalry index. Every card on the board
+               sent the reader to /rivalry — the list they were already looking
+               at — so "View Rivalry" on eight different cards went to the same
+               page and none of them opened the contract. The id is already on
+               the card model; it just was not being used. Join and View are the
+               same destination because the detail page is where the Accept
+               control lives. */
             const act = el('button', 'mb-c-act ' + (isOpen ? 'accept' : 'view'),
                 isOpen ? 'Join Rivalry' : 'View Rivalry →');
             act.type = 'button';
             act.addEventListener('click', () => {
-                if (window.router) window.router.navigate('/rivalry');
+                if (!window.router || !r.id) return;
+                window.router.navigate('/rivalry/' + encodeURIComponent(r.id));
             });
             inner.appendChild(act);
 
