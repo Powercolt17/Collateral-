@@ -31,8 +31,25 @@ import { collateralFullLoader } from '../components/CollateralLoader.js';
 export function renderRivalryDetail() {
     return `
         <style>
+            /* FULL BLEED, AND BEHIND THE HEADER.
+               #app carries pt-24 (96px) to clear the fixed masthead, so a
+               section that simply paints its own background stops at the top of
+               the content and leaves the header sitting on the near-white
+               --bg-page above a tan page. Pulling up by that 96 and padding it
+               back is how /market already does it, so the two routes join
+               under the same header without a seam. */
+            .rv-page {
+                background: #F1E8D3;
+                min-height: 100vh;
+                box-sizing: border-box;
+                margin-top: -96px;
+                padding-top: 96px;
+                padding-bottom: 90px;
+            }
             .rv {
-                --rv-parch: #EEE5D8;
+                /* The same field the market board uses, so moving between the
+                   two is one continuous sheet of paper. */
+                --rv-parch: #F1E8D3;
                 --rv-paper: #F5EDDA;
                 --rv-paper2: #FAF4E6;
                 --rv-ink: #211B12;
@@ -56,19 +73,21 @@ export function renderRivalryDetail() {
                 position: relative;
                 max-width: 1160px;
                 margin: 0 auto;
-                padding: 46px var(--rv-gutter) 80px;
-                background: var(--rv-parch);
+                padding: 46px var(--rv-gutter) 20px;
                 font-family: "EB Garamond", Georgia, serif;
                 color: var(--rv-ink);
                 -webkit-font-smoothing: antialiased;
             }
-            /* The ledger ruling, the same 3% warm grey the board uses. */
-            .rv::before {
+            /* The ledger ruling, the same 3% warm grey the board uses. It rides
+               on the full-bleed field rather than the column so the lines run
+               edge to edge instead of stopping at 1160px. */
+            .rv-page::before {
                 content: "";
                 position: absolute; inset: 0;
                 pointer-events: none; z-index: 0;
-                background: repeating-linear-gradient(0deg, transparent 0 29px, rgba(70,55,35,.025) 29px 30px);
+                background: repeating-linear-gradient(0deg, transparent 0 29px, rgba(70,55,35,.03) 29px 30px);
             }
+            .rv-page { position: relative; }
             .rv > * { position: relative; z-index: 1; }
             .rv-mono { font-family: var(--mono, 'IBM Plex Mono', monospace); }
 
@@ -251,8 +270,46 @@ export function renderRivalryDetail() {
             /* SCROLLS RATHER THAN SHRINKS. Squeezing the plot below about 640
                takes the axis labels under the legibility floor; the reader can
                push it sideways instead. */
-            .rv-chart-scroll { overflow-x: auto; }
+            .rv-chart-scroll { overflow-x: auto; position: relative; }
             .rv-chart { display: block; width: 100%; min-width: 640px; height: auto; }
+            .rv-chart .hit { fill: transparent; cursor: crosshair; }
+            /* The crosshair and the two read-out dots are hidden until the
+               pointer is actually over the plot, so a static screenshot of this
+               page shows the series and nothing else. */
+            .rv-cross { opacity: 0; transition: opacity 140ms ease; pointer-events: none; }
+            .rv-chart-scroll.on .rv-cross { opacity: 1; }
+            /* The live end-dots breathe, because the series behind them is
+               still being written. */
+            @keyframes rv-pulse {
+                0%   { r: 7; opacity: .38; }
+                70%  { r: 13; opacity: 0; }
+                100% { r: 13; opacity: 0; }
+            }
+            .rv-halo { animation: rv-pulse 2600ms ease-out infinite; transform-origin: center; }
+            .rv-tip {
+                position: absolute; top: 12px; pointer-events: none;
+                background: var(--rv-paper2); border: 1px solid var(--rv-line-firm);
+                box-shadow: 0 10px 24px rgba(60,40,20,.14);
+                padding: 10px 13px; min-width: 172px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                opacity: 0; transform: translateY(-3px);
+                transition: opacity 140ms ease, transform 140ms ease;
+            }
+            .rv-chart-scroll.on .rv-tip { opacity: 1; transform: none; }
+            .rv-tip .when { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--rv-muted); margin-bottom: 7px; }
+            .rv-tip .row { display: flex; align-items: center; justify-content: space-between; gap: 14px; font-size: 12px; color: var(--rv-ink-soft); padding: 2px 0; }
+            .rv-tip .row .sw { width: 10px; height: 3px; flex: none; margin-right: 7px; }
+            .rv-tip .row .sw.g { background: var(--rv-win); }
+            .rv-tip .row .sw.o { background: var(--rv-ox); }
+            .rv-tip .row b { color: var(--rv-ink); }
+            .rv-tip .mg { margin-top: 7px; padding-top: 7px; border-top: 1px solid var(--rv-line-soft); font-size: 11px; color: var(--rv-muted); }
+            .rv-livechip {
+                display: inline-flex; align-items: center; gap: 8px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--rv-win);
+            }
+            .rv-livechip .p { width: 6px; height: 6px; border-radius: 50%; background: var(--rv-win); flex: none; animation: rv-blink 2200ms ease-in-out infinite; }
+            @keyframes rv-blink { 0%,100% { opacity: 1; } 50% { opacity: .28; } }
             .rv-chart-empty {
                 padding: 44px 8px; text-align: center; color: var(--rv-muted);
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
@@ -272,7 +329,9 @@ export function renderRivalryDetail() {
             .rv-oev-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rv-line-soft); }
             .rv-oev-margin { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; color: var(--rv-muted); }
             .rv-oev-status { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; color: var(--rv-win); display: inline-flex; align-items: center; gap: 7px; }
-            .rv-oevc { display: grid; grid-template-columns: 88px 1fr max-content; align-items: center; gap: 20px; border: 1px solid var(--rv-line); background: var(--rv-paper2); padding: 13px 20px; }
+            /* 176px, because the stamp now carries the date as well as the
+               clock — at 88 every row wrapped onto two lines. */
+            .rv-oevc { display: grid; grid-template-columns: 176px 1fr max-content; align-items: center; gap: 20px; border: 1px solid var(--rv-line); background: var(--rv-paper2); padding: 13px 20px; }
             .rv-oevc .t { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; color: var(--rv-muted); }
             .rv-oevc .d { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; color: var(--rv-ink-soft); overflow-wrap: anywhere; }
             .rv-oevc .d b { color: var(--rv-ink); }
@@ -345,13 +404,19 @@ export function renderRivalryDetail() {
                 .rv-chartcard { padding: 18px 16px 14px; }
             }
             @media (prefers-reduced-motion: reduce) {
-                .rv-abtn, .rv-s-prog .f { transition: none; }
+                .rv-abtn, .rv-s-prog .f, .rv-cross, .rv-tip { transition: none; }
                 .rv-abtn.accept:hover, .rv-abtn.fund:hover { transform: none; }
+                /* The halo and the blink are ambience; the crosshair is not, so
+                   it keeps working while these stop. */
+                .rv-halo, .rv-livechip .p { animation: none; }
+                .rv-halo { opacity: 0; }
             }
         </style>
 
-        <div class="rv" id="rvd-container">
-            ${collateralFullLoader('Loading rivalry…')}
+        <div class="rv-page">
+            <div class="rv" id="rvd-container">
+                ${collateralFullLoader('Loading rivalry…')}
+            </div>
         </div>
     `;
 }
@@ -414,6 +479,10 @@ export async function initRivalryDetail(params) {
             return pad2(t.getHours()) + ':' + pad2(t.getMinutes()) + ':' + pad2(t.getSeconds());
         } catch (e) { return '—'; }
     };
+    /* DATE AND CLOCK, because the cadence is daily. Printing the time alone
+       gave every row in the log the identical stamp — eight verifications that
+       all read 15:10:46 and looked like one event repeated. */
+    const fmtStamp = (d) => fmtDate(d) + ' · ' + fmtClock(d);
     const ago = (d) => {
         const ms = Date.now() - new Date(d).getTime();
         if (!isFinite(ms) || ms < 0) return '';
@@ -848,7 +917,19 @@ export async function initRivalryDetail(params) {
         legend.appendChild(lg('g', model.a.handle, model.verifications ? model.a.pct : null));
         legend.appendChild(lg('o', model.b.handle, model.verifications ? model.b.pct : null));
         top.appendChild(legend);
-        top.appendChild(el('span', 'rv-oev-time', 'Growth vs baseline'));
+        const rightSide = el('span');
+        rightSide.setAttribute('style', 'display:flex;align-items:center;gap:16px;flex-wrap:wrap');
+        if (model.phase === 'live' || model.phase === 'settling') {
+            // The series is still being written, and the page says so rather
+            // than leaving the reader to wonder whether it is a snapshot.
+            const chip = el('span', 'rv-livechip');
+            chip.appendChild(el('span', 'p'));
+            chip.appendChild(document.createTextNode(
+                model.cadence ? 'Live · ' + model.cadence : 'Live'));
+            rightSide.appendChild(chip);
+        }
+        rightSide.appendChild(el('span', 'rv-oev-time', 'Growth vs baseline'));
+        top.appendChild(rightSide);
         card.appendChild(top);
 
         if (!model.a.points.length && !model.b.points.length) {
@@ -877,8 +958,14 @@ export async function initRivalryDetail(params) {
             + model.b.handle + ' ' + pct2(model.b.pct) + ', against a target of +' + model.targetPct + '%';
         svg.appendChild(title);
 
-        // gridlines on a round step
-        const step = range > 40 ? 10 : (range > 16 ? 5 : (range > 8 ? 2 : 1));
+        /* ABOUT FOUR GRIDLINES, on a round number. A fixed ladder of
+           thresholds put eight lines behind a 15% range and the plot read as
+           graph paper — the lines started competing with the two series they
+           exist to measure. */
+        const rawStep = range / 4;
+        const mag = Math.pow(10, Math.floor(Math.log10(rawStep || 1)));
+        const norm = (rawStep || 1) / mag;
+        const step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10) * mag;
         for (let g = Math.ceil(yMin / step) * step; g <= yMax + 0.001; g += step) {
             const y = toY(g);
             svg.appendChild(svgEl('line', { x1: PAD_L, y1: y.toFixed(1), x2: W - PAD_R + 60, y2: y.toFixed(1),
@@ -936,11 +1023,20 @@ export async function initRivalryDetail(params) {
         riser(model.a.points, '#4E6B3E', 0, '.5');
         riser(model.b.points, '#7C1D2B', -14, '.4');
 
+        /* The notes sit ON a plate. Gridlines run underneath them, and reading
+           "6.9% to target" through a rule crossing the middle of the words is
+           the sort of thing that makes a chart feel unfinished. */
         const note = (yOff, colour, handle, remaining) => {
             if (remaining == null) return;
+            const label = handle + ' — ' + (remaining <= 0 ? 'target met' : remaining.toFixed(1) + '% to target');
+            const w = 22 + label.length * 6.7;
             const g = svgEl('g', { 'font-family': 'IBM Plex Mono,monospace', 'font-size': 11 });
-            g.appendChild(svgEl('rect', { x: PAD_L + 18, y: (PAD_T + yOff).toFixed(1), width: 8, height: 8, fill: colour }));
-            const t = svgEl('text', { x: PAD_L + 32, y: (PAD_T + yOff + 7).toFixed(1), fill: '#574E3D' });
+            g.appendChild(svgEl('rect', {
+                x: PAD_L + 14, y: (PAD_T + yOff - 4).toFixed(1), width: w.toFixed(0), height: 18,
+                fill: '#F5EDDA', opacity: '.92',
+            }));
+            g.appendChild(svgEl('rect', { x: PAD_L + 20, y: (PAD_T + yOff + 1).toFixed(1), width: 8, height: 8, fill: colour }));
+            const t = svgEl('text', { x: PAD_L + 34, y: (PAD_T + yOff + 9).toFixed(1), fill: '#574E3D' });
             t.textContent = handle + ' — ';
             const s = svgEl('tspan', { fill: colour });
             s.textContent = remaining <= 0 ? 'target met' : remaining.toFixed(1) + '% to target';
@@ -948,20 +1044,117 @@ export async function initRivalryDetail(params) {
             g.appendChild(t);
             svg.appendChild(g);
         };
-        note(14.6, '#4E6B3E', model.a.handle, model.a.toTarget);
-        note(38.8, '#7C1D2B', model.b.handle, model.b.toTarget);
+        note(16, '#4E6B3E', model.a.handle, model.a.toTarget);
+        note(40, '#7C1D2B', model.b.handle, model.b.toTarget);
 
+        /* The end dot carries a halo while the contract is still running: the
+           series has not finished being written, and the last reading is the
+           live edge of it rather than a final value. It stops on settlement. */
+        const live = model.phase === 'live' || model.phase === 'settling';
         const dot = (pts, colour) => {
             if (!pts.length) return;
             const p = pts[pts.length - 1];
-            svg.appendChild(svgEl('circle', { cx: toX(p.t).toFixed(1), cy: toY(p.pct).toFixed(1), r: 4.5,
+            const cx = toX(p.t).toFixed(1), cy = toY(p.pct).toFixed(1);
+            if (live) {
+                const halo = svgEl('circle', { cx: cx, cy: cy, r: 7, fill: colour, opacity: '.3' });
+                halo.setAttribute('class', 'rv-halo');
+                svg.appendChild(halo);
+            }
+            svg.appendChild(svgEl('circle', { cx: cx, cy: cy, r: 4.5,
                 fill: colour, stroke: '#F5EDDA', 'stroke-width': 1.5 }));
         };
         dot(model.a.points, '#4E6B3E');
         dot(model.b.points, '#7C1D2B');
 
+        /* ---- the crosshair ----
+           Reads the series at whichever verification the pointer is nearest —
+           it snaps to a reading rather than interpolating between two, because
+           the value between two verifications was never measured. */
+        const cross = svgEl('g', {});
+        cross.setAttribute('class', 'rv-cross');
+        const vline = svgEl('line', { x1: 0, y1: PAD_T - 10, x2: 0, y2: H - PAD_B,
+            stroke: 'rgba(70,55,35,.45)', 'stroke-width': 1, 'stroke-dasharray': '3 3' });
+        cross.appendChild(vline);
+        const ring = (colour) => svgEl('circle', { cx: -20, cy: -20, r: 5, fill: colour, stroke: '#F5EDDA', 'stroke-width': 2 });
+        const ringA = ring('#4E6B3E'), ringB = ring('#7C1D2B');
+        cross.appendChild(ringA); cross.appendChild(ringB);
+        svg.appendChild(cross);
+
+        const hit = svgEl('rect', { x: PAD_L, y: 0, width: (W - PAD_L - PAD_R + 60).toFixed(0), height: H });
+        hit.setAttribute('class', 'hit');
+        svg.appendChild(hit);
+
         const scroll = el('div', 'rv-chart-scroll');
         scroll.appendChild(svg);
+
+        const tip = el('div', 'rv-tip');
+        const tipWhen = el('div', 'when');
+        tip.appendChild(tipWhen);
+        const tipRow = (cls, handle) => {
+            const row = el('div', 'row');
+            const lhs = el('span');
+            const sw = el('span', 'sw ' + cls);
+            lhs.appendChild(sw);
+            lhs.appendChild(document.createTextNode(handle));
+            row.appendChild(lhs);
+            const v = el('b', null, '—');
+            row.appendChild(v);
+            return { row: row, value: v };
+        };
+        const rowA = tipRow('g', model.a.handle);
+        const rowB = tipRow('o', model.b.handle);
+        tip.appendChild(rowA.row);
+        tip.appendChild(rowB.row);
+        const tipMargin = el('div', 'mg', '');
+        tip.appendChild(tipMargin);
+        scroll.appendChild(tip);
+
+        const at = (side, i) => (side.points[i] ? side.points[i].pct : null);
+        const show = (clientX) => {
+            const box = svg.getBoundingClientRect();
+            if (!box.width) return;
+            // client px -> viewBox units
+            const vx = ((clientX - box.left) / box.width) * W;
+            let best = 0, bestD = Infinity;
+            for (let i = 0; i < model.stamps.length; i++) {
+                const d = Math.abs(toX(model.stamps[i]) - vx);
+                if (d < bestD) { bestD = d; best = i; }
+            }
+            const x = toX(model.stamps[best]);
+            vline.setAttribute('x1', x.toFixed(1));
+            vline.setAttribute('x2', x.toFixed(1));
+            const pa = at(model.a, best), pb = at(model.b, best);
+            const place = (r, p) => {
+                if (p == null) { r.setAttribute('cx', -20); r.setAttribute('cy', -20); return; }
+                r.setAttribute('cx', x.toFixed(1));
+                r.setAttribute('cy', toY(p).toFixed(1));
+            };
+            place(ringA, pa); place(ringB, pb);
+            tipWhen.textContent = fmtStamp(model.stamps[best]);
+            rowA.value.textContent = pa == null ? '—' : pct2(pa);
+            rowB.value.textContent = pb == null ? '—' : pct2(pb);
+            tipMargin.textContent = (pa == null || pb == null)
+                ? 'Margin not computable'
+                : 'Margin ' + (pa - pb >= 0 ? '+' : '−') + Math.abs(pa - pb).toFixed(2) + '%';
+            // keep the card inside the plot rather than letting it hang off
+            const frac = x / W;
+            const left = frac > 0.62
+                ? Math.max(8, (frac * box.width) - 190)
+                : Math.min(box.width - 190, (frac * box.width) + 18);
+            tip.style.left = left.toFixed(0) + 'px';
+            scroll.classList.add('on');
+        };
+        const hide = () => scroll.classList.remove('on');
+        hit.addEventListener('mousemove', (e) => show(e.clientX));
+        hit.addEventListener('mouseleave', hide);
+        hit.addEventListener('touchstart', (e) => {
+            if (e.touches && e.touches[0]) show(e.touches[0].clientX);
+        }, { passive: true });
+        hit.addEventListener('touchmove', (e) => {
+            if (e.touches && e.touches[0]) show(e.touches[0].clientX);
+        }, { passive: true });
+        hit.addEventListener('touchend', hide);
+
         card.appendChild(scroll);
         frag.appendChild(card);
         return frag;
@@ -997,7 +1190,7 @@ export async function initRivalryDetail(params) {
             title.appendChild(document.createTextNode('Latest verification'));
             top.appendChild(title);
             const when = model.stamps[idx];
-            top.appendChild(el('span', 'rv-oev-time', fmtClock(when) + ' · ' + ago(when)));
+            top.appendChild(el('span', 'rv-oev-time', fmtStamp(when) + ' · ' + ago(when)));
             card.appendChild(top);
 
             const body = el('div', 'rv-oev-body');
@@ -1034,7 +1227,7 @@ export async function initRivalryDetail(params) {
         // older readings, compact
         for (let i = idx - 1; i >= 1; i--) {
             const row = el('div', 'rv-oevc');
-            row.appendChild(el('span', 't', fmtClock(model.stamps[i])));
+            row.appendChild(el('span', 't', fmtStamp(model.stamps[i])));
             const desc = el('span', 'd');
             const pa = pctAt(model.a, i), pb = pctAt(model.b, i);
             desc.appendChild(document.createTextNode(model.a.handle + ' '));
@@ -1055,7 +1248,7 @@ export async function initRivalryDetail(params) {
 
         // the baseline lock
         const base = el('div', 'rv-oevc secure');
-        base.appendChild(el('span', 't', fmtClock(model.stamps[0])));
+        base.appendChild(el('span', 't', fmtStamp(model.stamps[0])));
         base.appendChild(el('span', 'd',
             'Baseline lock · ' + model.platform + ' · growth target +' + model.targetPct + '% threshold'));
         const bs = el('span', 's');
@@ -1066,7 +1259,7 @@ export async function initRivalryDetail(params) {
         // the settlement, when there is one
         if (model.phase === 'settled' && model.settledAt) {
             const st = el('div', 'rv-oevc settle');
-            st.appendChild(el('span', 't', fmtClock(model.settledAt)));
+            st.appendChild(el('span', 't', fmtStamp(model.settledAt)));
             const w = model.winnerUserId === model.a.userId ? model.a
                 : (model.winnerUserId === model.b.userId ? model.b : null);
             st.appendChild(el('span', 'd', model.draw
