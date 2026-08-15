@@ -43,8 +43,12 @@ export function renderRivalryDetail() {
                 min-height: 100vh;
                 box-sizing: border-box;
                 margin-top: -96px;
-                padding-top: 96px;
-                padding-bottom: 90px;
+                /* 90, not 96: #app reserves 96 for a masthead that measures a
+                   little under it, so the last few pixels were dead air rather
+                   than clearance. The opening loses ~50px between the nav and
+                   the eyebrow without the content ever tucking under. */
+                padding-top: 90px;
+                padding-bottom: 80px;
             }
             .rv {
                 /* The same field the market board uses, so moving between the
@@ -59,8 +63,11 @@ export function renderRivalryDetail() {
                    label, timestamp and status on the page. #695F47 is the same
                    hue walked down until it clears on both grounds used here:
                    5.17 on parchment, 5.41 on card paper. */
-                --rv-muted: #695F47;
-                --rv-faint: #8A7C5E;
+                --rv-muted: #63593F;
+                /* Was #8A7C5E, which sat at about 3.4:1 on this cream and
+                   carried axis labels, tick values and the seal-line captions.
+                   Still clearly secondary, now legible. */
+                --rv-faint: #7A6C4E;
                 --rv-ox: #7C1D2B;
                 --rv-ox-deep: #5E1420;
                 --rv-win: #4E6B3E;
@@ -73,7 +80,7 @@ export function renderRivalryDetail() {
                 position: relative;
                 max-width: 1160px;
                 margin: 0 auto;
-                padding: 46px var(--rv-gutter) 20px;
+                padding: 4px var(--rv-gutter) 20px;
                 font-family: "EB Garamond", Georgia, serif;
                 color: var(--rv-ink);
                 -webkit-font-smoothing: antialiased;
@@ -111,19 +118,24 @@ export function renderRivalryDetail() {
             .rv-kick {
                 display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .28em; text-transform: uppercase;
-                color: var(--rv-ox); font-weight: 500; margin-bottom: 20px;
+                font-size: 12px; letter-spacing: .28em; text-transform: uppercase;
+                color: var(--rv-ox); font-weight: 500; margin-bottom: 16px;
             }
             .rv-kick .r { height: 1px; width: 28px; background: var(--rv-ox); opacity: .75; }
             .rv-kick .st { display: inline-flex; align-items: center; gap: 7px; color: var(--rv-win); }
             .rv-kick .st.ox { color: var(--rv-ox); }
             .rv-kick .st.mut { color: var(--rv-muted); }
 
+            /* The pool reads as part of the matchup rather than as something
+               parked at the far edge: the left block is allowed to grow, so on
+               a wide screen the two are separated by one deliberate gap instead
+               of by however much room happened to be left over. */
             .rv-head {
                 display: flex; align-items: flex-start; justify-content: space-between;
-                gap: 40px; flex-wrap: wrap;
-                padding-bottom: 22px; border-bottom: 1px solid var(--rv-line-firm);
+                gap: 28px; flex-wrap: wrap;
+                padding-bottom: 20px; border-bottom: 1px solid var(--rv-line-firm);
             }
+            .rv-head-left { flex: 1 1 auto; min-width: 0; }
             .rv-matchup { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
             /* The handles are IDENTITIES, so they are set in the mono face the
                rest of the site uses for identity and data, never the display
@@ -137,15 +149,18 @@ export function renderRivalryDetail() {
             .rv-mh.even { color: var(--rv-ink); }
             .rv-vsd { display: flex; flex-direction: column; align-items: center; gap: 5px; }
             .rv-vsd .d { width: 8px; height: 8px; background: var(--rv-ox-deep); transform: rotate(45deg); }
-            .rv-vsd span { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9px; letter-spacing: .2em; color: var(--rv-muted); }
+            .rv-vsd span { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .2em; color: var(--rv-muted); }
             .rv-sub {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .1em; color: var(--rv-muted); margin-top: 14px;
+                font-size: 12px; letter-spacing: .1em; color: var(--rv-muted); margin-top: 12px;
             }
-            .rv-pool { text-align: right; flex: none; }
-            .rv-pool .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--rv-muted); }
-            .rv-pool .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(34px, 4.4vw, 46px); font-weight: 600; line-height: 1; margin-top: 4px; }
-            .rv-pool .s { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .06em; color: var(--rv-muted); margin-top: 6px; }
+            /* max-width caps how far the figure can drift from the names it
+               belongs to; margin-top lifts the eyebrow onto the matchup's line
+               rather than leaving it floating above one. */
+            .rv-pool { text-align: right; flex: 0 0 auto; max-width: 260px; margin-top: 2px; }
+            .rv-pool .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--rv-muted); }
+            .rv-pool .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(34px, 4.4vw, 46px); font-weight: 600; line-height: 1; margin-top: 6px; }
+            .rv-pool .s { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .06em; color: var(--rv-muted); margin-top: 6px; }
 
             /* ---- facts register ----
                METADATA ONLY. "Current leader" deliberately does not appear
@@ -160,30 +175,39 @@ export function renderRivalryDetail() {
             .rv-fact:first-child { border-left: 0; }
             .rv-fact .k {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+                font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
                 color: var(--rv-muted); margin-bottom: 7px;
             }
             .rv-fact .v {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 13px; letter-spacing: .02em; color: var(--rv-ink); font-weight: 500;
+                font-size: 14px; letter-spacing: .02em; color: var(--rv-ink); font-weight: 500;
                 display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
             }
+            /* THIS is where the contract's status lives, so the dot that says
+               "still moving" lives here too — restrained, the same oxblood as
+               the rest of the page, no warning colour. */
+            .rv-fact .v .rv-livedot.beat { animation: rv-blink 2200ms ease-in-out infinite; }
             .rv-fact .v.win { color: var(--rv-win); }
             .rv-fact .v.ox { color: var(--rv-ox); }
 
             /* ---- section heads ---- */
-            .rv-shead { display: flex; align-items: center; gap: 18px; margin: 44px 0 20px; }
-            .rv-shead.hero { margin-top: 36px; }
+            /* 30/18, down from 44/20 — the sections were reading as separate
+               pages rather than as parts of one document. */
+            .rv-shead { display: flex; align-items: center; gap: 20px; margin: 30px 0 18px; }
+            .rv-shead.hero { margin-top: 26px; }
             .rv-shead .lab {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 12px; letter-spacing: .26em; text-transform: uppercase;
                 color: var(--rv-ox); font-weight: 500; white-space: nowrap;
                 display: flex; align-items: center; gap: 11px;
             }
-            .rv-shead .ln { flex: 1; height: 1px; background: linear-gradient(90deg, var(--rv-line-firm), var(--rv-line-soft)); }
+            /* The rule starts AFTER the label rather than under it: a
+               letterspaced label whose last character sits on a hairline is the
+               kind of collision that reads as a bug. */
+            .rv-shead .ln { flex: 1; height: 1px; min-width: 24px; background: linear-gradient(90deg, var(--rv-line-firm), var(--rv-line-soft)); }
             .rv-shead .rt {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted);
+                font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted);
                 white-space: nowrap;
             }
 
@@ -212,10 +236,10 @@ export function renderRivalryDetail() {
             .rv-side .reg { position: absolute; width: 11px; height: 11px; border: 1.2px solid var(--rv-faint); opacity: .8; }
             .rv-side .reg.bl { bottom: 12px; left: 12px; border-right: 0; border-top: 0; }
             .rv-s-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-            .rv-s-role { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--rv-muted); }
+            .rv-s-role { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--rv-muted); }
             .rv-s-badge {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500;
+                font-size: 12px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500;
                 padding: 4px 11px; white-space: nowrap;
             }
             .rv-s-badge.lead { color: var(--rv-win); background: var(--rv-wintint); border: 1px solid rgba(78,107,62,.4); }
@@ -226,13 +250,13 @@ export function renderRivalryDetail() {
             .rv-s-pct.win { color: var(--rv-win); }
             .rv-s-pct.los { color: var(--rv-ox); }
             .rv-s-pct.mut { color: var(--rv-muted); }
-            .rv-s-delta { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .04em; color: var(--rv-muted); margin-top: 9px; }
+            .rv-s-delta { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .04em; color: var(--rv-muted); margin-top: 9px; }
             .rv-s-delta .up { color: var(--rv-win); }
             .rv-s-delta .dn { color: var(--rv-ox); }
             .rv-s-metrics { display: flex; justify-content: space-between; gap: 16px; margin: 22px 0 12px; padding-top: 16px; border-top: 1px solid var(--rv-line-soft); }
             .rv-s-metrics .m { min-width: 0; }
-            .rv-s-metrics .m .mk { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--rv-muted); margin-bottom: 5px; }
-            .rv-s-metrics .m .mv { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 14px; color: var(--rv-ink); font-weight: 500; }
+            .rv-s-metrics .m .mk { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--rv-muted); margin-bottom: 5px; }
+            .rv-s-metrics .m .mv { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 15px; color: var(--rv-ink); font-weight: 500; }
             .rv-s-metrics .m.r { text-align: right; }
             .rv-s-metrics .m.r .mv { color: var(--rv-ox); }
             .rv-s-prog { height: 6px; background: rgba(70,55,35,.1); overflow: hidden; margin-bottom: 13px; }
@@ -242,18 +266,18 @@ export function renderRivalryDetail() {
             .rv-side.even .rv-s-prog .f { background: var(--rv-muted); }
             .rv-s-tag {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted);
+                font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted);
                 display: inline-flex; align-items: center; gap: 7px;
             }
             .rv-s-tag .d { width: 5px; height: 5px; border-radius: 50%; background: var(--rv-faint); flex: none; }
             .rv-vscol { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 0 6px; }
             .rv-vscol .m { width: 10px; height: 10px; background: var(--rv-ox-deep); transform: rotate(45deg); }
-            .rv-vscol .vt { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .2em; color: var(--rv-muted); }
+            .rv-vscol .vt { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .2em; color: var(--rv-muted); }
             /* One line about the money, under both panels — not repeated inside
                each one, where it read as two different facts. */
             .rv-escrow {
                 text-align: center; font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--rv-muted);
+                font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--rv-muted);
                 margin-top: 22px; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
             }
             .rv-escrow.paid { color: var(--rv-win); }
@@ -263,7 +287,7 @@ export function renderRivalryDetail() {
             .rv-chartcard { border: 1px solid var(--rv-line-firm); background: var(--rv-paper); padding: 22px 26px 18px; box-shadow: 0 10px 24px rgba(60,40,20,.05); }
             .rv-chart-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
             .rv-legend { display: flex; gap: 20px; flex-wrap: wrap; }
-            .rv-lg { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; color: var(--rv-ink-soft); }
+            .rv-lg { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; color: var(--rv-ink-soft); }
             .rv-lg .sw { width: 14px; height: 3px; flex: none; }
             .rv-lg .sw.g { background: var(--rv-win); }
             .rv-lg .sw.o { background: var(--rv-ox); }
@@ -296,24 +320,24 @@ export function renderRivalryDetail() {
                 transition: opacity 140ms ease, transform 140ms ease;
             }
             .rv-chart-scroll.on .rv-tip { opacity: 1; transform: none; }
-            .rv-tip .when { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--rv-muted); margin-bottom: 7px; }
+            .rv-tip .when { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--rv-muted); margin-bottom: 7px; }
             .rv-tip .row { display: flex; align-items: center; justify-content: space-between; gap: 14px; font-size: 12px; color: var(--rv-ink-soft); padding: 2px 0; }
             .rv-tip .row .sw { width: 10px; height: 3px; flex: none; margin-right: 7px; }
             .rv-tip .row .sw.g { background: var(--rv-win); }
             .rv-tip .row .sw.o { background: var(--rv-ox); }
             .rv-tip .row b { color: var(--rv-ink); }
-            .rv-tip .mg { margin-top: 7px; padding-top: 7px; border-top: 1px solid var(--rv-line-soft); font-size: 11px; color: var(--rv-muted); }
+            .rv-tip .mg { margin-top: 7px; padding-top: 7px; border-top: 1px solid var(--rv-line-soft); font-size: 12px; color: var(--rv-muted); }
             .rv-livechip {
                 display: inline-flex; align-items: center; gap: 8px;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--rv-win);
+                font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--rv-win);
             }
             .rv-livechip .p { width: 6px; height: 6px; border-radius: 50%; background: var(--rv-win); flex: none; animation: rv-blink 2200ms ease-in-out infinite; }
             @keyframes rv-blink { 0%,100% { opacity: 1; } 50% { opacity: .28; } }
             .rv-chart-empty {
                 padding: 44px 8px; text-align: center; color: var(--rv-muted);
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+                font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
             }
 
             /* ---- oracle log ---- */
@@ -321,23 +345,45 @@ export function renderRivalryDetail() {
             .rv-oev { border: 1px solid rgba(78,107,62,.5); background: var(--rv-paper2); padding: 16px 20px; box-shadow: 0 0 0 1px rgba(78,107,62,.1); }
             .rv-oev-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
             .rv-oev-title { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .08em; color: var(--rv-ink); font-weight: 500; display: inline-flex; align-items: center; gap: 9px; }
-            .rv-oev-time { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; color: var(--rv-muted); }
+            .rv-oev-time { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; color: var(--rv-muted); }
             .rv-oev-body { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; line-height: 1.8; color: var(--rv-ink-soft); }
             .rv-oev-body .ar { color: var(--rv-muted); }
             .rv-oev-body b.win { color: var(--rv-win); }
             .rv-oev-body b.ox { color: var(--rv-ox); }
             .rv-oev-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rv-line-soft); }
-            .rv-oev-margin { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; color: var(--rv-muted); }
-            .rv-oev-status { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; color: var(--rv-win); display: inline-flex; align-items: center; gap: 7px; }
+            .rv-oev-margin { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; color: var(--rv-muted); }
+            .rv-oev-status { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; color: var(--rv-win); display: inline-flex; align-items: center; gap: 7px; }
             /* 176px, because the stamp now carries the date as well as the
                clock — at 88 every row wrapped onto two lines. */
             .rv-oevc { display: grid; grid-template-columns: 176px 1fr max-content; align-items: center; gap: 20px; border: 1px solid var(--rv-line); background: var(--rv-paper2); padding: 13px 20px; }
-            .rv-oevc .t { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; color: var(--rv-muted); }
+            .rv-oevc .t { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; color: var(--rv-muted); }
             .rv-oevc .d { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; color: var(--rv-ink-soft); overflow-wrap: anywhere; }
             .rv-oevc .d b { color: var(--rv-ink); }
-            .rv-oevc .s { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--rv-win); white-space: nowrap; }
+            .rv-oevc .s { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--rv-win); white-space: nowrap; }
             .rv-oevc.secure .s { color: var(--rv-ox); }
             .rv-oevc.settle .s { color: var(--rv-ox); }
+            /* The log opens on the latest reading plus three; the rest are in
+               the DOM from the start, so opening them is a state change and not
+               a fetch. grid-template-rows animates because the number of hidden
+               rows is not known at author time. */
+            .rv-more {
+                display: grid; grid-template-rows: 0fr;
+                transition: grid-template-rows 200ms ease, opacity 200ms ease;
+                opacity: 0;
+            }
+            .rv-more > div { overflow: hidden; display: flex; flex-direction: column; gap: 10px; }
+            .rv-olog.open .rv-more { grid-template-rows: 1fr; opacity: 1; }
+            .rv-olog.open .rv-more > div { padding-top: 10px; }
+            .rv-toggle {
+                align-self: center; margin-top: 4px;
+                min-height: 44px; padding: 12px 22px;
+                background: none; border: 1px solid var(--rv-line-firm); cursor: pointer;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+                color: var(--rv-ink-soft);
+                transition: background 160ms ease, color 160ms ease;
+            }
+            .rv-toggle:hover { background: rgba(70,55,35,.05); color: var(--rv-ink); }
 
             /* ---- actions (pre-active states keep their controls) ---- */
             .rv-actions {
@@ -357,21 +403,27 @@ export function renderRivalryDetail() {
             .rv-abtn.decline { background: none; color: var(--rv-ink-soft); border: 1px solid var(--rv-line-firm); }
             .rv-abtn.decline:hover { background: rgba(70,55,35,.06); }
             .rv-abtn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
-            .rv-astatus { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted); }
+            .rv-astatus { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted); }
 
             /* ---- footer ---- */
+            /* THE CONCLUDING MOMENT. A 2px oxblood rule across the top gives it
+               the weight of a closing statement without a filled banner —
+               nothing here should read as a celebration while the result is
+               still awaiting its final verification. */
             .rv-foot {
-                margin-top: 44px; display: flex; align-items: center; justify-content: space-between;
-                gap: 24px; flex-wrap: wrap; padding: 20px 26px;
-                border: 1px solid var(--rv-line-firm); background: var(--rv-paper);
+                margin-top: 32px; display: flex; align-items: center; justify-content: space-between;
+                gap: 28px; flex-wrap: wrap; padding: 26px 30px;
+                border: 1px solid var(--rv-line-firm); border-top: 2px solid var(--rv-ox);
+                background: var(--rv-paper);
             }
-            .rv-foot .t { font-family: "Cormorant Garamond", Georgia, serif; font-size: 19px; font-weight: 600; }
-            .rv-foot .s { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted); margin-top: 4px; }
-            .rv-foot .seal { width: 48px; height: 48px; flex: none; }
+            .rv-foot .t { font-family: "Cormorant Garamond", Georgia, serif; font-size: 25px; font-weight: 600; line-height: 1.1; }
+            .rv-foot .s { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--rv-muted); margin-top: 8px; }
+            .rv-foot .seal { width: 55px; height: 55px; flex: none; align-self: center; }
+            .rv-foot .seal svg { display: block; width: 100%; height: 100%; }
             .rv-back {
                 display: inline-flex; align-items: center; gap: 9px; margin-top: 26px;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+                font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
                 color: var(--rv-muted); background: none; border: 0; cursor: pointer;
             }
             .rv-back:hover { color: var(--rv-ox); }
@@ -390,6 +442,10 @@ export function renderRivalryDetail() {
                 .rv-fact:nth-child(n+3) { border-top: 1px solid var(--rv-line-soft); }
                 .rv-s-metrics { flex-direction: column; gap: 12px; }
                 .rv-s-metrics .m.r { text-align: left; }
+                /* The pool drops under the matchup and reads left-to-right with
+                   it, rather than staying right-aligned against nothing. */
+                .rv-head { flex-direction: column; gap: 16px; }
+                .rv-pool { text-align: left; max-width: none; margin-top: 0; }
             }
             @media (max-width: 760px) {
                 /* The two panels stack and the VS column becomes a rule between
@@ -676,19 +732,16 @@ export async function initRivalryDetail(params) {
     function renderHeader(model) {
         const frag = document.createDocumentFragment();
 
+        /* CATEGORY AND METRIC ONLY. The status used to be said here, again in
+           the facts panel and a third time in the footer; three copies of one
+           fact is three chances to disagree. The panel below owns it. */
         const kick = el('div', 'rv-kick');
         kick.appendChild(el('span', 'r'));
-        kick.appendChild(document.createTextNode('Rivalry · ' + model.metricLabel + ' · '));
-        const st = el('span', 'st ' + (statusTone(model) === 'win' ? '' : statusTone(model)));
-        const dot = el('span', 'rv-livedot' + (model.phase === 'live' ? '' : (model.phase === 'settled' ? ' mut' : ' ox')));
-        dot.setAttribute('style', 'width:7px;height:7px');
-        st.appendChild(dot);
-        st.appendChild(document.createTextNode(statusText(model)));
-        kick.appendChild(st);
+        kick.appendChild(document.createTextNode('Rivalry · ' + model.metricLabel));
         frag.appendChild(kick);
 
         const head = el('div', 'rv-head');
-        const left = el('div');
+        const left = el('div', 'rv-head-left');
         const matchup = el('div', 'rv-matchup');
         const aLead = model.leader === model.a;
         const bLead = model.leader === model.b;
@@ -731,9 +784,14 @@ export async function initRivalryDetail(params) {
             f.appendChild(val);
             return f;
         };
+        // The dot beats while the contract is still moving — live or settling —
+        // and rests once it is settled.
+        const beating = model.phase === 'live' || model.phase === 'settling';
         facts.appendChild(fact('Contract status', statusText(model),
             statusTone(model) === 'win' ? 'win' : 'ox',
-            'rv-livedot' + (model.phase === 'live' ? '' : (model.phase === 'settled' ? ' mut' : ' ox'))));
+            'rv-livedot'
+                + (model.phase === 'live' ? '' : (model.phase === 'settled' ? ' mut' : ' ox'))
+                + (beating ? ' beat' : '')));
 
         let settles = '—';
         if (model.phase === 'settled' && model.settledAt) settles = fmtDate(model.settledAt);
@@ -757,7 +815,8 @@ export async function initRivalryDetail(params) {
     function renderDuel(model) {
         const frag = document.createDocumentFragment();
         frag.appendChild(sectionHead('Head-to-Head',
-            model.phase === 'settled' ? 'Final standings' : 'Live standings'));
+            model.phase === 'settled' ? 'Final standings'
+                : (model.phase === 'settling' ? 'Awaiting final verification' : 'Live standings')));
 
         const box = el('div', 'rv-duelbox');
 
@@ -938,7 +997,9 @@ export async function initRivalryDetail(params) {
             return frag;
         }
 
-        const W = 1060, H = 300, PAD_L = 52, PAD_R = 66, PAD_T = 36, PAD_B = 22;
+        // PAD_R 100, not 66: the last reading now carries its value beside it,
+        // and at 66 that label ran past the right edge of the viewBox.
+        const W = 1060, H = 300, PAD_L = 52, PAD_R = 100, PAD_T = 36, PAD_B = 22;
         const all = model.a.points.concat(model.b.points);
         const maxPct = Math.max(model.targetPct, ...all.map(p => p.pct));
         const minPct = Math.min(0, ...all.map(p => p.pct));
@@ -1000,14 +1061,37 @@ export async function initRivalryDetail(params) {
             return d;
         };
 
+        /* THE MARGIN, DRAWN. The gap between the two step-lines is the lead —
+           the single number the page is about — so it is filled rather than
+           left as two lines the reader has to measure by eye. Built from the
+           leader's path forward and the trailer's back, both stepped, so the
+           band has the same shape as the data and not a smoothed version. */
+        const bandPath = () => {
+            const A = model.a.points, B = model.b.points;
+            if (A.length < 2 || B.length < 2) return '';
+            let d = 'M' + toX(A[0].t).toFixed(1) + ' ' + toY(A[0].pct).toFixed(1);
+            for (let i = 1; i < A.length; i++) {
+                d += ' L' + toX(A[i].t).toFixed(1) + ' ' + toY(A[i - 1].pct).toFixed(1);
+                d += ' L' + toX(A[i].t).toFixed(1) + ' ' + toY(A[i].pct).toFixed(1);
+            }
+            for (let i = B.length - 1; i > 0; i--) {
+                d += ' L' + toX(B[i].t).toFixed(1) + ' ' + toY(B[i].pct).toFixed(1);
+                d += ' L' + toX(B[i].t).toFixed(1) + ' ' + toY(B[i - 1].pct).toFixed(1);
+            }
+            d += ' L' + toX(B[0].t).toFixed(1) + ' ' + toY(B[0].pct).toFixed(1) + ' Z';
+            return d;
+        };
+        const band = bandPath();
+        if (band) svg.appendChild(svgEl('path', { d: band, fill: 'rgba(70,55,35,.07)', stroke: 'none' }));
+
         const draw = (pts, stroke, fill, width) => {
             if (!pts.length) return;
             svg.appendChild(svgEl('path', { d: stepPath(pts, true), fill: fill, stroke: 'none' }));
             svg.appendChild(svgEl('path', { d: stepPath(pts, false), fill: 'none', stroke: stroke,
                 'stroke-width': width, 'stroke-linejoin': 'round' }));
         };
-        draw(model.b.points, '#7C1D2B', 'rgba(124,29,43,.06)', 2);
-        draw(model.a.points, '#4E6B3E', 'rgba(78,107,62,.09)', 2.2);
+        draw(model.b.points, '#7C1D2B', 'rgba(124,29,43,.05)', 2.6);
+        draw(model.a.points, '#4E6B3E', 'rgba(78,107,62,.07)', 2.9);
 
         /* THE HEADROOM ANNOTATION. The space above the two lines is the
            distance still to run, so it is labelled as that rather than left
@@ -1051,17 +1135,27 @@ export async function initRivalryDetail(params) {
            series has not finished being written, and the last reading is the
            live edge of it rather than a final value. It stops on settlement. */
         const live = model.phase === 'live' || model.phase === 'settling';
+        /* The last reading is the one that matters, so it is the one that is
+           labelled — the reader should not have to trace a line back to the
+           legend to find out where a side currently stands. */
         const dot = (pts, colour) => {
             if (!pts.length) return;
             const p = pts[pts.length - 1];
-            const cx = toX(p.t).toFixed(1), cy = toY(p.pct).toFixed(1);
+            const cx = toX(p.t), cy = toY(p.pct);
             if (live) {
-                const halo = svgEl('circle', { cx: cx, cy: cy, r: 7, fill: colour, opacity: '.3' });
+                const halo = svgEl('circle', { cx: cx.toFixed(1), cy: cy.toFixed(1), r: 7, fill: colour, opacity: '.3' });
                 halo.setAttribute('class', 'rv-halo');
                 svg.appendChild(halo);
             }
-            svg.appendChild(svgEl('circle', { cx: cx, cy: cy, r: 4.5,
-                fill: colour, stroke: '#F5EDDA', 'stroke-width': 1.5 }));
+            svg.appendChild(svgEl('circle', { cx: cx.toFixed(1), cy: cy.toFixed(1), r: 5.5,
+                fill: colour, stroke: '#F5EDDA', 'stroke-width': 2 }));
+            const lab = svgEl('text', {
+                x: (cx + 12).toFixed(1), y: (cy + 4).toFixed(1),
+                'font-family': 'IBM Plex Mono,monospace', 'font-size': 13,
+                'font-weight': 500, fill: colour,
+            });
+            lab.textContent = pct2(p.pct);
+            svg.appendChild(lab);
         };
         dot(model.a.points, '#4E6B3E');
         dot(model.b.points, '#7C1D2B');
@@ -1224,8 +1318,11 @@ export async function initRivalryDetail(params) {
             log.appendChild(card);
         }
 
-        // older readings, compact
-        for (let i = idx - 1; i >= 1; i--) {
+        /* THREE PRIOR READINGS, then the rest behind a control. A daily series
+           runs to dozens of rows and the log was pushing the settlement footer
+           off the bottom of the page. Every row is built here and none is
+           fetched later, so opening is a state change. */
+        const priorRow = (i) => {
             const row = el('div', 'rv-oevc');
             row.appendChild(el('span', 't', fmtStamp(model.stamps[i])));
             const desc = el('span', 'd');
@@ -1243,7 +1340,37 @@ export async function initRivalryDetail(params) {
             const s = el('span', 's');
             withMark(s, 'Verified', '✓');
             row.appendChild(s);
-            log.appendChild(row);
+            return row;
+        };
+
+        const priors = [];
+        for (let i = idx - 1; i >= 1; i--) priors.push(i);
+        const SHOWN = 3;
+        priors.slice(0, SHOWN).forEach((i) => log.appendChild(priorRow(i)));
+
+        const hidden = priors.slice(SHOWN);
+        if (hidden.length) {
+            const more = el('div', 'rv-more');
+            const inner = el('div');
+            more.appendChild(inner);
+            const moreId = 'rv-more-rows';
+            more.id = moreId;
+            hidden.forEach((i) => inner.appendChild(priorRow(i)));
+            log.appendChild(more);
+
+            const toggle = el('button', 'rv-toggle',
+                'View all ' + model.verifications + ' verifications');
+            toggle.type = 'button';
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.setAttribute('aria-controls', moreId);
+            toggle.addEventListener('click', () => {
+                const open = log.classList.toggle('open');
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                toggle.textContent = open
+                    ? 'Show fewer verifications'
+                    : 'View all ' + model.verifications + ' verifications';
+            });
+            log.appendChild(toggle);
         }
 
         // the baseline lock
