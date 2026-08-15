@@ -1871,12 +1871,18 @@ export function renderActiveContracts() {
                 border-bottom: 1px solid var(--mb-line-soft);
             }
 
-            /* ---- issue band ---- */
+            /* ---- issue band ----
+               THE DEEP OXBLOOD, not the mid tone. This band is the heaviest
+               thing on the page and it sits directly under the card grid; at
+               --mb-ox it read as an oversized version of the Join Rivalry
+               button rather than as the foot of the section. --mb-ox-deep is
+               the same hue with the weight the position needs, and the cream
+               rule and label gain contrast against it rather than losing any. */
             .mb-issue {
-                margin-top: 34px; background: var(--mb-ox); color: #F3E7D6;
+                margin-top: 34px; background: var(--mb-ox-deep); color: #F3E7D6;
                 display: flex; align-items: center; justify-content: center;
                 gap: 26px; flex-wrap: wrap; padding: 22px;
-                box-shadow: 0 14px 30px rgba(94,20,32,.20);
+                box-shadow: 0 14px 30px rgba(60,12,20,.24);
             }
             .mb-issue .t { font-family: "Cormorant Garamond", Georgia, serif; font-size: 23px; font-weight: 600; }
             .mb-issue .a {
