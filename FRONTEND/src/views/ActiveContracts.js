@@ -2394,6 +2394,65 @@ export function initActiveContracts() {
         return (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
     }
 
+    /**
+     * The time left on a contract, in the coarsest unit that is still useful.
+     *
+     * Days while there are days, hours and minutes inside the last day, and
+     * seconds inside the last hour — a board of cards all ticking seconds is
+     * noise, but the final hour of a contract is genuinely a countdown.
+     *
+     * A passed deadline says AWAITING SETTLEMENT rather than 0D LEFT: the
+     * contract is not over, it is waiting on its final verification.
+     */
+    function countdownText(iso, kind) {
+        if (!iso) return 'NO DEADLINE SET';
+        const ms = new Date(iso).getTime() - Date.now();
+        if (!isFinite(ms)) return 'NO DEADLINE SET';
+        const acceptance = kind === 'acceptance';
+        if (ms <= 0) return acceptance ? 'ACCEPTANCE EXPIRED' : 'AWAITING SETTLEMENT';
+        const suffix = acceptance ? ' TO ACCEPT' : ' LEFT';
+        const d = Math.floor(ms / 86400000);
+        const h = Math.floor((ms % 86400000) / 3600000);
+        const m = Math.floor((ms % 3600000) / 60000);
+        const s = Math.floor((ms % 60000) / 1000);
+        const p = (n) => String(n).padStart(2, '0');
+        if (d > 0) return d + 'D ' + p(h) + 'H' + suffix;
+        if (h > 0) return p(h) + 'H ' + p(m) + 'M' + suffix;
+        return p(m) + 'M ' + p(s) + 'S' + suffix;
+    }
+
+    /** When an unaccepted challenge stops being available. */
+    function acceptanceDeadline(r) {
+        const issued = r.challengeIssuedAt || r.createdAt;
+        const ttl = Number(r.acceptanceTtlHours);
+        if (!issued || !isFinite(ttl) || ttl <= 0) return null;
+        const t = new Date(issued).getTime() + ttl * 3600000;
+        return isFinite(t) ? new Date(t).toISOString() : null;
+    }
+
+    /* ONE INTERVAL FOR THE WHOLE BOARD, not one per card. Twelve cards with
+       twelve timers is twelve wakeups a second for the same instant. It ticks
+       every second only when something is inside its last hour, and pauses
+       entirely while the tab is hidden. */
+    function startCountdowns() {
+        if (window._mbCountdown) { clearInterval(window._mbCountdown); window._mbCountdown = null; }
+        const tick = () => {
+            if (document.hidden) return;
+            const nodes = document.querySelectorAll('#rivalry-grid [data-deadline]');
+            if (!nodes.length) {
+                clearInterval(window._mbCountdown);
+                window._mbCountdown = null;
+                return;
+            }
+            nodes.forEach((n) => {
+                const text = countdownText(n.getAttribute('data-deadline'), n.getAttribute('data-kind'));
+                if (n.textContent !== text) n.textContent = text;
+            });
+        };
+        tick();
+        window._mbCountdown = setInterval(tick, 1000);
+    }
+
     /** API rivalry -> the shape the card renderer consumes. */
     function toCard(r) {
         const state = boardStateOf(r.state);
@@ -2413,6 +2472,15 @@ export function initActiveContracts() {
             // sequential receipt number would be decoration.
             receipt: 'RCPT·' + String(r.recordHash || r.id || '').slice(0, 6).toUpperCase(),
             days_left: daysLeft(r.deadlineUtc),
+            /* THE CLOCK, AND WHICH CLOCK IT IS.
+               A live rivalry counts down to settlement. An open one has no
+               settlement deadline yet — it has not been accepted, so nothing
+               has started — and what is actually running out is its acceptance
+               window. Showing "no deadline set" on an open challenge was
+               technically true and useless; showing it as a settlement
+               countdown would be a different contract's clock. */
+            deadline: r.deadlineUtc || acceptanceDeadline(r),
+            deadline_kind: r.deadlineUtc ? 'settlement' : (acceptanceDeadline(r) ? 'acceptance' : null),
             stake_per_side: stake,
             total_pool: stake * 2,
             op1: { handle: r.challengerUsername ? '@' + r.challengerUsername : 'Challenger',
@@ -2656,10 +2724,13 @@ export function initActiveContracts() {
             inner.appendChild(top);
 
             // ---- deadline, title, domain
-            const deadline = r.days_left == null
-                ? 'NO DEADLINE SET'
-                : (r.days_left <= 0 ? 'AWAITING SETTLEMENT' : r.days_left + 'D LEFT');
-            inner.appendChild(el('span', 'mb-c-days', deadline));
+            /* A RUNNING CLOCK, not a day count frozen at page load. The
+               deadline is the whole point of the instrument, and "7D LEFT" was
+               already wrong by the time anyone read it twice. countdownText()
+               owns the wording for every case including the passed one. */
+            const days = el('span', 'mb-c-days', countdownText(r.deadline, r.deadline_kind));
+            if (r.deadline) { days.setAttribute('data-deadline', r.deadline); days.setAttribute('data-kind', r.deadline_kind || 'settlement'); }
+            inner.appendChild(days);
             inner.appendChild(el('h3', 'mb-c-title', r.title));
             const dom = el('div', 'mb-c-dom');
             dom.appendChild(el('span', 'pd'));
@@ -2742,6 +2813,9 @@ export function initActiveContracts() {
             card.appendChild(inner);
             rGrid.appendChild(card);
         });
+
+        // The clocks start once, after every card on the board exists.
+        startCountdowns();
     }
 
 

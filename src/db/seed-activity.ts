@@ -100,28 +100,36 @@ export async function seedSimulatedActivity() {
         contractCount = Number((contractCheck as any).rows?.[0]?.cnt || (contractCheck as any)[0]?.cnt || 0);
     }
 
-    if (existingCount > 5 && contractCount > 10) {
-        console.log(`[Seed Activity] Already seeded (${existingCount} sim users, ${contractCount} contracts). Skipping.`);
-        return {
-            users: existingCount,
-            contracts: contractCount,
-            rivalries: 0,
-            activeRivalries: 0,
-            skipped: true,
-        };
+    /* RE-RUNNABLE, SO NEW RIVALRIES CAN BE TOPPED UP.
+       This used to return outright once the sim users and their contracts
+       existed, which meant adding rivalries to the set below had no effect on
+       an already-seeded database — the function skipped before reaching them.
+       The solo-contract sections are what must not run twice; the rivalry
+       section checks each pair for itself and inserts only what is missing. */
+    const skipContracts = existingCount > 5 && contractCount > 10;
+    if (skipContracts) {
+        console.log(`[Seed Activity] Solo contracts already seeded (${existingCount} sim users, ${contractCount} contracts) — topping up rivalries only.`);
     }
 
     // 1. Create simulated users
     const userIds: string[] = [];
     for (const u of SIM_USERS) {
+        const email = 'sim_' + u.handle + '@collateral.internal';
         const id = randomUUID();
         const createdDaysAgo = rand(14, 75); // Accounts 2-10 weeks old
         await db.execute(sql`
             INSERT INTO users (id, email, x_username, created_at)
-            VALUES (${id}, ${'sim_' + u.handle + '@collateral.internal'}, ${u.handle}, ${daysAgo(createdDaysAgo).toISOString()})
+            VALUES (${id}, ${email}, ${u.handle}, ${daysAgo(createdDaysAgo).toISOString()})
             ON CONFLICT DO NOTHING
         `);
-        userIds.push(id);
+        /* READ THE ID BACK. The insert is ON CONFLICT DO NOTHING, so on any run
+           after the first it inserts nothing and this user's real id is the one
+           already in the table — pushing the freshly generated UUID instead
+           pointed every rivalry below at a user that does not exist, and the
+           foreign keys would have rejected the lot. */
+        const row: any = await db.execute(sql`SELECT id FROM users WHERE email = ${email} LIMIT 1`);
+        const realId = row?.rows?.[0]?.id ?? row?.[0]?.id ?? id;
+        userIds.push(String(realId));
     }
     console.log(`[Seed Activity] ✅ Created ${userIds.length} simulated users`);
 
@@ -183,6 +191,7 @@ export async function seedSimulatedActivity() {
     ];
 
     for (const def of SETTLED_CONTRACTS) {
+        if (skipContracts) break;   // already present; do not duplicate
         const cid = randomUUID();
         contractIds.push(cid);
 
@@ -294,6 +303,7 @@ export async function seedSimulatedActivity() {
     ];
 
     for (const def of ACTIVE_CONTRACTS) {
+        if (skipContracts) break;   // already present; do not duplicate
         const cid = randomUUID();
         contractIds.push(cid);
 
@@ -378,9 +388,42 @@ export async function seedSimulatedActivity() {
         { c: 6, o: 7, platform: 'X', metric: 'FOLLOWERS', key: 'x_followers', stake: 25000, days: 14, settled: false, daysBack: 6 },
         { c: 10, o: 11, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 75000, days: 30, settled: false, daysBack: 10 },
         { c: 0, o: 12, platform: 'YOUTUBE', metric: 'VIEWS', key: 'youtube_30day_views', stake: 20000, days: 14, settled: false, daysBack: 5 },
-        
+
         // Recently activated
         { c: 14, o: 15, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 30000, days: 14, settled: false, daysBack: 4 },
+
+        /* ── 12 more, so the board reads as a market ──
+           DELIBERATELY STAGGERED. Every one of these carries a different
+           duration and a different daysBack, which means every card shows a
+           different time remaining — eight contracts all expiring on the same
+           afternoon is the tell that a market was generated rather than
+           traded. Durations stay on the 14/21/30 ladder the product actually
+           issues, and stakes stay inside the tier caps in house-edge-policy.
+
+           A third are OPEN (pending: true, no opponent yet) so the board's
+           Open segment has something in it and "Join Rivalry" leads somewhere
+           real. The rest are live and mid-flight. */
+
+        // Open challenges — issued, waiting for someone to take the other side
+        { c: 2, o: 3, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 100000, days: 30, settled: false, daysBack: 2, pending: true },
+        { c: 5, o: 6, platform: 'YOUTUBE', metric: 'SUBSCRIBERS', key: 'youtube_subscribers', stake: 25000, days: 21, settled: false, daysBack: 1, pending: true },
+        { c: 9, o: 10, platform: 'X', metric: 'FOLLOWERS', key: 'x_followers', stake: 50000, days: 14, settled: false, daysBack: 3, pending: true },
+        { c: 12, o: 13, platform: 'SHOPIFY', metric: 'REVENUE', key: 'shopify_net_sales', stake: 75000, days: 30, settled: false, daysBack: 1, pending: true },
+
+        // Live, early in their window
+        { c: 4, o: 8, platform: 'SHOPIFY', metric: 'REVENUE', key: 'shopify_net_sales', stake: 60000, days: 30, settled: false, daysBack: 3 },
+        { c: 11, o: 14, platform: 'YOUTUBE', metric: 'VIEWS', key: 'youtube_30day_views', stake: 35000, days: 21, settled: false, daysBack: 2 },
+        { c: 1, o: 7, platform: 'X', metric: 'FOLLOWERS', key: 'x_followers', stake: 15000, days: 14, settled: false, daysBack: 4 },
+
+        // Live, mid-flight
+        { c: 3, o: 15, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 250000, days: 30, settled: false, daysBack: 13 },
+        { c: 6, o: 9, platform: 'SHOPIFY', metric: 'REVENUE', key: 'shopify_net_sales', stake: 40000, days: 21, settled: false, daysBack: 9 },
+        { c: 13, o: 0, platform: 'YOUTUBE', metric: 'SUBSCRIBERS', key: 'youtube_subscribers', stake: 20000, days: 14, settled: false, daysBack: 7 },
+
+        // Live, close to the deadline — these are the ones whose clocks read in
+        // hours rather than days on the board
+        { c: 8, o: 5, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 125000, days: 14, settled: false, daysBack: 13 },
+        { c: 15, o: 2, platform: 'X', metric: 'FOLLOWERS', key: 'x_followers', stake: 30000, days: 21, settled: false, daysBack: 20 },
     ];
 
     let rivalryCount = 0;
@@ -388,6 +431,23 @@ export async function seedSimulatedActivity() {
         const rid = randomUUID();
         const challengerId = userIds[r.c];
         const opponentId = userIds[r.o];
+
+        /* EACH PAIR CHECKS FOR ITSELF, so this whole set can be re-run to add
+           the ones that are new without duplicating the ones that are not.
+           The pair plus the metric is the identity: the same two operators may
+           legitimately run more than one rivalry, but not two of the same
+           metric on the same platform. */
+        const dupe: any = await db.execute(sql`
+            SELECT 1 FROM rivalries
+            WHERE challenger_user_id = ${challengerId}
+              AND opponent_user_id = ${opponentId}
+              AND platform = ${r.platform}
+              AND metric_type = ${r.metric}
+            LIMIT 1
+        `);
+        const alreadyThere = (dupe?.rows?.length ?? dupe?.length ?? 0) > 0;
+        if (alreadyThere) continue;
+
         const daysBack = r.daysBack;
         const issuedAt = daysAgo(daysBack + (r.settled ? r.days : 0));
         const acceptedAt = (r as any).pending ? null : new Date(issuedAt.getTime() + rand(2, 18) * 3600000);
