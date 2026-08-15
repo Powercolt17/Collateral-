@@ -1339,7 +1339,7 @@ export function renderActiveContracts() {
                with a disclaimer under it. A wizard can ask for one thing at a
                time and therefore never has to invent the next thing. */
             .mb-solo { padding-top: 58px; }
-            .mb-w-col { max-width: 880px; margin: 0 auto; }
+            .mb-w-col { max-width: 920px; margin: 0 auto; }
             .mb-w-head { text-align: center; margin-bottom: 20px; }
             .mb-w-head .k {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
@@ -1357,7 +1357,7 @@ export function renderActiveContracts() {
             .mb-wiz { background: var(--mb-paper); border: 1px solid var(--mb-line-firm); box-shadow: 0 26px 60px rgba(60,40,20,.16); }
             .mb-wiz-top {
                 display: flex; align-items: center; justify-content: space-between; gap: 20px;
-                padding: 15px 26px; border-bottom: 1px solid var(--mb-line);
+                padding: 18px 28px; border-bottom: 1px solid var(--mb-line);
             }
             .mb-wiz-brand { display: flex; align-items: center; gap: 13px; }
             .mb-wiz-brand img { height: 34px; width: auto; flex: none; }
@@ -1382,7 +1382,7 @@ export function renderActiveContracts() {
             .mb-stp .lb.act { color: var(--mb-ink); }
             .mb-stp .bar { width: 34px; height: 1px; background: var(--mb-line-firm); margin: 0 12px; flex: none; }
 
-            .mb-wiz-body { padding: 22px 26px 6px; }
+            .mb-wiz-body { padding: 26px 28px 8px; }
             /* min-width: 0, WITHOUT WHICH overflow-x: auto DOES NOTHING on the
                matrix inside. A flex/grid item's automatic minimum size is its
                content's min-content width, so the matrix's row floor would grow
@@ -1392,7 +1392,7 @@ export function renderActiveContracts() {
             .mb-wiz-body > * { min-width: 0; }
             .mb-wiz-foot {
                 display: flex; align-items: center; justify-content: space-between; gap: 18px;
-                padding: 15px 26px; border-top: 1px solid var(--mb-line); background: rgba(250,244,230,.5);
+                padding: 18px 28px; border-top: 1px solid var(--mb-line); background: rgba(250,244,230,.5);
             }
             .mb-wstep { display: none; }
             .mb-wstep.on { display: block; }
@@ -1871,76 +1871,6 @@ export function renderActiveContracts() {
                 border-bottom: 1px solid var(--mb-line-soft);
             }
 
-            /* ---- featured layout (fewer than four rivalries) ----
-               The card keeps its ledger frame and gains room; the record beside
-               it is rules and monospace, not a second card competing with it. */
-            .mb-feature { display: block; }
-            .mb-feature-row {
-                display: grid; grid-template-columns: minmax(380px, 430px) 1fr;
-                gap: clamp(28px, 4vw, 56px); align-items: start;
-            }
-            .mb-feature-row + .mb-feature-row { margin-top: 32px; padding-top: 32px; border-top: 1px solid var(--mb-line-soft); }
-            .mb-feature-card > .mb-card { padding: 24px 26px; }
-            .mb-feature-card .mb-c-title { font-size: 24px; min-height: 0; margin-bottom: 10px; }
-            .mb-feature-card .mb-bar { height: 7px; }
-            .mb-feature-card .mb-c-stake .v { font-size: 23px; }
-            .mb-feature-card .mb-c-act { padding: 14px; }
-
-            .mb-chr { padding-top: 4px; }
-            .mb-chr-h {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .24em; text-transform: uppercase;
-                color: var(--mb-ox); font-weight: 500;
-                padding-bottom: 12px; border-bottom: 1px solid var(--mb-line-firm);
-            }
-            .mb-chr-row {
-                display: flex; align-items: baseline; justify-content: space-between; gap: 20px;
-                padding: 13px 0; border-bottom: 1px solid var(--mb-line-soft);
-            }
-            .mb-chr-row .k {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-muted);
-            }
-            .mb-chr-row .v {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 13px; color: var(--mb-ink); font-weight: 500; text-align: right;
-            }
-            .mb-chr-note {
-                margin: 16px 0 0; font-size: 14px; line-height: 1.55;
-                color: var(--mb-ink-soft); max-width: 42ch;
-            }
-
-            /* ---- ledger states ---- */
-            .mb-lskel { pointer-events: none; }
-            .mb-lskel .b { height: 12px; background: rgba(70,55,35,.07); display: block; }
-            .mb-lstate { padding: 30px 8px 26px; }
-            .mb-lstate .h {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--mb-ink);
-            }
-            .mb-lstate p { margin: 9px 0 0; font-size: 15px; line-height: 1.5; color: var(--mb-ink-soft); max-width: 54ch; }
-            .mb-lbtn {
-                margin-top: 16px; min-height: 44px; padding: 12px 20px;
-                background: none; border: 1px solid var(--mb-line-firm); cursor: pointer;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-ink-soft);
-                transition: background 160ms ease, color 160ms ease;
-            }
-            .mb-lbtn:hover { background: rgba(70,55,35,.05); color: var(--mb-ink); }
-            .mb-lbtn.quiet { border-color: transparent; padding-left: 0; color: var(--mb-ox); }
-            .mb-lbtn.quiet:hover { background: none; text-decoration: underline; }
-
-            /* ---- the two roles, said before the table ---- */
-            .mb-role {
-                display: grid; grid-template-columns: 190px 1fr; gap: 18px; align-items: baseline;
-                padding: 11px 0; border-top: 1px solid var(--mb-line-soft);
-            }
-            .mb-role .k {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-ox);
-            }
-            .mb-role p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--mb-ink-soft); }
-
             /* ---- issue band ----
                THE DEEP OXBLOOD, not the mid tone. This band is the heaviest
                thing on the page and it sits directly under the card grid; at
@@ -1951,7 +1881,7 @@ export function renderActiveContracts() {
             .mb-issue {
                 margin-top: 34px; background: var(--mb-ox-deep); color: #F3E7D6;
                 display: flex; align-items: center; justify-content: center;
-                gap: 26px; flex-wrap: wrap; padding: 18px 22px;
+                gap: 26px; flex-wrap: wrap; padding: 22px;
                 box-shadow: 0 14px 30px rgba(60,12,20,.24);
             }
             .mb-issue .t { font-family: "Cormorant Garamond", Georgia, serif; font-size: 23px; font-weight: 600; }
@@ -1984,15 +1914,10 @@ export function renderActiveContracts() {
             .mb-lrow .am.l { color: var(--mb-ox); }
             .mb-lrow .sr { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10.5px; letter-spacing: .06em; color: var(--mb-ink-soft); }
             .mb-lrow .tm { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10.5px; letter-spacing: .06em; color: var(--mb-muted); text-align: right; }
-            /* THE HAND-OFF INTO THE FOOTER. This was floating in a tall band of
-               empty cream between the ledger and the site footer, which read as
-               unfinished page rather than as a closing line. It now sits on its
-               own oxblood hairline, tight to what it follows. */
             .mb-foot {
-                margin-top: 30px; padding: 22px 0 4px; text-align: center;
-                border-top: 1px solid rgba(124,29,43,.35);
+                margin-top: 44px; padding-bottom: 12px; text-align: center;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
-                font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--mb-muted);
+                font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--mb-muted);
                 display: flex; align-items: center; justify-content: center; gap: 16px;
             }
 
@@ -2026,18 +1951,10 @@ export function renderActiveContracts() {
             @media (max-width: 1180px) {
                 .mb-grid { grid-template-columns: repeat(3, 1fr); }
             }
-            @media (max-width: 1024px) {
-                /* The record drops under the card rather than being squeezed
-                   into a column too narrow for its own key/value rows. */
-                .mb-feature-row { grid-template-columns: 1fr; gap: 26px; }
-                .mb-feature-card { max-width: 460px; }
-                .mb-chr-note { max-width: none; }
-            }
             @media (max-width: 900px) {
                 .mb-grid { grid-template-columns: repeat(2, 1fr); }
                 .mb-solo { padding-top: 44px; }
                 .mb-board { padding-top: 46px; }
-                .mb-role { grid-template-columns: 1fr; gap: 5px; }
                 /* The wizard stays a single centred column at every width — it
                    is already one, so tablet only loses padding, never structure. */
                 .mb-wiz-top, .mb-wiz-body, .mb-wiz-foot { padding-left: 20px; padding-right: 20px; }
@@ -2061,23 +1978,12 @@ export function renderActiveContracts() {
                 /* Filters scroll sideways rather than stacking into a tall block
                    that pushes the board off the first screen. */
                 .mb-chips, .mb-seg { overflow-x: auto; flex-wrap: nowrap; max-width: 100%; }
-                /* THE MATRIX STACKS ON A PHONE INSTEAD OF SCROLLING.
-                   The four source columns are a comparison, but a single metric
-                   only ever reads from ONE of them — the other three are rules
-                   restating "not used". At this width the dots earn less than
-                   the horizontal scroll costs, so the row becomes the metric and
-                   its action, and the button already names the source it needs
-                   ("Connect Stripe →"). The legend goes with the dots it
-                   explains. The ledger still scrolls: every one of its columns
-                   carries a distinct value. */
-                .mb-matrix { overflow-x: visible; }
-                .mb-mx-h, .mb-mx-legend { display: none; }
-                .mb-mx-r { display: block; min-width: 0; padding: 4px 0 14px; }
-                .mb-mx-cell { display: none; }
-                .mb-mx-metric { padding: 12px 2px 8px; }
-                .mb-mx-avail { justify-content: flex-start; padding: 0 2px; }
-                .mb-mx-avail .ss-go { min-height: 44px; }
-                .mb-mx-r.sel::before { width: 2px; }
+                /* A floor for the scroll containers above, so the columns keep
+                   a readable width inside the scroll instead of crushing. */
+                /* 760, not 560: the availability column now carries a bordered
+                   button with a brand mark rather than a bare text link, and it
+                   wraps to two lines under about 720. */
+                .mb-mx-h, .mb-mx-r { min-width: 760px; }
                 .mb-lrowh, .mb-lrow { min-width: 560px; }
                 .mb-lrowh, .mb-lrow { grid-template-columns: 96px 1fr 110px 100px 100px 84px; }
                 .mb-drow { grid-template-columns: 108px 1fr max-content; gap: 10px; }
@@ -2152,68 +2058,6 @@ export function renderActiveContracts() {
                  that masthead; everything below is what follows it.
                  ═══════════════════════════════════════════════════════════ -->
 
-
-            <!-- ── BOARD ── -->
-            <section class="mb mb-board">
-                <div class="mb-lhead">
-                    <!-- "Rivalry Market", not "Open Rivalries": the board carries
-                         live rivalries as well as open ones, so the heading was
-                         contradicting the Open/Live segments directly under it.
-                         It becomes "Featured Live Rivalry" when the market is
-                         small enough that a filter bar over it would be an
-                         apparatus with nothing to sort. -->
-                    <span class="lab"><span class="mb-mark"></span> <span id="mb-board-title">Rivalry Market</span></span>
-                    <span class="ln"></span>
-                    <button type="button" class="act" id="btn-rules">Execution rules &rarr;</button>
-                </div>
-
-                <!-- THE CONTROLS ARE CONDITIONAL, NOT DELETED. Segments, chips,
-                     count and sort are all still wired; renderRivalries() hides
-                     the row while the whole market fits on one screen and puts
-                     it back the moment there is enough inventory to need it. -->
-                <div class="mb-controls" id="mb-controls">
-                    <div class="mb-seg" id="mb-seg">
-                        <button type="button" class="on" data-state="all">All Rivalries</button>
-                        <button type="button" data-state="open">Open</button>
-                        <button type="button" data-state="live">Live</button>
-                    </div>
-                    <div class="mb-chips" id="eq-filters">
-                        <button type="button" class="mb-chip on" data-category="all">All</button>
-                        <button type="button" class="mb-chip" data-category="social">Social</button>
-                        <button type="button" class="mb-chip" data-category="commerce">Commerce</button>
-                        <button type="button" class="mb-chip" data-category="finance">Finance</button>
-                    </div>
-                    <!-- The count is the length of what is actually on the board.
-                         The reference printed 528 next to eight cards; a results
-                         count that disagrees with the results is the same class of
-                         bug as the hero and the odometers disagreeing. -->
-                    <div class="mb-sortr">
-                        <span><b id="mb-count">0</b> results</span>
-                        <!-- A REAL CONTROL. This was static text with a ▾ on it,
-                             which reads as a menu and did nothing when pressed;
-                             it cycles the three orders the board can actually
-                             put the cards in. -->
-                        <button type="button" class="mb-sort" id="mb-sort">Sort: <b id="mb-sort-lbl">Trending</b> <span aria-hidden="true">&#9662;</span></button>
-                    </div>
-                </div>
-
-                <div class="mb-grid" id="rivalry-grid"></div>
-
-                <div class="mb-issue">
-                    <span class="t">No match?</span>
-                    <button type="button" class="a" onclick="window.router.navigate('/rivalry')">Create a Rivalry &rarr;</button>
-                </div>
-            </section>
-
-            <!-- The market comes FIRST and the divider turns to face the other
-                 way: the page now shows what is trading before it asks anyone
-                 to write something new. -->
-            <div class="mb mb-sep">
-                <span class="ln"></span>
-                <span>Or &mdash; stake on your own goal</span>
-                <span class="ln"></span>
-            </div>
-
             <!-- ── CREATE ──
                  ONE CARD THAT ADVANCES IN PLACE.
 
@@ -2260,29 +2104,13 @@ export function renderActiveContracts() {
                             <!-- ── STEP 1 · connect & choose ── -->
                             <div class="mb-wstep on" data-step="1">
                                 <div class="mb-act-head">Step 1 of 3 &middot; Connect &amp; choose</div>
-                                <h3 class="mb-act-title">Connect your settlement account, then choose a verified performance metric</h3>
-                                <p class="mb-act-sub">Your bank handles settlement. Stripe, Shopify and YouTube provide read-only performance data.</p>
-
-                                <!-- TWO DIFFERENT JOBS, SAID SEPARATELY. The bank
-                                     moves the money; the platforms only prove the
-                                     number. One table carrying both without saying
-                                     so was the reason "Bank required" appeared
-                                     beside a connected Stripe and read as a
-                                     contradiction. -->
-                                <div class="mb-role">
-                                    <div class="k">Settlement account</div>
-                                    <p>Your connected bank funds and receives every contract settlement.</p>
-                                </div>
-
-                                <div class="mb-role">
-                                    <div class="k">Verification source</div>
-                                    <p>Connect a business platform to verify the metric used in your contract.</p>
-                                </div>
+                                <h3 class="mb-act-title">Connect your source, pick a metric</h3>
+                                <p class="mb-act-sub">Money settles through your bank. Connect Stripe, Shopify or YouTube to unlock the counts a statement can&rsquo;t see.</p>
 
                                 <div class="mb-mx-legend">
-                                    <span class="mb-lg"><span class="mb-dot"></span> Connected &amp; ready</span>
+                                    <span class="mb-lg"><span class="mb-dot"></span> Verified &amp; ready</span>
                                     <span class="mb-lg"><span class="mb-dot-o"></span> Connect to unlock</span>
-                                    <span class="mb-lg"><span class="mb-dot-e"></span> Not used</span>
+                                    <span class="mb-lg"><span class="mb-dot-e"></span> Not applicable</span>
                                 </div>
 
                                 <div class="mb-matrix">
@@ -2352,6 +2180,57 @@ export function renderActiveContracts() {
 
                         <div class="mb-wiz-foot" id="mb-wiz-foot"></div>
                     </div>
+                </div>
+            </section>
+
+            <div class="mb mb-sep">
+                <span class="ln"></span>
+                <span>Or &mdash; take on an open rival</span>
+                <span class="ln"></span>
+            </div>
+
+            <!-- ── BOARD ── -->
+            <section class="mb mb-board">
+                <div class="mb-lhead">
+                    <!-- "Rivalry Market", not "Open Rivalries": the board carries
+                         live rivalries as well as open ones, so the heading was
+                         contradicting the Open/Live segments directly under it. -->
+                    <span class="lab"><span class="mb-mark"></span> Rivalry Market</span>
+                    <span class="ln"></span>
+                    <button type="button" class="act" id="btn-rules">Execution rules &rarr;</button>
+                </div>
+
+                <div class="mb-controls">
+                    <div class="mb-seg" id="mb-seg">
+                        <button type="button" class="on" data-state="all">All Rivalries</button>
+                        <button type="button" data-state="open">Open</button>
+                        <button type="button" data-state="live">Live</button>
+                    </div>
+                    <div class="mb-chips" id="eq-filters">
+                        <button type="button" class="mb-chip on" data-category="all">All</button>
+                        <button type="button" class="mb-chip" data-category="social">Social</button>
+                        <button type="button" class="mb-chip" data-category="commerce">Commerce</button>
+                        <button type="button" class="mb-chip" data-category="finance">Finance</button>
+                    </div>
+                    <!-- The count is the length of what is actually on the board.
+                         The reference printed 528 next to eight cards; a results
+                         count that disagrees with the results is the same class of
+                         bug as the hero and the odometers disagreeing. -->
+                    <div class="mb-sortr">
+                        <span><b id="mb-count">0</b> results</span>
+                        <!-- A REAL CONTROL. This was static text with a ▾ on it,
+                             which reads as a menu and did nothing when pressed;
+                             it cycles the three orders the board can actually
+                             put the cards in. -->
+                        <button type="button" class="mb-sort" id="mb-sort">Sort: <b id="mb-sort-lbl">Trending</b> <span aria-hidden="true">&#9662;</span></button>
+                    </div>
+                </div>
+
+                <div class="mb-grid" id="rivalry-grid"></div>
+
+                <div class="mb-issue">
+                    <span class="t">No match?</span>
+                    <button type="button" class="a" onclick="window.router.navigate('/rivalry')">Create a Rivalry &rarr;</button>
                 </div>
             </section>
 
@@ -2491,11 +2370,6 @@ export function initActiveContracts() {
                 const res = await window.api.getRivalryMetrics(r.id);
                 const metrics = (res && res.metrics) || [];
                 const latest = {};
-                // How many times the oracle has actually read this contract —
-                // one verification is one instant, both sides together.
-                const stamps = {};
-                metrics.forEach((m) => { stamps[new Date(m.fetchedAt).getTime()] = 1; });
-                r._verifications = Object.keys(stamps).length;
                 metrics.forEach((m) => {
                     const prev = latest[m.userId];
                     if (!prev || new Date(m.fetchedAt) > new Date(prev.fetchedAt)) latest[m.userId] = m;
@@ -2541,11 +2415,6 @@ export function initActiveContracts() {
             days_left: daysLeft(r.deadlineUtc),
             stake_per_side: stake,
             total_pool: stake * 2,
-            // Carried for the featured layout's clearinghouse record, which
-            // reports only what the contract already knows about itself.
-            metric_label: titleCase(r.metricType),
-            verifications: r._verifications || 0,
-            settled: !!r.settledAt,
             op1: { handle: r.challengerUsername ? '@' + r.challengerUsername : 'Challenger',
                    delta: fmtPct(g.challenger) },
             op2: { handle: r.opponentUsername ? '@' + r.opponentUsername : null,
@@ -2615,30 +2484,13 @@ export function initActiveContracts() {
     async function renderLedger() {
         const host = document.getElementById('mb-ledger-rows');
         if (!host) return;
-
-        /* FOUR STATES, AND THEY LOOK DIFFERENT.
-           This used to print one bare line for all of them, so "still loading"
-           and "the request failed" and "nothing has settled" were the same
-           grey sentence in the same empty band — and the failure case was
-           showing while the fetch was still in flight. */
-        const el2 = (tag, cls, text) => {
-            const n = document.createElement(tag);
-            if (cls) n.className = cls;
-            if (text != null) n.textContent = text;
-            return n;
+        const note = (text) => {
+            host.innerHTML = '';
+            const n = document.createElement('div');
+            n.className = 'mb-ledger-note';
+            n.textContent = text;
+            host.appendChild(n);
         };
-
-        // ---- loading: the table's own shape, headers still standing
-        host.innerHTML = '';
-        for (let i = 0; i < 3; i++) {
-            const sk = el2('div', 'mb-lrow mb-lskel');
-            sk.setAttribute('aria-hidden', 'true');
-            for (let c = 0; c < 6; c++) sk.appendChild(el2('span', 'b'));
-            host.appendChild(sk);
-        }
-        const verifying = el2('div', 'mb-ledger-note', 'Verifying ledger…');
-        verifying.setAttribute('role', 'status');
-        host.appendChild(verifying);
 
         let results;
         try {
@@ -2646,35 +2498,12 @@ export function initActiveContracts() {
             results = (res && res.results) || [];
         } catch (e) {
             console.error('[Market] results unavailable:', e);
-            // ---- error: contained, specific, and it says nothing was touched
-            host.innerHTML = '';
-            const box = el2('div', 'mb-lstate');
-            box.appendChild(el2('div', 'h', 'Ledger connection interrupted'));
-            box.appendChild(el2('p', null, 'Settlement records could not be loaded. No contract data has been altered.'));
-            const retry = el2('button', 'mb-lbtn', 'Retry connection');
-            retry.type = 'button';
-            retry.addEventListener('click', () => { renderLedger(); });
-            box.appendChild(retry);
-            host.appendChild(box);
+            note('Settlement history is temporarily unavailable');
             return;
         }
 
         if (!results.length) {
-            // ---- empty: a fact about the market, not about the request
-            host.innerHTML = '';
-            const box = el2('div', 'mb-lstate');
-            box.appendChild(el2('div', 'h', 'No contracts have settled yet'));
-            box.appendChild(el2('p', null, 'Completed settlements will appear here as permanent public receipts.'));
-            const go = el2('button', 'mb-lbtn quiet', 'View live rivalry →');
-            go.type = 'button';
-            go.addEventListener('click', () => {
-                const first = rivalries[0];
-                if (window.router) {
-                    window.router.navigate(first && first.id ? '/rivalry/' + encodeURIComponent(first.id) : '/rivalry');
-                }
-            });
-            box.appendChild(go);
-            host.appendChild(box);
+            note('No contracts have settled yet');
             return;
         }
 
@@ -2714,10 +2543,6 @@ export function initActiveContracts() {
         const rGrid = document.getElementById('rivalry-grid');
         if (!rGrid) return;
         rGrid.innerHTML = '';
-        // Back to the grid before anything is drawn: the loading, error and
-        // no-match states all lay out as a grid, and a re-render arriving after
-        // a featured pass would otherwise inherit its single-column block.
-        rGrid.className = 'mb-grid';
 
         const count = document.getElementById('mb-count');
 
@@ -2764,31 +2589,11 @@ export function initActiveContracts() {
             return;
         }
 
-        /* ── FEATURED, WHILE THE MARKET IS STILL SMALL ──
-           A segmented control, four category chips, a result count and a sort
-           menu over ONE card is an apparatus with nothing to operate. Under
-           four rivalries the chrome stands down and the single contract is
-           presented properly instead; at four the whole interface comes back,
-           because at that point there is something to filter. None of it is
-           removed — the listeners stay bound to the same elements. */
-        const FEATURE_UNDER = 4;
-        const featured = rivalries.length > 0 && rivalries.length < FEATURE_UNDER;
-        const controls = document.getElementById('mb-controls');
-        const boardTitle = document.getElementById('mb-board-title');
-        if (controls) controls.hidden = featured;
-        if (boardTitle) {
-            boardTitle.textContent = featured
-                ? (rivalries.length === 1 ? 'Featured Live Rivalry' : 'Featured Live Rivalries')
-                : 'Rivalry Market';
-        }
-
         let list = rivalries.slice();
-        // Filters only apply while they are on screen; with the chrome hidden a
-        // stale chip could otherwise silently empty the featured slot.
-        if (!featured && activeCategory !== 'all') {
+        if (activeCategory !== 'all') {
             list = list.filter(r => r.domain.toLowerCase() === activeCategory.toLowerCase());
         }
-        if (!featured && activeState !== 'all') {
+        if (activeState !== 'all') {
             list = list.filter(r => r.state === activeState);
         }
 
@@ -2828,7 +2633,7 @@ export function initActiveContracts() {
             return n;
         };
 
-        const buildCard = (r) => {
+        list.forEach((r) => {
             const isOpen = r.state === 'open';
             /* MEASURED OR NOT — the distinction the old mock could not have.
                A funded rivalry that has not been sampled yet has no progress,
@@ -2928,75 +2733,15 @@ export function initActiveContracts() {
             const act = el('button', 'mb-c-act ' + (isOpen ? 'accept' : 'view'),
                 isOpen ? 'Join Rivalry' : 'View Rivalry →');
             act.type = 'button';
-            const open = () => {
+            act.addEventListener('click', () => {
                 if (!window.router || !r.id) return;
                 window.router.navigate('/rivalry/' + encodeURIComponent(r.id));
-            };
-            act.addEventListener('click', open);
+            });
             inner.appendChild(act);
 
             card.appendChild(inner);
-            /* The whole card opens the contract, and the button stays visible
-               and focusable so keyboard users get one target rather than a
-               card they cannot reach. The card itself is not in the tab order
-               — that would put the same destination in twice. */
-            card.addEventListener('click', (e) => {
-                if (e.target.closest('.mb-c-act')) return;
-                open();
-            });
-            card.setAttribute('style', 'cursor:pointer');
-            return card;
-        };
-
-        /* One contract gets a composition; several get a grid. */
-        if (featured) {
-            rGrid.className = 'mb-feature';
-            list.forEach((r) => {
-                const pair = el('div', 'mb-feature-row');
-                const left = el('div', 'mb-feature-card');
-                left.appendChild(buildCard(r));
-                pair.appendChild(left);
-                pair.appendChild(clearinghouseRecord(r, el));
-                rGrid.appendChild(pair);
-            });
-            return;
-        }
-        rGrid.className = 'mb-grid';
-        list.forEach((r) => rGrid.appendChild(buildCard(r)));
-    }
-
-    /* ── the clearinghouse record ──
-       Beside the featured contract, and built ONLY from what that contract
-       already reports: its pool, the platform its oracle reads, how many times
-       that oracle has actually run, and where it is in its life. No liquidity
-       figures, no counts of anything this page cannot see. */
-    function clearinghouseRecord(r, el) {
-        const box = el('div', 'mb-chr');
-        box.appendChild(el('div', 'mb-chr-h', 'Clearinghouse record'));
-
-        const line = (k, v) => {
-            const row = el('div', 'mb-chr-row');
-            row.appendChild(el('span', 'k', k));
-            row.appendChild(el('span', 'v', v));
-            box.appendChild(row);
-        };
-
-        line('Escrow', '$' + r.total_pool.toLocaleString() + ' secured');
-        line('Verified by', titleCase(r.platform) + ' · ' + String(r.metric_label || '').toLowerCase());
-        line('Oracle reads', r.verifications
-            ? r.verifications + ' verification' + (r.verifications === 1 ? '' : 's')
-            : 'None recorded yet');
-        line('Settlement rail', r.rail);
-        const stage = r.settled
-            ? 'Settled'
-            : (r.days_left == null
-                ? 'No deadline set'
-                : (r.days_left <= 0 ? 'Awaiting final settlement' : r.days_left + ' days remaining'));
-        line('Stage', stage);
-
-        box.appendChild(el('p', 'mb-chr-note',
-            'Capital remains secured until the final oracle verification confirms the result.'));
-        return box;
+            rGrid.appendChild(card);
+        });
     }
 
 
@@ -3249,11 +2994,9 @@ export function initActiveContracts() {
                     ? 'Connect bank →'
                     : 'Connect ' + platform + ' →';
             } else {
-                /* Its own source is attached; the only thing left is the bank.
-                   "Bank required" stated a fact and left the reader to work out
-                   what to do about it — this names the action, and it is only
-                   ever shown on a row whose own source really is connected. */
-                go.textContent = 'Connect bank to continue';
+                // Its own source is attached; the only thing left is the bank,
+                // and that is step 01 rather than an action on this row.
+                go.textContent = 'Bank required';
             }
         }
 
