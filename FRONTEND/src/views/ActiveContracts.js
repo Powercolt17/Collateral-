@@ -1934,64 +1934,107 @@ export function renderActiveContracts() {
                the board behind it refreshes in place when a challenge posts. */
             .mb-rm-back {
                 display: none; position: fixed; inset: 0; z-index: 1000;
-                background: rgba(40,28,14,.55);
+                background: rgba(38,26,12,.62);
                 align-items: center; justify-content: center; padding: 24px;
             }
             .mb-rm-back.open { display: flex; }
+            /* The sheet is a flex column so the action bar can sit at its foot
+               and stay there while the body scrolls — the CTA was the one thing
+               below the fold, which is the worst possible thing to hide. */
             .mb-rm {
-                background: var(--mb-paper); border: 1px solid rgba(86,66,42,.34);
-                box-shadow: 0 1px 2px rgba(70,52,30,.10), 0 34px 74px rgba(60,40,20,.24);
-                width: 560px; max-width: 100%; max-height: 88vh; overflow-y: auto;
-                padding: 30px 34px 26px; position: relative;
+                background: var(--mb-paper); border: 1px solid rgba(86,66,42,.38);
+                box-shadow: 0 1px 2px rgba(70,52,30,.12), 0 2px 6px rgba(70,52,30,.08), 0 40px 80px rgba(48,30,12,.30);
+                width: 560px; max-width: 100%; max-height: 90vh;
+                display: flex; flex-direction: column;
+                position: relative;
             }
-            .mb-rm-top { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 16px; border-bottom: 2px solid var(--mb-ink); }
+            .mb-rm-scroll { overflow-y: auto; padding: 22px 30px 4px; }
+            /* A hairline, not a UI scrollbar. */
+            .mb-rm-scroll { scrollbar-width: thin; scrollbar-color: rgba(70,55,35,.28) transparent; }
+            .mb-rm-scroll::-webkit-scrollbar { width: 4px; }
+            .mb-rm-scroll::-webkit-scrollbar-track { background: transparent; }
+            .mb-rm-scroll::-webkit-scrollbar-thumb { background: rgba(70,55,35,.26); }
+            .mb-rm-scroll::-webkit-scrollbar-thumb:hover { background: rgba(70,55,35,.40); }
+
+            .mb-rm-top { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 11px; border-bottom: 2px solid var(--mb-ink); }
             .mb-rm-kick { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: var(--mb-ox); font-weight: 500; }
-            .mb-rm-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 27px; font-weight: 600; line-height: 1; margin-top: 7px; }
+            .mb-rm-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 25px; font-weight: 600; line-height: 1; margin-top: 4px; }
             .mb-rm-x { background: none; border: 0; cursor: pointer; font-size: 17px; color: var(--mb-muted); line-height: 1; padding: 4px; }
             .mb-rm-x:hover { color: var(--mb-ox-deep); }
 
-            .mb-rm-f { padding: 16px 0 0; border-bottom: 1px solid var(--mb-line-soft); }
+            .mb-rm-f { padding: 10px 0 0; border-bottom: 1px solid var(--mb-line-soft); }
             .mb-rm-f:last-of-type { border-bottom: 0; }
             .mb-rm-lab {
-                display: block; margin-bottom: 10px;
+                display: block; margin-bottom: 7px;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--mb-muted);
             }
-            .mb-rm-hint { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .04em; color: var(--mb-muted); margin: 9px 0 14px; }
-            .mb-rm-row { display: flex; gap: 8px; flex-wrap: wrap; }
+            .mb-rm-hint { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .04em; color: var(--mb-muted); margin: 5px 0 9px; }
+            .mb-rm-row { display: flex; gap: 7px; flex-wrap: wrap; }
+            /* SEGMENTED, NOT TWO BUTTONS WITH A GAP. The two halves of a single
+               either/or read as one control when they share an edge — the gap
+               made them look like two unrelated actions. */
+            .mb-rm-row.seg { gap: 0; border: 1px solid var(--mb-line-firm); }
+            .mb-rm-row.seg .mb-rm-p { border: 0; border-right: 1px solid var(--mb-line-firm); letter-spacing: .14em; text-transform: uppercase; font-size: 10.5px; }
+            .mb-rm-row.seg .mb-rm-p:last-child { border-right: 0; }
+            /* Six stake pills on one line: equal columns rather than content
+               width, so $100 and $5,000 occupy the same space. */
+            .mb-rm-row.six { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+            .mb-rm-row.six .mb-rm-p { padding: 10px 4px; text-align: center; }
             /* One pill treatment for every choice in this form. The old one had
                three different active states — black, dark red, near-black —
                for type, stake and tier. */
+            /* One height for every control in the form — pills, input and
+               select all resolve to 42px, so a column of fields has one rhythm
+               instead of three. */
             .mb-rm-p {
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 11px; letter-spacing: .08em; color: var(--mb-ink-soft);
-                background: rgba(250,244,230,.75); border: 1px solid var(--mb-line-firm);
-                padding: 10px 15px; cursor: pointer; min-height: 40px;
+                background: rgba(250,244,230,.8); border: 1px solid var(--mb-line-firm);
+                padding: 10px 14px; cursor: pointer; min-height: 42px;
+                display: inline-flex; align-items: center; justify-content: center;
                 transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
             }
-            .mb-rm-p:hover { background: rgba(70,55,35,.05); }
+            .mb-rm-p:hover { background: rgba(70,55,35,.06); border-color: rgba(86,66,42,.42); }
             .mb-rm-p.on { background: var(--mb-ink); color: #F6EEDD; border-color: var(--mb-ink); }
             .mb-rm-p.grow { flex: 1 1 0; text-align: center; }
-            .mb-rm-p b { display: block; font-weight: 500; }
-            .mb-rm-p .t { display: block; font-size: 10px; margin-top: 4px; color: var(--mb-ox); }
-            .mb-rm-p.on .t { color: rgba(246,238,221,.72); }
+            /* The tier pills carry two lines, so they stack rather than centre
+               on one — everything else in the form is a single line. */
+            .mb-rm-p.tier { flex-direction: column; gap: 3px; padding: 9px 6px; min-height: 50px; }
+            .mb-rm-p b { display: block; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; }
+            .mb-rm-p .t { display: block; font-size: 10px; color: var(--mb-ox); }
+            .mb-rm-p.on .t { color: rgba(246,238,221,.74); }
             .mb-rm-in, .mb-rm-sel {
-                width: 100%; padding: 12px 13px; min-height: 44px;
-                background: rgba(250,244,230,.75); border: 1px solid var(--mb-line-firm);
+                width: 100%; height: 42px; padding: 0 13px;
+                background: rgba(250,244,230,.8); border: 1px solid rgba(86,66,42,.38);
                 border-radius: 0; color: var(--mb-ink); outline: none;
-                font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 13px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 13px; line-height: 40px;
             }
-            .mb-rm-in:focus, .mb-rm-sel:focus { border-color: var(--mb-ox); }
-            .mb-rm-sel { appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235F5540' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
+            .mb-rm-in::placeholder { color: var(--mb-faint); }
+            .mb-rm-in:focus, .mb-rm-sel:focus { border-color: var(--mb-ox); box-shadow: inset 0 0 0 1px rgba(124,29,43,.18); }
+            .mb-rm-sel { appearance: none; cursor: pointer; padding-right: 36px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235F5540' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; }
             .mb-rm-terms {
                 display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
-                margin-top: 18px; padding: 14px 16px; border: 1px solid var(--mb-line-firm);
-                background: rgba(250,244,230,.75);
-                font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; color: var(--mb-muted);
+                margin-top: 12px; padding: 11px 14px; border: 1px solid var(--mb-line-firm);
+                background: rgba(250,244,230,.8);
+                font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px;
+                letter-spacing: .14em; text-transform: uppercase; color: var(--mb-muted);
             }
-            .mb-rm-terms b { font-family: "Cormorant Garamond", Georgia, serif; font-size: 21px; font-weight: 600; color: var(--mb-ink); }
-            .mb-rm-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--mb-line); }
+            .mb-rm-terms b { font-family: "Cormorant Garamond", Georgia, serif; font-size: 20px; font-weight: 600; color: var(--mb-ink); letter-spacing: 0; text-transform: none; margin-left: 8px; }
+            /* THE ACTION BAR DOES NOT SCROLL. It is the foot of the sheet, on
+               the sheet's own paper with a rule above it, so the commitment is
+               on screen at every scroll position. */
+            .mb-rm-foot {
+                display: flex; align-items: center; justify-content: space-between; gap: 16px;
+                flex: none; padding: 14px 30px; border-top: 1px solid var(--mb-line-firm);
+                background: var(--mb-paper);
+            }
+            .mb-rm-foot .mb-wbtn { padding: 13px 24px; }
             .mb-rm-err { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .04em; color: var(--mb-ox); }
+            @media (max-width: 560px) {
+                .mb-rm-row.six { grid-template-columns: repeat(3, 1fr); }
+                .mb-rm-scroll, .mb-rm-foot { padding-left: 20px; padding-right: 20px; }
+            }
 
             /* ---- issue band ----
                THE DEEP OXBLOOD, not the mid tone. This band is the heaviest
@@ -2365,6 +2408,7 @@ export function renderActiveContracts() {
                      choice here: type, opponent, metric, stake, tier, window. -->
                 <div class="mb-rm-back" id="mb-rivalry-modal" role="dialog" aria-modal="true" aria-labelledby="mb-rm-h">
                     <div class="mb-rm">
+                      <div class="mb-rm-scroll">
                         <div class="mb-rm-top">
                             <div>
                                 <div class="mb-rm-kick">Rivalry &middot; Head-to-head</div>
@@ -2375,7 +2419,7 @@ export function renderActiveContracts() {
 
                         <div class="mb-rm-f">
                             <span class="mb-rm-lab">Challenge type</span>
-                            <div class="mb-rm-row" id="mb-rm-type">
+                            <div class="mb-rm-row seg" id="mb-rm-type">
                                 <button type="button" class="mb-rm-p grow on" data-type="direct">Direct challenge</button>
                                 <button type="button" class="mb-rm-p grow" data-type="open">Open challenge</button>
                             </div>
@@ -2402,7 +2446,7 @@ export function renderActiveContracts() {
 
                         <div class="mb-rm-f">
                             <span class="mb-rm-lab">Your stake</span>
-                            <div class="mb-rm-row" id="mb-rm-stake">
+                            <div class="mb-rm-row six" id="mb-rm-stake">
                                 <button type="button" class="mb-rm-p on" data-amount="100">$100</button>
                                 <button type="button" class="mb-rm-p" data-amount="250">$250</button>
                                 <button type="button" class="mb-rm-p" data-amount="500">$500</button>
@@ -2416,9 +2460,9 @@ export function renderActiveContracts() {
                         <div class="mb-rm-f">
                             <span class="mb-rm-lab">Target</span>
                             <div class="mb-rm-row" id="mb-rm-tier">
-                                <button type="button" class="mb-rm-p grow on" data-tier="DUEL"><b>Duel</b><span class="t">+15%</span></button>
-                                <button type="button" class="mb-rm-p grow" data-tier="WAR"><b>War</b><span class="t">+25%</span></button>
-                                <button type="button" class="mb-rm-p grow" data-tier="BLOOD"><b>Blood</b><span class="t">+40%</span></button>
+                                <button type="button" class="mb-rm-p grow tier on" data-tier="DUEL"><b>Duel</b><span class="t">+15%</span></button>
+                                <button type="button" class="mb-rm-p grow tier" data-tier="WAR"><b>War</b><span class="t">+25%</span></button>
+                                <button type="button" class="mb-rm-p grow tier" data-tier="BLOOD"><b>Blood</b><span class="t">+40%</span></button>
                             </div>
                             <div class="mb-rm-hint">Both operators are measured against this growth target.</div>
                         </div>
@@ -2437,11 +2481,12 @@ export function renderActiveContracts() {
                             <span>At risk <b id="mb-rm-risk">$100</b></span>
                             <span>Total pool <b id="mb-rm-pool">$200</b></span>
                         </div>
+                      </div>
 
-                        <div class="mb-rm-foot">
-                            <span class="mb-rm-err" id="mb-rm-err"></span>
-                            <button type="button" class="mb-wbtn" id="mb-rm-submit">Issue challenge &rarr;</button>
-                        </div>
+                      <div class="mb-rm-foot">
+                          <span class="mb-rm-err" id="mb-rm-err"></span>
+                          <button type="button" class="mb-wbtn" id="mb-rm-submit">Create Rivalry &rarr;</button>
+                      </div>
                     </div>
                 </div>
             </section>
