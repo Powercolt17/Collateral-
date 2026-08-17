@@ -12,6 +12,40 @@ import { deriveState } from '../services/state-derivation.js';
 import { db } from '../db/client.js';
 import { ledgerEvents, contracts, EventType } from '../db/schema.js';
 import { desc, inArray, sql } from 'drizzle-orm';
+import { timingSafeEqual } from 'crypto';
+
+/**
+ * FAILS CLOSED WHEN ADMIN_API_KEY IS UNSET.
+ *
+ * The admin routes below compared the header straight against the env var:
+ *
+ *     const isValid = adminKey === process.env.ADMIN_API_KEY;
+ *
+ * If ADMIN_API_KEY is not set in the environment, that is
+ * `undefined === undefined`, which is TRUE — a request carrying no
+ * x-admin-key header at all passes the check. On a deploy where the variable
+ * was never configured, /v1/admin/reseed is world-callable, and it begins by
+ * deleting every row in market_contract_instances and contract_templates.
+ *
+ * A missing secret must deny, never allow. The comparison is also
+ * length-checked and constant-time so the endpoint does not leak the key one
+ * byte at a time.
+ */
+function isAdmin(request: { headers: Record<string, unknown> }): boolean {
+    const expected = process.env.ADMIN_API_KEY;
+    if (!expected) {
+        console.error('[admin] ADMIN_API_KEY is not configured — refusing admin request');
+        return false;
+    }
+    const raw = request.headers['x-admin-key'];
+    const provided = Array.isArray(raw) ? raw[0] : raw;
+    if (typeof provided !== 'string' || provided.length === 0) return false;
+
+    const a = Buffer.from(provided);
+    const b = Buffer.from(expected);
+    if (a.length !== b.length) return false;
+    return timingSafeEqual(a, b);
+}
 
 const contractRoutes: FastifyPluginAsync = async (fastify) => {
     /**
@@ -340,10 +374,7 @@ const contractRoutes: FastifyPluginAsync = async (fastify) => {
      * Hit this once after deploy: POST https://collateral-production.up.railway.app/v1/admin/reseed
      */
     fastify.post('/v1/admin/reseed', async (request, reply) => {
-        // Admin-only: require API key
-        const adminKey = request.headers['x-admin-key'];
-        const isValid = adminKey === process.env.ADMIN_API_KEY;
-        if (!isValid) {
+        if (!isAdmin(request)) {
             reply.status(403);
             return { error: 'Unauthorized: Admin access required' };
         }
@@ -379,9 +410,7 @@ const contractRoutes: FastifyPluginAsync = async (fastify) => {
      * Requires x-admin-key header.
      */
     fastify.post('/v1/admin/seed-activity', async (request, reply) => {
-        const adminKey = request.headers['x-admin-key'];
-        const isValid = adminKey === process.env.ADMIN_API_KEY;
-        if (!isValid) {
+        if (!isAdmin(request)) {
             reply.status(403);
             return { error: 'Unauthorized: Admin access required' };
         }

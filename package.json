@@ -19,6 +19,7 @@
     "db:seed:market": "tsx src/db/seed-market.ts",
     "db:seed:catalog": "tsx src/db/seed-catalog.ts",
     "db:seed:force": "tsx src/db/force-seed.ts",
+    "db:seed:rivalries": "tsx scripts/seed-rivalries.ts",
     "db:debug:tiers": "tsx src/db/debug-tiers.ts",
     "db:up": "docker-compose up -d && tsx src/db/wait-for-db.ts",
     "db:down": "docker-compose down",

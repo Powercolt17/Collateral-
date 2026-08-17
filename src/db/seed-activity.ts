@@ -424,6 +424,24 @@ export async function seedSimulatedActivity() {
         // hours rather than days on the board
         { c: 8, o: 5, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 125000, days: 14, settled: false, daysBack: 13 },
         { c: 15, o: 2, platform: 'X', metric: 'FOLLOWERS', key: 'x_followers', stake: 30000, days: 21, settled: false, daysBack: 20 },
+
+        /* ── 10 more, each on a metric none of the others uses ──
+           The set above leans on REVENUE and FOLLOWERS because those are the
+           two the oracle adapters read best. These reach across the rest of the
+           metric enum so the board is not eight variations of one contract:
+           MRR, charge volume, order count, impressions, engagement, gross
+           sales. Durations and daysBack are all distinct again, so every clock
+           on the board reads a different number. */
+        { c: 0, o: 4, platform: 'STRIPE', metric: 'MRR', key: 'stripe_mrr', stake: 90000, days: 30, settled: false, daysBack: 11 },
+        { c: 7, o: 12, platform: 'STRIPE', metric: 'CHARGE_VOLUME', key: 'stripe_charge_volume', stake: 45000, days: 21, settled: false, daysBack: 8 },
+        { c: 10, o: 3, platform: 'SHOPIFY', metric: 'ORDER_COUNT', key: 'shopify_order_volume', stake: 20000, days: 14, settled: false, daysBack: 5, pending: true },
+        { c: 14, o: 6, platform: 'X', metric: 'IMPRESSIONS', key: 'x_impressions', stake: 35000, days: 30, settled: false, daysBack: 16 },
+        { c: 2, o: 11, platform: 'SHOPIFY', metric: 'GROSS_SALES', key: 'shopify_gross_sales', stake: 55000, days: 21, settled: false, daysBack: 12 },
+        { c: 5, o: 13, platform: 'YOUTUBE', metric: 'VIEWS', key: 'youtube_30day_views', stake: 65000, days: 30, settled: false, daysBack: 19, pending: true },
+        { c: 9, o: 1, platform: 'X', metric: 'ENGAGEMENT_RATE', key: 'x_engagement_rate', stake: 25000, days: 14, settled: false, daysBack: 6 },
+        { c: 12, o: 8, platform: 'STRIPE', metric: 'MRR', key: 'stripe_mrr', stake: 150000, days: 21, settled: false, daysBack: 17 },
+        { c: 4, o: 15, platform: 'YOUTUBE', metric: 'SUBSCRIBERS', key: 'youtube_subscribers', stake: 40000, days: 30, settled: false, daysBack: 24 },
+        { c: 11, o: 7, platform: 'SHOPIFY', metric: 'ORDER_COUNT', key: 'shopify_order_volume', stake: 30000, days: 21, settled: false, daysBack: 14 },
     ];
 
     let rivalryCount = 0;
