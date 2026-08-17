@@ -37,6 +37,58 @@ const SIM_USERS = [
     { handle: 'lilydao',        display: 'Lily Nakamura',      avatar: null },
     { handle: 'maxfoundr',      display: 'Max Alvarado',       avatar: null },
     { handle: 'emmaburke',      display: 'Emma Burke',         avatar: null },
+
+    /* ── enough operators that no one is in two contests at once ──
+       ONE RIVALRY IS TWO PEOPLE, so N rivalries need 2N operators if nobody is
+       to appear twice. With sixteen handles behind twenty-eight rivalries every
+       operator was in three or four simultaneous duels, and the same face
+       turning up on four cards is the clearest tell on the board that the
+       market is generated. The pairing below consumes these in order, two per
+       contest, so each handle appears exactly once. Append in pairs. */
+    { handle: 'noahkeller',     display: 'Noah Keller',        avatar: null },
+    { handle: 'ivyquant',       display: 'Ivy Zhang',          avatar: null },
+    { handle: 'brunosaas',      display: 'Bruno Ferreira',     avatar: null },
+    { handle: 'meraki_kate',    display: 'Kate Lindqvist',     avatar: null },
+    { handle: 'omarbuilds',     display: 'Omar Haddad',        avatar: null },
+    { handle: 'thehollowell',   display: 'Grace Hollowell',    avatar: null },
+    { handle: 'yusufships',     display: 'Yusuf Demir',        avatar: null },
+    { handle: 'clarawrites',    display: 'Clara Bennett',      avatar: null },
+    { handle: 'dmitri_ops',     display: 'Dmitri Volkov',      avatar: null },
+    { handle: 'saoirse_co',     display: 'Saoirse Byrne',      avatar: null },
+    { handle: 'kenjimakes',     display: 'Kenji Watanabe',     avatar: null },
+    { handle: 'nadiacommerce',  display: 'Nadia Rahman',       avatar: null },
+    { handle: 'foster_ec',      display: 'Elliot Foster',      avatar: null },
+    { handle: 'zaravends',      display: 'Zara Mensah',        avatar: null },
+    { handle: 'hugoletterman',  display: 'Hugo Lehmann',       avatar: null },
+    { handle: 'freyabuilds',    display: 'Freya Andersen',     avatar: null },
+    { handle: 'tomasdigital',   display: 'Tomas Silva',        avatar: null },
+    { handle: 'ainsleyrev',     display: 'Ainsley Cooper',     avatar: null },
+    { handle: 'rafamedia',      display: 'Rafael Ortiz',       avatar: null },
+    { handle: 'juno_labs',      display: 'Juno Park',          avatar: null },
+    { handle: 'wesley_dtc',     display: 'Wesley Grant',       avatar: null },
+    { handle: 'imaniscales',    display: 'Imani Clarke',       avatar: null },
+    { handle: 'lukasrevops',    display: 'Lukas Novak',        avatar: null },
+    { handle: 'petraferrer',    display: 'Petra Ferrer',       avatar: null },
+    { handle: 'quinnstacks',    display: 'Quinn Sullivan',     avatar: null },
+    { handle: 'aishaverse',     display: 'Aisha Bello',        avatar: null },
+    { handle: 'mattiaslund',    display: 'Mattias Lund',       avatar: null },
+    { handle: 'roseline_co',    display: 'Roseline Dupont',    avatar: null },
+    { handle: 'danielmrr',      display: 'Daniel Okonkwo',     avatar: null },
+    { handle: 'sofiacarts',     display: 'Sofia Rossi',        avatar: null },
+    { handle: 'harveystreams',  display: 'Harvey Wu',          avatar: null },
+    { handle: 'lenaorders',     display: 'Lena Novakova',      avatar: null },
+    { handle: 'obiwanmedia',    display: 'Obi Nwosu',          avatar: null },
+    { handle: 'tildaships',     display: 'Tilda Ekstrom',      avatar: null },
+    { handle: 'caspianrev',     display: 'Caspian Reid',       avatar: null },
+    { handle: 'nourgrowth',     display: 'Nour Khalil',        avatar: null },
+    { handle: 'benedictco',     display: 'Benedict Shaw',      avatar: null },
+    { handle: 'marisolsells',   display: 'Marisol Vega',       avatar: null },
+    { handle: 'aviclipped',     display: 'Avi Cohen',          avatar: null },
+    { handle: 'greta_dtc',      display: 'Greta Bauer',        avatar: null },
+    { handle: 'santiagomrr',    display: 'Santiago Duarte',    avatar: null },
+    { handle: 'wrenanalytics',  display: 'Wren Fairbanks',     avatar: null },
+    { handle: 'kofidigital',    display: 'Kofi Asante',        avatar: null },
+    { handle: 'elsiecarts',     display: 'Elsie Hartley',      avatar: null },
 ];
 
 // Realistic contract titles aligned with actual catalog templates
@@ -379,15 +431,15 @@ export async function seedSimulatedActivity() {
     // =========================================================================
     const RIVALRIES = [
         // Settled rivalries
-        { c: 0, o: 3, platform: 'X', metric: 'FOLLOWERS', key: 'x_followers', stake: 25000, days: 14, settled: true, winIdx: 0, daysBack: 8 },
-        { c: 1, o: 4, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 50000, days: 30, settled: true, winIdx: 4, daysBack: 12 },
-        { c: 2, o: 5, platform: 'YOUTUBE', metric: 'SUBSCRIBERS', key: 'youtube_subscribers', stake: 15000, days: 14, settled: true, winIdx: 2, daysBack: 18 },
-        { c: 8, o: 9, platform: 'SHOPIFY', metric: 'REVENUE', key: 'shopify_net_sales', stake: 40000, days: 30, settled: true, winIdx: 9, daysBack: 22 },
+        { c: 0, o: 1, platform: 'X', metric: 'FOLLOWERS', key: 'x_followers', stake: 25000, days: 14, settled: true, winIdx: 0, daysBack: 8 },
+        { c: 2, o: 3, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 50000, days: 30, settled: true, winIdx: 3, daysBack: 12 },
+        { c: 4, o: 5, platform: 'YOUTUBE', metric: 'SUBSCRIBERS', key: 'youtube_subscribers', stake: 15000, days: 14, settled: true, winIdx: 4, daysBack: 18 },
+        { c: 6, o: 7, platform: 'SHOPIFY', metric: 'REVENUE', key: 'shopify_net_sales', stake: 40000, days: 30, settled: true, winIdx: 7, daysBack: 22 },
         
         // Active rivalries (in-flight) — daysBack high enough to show meaningful growth
-        { c: 6, o: 7, platform: 'X', metric: 'FOLLOWERS', key: 'x_followers', stake: 25000, days: 14, settled: false, daysBack: 6 },
+        { c: 8, o: 9, platform: 'X', metric: 'FOLLOWERS', key: 'x_followers', stake: 25000, days: 14, settled: false, daysBack: 6 },
         { c: 10, o: 11, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 75000, days: 30, settled: false, daysBack: 10 },
-        { c: 0, o: 12, platform: 'YOUTUBE', metric: 'VIEWS', key: 'youtube_30day_views', stake: 20000, days: 14, settled: false, daysBack: 5 },
+        { c: 12, o: 13, platform: 'YOUTUBE', metric: 'VIEWS', key: 'youtube_30day_views', stake: 20000, days: 14, settled: false, daysBack: 5 },
 
         // Recently activated
         { c: 14, o: 15, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 30000, days: 14, settled: false, daysBack: 4 },
@@ -405,25 +457,25 @@ export async function seedSimulatedActivity() {
            real. The rest are live and mid-flight. */
 
         // Open challenges — issued, waiting for someone to take the other side
-        { c: 2, o: 3, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 100000, days: 30, settled: false, daysBack: 2, pending: true },
-        { c: 5, o: 6, platform: 'YOUTUBE', metric: 'SUBSCRIBERS', key: 'youtube_subscribers', stake: 25000, days: 21, settled: false, daysBack: 1, pending: true },
-        { c: 9, o: 10, platform: 'X', metric: 'FOLLOWERS', key: 'x_followers', stake: 50000, days: 14, settled: false, daysBack: 3, pending: true },
-        { c: 12, o: 13, platform: 'SHOPIFY', metric: 'REVENUE', key: 'shopify_net_sales', stake: 75000, days: 30, settled: false, daysBack: 1, pending: true },
+        { c: 16, o: 17, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 100000, days: 30, settled: false, daysBack: 2, pending: true },
+        { c: 18, o: 19, platform: 'YOUTUBE', metric: 'SUBSCRIBERS', key: 'youtube_subscribers', stake: 25000, days: 21, settled: false, daysBack: 1, pending: true },
+        { c: 20, o: 21, platform: 'X', metric: 'FOLLOWERS', key: 'x_followers', stake: 50000, days: 14, settled: false, daysBack: 3, pending: true },
+        { c: 22, o: 23, platform: 'SHOPIFY', metric: 'REVENUE', key: 'shopify_net_sales', stake: 75000, days: 30, settled: false, daysBack: 1, pending: true },
 
         // Live, early in their window
-        { c: 4, o: 8, platform: 'SHOPIFY', metric: 'REVENUE', key: 'shopify_net_sales', stake: 60000, days: 30, settled: false, daysBack: 3 },
-        { c: 11, o: 14, platform: 'YOUTUBE', metric: 'VIEWS', key: 'youtube_30day_views', stake: 35000, days: 21, settled: false, daysBack: 2 },
-        { c: 1, o: 7, platform: 'X', metric: 'FOLLOWERS', key: 'x_followers', stake: 15000, days: 14, settled: false, daysBack: 4 },
+        { c: 24, o: 25, platform: 'SHOPIFY', metric: 'REVENUE', key: 'shopify_net_sales', stake: 60000, days: 30, settled: false, daysBack: 3 },
+        { c: 26, o: 27, platform: 'YOUTUBE', metric: 'VIEWS', key: 'youtube_30day_views', stake: 35000, days: 21, settled: false, daysBack: 2 },
+        { c: 28, o: 29, platform: 'X', metric: 'FOLLOWERS', key: 'x_followers', stake: 15000, days: 14, settled: false, daysBack: 4 },
 
         // Live, mid-flight
-        { c: 3, o: 15, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 250000, days: 30, settled: false, daysBack: 13 },
-        { c: 6, o: 9, platform: 'SHOPIFY', metric: 'REVENUE', key: 'shopify_net_sales', stake: 40000, days: 21, settled: false, daysBack: 9 },
-        { c: 13, o: 0, platform: 'YOUTUBE', metric: 'SUBSCRIBERS', key: 'youtube_subscribers', stake: 20000, days: 14, settled: false, daysBack: 7 },
+        { c: 30, o: 31, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 250000, days: 30, settled: false, daysBack: 13 },
+        { c: 32, o: 33, platform: 'SHOPIFY', metric: 'REVENUE', key: 'shopify_net_sales', stake: 40000, days: 21, settled: false, daysBack: 9 },
+        { c: 34, o: 35, platform: 'YOUTUBE', metric: 'SUBSCRIBERS', key: 'youtube_subscribers', stake: 20000, days: 14, settled: false, daysBack: 7 },
 
         // Live, close to the deadline — these are the ones whose clocks read in
         // hours rather than days on the board
-        { c: 8, o: 5, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 125000, days: 14, settled: false, daysBack: 13 },
-        { c: 15, o: 2, platform: 'X', metric: 'FOLLOWERS', key: 'x_followers', stake: 30000, days: 21, settled: false, daysBack: 20 },
+        { c: 36, o: 37, platform: 'STRIPE', metric: 'REVENUE', key: 'stripe_net_revenue', stake: 125000, days: 14, settled: false, daysBack: 13 },
+        { c: 38, o: 39, platform: 'X', metric: 'FOLLOWERS', key: 'x_followers', stake: 30000, days: 21, settled: false, daysBack: 20 },
 
         /* ── 10 more, each on a metric none of the others uses ──
            The set above leans on REVENUE and FOLLOWERS because those are the
@@ -432,16 +484,16 @@ export async function seedSimulatedActivity() {
            MRR, charge volume, order count, impressions, engagement, gross
            sales. Durations and daysBack are all distinct again, so every clock
            on the board reads a different number. */
-        { c: 0, o: 4, platform: 'STRIPE', metric: 'MRR', key: 'stripe_mrr', stake: 90000, days: 30, settled: false, daysBack: 11 },
-        { c: 7, o: 12, platform: 'STRIPE', metric: 'CHARGE_VOLUME', key: 'stripe_charge_volume', stake: 45000, days: 21, settled: false, daysBack: 8 },
-        { c: 10, o: 3, platform: 'SHOPIFY', metric: 'ORDER_COUNT', key: 'shopify_order_volume', stake: 20000, days: 14, settled: false, daysBack: 5, pending: true },
-        { c: 14, o: 6, platform: 'X', metric: 'IMPRESSIONS', key: 'x_impressions', stake: 35000, days: 30, settled: false, daysBack: 16 },
-        { c: 2, o: 11, platform: 'SHOPIFY', metric: 'GROSS_SALES', key: 'shopify_gross_sales', stake: 55000, days: 21, settled: false, daysBack: 12 },
-        { c: 5, o: 13, platform: 'YOUTUBE', metric: 'VIEWS', key: 'youtube_30day_views', stake: 65000, days: 30, settled: false, daysBack: 19, pending: true },
-        { c: 9, o: 1, platform: 'X', metric: 'ENGAGEMENT_RATE', key: 'x_engagement_rate', stake: 25000, days: 14, settled: false, daysBack: 6 },
-        { c: 12, o: 8, platform: 'STRIPE', metric: 'MRR', key: 'stripe_mrr', stake: 150000, days: 21, settled: false, daysBack: 17 },
-        { c: 4, o: 15, platform: 'YOUTUBE', metric: 'SUBSCRIBERS', key: 'youtube_subscribers', stake: 40000, days: 30, settled: false, daysBack: 24 },
-        { c: 11, o: 7, platform: 'SHOPIFY', metric: 'ORDER_COUNT', key: 'shopify_order_volume', stake: 30000, days: 21, settled: false, daysBack: 14 },
+        { c: 40, o: 41, platform: 'STRIPE', metric: 'MRR', key: 'stripe_mrr', stake: 90000, days: 30, settled: false, daysBack: 11 },
+        { c: 42, o: 43, platform: 'STRIPE', metric: 'CHARGE_VOLUME', key: 'stripe_charge_volume', stake: 45000, days: 21, settled: false, daysBack: 8 },
+        { c: 44, o: 45, platform: 'SHOPIFY', metric: 'ORDER_COUNT', key: 'shopify_order_volume', stake: 20000, days: 14, settled: false, daysBack: 5, pending: true },
+        { c: 46, o: 47, platform: 'X', metric: 'IMPRESSIONS', key: 'x_impressions', stake: 35000, days: 30, settled: false, daysBack: 16 },
+        { c: 48, o: 49, platform: 'SHOPIFY', metric: 'GROSS_SALES', key: 'shopify_gross_sales', stake: 55000, days: 21, settled: false, daysBack: 12 },
+        { c: 50, o: 51, platform: 'YOUTUBE', metric: 'VIEWS', key: 'youtube_30day_views', stake: 65000, days: 30, settled: false, daysBack: 19, pending: true },
+        { c: 52, o: 53, platform: 'X', metric: 'ENGAGEMENT_RATE', key: 'x_engagement_rate', stake: 25000, days: 14, settled: false, daysBack: 6 },
+        { c: 54, o: 55, platform: 'STRIPE', metric: 'MRR', key: 'stripe_mrr', stake: 150000, days: 21, settled: false, daysBack: 17 },
+        { c: 56, o: 57, platform: 'YOUTUBE', metric: 'SUBSCRIBERS', key: 'youtube_subscribers', stake: 40000, days: 30, settled: false, daysBack: 24 },
+        { c: 58, o: 59, platform: 'SHOPIFY', metric: 'ORDER_COUNT', key: 'shopify_order_volume', stake: 30000, days: 21, settled: false, daysBack: 14 },
     ];
 
     let rivalryCount = 0;
