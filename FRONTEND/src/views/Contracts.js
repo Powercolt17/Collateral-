@@ -9,7 +9,7 @@ export function renderContracts() {
             /* ===== EXECUTION TERMINAL — INSTITUTIONAL DESIGN ===== */
 
             .ext {
-                background: #fafafa;
+                background: #FAF4E6;
                 min-height: calc(100vh - 64px);
                 font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 color: #111;
@@ -18,8 +18,8 @@ export function renderContracts() {
             /* Header strip */
             .ext-head {
                 padding: 14px 32px;
-                background: #fff;
-                border-bottom: 1px solid #e5e5e5;
+                background: #F5EDDA;
+                border-bottom: 1px solid rgba(70,55,35,.22);
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
@@ -32,7 +32,7 @@ export function renderContracts() {
             .ext-back-btn {
                 padding: 6px 12px;
                 font-size: 12px; color: #888;
-                background: none; border: 1px solid #e0e0e0;
+                background: none; border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px; cursor: pointer;
                 font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 transition: all 0.15s;
@@ -93,8 +93,8 @@ export function renderContracts() {
 
             /* Card blocks */
             .ext-card {
-                background: #fff;
-                border: 1px solid #e5e5e5;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 6px;
                 overflow: hidden;
                 margin-bottom: 16px;
@@ -102,7 +102,7 @@ export function renderContracts() {
             .ext-card-hd {
                 padding: 14px 24px;
                 border-bottom: 1px solid #f0f0f0;
-                background: #fafafa;
+                background: #FAF4E6;
             }
             .ext-card-title {
                 font-size: 11px;
@@ -158,13 +158,13 @@ export function renderContracts() {
                 font-family: 'JetBrains Mono', monospace;
                 padding: 12px 24px;
                 border-top: 1px solid #f0f0f0;
-                background: #fafafa;
+                background: #FAF4E6;
             }
 
             /* Forfeiture */
             .ext-forfeit {
-                background: #fff;
-                border: 1px solid #e5e5e5;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 border-left: 3px solid #752122;
                 border-radius: 6px;
                 padding: 20px 24px;
@@ -193,8 +193,8 @@ export function renderContracts() {
 
             /* Warning */
             .ext-warn {
-                background: #fafafa;
-                border: 1px solid #e5e5e5;
+                background: #FAF4E6;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 6px;
                 padding: 20px 24px;
                 margin-bottom: 16px;
@@ -234,8 +234,8 @@ export function renderContracts() {
             .ext-gate {
                 text-align: center;
                 padding: 40px 24px;
-                background: #fff;
-                border: 1px solid #e5e5e5;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 6px;
                 margin-bottom: 16px;
             }
@@ -305,8 +305,8 @@ export function renderContracts() {
                 align-items: flex-start;
                 gap: 10px;
                 padding: 16px 20px;
-                background: #fff;
-                border: 1px solid #e5e5e5;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 6px;
                 margin-bottom: 16px;
                 cursor: pointer;
@@ -338,8 +338,8 @@ export function renderContracts() {
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
                 color: #111111;
-                background: #ffffff;
-                border: 1px solid #e5e5e5;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 8px;
                 cursor: pointer;
                 font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -367,7 +367,7 @@ export function renderContracts() {
             .ext-exec-btn:disabled {
                 background: #f5f5f5;
                 color: #999;
-                border-color: #e5e5e5;
+                border-color: rgba(70,55,35,.22);
                 cursor: not-allowed;
                 box-shadow: none;
             }
@@ -417,8 +417,8 @@ export function renderContracts() {
             }
             .enf-overlay.visible { display: flex; }
             .enf-modal {
-                background: #fff;
-                border: 1px solid #e5e5e5;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 8px;
                 max-width: 440px;
                 width: 100%;
@@ -453,8 +453,8 @@ export function renderContracts() {
                 border-radius: 4px;
                 cursor: pointer;
                 font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-                border: 1px solid #e5e5e5;
-                background: #fff; color: #333;
+                border: 1px solid rgba(70,55,35,.22);
+                background: #F5EDDA; color: #333;
                 transition: all 0.15s;
             }
             .enf-btn:hover { background: #f5f5f5; }

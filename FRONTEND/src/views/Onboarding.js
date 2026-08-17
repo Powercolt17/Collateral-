@@ -4,7 +4,7 @@
 export function renderOnboarding() {
     return `
         <style>
-            .ob { min-height: 100vh; background: #fff; display: flex; align-items: center; justify-content: center; padding: 40px 20px; font-family: 'Sora', sans-serif; }
+            .ob { min-height: 100vh; background: #F5EDDA; display: flex; align-items: center; justify-content: center; padding: 40px 20px; font-family: 'Sora', sans-serif; }
             .ob-card { max-width: 560px; width: 100%; }
 
             /* Progress bar */
@@ -48,8 +48,8 @@ export function renderOnboarding() {
             .ob-actions { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
             .ob-action {
                 display: flex; align-items: center; gap: 16px;
-                padding: 20px; border: 1px solid #eee; cursor: pointer;
-                transition: all 0.2s ease; background: #fff;
+                padding: 20px; border: 1px solid rgba(70,55,35,.18); cursor: pointer;
+                transition: all 0.2s ease; background: #F5EDDA;
             }
             .ob-action:hover { border-color: #5C1414; transform: translateX(4px); }
             .ob-action-icon {
@@ -82,11 +82,11 @@ export function renderOnboarding() {
             .ob-checklist { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
             .ob-check-item {
                 display: flex; align-items: center; gap: 14px; padding: 16px;
-                background: #fafafa; border: 1px solid #f0f0f0;
+                background: #FAF4E6; border: 1px solid #f0f0f0;
             }
             .ob-check-icon {
                 width: 28px; height: 28px; border-radius: 50%;
-                border: 2px solid #ddd; display: flex; align-items: center;
+                border: 2px solid rgba(70,55,35,.26); display: flex; align-items: center;
                 justify-content: center; flex-shrink: 0; font-size: 14px;
                 transition: all 0.3s;
             }
@@ -240,7 +240,7 @@ export function renderOnboarding() {
                         </div>
                         <div style="display:flex;gap:8px;align-items:center;" id="ob-ref-row">
                             <input type="text" id="ob-ref-link" readonly 
-                                style="flex:1;padding:14px;border:1px solid #eee;font-family:'JetBrains Mono',monospace;font-size:12px;color:#555;background:#fafafa;outline:none;"
+                                style="flex:1;padding:14px;border:1px solid rgba(70,55,35,.18);font-family:'JetBrains Mono',monospace;font-size:12px;color:#555;background: #FAF4E6;outline:none;"
                                 value="Loading...">
                             <button id="ob-ref-copy" 
                                 style="padding:14px 20px;background:#111;color:#fff;border:none;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;">

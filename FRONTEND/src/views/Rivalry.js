@@ -22,7 +22,7 @@ export function renderRivalry() {
             }
 
             .rv {
-                background: #fff;
+                background: #F5EDDA;
                 min-height: calc(100vh - 72px);
                 font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 color: #111;
@@ -43,7 +43,7 @@ export function renderRivalry() {
 
             /* ── Hero ── */
             .rv-hero {
-                background: #fff;
+                background: #F5EDDA;
                 border-bottom: 1px solid #f0f0f0;
                 position: relative; overflow: hidden;
             }
@@ -135,8 +135,8 @@ export function renderRivalry() {
             .rv-tab:hover { color: #666; }
             .rv-tab.active { color: #111; border-bottom-color: #111; }
             .rv-search-box {
-                height: 38px; padding: 0 16px; border: 1px solid #eee;
-                font-size: 13px; color: #111; background: #fcfcfc;
+                height: 38px; padding: 0 16px; border: 1px solid rgba(70,55,35,.18);
+                font-size: 13px; color: #111; background: #FAF4E6;
                 outline: none; width: 240px;
                 font-family: 'Sora', sans-serif;
                 transition: border-color .15s;
@@ -158,7 +158,7 @@ export function renderRivalry() {
 
             /* ── Skeleton Cards ── */
             .rv-skeleton {
-                background: #fff; border: 1px solid #eee; padding: 28px;
+                background: #F5EDDA; border: 1px solid rgba(70,55,35,.18); padding: 28px;
             }
             .rv-skel-bar {
                 background: linear-gradient(90deg, #f5f5f5 0%, #ececec 40%, #f5f5f5 80%);
@@ -170,7 +170,7 @@ export function renderRivalry() {
 
             /* ── Rivalry Card ── */
             .rv-card {
-                background: #fff; border: 1px solid #eaeaea; padding: 0;
+                background: #F5EDDA; border: 1px solid rgba(70,55,35,.22); padding: 0;
                 transition: all 0.3s var(--rv-ease);
                 cursor: pointer; position: relative; overflow: hidden;
             }
@@ -279,7 +279,7 @@ export function renderRivalry() {
             }
             .rv-winner-badge.winner { background: #f0fdf4; color: #166534; border: 1px solid #dcfce7; }
             .rv-winner-badge.loser { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-            .rv-winner-badge.forfeited { background: #fafafa; color: #666; border: 1px solid #e5e5e5; }
+            .rv-winner-badge.forfeited { background: #FAF4E6; color: #666; border: 1px solid rgba(70,55,35,.22); }
 
             /* Card Action Buttons */
             .rv-card-actions {
@@ -295,7 +295,7 @@ export function renderRivalry() {
             }
             .rv-action-accept { background: #0a0a0a; color: #fff; }
             .rv-action-accept:hover { background: var(--rv-brand); }
-            .rv-action-decline { background: #fff; color: #888; border-left: 1px solid #f0f0f0 !important; }
+            .rv-action-decline { background: #F5EDDA; color: #888; border-left: 1px solid #f0f0f0 !important; }
             .rv-action-decline:hover { color: var(--rv-red); }
 
             /* Card Bottom — capital/time/provider */
@@ -370,7 +370,7 @@ export function renderRivalry() {
                 cursor: default; position: relative; z-index: 1;
             }
             .rv-mech-card:hover {
-                background: #fff; transform: translateY(-3px);
+                background: #F5EDDA; transform: translateY(-3px);
                 box-shadow: 0 6px 20px rgba(0,0,0,0.05);
             }
             .rv-mech-card:last-child { border-right: none; }
@@ -664,7 +664,7 @@ export function renderRivalry() {
                 font-family: 'JetBrains Mono', monospace;
             }
             .rv-modal-preview {
-                background: #fafafa; border: 1px solid #f0f0f0;
+                background: #FAF4E6; border: 1px solid #f0f0f0;
                 padding: 20px; margin-bottom: 24px;
             }
             .rv-preview-row {
@@ -732,8 +732,8 @@ export function renderRivalry() {
                 padding: 0 32px;
             }
             .rv-featured-card {
-                background: #fff;
-                border: 1px solid #eaeaea;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 padding: 32px 36px;
                 position: relative;
                 margin-bottom: 12px;
@@ -976,9 +976,9 @@ export function renderRivalry() {
 
                 <div class="rv-form-group">
                     <label class="rv-form-label">Challenge Type</label>
-                    <div class="rv-challenge-type-toggle" id="rv-challenge-type" style="display:flex;gap:0;border:1px solid #e5e5e5;overflow:hidden;margin-bottom:8px;">
+                    <div class="rv-challenge-type-toggle" id="rv-challenge-type" style="display:flex;gap:0;border:1px solid rgba(70,55,35,.22);overflow:hidden;margin-bottom:8px;">
                         <button class="rv-type-btn active" data-type="direct" style="flex:1;padding:10px 16px;background:#1a1a1a;color:#fff;border:none;font-family:'JetBrains Mono', monospace;font-size:10px;letter-spacing:0.08em;cursor:pointer;font-weight:700;text-transform:uppercase;transition:all 0.15s;">✉ Direct Challenge</button>
-                        <button class="rv-type-btn" data-type="open" style="flex:1;padding:10px 16px;background:#fff;color:#666;border:none;border-left:1px solid #e5e5e5;font-family:'JetBrains Mono', monospace;font-size:10px;letter-spacing:0.08em;cursor:pointer;font-weight:700;text-transform:uppercase;transition:all 0.15s;">🌐 Open Challenge</button>
+                        <button class="rv-type-btn" data-type="open" style="flex:1;padding:10px 16px;background: #F5EDDA;color:#666;border:none;border-left:1px solid rgba(70,55,35,.22);font-family:'JetBrains Mono', monospace;font-size:10px;letter-spacing:0.08em;cursor:pointer;font-weight:700;text-transform:uppercase;transition:all 0.15s;">🌐 Open Challenge</button>
                     </div>
                     <div class="rv-form-hint" id="rv-type-hint">Send to a specific operator</div>
                 </div>
@@ -1187,7 +1187,7 @@ export async function initRivalry() {
     grid.innerHTML = Array(4).fill(0).map(() => `<div class="rv-skeleton">
         <div class="rv-skel-bar" style="width:120px;height:10px;margin-bottom:20px;"></div>
         <div class="rv-skel-bar" style="width:180px;height:14px;margin-bottom:18px;"></div>
-        <div style="display:flex;gap:0;background:#fafafa;border:1px solid #f0f0f0;margin-bottom:18px;">
+        <div style="display:flex;gap:0;background: #FAF4E6;border:1px solid #f0f0f0;margin-bottom:18px;">
             <div style="flex:1;padding:20px;"><div class="rv-skel-bar" style="width:60px;height:8px;margin-bottom:8px;"></div><div class="rv-skel-bar" style="width:80px;height:10px;margin-bottom:8px;"></div><div class="rv-skel-bar" style="width:50px;height:24px;"></div></div>
             <div style="width:56px;background:#f0f0f0;"></div>
             <div style="flex:1;padding:20px;text-align:right;"><div class="rv-skel-bar" style="width:60px;height:8px;margin-bottom:8px;margin-left:auto;"></div><div class="rv-skel-bar" style="width:80px;height:10px;margin-bottom:8px;margin-left:auto;"></div><div class="rv-skel-bar" style="width:50px;height:24px;margin-left:auto;"></div></div>
@@ -1220,7 +1220,7 @@ export async function initRivalry() {
         return `<div class="rv-skeleton">
             <div class="rv-skel-bar" style="width:120px;height:10px;margin-bottom:20px;"></div>
             <div class="rv-skel-bar" style="width:180px;height:14px;margin-bottom:18px;"></div>
-            <div style="display:flex;gap:0;background:#fafafa;border:1px solid #f0f0f0;margin-bottom:18px;">
+            <div style="display:flex;gap:0;background: #FAF4E6;border:1px solid #f0f0f0;margin-bottom:18px;">
                 <div style="flex:1;padding:20px;"><div class="rv-skel-bar" style="width:60px;height:8px;margin-bottom:8px;"></div><div class="rv-skel-bar" style="width:80px;height:10px;margin-bottom:8px;"></div><div class="rv-skel-bar" style="width:50px;height:24px;"></div></div>
                 <div style="width:56px;background:#f0f0f0;"></div>
                 <div style="flex:1;padding:20px;text-align:right;"><div class="rv-skel-bar" style="width:60px;height:8px;margin-bottom:8px;margin-left:auto;"></div><div class="rv-skel-bar" style="width:80px;height:10px;margin-bottom:8px;margin-left:auto;"></div><div class="rv-skel-bar" style="width:50px;height:24px;margin-left:auto;"></div></div>
@@ -1289,7 +1289,7 @@ export async function initRivalry() {
             const iAmOpponent = myUserId && r.opponentUserId === myUserId;
             const myFunded = (iAmChallenger && r.challFunded) || (iAmOpponent && r.oppFunded);
             if (myFunded) {
-                actionsHtml = `<div class="rv-card-actions"><div style="flex:1;padding:10px 16px;background:#f8f8f8;color:#999;text-align:center;font-family:'JetBrains Mono', monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;border:1px solid #eee;">WAITING FOR OPPONENT</div></div>`;
+                actionsHtml = `<div class="rv-card-actions"><div style="flex:1;padding:10px 16px;background:#f8f8f8;color:#999;text-align:center;font-family:'JetBrains Mono', monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;border:1px solid rgba(70,55,35,.18);">WAITING FOR OPPONENT</div></div>`;
             } else {
                 actionsHtml = `<div class="rv-card-actions"><button class="rv-action-btn rv-action-accept" data-rivalry-id="${r.id}" onclick="event.stopPropagation();window.app.fundRivalry('${r.id}')" style="flex:1;">FUND YOUR SIDE</button></div>`;
             }

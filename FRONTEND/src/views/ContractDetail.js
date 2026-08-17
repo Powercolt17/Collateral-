@@ -8,7 +8,7 @@ export function renderContractDetail(params) {
                 padding: 40px 40px 100px;
                 font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 color: #111;
-                background: #fff;
+                background: #F5EDDA;
                 min-height: calc(100vh - 72px);
                 font-feature-settings: "zero" 0;
             }
@@ -170,7 +170,7 @@ export function renderContractDetail(params) {
             .cd-hash-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #a3a3a3; word-break: break-all; }
             .cd-copy-btn {
                 display: inline-flex; align-items: center; gap: 6px;
-                padding: 6px 12px; background: #fff; border: 1px solid #e5e5e5;
+                padding: 6px 12px; background: #F5EDDA; border: 1px solid rgba(70,55,35,.22);
                 font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
                 text-transform: uppercase; letter-spacing: 0.1em; color: #888;
                 cursor: pointer; transition: all 150ms;
@@ -215,7 +215,7 @@ export function renderContractDetail(params) {
             }
             .cd-action-status {
                 display: flex; align-items: center; gap: 12px;
-                padding: 24px; background: #fafafa; border: 1px solid #f0f0f0;
+                padding: 24px; background: #FAF4E6; border: 1px solid #f0f0f0;
                 margin-bottom: 12px;
             }
             .cd-action-icon {
@@ -236,8 +236,8 @@ export function renderContractDetail(params) {
                 border: none; cursor: pointer; text-decoration: none; transition: background 150ms;
             }
             .cd-btn:hover { background: #000; }
-            .cd-btn-outline { background: #fff; color: #888; border: 1px solid #f0f0f0; }
-            .cd-btn-outline:hover { background: #fafafa; color: #111; border-color: #e5e5e5; }
+            .cd-btn-outline { background: #F5EDDA; color: #888; border: 1px solid #f0f0f0; }
+            .cd-btn-outline:hover { background: #FAF4E6; color: #111; border-color: rgba(70,55,35,.22); }
             .cd-btn svg { width: 14px; height: 14px; color: #a3a3a3; }
 
             /* Share CTA */
@@ -247,10 +247,10 @@ export function renderContractDetail(params) {
             .cd-share-btn {
                 flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
                 padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
-                border: 1px solid #e5e5e5; background: #fff; color: #111; cursor: pointer;
+                border: 1px solid rgba(70,55,35,.22); background: #F5EDDA; color: #111; cursor: pointer;
                 transition: all 150ms; letter-spacing: 0.02em;
             }
-            .cd-share-btn:hover { background: #fafafa; border-color: #ccc; }
+            .cd-share-btn:hover { background: #FAF4E6; border-color: #ccc; }
             .cd-share-btn.twitter { background: #0f1419; color: #fff; border-color: #0f1419; }
             .cd-share-btn.twitter:hover { background: #000; }
             .cd-share-btn svg { width: 14px; height: 14px; }
@@ -259,7 +259,7 @@ export function renderContractDetail(params) {
             .cd-timeline { position: relative; padding-left: 22px; }
             .cd-timeline::before {
                 content: ''; position: absolute; left: 3px; top: 6px; bottom: 6px;
-                width: 1px; background: #e5e5e5;
+                width: 1px; background: rgba(70,55,35,.22);
             }
             .cd-event {
                 position: relative; display: flex; align-items: center;
@@ -277,7 +277,7 @@ export function renderContractDetail(params) {
                 background: #5C1414;
                 animation: cd-pulse 1.8s ease-in-out infinite;
             }
-            .cd-event-dot.future { background: #e0e0e0; }
+            .cd-event-dot.future { background: rgba(70,55,35,.22); }
             @keyframes cd-pulse {
                 0%, 100% { opacity: 1; }
                 50% { opacity: 0.25; }

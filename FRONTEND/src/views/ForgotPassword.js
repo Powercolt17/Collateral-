@@ -42,14 +42,14 @@ export function renderForgotPassword() {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #fafafa;
+            background: #FAF4E6;
             padding: 20px;
         }
         .fp-card {
             width: 100%;
             max-width: 420px;
-            background: #fff;
-            border: 1px solid #e5e5e5;
+            background: #F5EDDA;
+            border: 1px solid rgba(70,55,35,.22);
             padding: 48px 40px;
         }
         .fp-brand {
@@ -104,8 +104,8 @@ export function renderForgotPassword() {
         .fp-input {
             width: 100%;
             padding: 12px 14px;
-            border: 1px solid #ddd;
-            background: #fafafa;
+            border: 1px solid rgba(70,55,35,.26);
+            background: #FAF4E6;
             font-size: 14px;
             color: #111;
             font-family: inherit;
@@ -115,7 +115,7 @@ export function renderForgotPassword() {
         }
         .fp-input:focus {
             border-color: #111;
-            background: #fff;
+            background: #F5EDDA;
         }
         .fp-message {
             padding: 12px 14px;

@@ -81,7 +81,7 @@ export function renderToken() {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                border-bottom: 1px solid #E5E5E5;
+                border-bottom: 1px solid rgba(70,55,35,.22);
                 padding-bottom: 24px;
                 margin-bottom: 32px;
                 animation: panelReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -121,7 +121,7 @@ export function renderToken() {
             }
             .cltr-wallet-banner {
                 background: var(--plate, #FFFDF9);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 18px 24px;
                 margin-bottom: 32px;
@@ -191,7 +191,7 @@ export function renderToken() {
             }
             .cltr-connect-btn.connected {
                 background: transparent;
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 color: #555;
             }
             .cltr-connect-btn.connected:hover {
@@ -205,7 +205,7 @@ export function renderToken() {
                =================================================== */
             .cltr-focal-hero {
                 background: var(--plate, #FFFDF9);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 40px;
                 margin-bottom: 32px;
@@ -285,7 +285,7 @@ export function renderToken() {
             }
             .cltr-metric-card {
                 background: var(--plate, #FFFDF9);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 24px;
                 transition: border-color 0.2s;
@@ -330,7 +330,7 @@ export function renderToken() {
                =================================================== */
             .cltr-panel {
                 background: var(--plate, #FFFDF9);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 32px;
                 margin-bottom: 32px;
@@ -386,8 +386,8 @@ export function renderToken() {
                 width: 100%;
                 padding: 16px;
                 padding-right: 80px;
-                border: 1px solid #E5E5E5;
-                background: #FCFCFC;
+                border: 1px solid rgba(70,55,35,.22);
+                background: #FAF4E6;
                 font-family: 'JetBrains Mono', monospace;
                 font-size: 18px;
                 font-weight: 700;
@@ -405,7 +405,7 @@ export function renderToken() {
             .cltr-input-field:disabled {
                 background: #F8F8F8 !important;
                 color: #888 !important;
-                border-color: #E5E5E5 !important;
+                border-color: rgba(70,55,35,.22) !important;
                 cursor: not-allowed;
                 opacity: 1;
                 -webkit-text-fill-color: #888;
@@ -436,7 +436,7 @@ export function renderToken() {
                 gap: 12px;
             }
             .cltr-lock-pill {
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 background: var(--plate, #FFFDF9);
                 padding: 14px 8px;
                 text-align: center;
@@ -471,7 +471,7 @@ export function renderToken() {
             /* Staking summary */
             .cltr-calc-summary {
                 background: var(--paper, #F7F4ED);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 18px 20px;
                 font-family: 'JetBrains Mono', monospace;
@@ -513,7 +513,7 @@ export function renderToken() {
                 background: #4A1010;
             }
             .cltr-action-submit:disabled {
-                background: #E5E5E5;
+                background: rgba(70,55,35,.22);
                 color: #999;
                 cursor: not-allowed;
             }
@@ -529,7 +529,7 @@ export function renderToken() {
             }
             .cltr-chart-container {
                 height: 100px;
-                border-bottom: 1px solid #E5E5E5;
+                border-bottom: 1px solid rgba(70,55,35,.22);
                 position: relative;
                 display: flex;
                 align-items: flex-end;
@@ -561,7 +561,7 @@ export function renderToken() {
             }
             .cltr-burn-period-card {
                 background: var(--paper, #F7F4ED);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 12px 14px;
             }
@@ -591,7 +591,7 @@ export function renderToken() {
             }
             .cltr-rep-stat {
                 background: var(--paper, #F7F4ED);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 14px 16px;
                 display: flex;
@@ -658,7 +658,7 @@ export function renderToken() {
 
             /* --- TRUST & VESTING CARDS --- */
             .cltr-trust-card {
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 20px;
                 margin-bottom: 16px;
@@ -707,7 +707,7 @@ export function renderToken() {
                 align-items: center;
                 justify-content: space-between;
                 background: var(--paper, #F7F4ED);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 padding: 12px 16px;
                 border-radius: 4px;
             }
@@ -741,7 +741,7 @@ export function renderToken() {
                 background: #7A1C29;
             }
             .cltr-trust-claim-btn:disabled {
-                background: #E5E5E5;
+                background: rgba(70,55,35,.22);
                 color: #999;
                 cursor: not-allowed;
             }
@@ -813,7 +813,7 @@ export function renderToken() {
             }
             .cltr-health-stat {
                 background: var(--paper, #F7F4ED);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 14px 16px;
                 display: flex;
@@ -824,7 +824,7 @@ export function renderToken() {
             /* --- TABLE SYSTEM --- */
             .cltr-table-container {
                 overflow-x: auto;
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
             }
             .cltr-data-table {
@@ -840,8 +840,8 @@ export function renderToken() {
                 letter-spacing: 1px;
                 color: #888;
                 padding: 14px 16px;
-                border-bottom: 1px solid #E5E5E5;
-                background: #FCFCFC;
+                border-bottom: 1px solid rgba(70,55,35,.22);
+                background: #FAF4E6;
             }
             .cltr-data-table td {
                 padding: 14px 16px;
@@ -880,7 +880,7 @@ export function renderToken() {
                 border-radius: 2px;
             }
             .cltr-unstake-btn:disabled {
-                background: #E5E5E5;
+                background: rgba(70,55,35,.22);
                 color: #999;
                 cursor: not-allowed;
             }
@@ -902,7 +902,7 @@ export function renderToken() {
             .cltr-modal-box {
                 background: var(--plate, #FFFDF9);
                 border-radius: 4px;
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 padding: 32px;
                 width: 100%;
                 max-width: 360px;
@@ -1122,7 +1122,7 @@ export function renderToken() {
             .cltr-subnav-tabs {
                 display: flex;
                 gap: 24px;
-                border-bottom: 1px solid #E5E5E5;
+                border-bottom: 1px solid rgba(70,55,35,.22);
                 padding-bottom: 0;
                 margin-bottom: 32px;
                 animation: panelReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -1158,7 +1158,7 @@ export function renderToken() {
             /* --- VISION VIEW STYLES --- */
             .vis-hero {
                 padding: 48px 0;
-                border-bottom: 1px solid #E5E5E5;
+                border-bottom: 1px solid rgba(70,55,35,.22);
                 margin-bottom: 48px;
             }
             .vis-title {
@@ -1206,7 +1206,7 @@ export function renderToken() {
             }
             .wp-chapter {
                 margin-bottom: 64px;
-                border-bottom: 1px solid #E5E5E5;
+                border-bottom: 1px solid rgba(70,55,35,.22);
                 padding-bottom: 48px;
             }
             .wp-chapter:last-child {
@@ -1222,7 +1222,7 @@ export function renderToken() {
             }
             .wp-box {
                 background: var(--plate, #FFFDF9);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 24px;
                 margin-bottom: 24px;
@@ -1276,18 +1276,18 @@ export function renderToken() {
                 font-weight: 700;
                 font-size: 10px;
                 letter-spacing: 0.5px;
-                border-bottom: 2px solid #E5E5E5;
+                border-bottom: 2px solid rgba(70,55,35,.22);
             }
             .wp-table td {
                 padding: 12px;
-                border-bottom: 1px solid #E5E5E5;
+                border-bottom: 1px solid rgba(70,55,35,.22);
                 color: #444;
             }
             
             /* --- ECONOMICS STYLES --- */
             .econ-hero {
                 background: var(--plate, #FFFDF9);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 40px;
                 margin-bottom: 40px;
@@ -1310,7 +1310,7 @@ export function renderToken() {
             .ov-hero {
                 padding: 64px 0 40px;
                 text-align: center;
-                border-bottom: 1px solid #E5E5E5;
+                border-bottom: 1px solid rgba(70,55,35,.22);
                 margin-bottom: 48px;
             }
             .ov-title {
@@ -1331,7 +1331,7 @@ export function renderToken() {
                 align-items: center;
                 justify-content: space-between;
                 background: var(--plate, #FFFDF9);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 24px 20px;
                 margin-bottom: 48px;
@@ -1411,7 +1411,7 @@ export function renderToken() {
             }
             .pillar-card {
                 background: var(--plate, #FFFDF9);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 28px;
                 display: flex;
@@ -1479,7 +1479,7 @@ export function renderToken() {
             }
             .benefit-card {
                 background: var(--plate, #FFFDF9);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 24px;
                 transition: all 0.25s ease;
@@ -1505,7 +1505,7 @@ export function renderToken() {
             /* --- LIVE NETWORK SNAPSHOT --- */
             .snapshot-panel {
                 background: var(--plate, #FFFDF9);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 32px;
                 margin-bottom: 48px;
@@ -1566,7 +1566,7 @@ export function renderToken() {
                 flex-direction: column;
                 gap: 16px;
                 background: var(--plate, #FFFDF9);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 32px;
                 margin-bottom: 40px;
@@ -1580,7 +1580,7 @@ export function renderToken() {
             .flywheel-node {
                 flex: 1;
                 background: var(--paper, #F7F4ED);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 16px;
                 text-align: center;
@@ -1615,7 +1615,7 @@ export function renderToken() {
             /* --- DIVIDERS / DIAGRAMS --- */
             .vis-divider {
                 height: 1px;
-                background: #E5E5E5;
+                background: rgba(70,55,35,.22);
                 margin: 48px 0;
                 position: relative;
             }
@@ -1632,7 +1632,7 @@ export function renderToken() {
             }
             .vis-diag-container {
                 background: var(--plate, #FFFDF9);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 24px;
                 display: flex;
@@ -1670,7 +1670,7 @@ export function renderToken() {
                 gap: 20px;
                 margin-bottom: 48px;
                 background: var(--plate, #FFFDF9);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 32px 24px;
                 box-shadow: 0 4px 24px rgba(92, 20, 20, 0.01);
@@ -1705,7 +1705,7 @@ export function renderToken() {
             /* --- TRUST NETWORK VISUALIZATION --- */
             .trust-network-panel {
                 background: var(--plate, #FFFDF9);
-                border: 1px solid #E5E5E5;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 40px;
                 margin-bottom: 48px;
@@ -1803,14 +1803,14 @@ export function renderToken() {
                     <div class="trust-network-panel">
                         <svg class="trust-network-svg" viewBox="0 0 600 300" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <!-- Paths / Connections -->
-                            <path d="M100 150 L200 80 L350 80 L450 150 L350 220 L200 220 Z" stroke="#E5E5E5" stroke-width="1.5" stroke-dasharray="4 4" />
-                            <path d="M200 80 L350 220" stroke="#E5E5E5" stroke-dasharray="4 4" stroke-width="1" />
-                            <path d="M200 220 L350 80" stroke="#E5E5E5" stroke-dasharray="4 4" stroke-width="1" />
-                            <path d="M100 150 L300 150 L500 150" stroke="#E5E5E5" stroke-dasharray="4 4" stroke-width="1" />
-                            <path d="M300 150 L200 80" stroke="#E5E5E5" stroke-dasharray="4 4" stroke-width="1" />
-                            <path d="M300 150 L350 80" stroke="#E5E5E5" stroke-dasharray="4 4" stroke-width="1" />
-                            <path d="M300 150 L200 220" stroke="#E5E5E5" stroke-dasharray="4 4" stroke-width="1" />
-                            <path d="M300 150 L350 220" stroke="#E5E5E5" stroke-dasharray="4 4" stroke-width="1" />
+                            <path d="M100 150 L200 80 L350 80 L450 150 L350 220 L200 220 Z" stroke="rgba(70,55,35,.22)" stroke-width="1.5" stroke-dasharray="4 4" />
+                            <path d="M200 80 L350 220" stroke="rgba(70,55,35,.22)" stroke-dasharray="4 4" stroke-width="1" />
+                            <path d="M200 220 L350 80" stroke="rgba(70,55,35,.22)" stroke-dasharray="4 4" stroke-width="1" />
+                            <path d="M100 150 L300 150 L500 150" stroke="rgba(70,55,35,.22)" stroke-dasharray="4 4" stroke-width="1" />
+                            <path d="M300 150 L200 80" stroke="rgba(70,55,35,.22)" stroke-dasharray="4 4" stroke-width="1" />
+                            <path d="M300 150 L350 80" stroke="rgba(70,55,35,.22)" stroke-dasharray="4 4" stroke-width="1" />
+                            <path d="M300 150 L200 220" stroke="rgba(70,55,35,.22)" stroke-dasharray="4 4" stroke-width="1" />
+                            <path d="M300 150 L350 220" stroke="rgba(70,55,35,.22)" stroke-dasharray="4 4" stroke-width="1" />
                             
                             <!-- Central Node (Protocol Core) -->
                             <circle cx="300" cy="150" r="28" fill="#7A1C29" stroke="#FFF" stroke-width="2" class="trust-network-node" />
@@ -1986,10 +1986,10 @@ export function renderToken() {
                             <div class="vis-diag-container">
                                 <svg width="240" height="100" viewBox="0 0 240 100" fill="none">
                                     <!-- Nodes -->
-                                    <rect x="10" y="30" width="70" height="30" rx="3" fill="#FFF" stroke="#E5E5E5" stroke-width="1.5"/>
+                                    <rect x="10" y="30" width="70" height="30" rx="3" fill="#FFF" stroke="rgba(70,55,35,.22)" stroke-width="1.5"/>
                                     <text x="45" y="49" font-family="JetBrains Mono" font-size="9" fill="#111" text-anchor="middle" font-weight="bold">PROMISE</text>
                                     
-                                    <rect x="160" y="30" width="70" height="30" rx="3" fill="#FFF" stroke="#E5E5E5" stroke-width="1.5"/>
+                                    <rect x="160" y="30" width="70" height="30" rx="3" fill="#FFF" stroke="rgba(70,55,35,.22)" stroke-width="1.5"/>
                                     <text x="195" y="49" font-family="JetBrains Mono" font-size="9" fill="#888" text-anchor="middle">DELIVERY</text>
                                     
                                     <!-- Broken Arrow / Gap -->
@@ -2009,7 +2009,7 @@ export function renderToken() {
                             <h3 class="vis-card-title">Proof of Execution</h3>
                             <div class="vis-diag-container">
                                 <svg width="240" height="100" viewBox="0 0 240 100" fill="none">
-                                    <rect x="10" y="35" width="60" height="30" rx="3" fill="#FFF" stroke="#E5E5E5" stroke-width="1.5"/>
+                                    <rect x="10" y="35" width="60" height="30" rx="3" fill="#FFF" stroke="rgba(70,55,35,.22)" stroke-width="1.5"/>
                                     <text x="40" y="53" font-family="JetBrains Mono" font-size="8" fill="#111" text-anchor="middle">LOCKED ESCROW</text>
                                     
                                     <path d="M 75 50 L 95 50" stroke="#7A1C29" stroke-width="1.5"/>
@@ -2021,7 +2021,7 @@ export function renderToken() {
                                     <path d="M 145 50 L 165 50" stroke="#7A1C29" stroke-width="1.5"/>
                                     <polygon points="165,50 160,47 160,53" fill="#7A1C29"/>
                                     
-                                    <rect x="170" y="35" width="60" height="30" rx="3" fill="#FFF" stroke="#E5E5E5" stroke-width="1.5"/>
+                                    <rect x="170" y="35" width="60" height="30" rx="3" fill="#FFF" stroke="rgba(70,55,35,.22)" stroke-width="1.5"/>
                                     <text x="200" y="53" font-family="JetBrains Mono" font-size="8" fill="#111" text-anchor="middle">RELEASED</text>
                                 </svg>
                             </div>
@@ -2040,7 +2040,7 @@ export function renderToken() {
                             <div class="vis-diag-container">
                                 <svg width="240" height="100" viewBox="0 0 240 100" fill="none">
                                     <!-- Dial representation -->
-                                    <rect x="30" y="25" width="180" height="50" rx="4" fill="#111" stroke="#E5E5E5" stroke-width="1"/>
+                                    <rect x="30" y="25" width="180" height="50" rx="4" fill="#111" stroke="rgba(70,55,35,.22)" stroke-width="1"/>
                                     <text x="45" y="42" font-family="JetBrains Mono" font-size="7" fill="#888">ExID LEVEL</text>
                                     <text x="45" y="62" font-family="JetBrains Mono" font-size="16" fill="#FFF" font-weight="bold">920 <tspan font-size="9" fill="#10B981" font-weight="normal">▲ +35</tspan></text>
                                     <rect x="135" y="45" width="60" height="8" rx="4" fill="#222"/>
@@ -2208,7 +2208,7 @@ export function renderToken() {
                                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
                                     </a>
                                 </div>
-                                <div style="margin-top: 16px; padding: 12px; border: 1px dashed #E5E5E5; border-radius: 4px; font-family:'Sora', sans-serif; font-size: 10px; color: #888; line-height: 1.5; text-align: left;">
+                                <div style="margin-top: 16px; padding: 12px; border: 1px dashed rgba(70,55,35,.22); border-radius: 4px; font-family:'Sora', sans-serif; font-size: 10px; color: #888; line-height: 1.5; text-align: left;">
                                     <strong>Staking Disclosure:</strong> Yield accrual calculations are theoretical, paid out externally/off-chain, and are not guaranteed or enforced by the smart contract. Staked CLTR principal is securely held on-chain and returned 1:1 upon lock expiration.
                                 </div>
                             </div>
@@ -2617,7 +2617,7 @@ export function renderToken() {
                     </div>
 
                     <!-- Acquire CLTR Card -->
-                    <div style="margin-top: 40px; background: var(--plate, #FFFDF9); border: 1px solid #E5E5E5; border-radius: 4px; padding: 32px;">
+                    <div style="margin-top: 40px; background: var(--plate, #FFFDF9); border: 1px solid rgba(70,55,35,.22); border-radius: 4px; padding: 32px;">
                         <h3 class="vis-card-title" style="margin-top:0; font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;">ACQUIRING &amp; TRADING CLTR</h3>
                         <p class="vis-card-p" style="margin-bottom: 24px;">
                             The Collateral token (CLTR) is a utility asset deployed on the **Robinhood Chain**. You can trade, buy, or sell CLTR directly on Uniswap, or bridge assets to obtain it.
@@ -2627,7 +2627,7 @@ export function renderToken() {
                                 <span>Trade CLTR on Uniswap</span>
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
                             </a>
-                            <a href="#" onclick="window.router.navigate('/docs'); return false;" style="display: inline-flex; align-items: center; gap: 8px; background: var(--plate, #FFFDF9); color: #111111; border: 1px solid #E5E5E5; padding: 12px 24px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-decoration: none; transition: all 0.2s;">
+                            <a href="#" onclick="window.router.navigate('/docs'); return false;" style="display: inline-flex; align-items: center; gap: 8px; background: var(--plate, #FFFDF9); color: #111111; border: 1px solid rgba(70,55,35,.22); padding: 12px 24px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-decoration: none; transition: all 0.2s;">
                                 <span>View Bridging Guide</span>
                             </a>
                         </div>
@@ -2691,7 +2691,7 @@ export function initToken() {
         bannerContainer.style.display = 'flex';
         bannerContainer.style.gridTemplateColumns = 'none';
         bannerContainer.style.background = '#FFFFFF';
-        bannerContainer.style.border = '1px solid #E5E5E5';
+        bannerContainer.style.border = '1px solid rgba(70,55,35,.22)';
         bannerContainer.style.borderRadius = '4px';
         bannerContainer.style.padding = '18px 24px';
         bannerContainer.style.marginBottom = '32px';
@@ -2717,7 +2717,7 @@ export function initToken() {
         bannerContainer.style.display = 'grid';
         bannerContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
         bannerContainer.style.background = '#FFFFFF';
-        bannerContainer.style.border = '1px solid #E5E5E5';
+        bannerContainer.style.border = '1px solid rgba(70,55,35,.22)';
         bannerContainer.style.borderRadius = '4px';
         bannerContainer.style.padding = '18px 24px';
         bannerContainer.style.marginBottom = '32px';
@@ -2727,18 +2727,18 @@ export function initToken() {
         const shortAddr = address.slice(0, 6) + '...' + address.slice(-4);
 
         bannerContainer.innerHTML = `
-            <div class="cltr-wallet-status" style="border-right: 1px solid #E5E5E5; padding-right:24px;">
+            <div class="cltr-wallet-status" style="border-right: 1px solid rgba(70,55,35,.22); padding-right:24px;">
                 <div class="cltr-status-indicator connected" style="background:#10B981; animation: pulseIndicator 2.5s infinite;"></div>
                 <div class="cltr-wallet-text">
                     <span style="font-family:'JetBrains Mono', monospace; font-size:10px; font-weight:700; color:#10B981; letter-spacing:0.5px; display:block;">CONNECTED</span>
                     <span class="cltr-wallet-hash" style="display:block; font-size:11px; margin-top:2px; margin-left:0; background:none; padding:0; color:#555;" id="w-addr">${shortAddr}</span>
                 </div>
             </div>
-            <div style="border-right: 1px solid #E5E5E5; padding-right:24px;">
+            <div style="border-right: 1px solid rgba(70,55,35,.22); padding-right:24px;">
                 <span style="font-family:'JetBrains Mono', monospace; font-size:8px; color:#888; text-transform:uppercase; display:block; letter-spacing:0.5px;">Conviction Balance</span>
                 <span style="font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:700; color:#111; display:block; margin-top:2px;" id="banner-balance">${formattedBalance} CLTR</span>
             </div>
-            <div style="border-right: 1px solid #E5E5E5; padding-right:24px;">
+            <div style="border-right: 1px solid rgba(70,55,35,.22); padding-right:24px;">
                 <span style="font-family:'JetBrains Mono', monospace; font-size:8px; color:#888; text-transform:uppercase; display:block; letter-spacing:0.5px;">Network</span>
                 <span style="font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:700; color:#7A1C29; display:block; margin-top:2px;">Robinhood Mainnet</span>
             </div>

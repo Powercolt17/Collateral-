@@ -5,7 +5,7 @@ export function renderTerms() {
     return `
         <style>
             .legal-page {
-                background: #fff;
+                background: #F5EDDA;
                 min-height: 100vh;
                 font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 color: #111;
@@ -71,7 +71,7 @@ export function renderTerms() {
             .legal-divider {
                 width: 40px;
                 height: 1px;
-                background: #e0e0e0;
+                background: rgba(70,55,35,.22);
                 margin: 32px 0;
             }
             @media (max-width: 768px) {

@@ -29,10 +29,10 @@ export function renderResults() {
             .res-grid { display: flex; flex-direction: column; gap: 1px; background: #f0f0f0; border: 1px solid #f0f0f0; }
             .res-card {
                 display: grid; grid-template-columns: 48px 1fr 120px 120px 100px;
-                align-items: center; gap: 16px; padding: 16px 20px; background: #fff;
+                align-items: center; gap: 16px; padding: 16px 20px; background: #F5EDDA;
                 transition: background 150ms; cursor: default;
             }
-            .res-card:hover { background: #fafafa; }
+            .res-card:hover { background: #FAF4E6; }
 
             .res-icon {
                 width: 40px; height: 40px; border-radius: 6px;

@@ -7,7 +7,7 @@ export function renderReferrals() {
                REFERRALS — INSTITUTIONAL DESIGN SYSTEM
                ============================================================ */
             .ref {
-                background: #fafafa;
+                background: #FAF4E6;
                 min-height: calc(100vh - 72px);
                 font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 color: #111;
@@ -17,7 +17,7 @@ export function renderReferrals() {
 
             /* ── Hero Header ── */
             .ref-header {
-                background: #fff;
+                background: #F5EDDA;
                 border-bottom: 1px solid #f0f0f0;
             }
             .ref-header-inner {
@@ -104,8 +104,8 @@ export function renderReferrals() {
 
             /* ── Section Container ── */
             .ref-section {
-                background: #fff;
-                border: 1px solid #e5e5e5;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 margin-bottom: 16px;
             }
             .ref-section-hdr {
@@ -139,7 +139,7 @@ export function renderReferrals() {
                 transition: background 0.1s;
             }
             .ref-tier-row:last-child { border-bottom: none; }
-            .ref-tier-row:hover { background: #fcfcfc; }
+            .ref-tier-row:hover { background: #FAF4E6; }
             .ref-tier-row.dimmed { opacity: 0.4; }
 
             .ref-tier-left {
@@ -150,7 +150,7 @@ export function renderReferrals() {
             .ref-tier-dot {
                 width: 6px;
                 height: 6px;
-                background: #e5e5e5;
+                background: rgba(70,55,35,.22);
                 flex-shrink: 0;
             }
             .ref-tier-dot.active { background: #752122; }
@@ -219,7 +219,7 @@ export function renderReferrals() {
                 font-size: 13px;
                 font-family: 'JetBrains Mono', monospace;
                 background: #1a1a1a;
-                color: #e5e5e5;
+                color: #F0E6D2;
                 outline: none;
             }
             .ref-link-btn {
@@ -269,19 +269,19 @@ export function renderReferrals() {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
                 gap: 0;
-                border: 1px solid #e5e5e5;
-                background: #fff;
+                border: 1px solid rgba(70,55,35,.22);
+                background: #F5EDDA;
                 margin-bottom: 16px;
             }
             .ref-step {
                 padding: 28px 24px;
-                border-right: 1px solid #e5e5e5;
+                border-right: 1px solid rgba(70,55,35,.22);
             }
             .ref-step:last-child { border-right: none; }
             .ref-step-num {
                 font-size: 24px;
                 font-weight: 200;
-                color: #e5e5e5;
+                color: #211B12;
                 letter-spacing: -1px;
                 margin-bottom: 8px;
                 line-height: 1;
@@ -333,8 +333,8 @@ export function renderReferrals() {
 
             /* ── Bonus Banner ── */
             .ref-bonus {
-                background: #fff;
-                border: 1px solid #e5e5e5;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 border-left: 3px solid #752122;
                 padding: 14px 20px;
                 margin-bottom: 16px;
@@ -431,7 +431,7 @@ export function renderReferrals() {
                 .ref-content { padding: 24px 16px; }
                 .ref-hero-stats { gap: 32px; flex-wrap: wrap; }
                 .ref-steps { grid-template-columns: 1fr; }
-                .ref-step { border-right: none; border-bottom: 1px solid #e5e5e5; }
+                .ref-step { border-right: none; border-bottom: 1px solid rgba(70,55,35,.22); }
                 .ref-step:last-child { border-bottom: none; }
                 .ref-footer { flex-wrap: wrap; gap: 20px; }
             }
@@ -497,7 +497,7 @@ export function initReferrals() {
             errorEl.style.display = 'block';
             errorEl.innerHTML = `
                 <div style="text-align:center;padding:80px 40px;">
-                    <div style="width:56px;height:56px;background:#f9f9f9;border:1px solid #f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                    <div style="width:56px;height:56px;background: #FAF4E6;border:1px solid #f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
                     </div>
                     <div style="font-size:16px;font-weight:600;color:#1a1a1a;margin-bottom:8px;">Sign in to view referrals</div>
@@ -673,7 +673,7 @@ async function loadReferralData() {
         const msg = err.message || '';
         if (err.status === 401 || msg.includes('Unauthorized') || msg.includes('401')) {
             errorEl.innerHTML = '<div style="text-align:center;padding:80px 40px;">'
-                + '<div style="width:56px;height:56px;background:#f9f9f9;border:1px solid #f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">'
+                + '<div style="width:56px;height:56px;background: #FAF4E6;border:1px solid #f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">'
                 + '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>'
                 + '</div>'
                 + '<div style="font-size:16px;font-weight:600;color:#1a1a1a;margin-bottom:8px;">Session expired</div>'

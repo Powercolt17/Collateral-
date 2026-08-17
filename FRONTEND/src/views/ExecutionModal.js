@@ -46,7 +46,7 @@ function ensureModal() {
                 transform: translate(-50%, -50%) scale(0.98);
                 z-index: 201;
                 width: 100%; max-width: 480px;
-                background: #fff;
+                background: #F5EDDA;
                 border: 1px solid #d4d4d4;
                 border-top: 2px solid #752122;
                 border-radius: 6px;
@@ -63,8 +63,8 @@ function ensureModal() {
             .exec-header {
                 display: flex; justify-content: space-between; align-items: center;
                 padding: 16px 20px;
-                border-bottom: 1px solid #e5e5e5;
-                background: #fafafa;
+                border-bottom: 1px solid rgba(70,55,35,.22);
+                background: #FAF4E6;
             }
             .exec-header-title {
                 font-size: 11px; font-weight: 600; color: #374151;
@@ -101,11 +101,11 @@ function ensureModal() {
             }
             .exec-stake-btn {
                 flex: 1; padding: 10px 0; border: none;
-                background: #fff; color: #374151;
+                background: #F5EDDA; color: #374151;
                 font-size: 13px; font-weight: 600;
                 font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 cursor: pointer; transition: all 120ms ease;
-                border-right: 1px solid #e5e5e5;
+                border-right: 1px solid rgba(70,55,35,.22);
                 font-variant-numeric: tabular-nums;
             }
             .exec-stake-btn:last-child { border-right: none; }
@@ -139,7 +139,7 @@ function ensureModal() {
 
             /* Divider */
             .exec-div {
-                border: none; border-top: 1px solid #e5e5e5;
+                border: none; border-top: 1px solid rgba(70,55,35,.22);
                 margin: 16px 0;
             }
 
@@ -168,8 +168,8 @@ function ensureModal() {
             /* ── Primary Button — Dual-State ── */
             .exec-btn-primary {
                 width: 100%; height: 48px;
-                background: #ffffff; color: #111111;
-                border: 1px solid #e5e5e5;
+                background: #F5EDDA; color: #111111;
+                border: 1px solid rgba(70,55,35,.22);
                 font-size: 12px; font-weight: 600;
                 text-transform: uppercase; letter-spacing: 0.06em;
                 font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -644,7 +644,7 @@ function showSuccess(bodyEl, stake, multiplier, contractId, fundingMethod = 'USD
             <div class="exec-success-title">Execution Confirmed</div>
             <div class="exec-success-sub">RCPT-${shortId} · Capital locked until settlement</div>
 
-            <div style="background:#fafafa;border:1px solid #e5e5e5;border-radius:6px;padding:16px;margin:20px 0 12px;text-align:left;">
+            <div style="background: #FAF4E6;border:1px solid rgba(70,55,35,.22);border-radius:6px;padding:16px;margin:20px 0 12px;text-align:left;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
                     <span style="font-size:16px;">🐦</span>
                     <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;font-family:'JetBrains Mono', monospace;color:#111;">Boost Your Payout</span>

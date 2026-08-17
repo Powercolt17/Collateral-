@@ -5,8 +5,8 @@
 export function renderAmazonCallback() {
     return `
         <style>
-            .amz-cb { min-height: 100vh; background: #fafafa; display: flex; align-items: center; justify-content: center; font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif; }
-            .amz-cb-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 40px 32px; max-width: 420px; width: 100%; text-align: center; }
+            .amz-cb { min-height: 100vh; background: #FAF4E6; display: flex; align-items: center; justify-content: center; font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+            .amz-cb-card { background: #F5EDDA; border: 1px solid rgba(70,55,35,.22); border-radius: 12px; padding: 40px 32px; max-width: 420px; width: 100%; text-align: center; }
             @keyframes cl-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
             @keyframes cl-pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
             .amz-cb-spinner { position: relative; width: 48px; height: 48px; margin: 0 auto 20px; }

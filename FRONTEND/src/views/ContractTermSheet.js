@@ -31,21 +31,21 @@ export function renderContractTermSheet(params) {
             .cts-hdr { margin-bottom: 24px; }
             .cts-hdr-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 8px; }
             .cts-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: #0a0a0a; line-height: 1.2; }
-            .cts-id { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #9ca3af; letter-spacing: 0.06em; padding: 4px 8px; border: 1px solid #e5e5e5; background: #fafafa; flex-shrink: 0; }
+            .cts-id { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #9ca3af; letter-spacing: 0.06em; padding: 4px 8px; border: 1px solid rgba(70,55,35,.22); background: #FAF4E6; flex-shrink: 0; }
             .cts-meta-row { display: flex; align-items: center; gap: 16px; }
             .cts-provider { font-size: 12px; font-weight: 600; color: #374151; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.04em; }
             .cts-status { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 2px 8px; }
             .cts-objective { font-size: 14px; color: #6b7280; line-height: 1.5; margin-top: 10px; }
 
             /* Divider */
-            .cts-div { border: none; border-top: 1px solid #e5e5e5; margin: 24px 0; }
+            .cts-div { border: none; border-top: 1px solid rgba(70,55,35,.22); margin: 24px 0; }
 
             /* Section Header */
             .cts-sh { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3af; font-family: 'JetBrains Mono', monospace; margin-bottom: 16px; }
 
             /* Summary Terms Grid */
             .cts-terms-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid #d4d4d4; overflow: hidden; margin-bottom: 24px; }
-            .cts-term-cell { padding: 16px 14px; border-right: 1px solid #e5e5e5; border-bottom: 1px solid #e5e5e5; background: #fafafa; }
+            .cts-term-cell { padding: 16px 14px; border-right: 1px solid rgba(70,55,35,.22); border-bottom: 1px solid rgba(70,55,35,.22); background: #FAF4E6; }
             .cts-term-cell:nth-child(4n) { border-right: none; }
             .cts-term-cell:nth-last-child(-n+4) { border-bottom: none; }
             .cts-term-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7280; font-family: 'JetBrains Mono', monospace; font-weight: 600; margin-bottom: 6px; }
@@ -57,8 +57,8 @@ export function renderContractTermSheet(params) {
             .cts-block-text { font-size: 13px; color: #6b7280; line-height: 1.6; }
 
             /* Right Panel (Sticky) */
-            .cts-panel { position: sticky; top: 24px; background: #fff; border: 1px solid #d4d4d4; border-top: 2px solid #752122; overflow: hidden; }
-            .cts-panel-hdr { padding: 16px 20px; background: #fafafa; border-bottom: 1px solid #e5e5e5; }
+            .cts-panel { position: sticky; top: 24px; background: #F5EDDA; border: 1px solid #d4d4d4; border-top: 2px solid #752122; overflow: hidden; }
+            .cts-panel-hdr { padding: 16px 20px; background: #FAF4E6; border-bottom: 1px solid rgba(70,55,35,.22); }
             .cts-panel-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #374151; font-family: 'JetBrains Mono', monospace; }
             .cts-panel-body { padding: 20px; }
             .cts-panel-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
@@ -69,7 +69,7 @@ export function renderContractTermSheet(params) {
             .cts-panel-val.success { color: #166534; }
             .cts-panel-val.failure { color: #752122; opacity: 0.85; }
 
-            .cts-panel-div { border: none; border-top: 1px solid #e5e5e5; margin: 12px 0; }
+            .cts-panel-div { border: none; border-top: 1px solid rgba(70,55,35,.22); margin: 12px 0; }
 
             .cts-panel-escrow { font-size: 10px; color: #9ca3af; text-align: center; font-family: 'JetBrains Mono', monospace; margin: 12px 0 16px; }
 
@@ -93,17 +93,17 @@ export function renderContractTermSheet(params) {
             .cts-tier-group { display: flex; gap: 6px; margin-bottom: 16px; }
             .cts-tier-opt {
                 flex: 1; padding: 10px 6px; text-align: center;
-                border: 1px solid #e5e5e5; background: #fafafa;
+                border: 1px solid rgba(70,55,35,.22); background: #FAF4E6;
                 font-size: 12px; font-weight: 600; color: #374151;
                 font-family: 'JetBrains Mono', monospace;
                 cursor: pointer; transition: all 150ms;
             }
             .cts-tier-opt:hover { border-color: #d4d4d4; background: #f5f5f5; }
-            .cts-tier-opt.active { border-color: #374151; background: #fff; color: #0a0a0a; box-shadow: 0 0 0 1px #374151; }
+            .cts-tier-opt.active { border-color: #374151; background: #F5EDDA; color: #0a0a0a; box-shadow: 0 0 0 1px #374151; }
 
             /* Live Metric Preview */
             .cts-perf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid #d4d4d4; overflow: hidden; margin-bottom: 12px; }
-            .cts-perf-item { padding: 16px 14px; border-right: 1px solid #e5e5e5; background: #fafafa; }
+            .cts-perf-item { padding: 16px 14px; border-right: 1px solid rgba(70,55,35,.22); background: #FAF4E6; }
             .cts-perf-item:last-child { border-right: none; }
             .cts-perf-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7280; font-family: 'JetBrains Mono', monospace; font-weight: 600; margin-bottom: 6px; }
             .cts-perf-val { font-size: 15px; font-weight: 600; color: #111; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
@@ -114,7 +114,7 @@ export function renderContractTermSheet(params) {
 
             /* Loading */
             .cts-loading { display: flex; align-items: center; justify-content: center; min-height: 60vh; }
-            .cts-spinner { width: 20px; height: 20px; border: 2px solid #e5e5e5; border-top-color: #374151; border-radius: 50%; animation: cts-spin 0.7s linear infinite; }
+            .cts-spinner { width: 20px; height: 20px; border: 2px solid rgba(70,55,35,.22); border-top-color: #374151; border-radius: 50%; animation: cts-spin 0.7s linear infinite; }
             @keyframes cts-spin { to { transform: rotate(360deg); } }
 
             .cts-error { text-align: center; padding: 60px 20px; color: #6b7280; font-size: 14px; }
@@ -148,7 +148,7 @@ export function renderContractTermSheet(params) {
                 margin-top: 12px; padding: 8px 16px;
                 font-size: 11px; font-weight: 600; text-transform: uppercase;
                 letter-spacing: 0.06em; color: #752122;
-                background: #fff; border: 1px solid #fecaca;
+                background: #F5EDDA; border: 1px solid #fecaca;
                 cursor: pointer; font-family: 'JetBrains Mono', monospace;
                 transition: all 150ms;
             }

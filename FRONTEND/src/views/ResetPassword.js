@@ -47,14 +47,14 @@ export function renderResetPassword() {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #fafafa;
+            background: #FAF4E6;
             padding: 20px;
         }
         .rp-card {
             width: 100%;
             max-width: 420px;
-            background: #fff;
-            border: 1px solid #e5e5e5;
+            background: #F5EDDA;
+            border: 1px solid rgba(70,55,35,.22);
             padding: 48px 40px;
         }
         .rp-brand {
@@ -109,8 +109,8 @@ export function renderResetPassword() {
         .rp-input {
             width: 100%;
             padding: 12px 14px;
-            border: 1px solid #ddd;
-            background: #fafafa;
+            border: 1px solid rgba(70,55,35,.26);
+            background: #FAF4E6;
             font-size: 14px;
             color: #111;
             font-family: inherit;
@@ -120,7 +120,7 @@ export function renderResetPassword() {
         }
         .rp-input:focus {
             border-color: #111;
-            background: #fff;
+            background: #F5EDDA;
         }
         .rp-message {
             padding: 12px 14px;

@@ -6,7 +6,7 @@ export function renderXCallback() {
         <style>
             .cb-page {
                 min-height: calc(100vh - 72px);
-                background: #fafafa;
+                background: #FAF4E6;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -26,8 +26,8 @@ export function renderXCallback() {
             }
             .cb-card {
                 position: relative;
-                background: #fff;
-                border: 1px solid #eaeaea;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 width: 100%;
                 max-width: 480px;
                 padding: 56px 48px 48px;
@@ -199,7 +199,7 @@ export function renderXCallback() {
             <div class="cb-card">
                 <div id="x-callback-loading">
                     <div class="cb-icon-wrap">
-                        <div style="width:20px;height:20px;border:2px solid #eee;border-top-color:#111;border-radius:50%;animation:src-spin 0.7s linear infinite;"></div>
+                        <div style="width:20px;height:20px;border:2px solid rgba(70,55,35,.18);border-top-color:#111;border-radius:50%;animation:src-spin 0.7s linear infinite;"></div>
                     </div>
                     <div class="cb-status-label">Verifying</div>
                     <h2 class="cb-title">Processing X Connection</h2>

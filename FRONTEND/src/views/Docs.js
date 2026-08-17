@@ -10,7 +10,7 @@ export function renderDocs() {
             @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap');
 
             .doc {
-                background: #FAFAFA;
+                background: #FAF4E6;
                 min-height: calc(100vh - 72px);
                 font-family: 'Inter', sans-serif;
                 color: #111111;
@@ -79,7 +79,7 @@ export function renderDocs() {
             }
             .doc-sidebar::-webkit-scrollbar { width: 3px; }
             .doc-sidebar::-webkit-scrollbar-track { background: transparent; }
-            .doc-sidebar::-webkit-scrollbar-thumb { background: #E5E5E5; border-radius: 3px; }
+            .doc-sidebar::-webkit-scrollbar-thumb { background: rgba(70,55,35,.22); border-radius: 3px; }
 
             .doc-nav-group {
                 margin-bottom: 28px;
@@ -104,7 +104,7 @@ export function renderDocs() {
                 color: #666666;
                 text-decoration: none;
                 padding: 6px 0 6px 14px;
-                border-left: 2px solid #E5E5E5;
+                border-left: 2px solid rgba(70,55,35,.22);
                 transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
                 font-weight: 500;
             }
@@ -128,7 +128,7 @@ export function renderDocs() {
             .doc-section {
                 margin-bottom: 48px;
                 padding-bottom: 48px;
-                border-bottom: 1px solid #E5E5E5;
+                border-bottom: 1px solid rgba(70,55,35,.22);
             }
             .doc-section:last-child {
                 border-bottom: none;
@@ -195,8 +195,8 @@ export function renderDocs() {
             }
 
             .doc-code-block {
-                background: #FFFFFF;
-                border: 1px solid #E5E5E5;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 font-family: 'JetBrains Mono', monospace;
                 font-size: 12px;
@@ -214,19 +214,19 @@ export function renderDocs() {
                 font-size: 13px;
             }
             .doc-table th {
-                background: #F9F9F9;
+                background: #FAF4E6;
                 text-align: left;
                 padding: 10px 12px;
                 font-family: 'JetBrains Mono', monospace;
                 font-weight: 700;
                 font-size: 10px;
                 letter-spacing: 0.5px;
-                border-bottom: 2px solid #E5E5E5;
+                border-bottom: 2px solid rgba(70,55,35,.22);
                 color: #666;
             }
             .doc-table td {
                 padding: 12px;
-                border-bottom: 1px solid #E5E5E5;
+                border-bottom: 1px solid rgba(70,55,35,.22);
                 color: #333;
             }
 
@@ -240,7 +240,7 @@ export function renderDocs() {
                 .doc-sidebar {
                     position: relative;
                     top: 0;
-                    border-bottom: 1px solid #E5E5E5;
+                    border-bottom: 1px solid rgba(70,55,35,.22);
                     padding-bottom: 20px;
                     margin-bottom: 32px;
                     max-height: none;

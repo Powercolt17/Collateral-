@@ -15,7 +15,7 @@ export function renderFunding() {
             }
 
             .cap {
-                background: #FAFAFA;
+                background: #FAF4E6;
                 min-height: calc(100vh - 72px);
                 font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 color: #111;
@@ -157,8 +157,8 @@ export function renderFunding() {
             .cap-overview {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
-                border: 1px solid #E0E0E0;
-                background: #fff;
+                border: 1px solid rgba(70,55,35,.22);
+                background: #F5EDDA;
                 margin-bottom: 28px;
                 border-radius: 4px;
                 overflow: hidden;
@@ -166,7 +166,7 @@ export function renderFunding() {
             }
             .cap-stat {
                 padding: 28px 24px;
-                border-right: 1px solid #E5E5E5;
+                border-right: 1px solid rgba(70,55,35,.22);
                 display: flex;
                 flex-direction: column;
                 gap: 8px;
@@ -174,7 +174,7 @@ export function renderFunding() {
                 transition: background 0.2s ease;
             }
             .cap-stat:last-child { border-right: none; }
-            .cap-stat:hover { background: #FCFCFC; }
+            .cap-stat:hover { background: #FAF4E6; }
             .cap-stat::before {
                 content: '';
                 position: absolute;
@@ -226,8 +226,8 @@ export function renderFunding() {
 
             /* ── Section Container ── */
             .cap-section {
-                background: #fff;
-                border: 1px solid #E0E0E0;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 border-left: 3px solid #5C1414; /* Accent bar spans full merged card */
                 margin-bottom: 20px;
                 border-radius: 0; /* Set border-radius to 0 */
@@ -409,7 +409,7 @@ export function renderFunding() {
 
             @media (max-width: 640px) {
                 .cap-overview { grid-template-columns: 1fr; }
-                .cap-stat { border-right: none; border-bottom: 1px solid #e5e5e5; }
+                .cap-stat { border-right: none; border-bottom: 1px solid rgba(70,55,35,.22); }
                 .cap-stat:last-child { border-bottom: none; }
                 .cap-hdr { flex-direction: column; align-items: flex-start; }
                 .cap-footer { flex-wrap: wrap; gap: 20px; }
@@ -460,11 +460,11 @@ export function renderFunding() {
                 display: flex;
             }
             .cap-modal {
-                background: #fff;
+                background: #F5EDDA;
                 width: 100%;
                 max-width: 440px;
                 margin: 0 16px;
-                border: 1px solid #e0e0e0;
+                border: 1px solid rgba(70,55,35,.22);
                 box-shadow: 0 20px 60px rgba(0,0,0,0.15);
                 border-radius: 4px;
                 overflow: hidden;
@@ -475,7 +475,7 @@ export function renderFunding() {
                 justify-content: space-between;
                 padding: 18px 22px;
                 border-bottom: 1px solid #f0f0f0;
-                background: #FCFCFC;
+                background: #FAF4E6;
             }
             .cap-modal-title {
                 font-family: 'JetBrains Mono', monospace;
@@ -508,7 +508,7 @@ export function renderFunding() {
             .cap-modal-footer {
                 padding: 14px 22px;
                 border-top: 1px solid #f0f0f0;
-                background: #FAFAFA;
+                background: #FAF4E6;
                 font-family: 'JetBrains Mono', monospace;
                 font-size: 10px;
                 color: #999;
@@ -517,16 +517,16 @@ export function renderFunding() {
 
             /* Card element */
             .cap-card-el {
-                border: 1px solid #e5e5e5;
+                border: 1px solid rgba(70,55,35,.22);
                 padding: 14px;
                 margin-bottom: 16px;
-                background: #FAFAFA;
+                background: #FAF4E6;
                 border-radius: 4px;
                 transition: border-color 0.15s, background 0.15s;
             }
             .cap-card-el:focus-within {
                 border-color: #5C1414;
-                background: #fff;
+                background: #F5EDDA;
                 box-shadow: 0 0 0 3px rgba(92, 20, 20, 0.08);
             }
 
@@ -591,7 +591,7 @@ export function renderFunding() {
                 font-weight: 600;
                 text-transform: uppercase;
                 letter-spacing: 1px;
-                border: 1px solid #e5e5e5;
+                border: 1px solid rgba(70,55,35,.22);
                 cursor: pointer;
                 transition: all 0.15s;
                 font-family: 'JetBrains Mono', monospace;
@@ -629,11 +629,11 @@ export function renderFunding() {
             .cap-input-amt input {
                 width: 100%;
                 padding: 14px 14px 14px 32px;
-                border: 1px solid #e5e5e5;
+                border: 1px solid rgba(70,55,35,.22);
                 font-size: 24px;
                 font-family: 'JetBrains Mono', monospace;
                 color: #111;
-                background: #FAFAFA;
+                background: #FAF4E6;
                 box-sizing: border-box;
                 outline: none;
                 border-radius: 4px;
@@ -641,7 +641,7 @@ export function renderFunding() {
             }
             .cap-input-amt input:focus {
                 border-color: #5C1414;
-                background: #fff;
+                background: #F5EDDA;
                 box-shadow: 0 0 0 3px rgba(92, 20, 20, 0.08);
             }
 
@@ -811,9 +811,9 @@ export function renderFunding() {
                     <div id="wallet-pay-section" style="display:none;">
                         <div id="payment-request-button" style="margin-bottom:16px;"></div>
                         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-                            <div style="flex:1;height:1px;background:#e5e5e5;"></div>
+                            <div style="flex:1;height:1px;background:rgba(70,55,35,.22);"></div>
                             <span style="font-family:'JetBrains Mono', monospace;font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:0.1em;">or enter card</span>
-                            <div style="flex:1;height:1px;background:#e5e5e5;"></div>
+                            <div style="flex:1;height:1px;background:rgba(70,55,35,.22);"></div>
                         </div>
                     </div>
                     <p class="cap-modal-sub">Verify a card to use as your funding instrument.</p>

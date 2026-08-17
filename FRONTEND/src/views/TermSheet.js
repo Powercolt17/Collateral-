@@ -8,7 +8,7 @@ export function renderTermSheet(params) {
             /* ===== EXECUTION TERMINAL — INSTITUTIONAL DESIGN ===== */
 
             .ext {
-                background: #fafafa;
+                background: #FAF4E6;
                 min-height: 100vh;
                 font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 color: #111;
@@ -17,8 +17,8 @@ export function renderTermSheet(params) {
             /* Header strip */
             .ext-header {
                 padding: 14px 32px;
-                background: #fff;
-                border-bottom: 1px solid #e5e5e5;
+                background: #F5EDDA;
+                border-bottom: 1px solid rgba(70,55,35,.22);
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
@@ -31,7 +31,7 @@ export function renderTermSheet(params) {
             .ext-back {
                 padding: 6px 10px;
                 font-size: 12px; color: #888;
-                background: none; border: 1px solid #e0e0e0;
+                background: none; border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px; cursor: pointer;
                 font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 transition: all 0.15s;
@@ -92,8 +92,8 @@ export function renderTermSheet(params) {
 
             /* Capital Summary Card */
             .ext-card {
-                background: #fff;
-                border: 1px solid #e5e5e5;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 6px;
                 overflow: hidden;
                 margin-bottom: 16px;
@@ -101,7 +101,7 @@ export function renderTermSheet(params) {
             .ext-card-header {
                 padding: 14px 24px;
                 border-bottom: 1px solid #f0f0f0;
-                background: #fafafa;
+                background: #FAF4E6;
             }
             .ext-card-title {
                 font-size: 11px;
@@ -157,13 +157,13 @@ export function renderTermSheet(params) {
                 font-family: 'JetBrains Mono', monospace;
                 padding: 12px 24px;
                 border-top: 1px solid #f0f0f0;
-                background: #fafafa;
+                background: #FAF4E6;
             }
 
             /* Forfeiture Section */
             .ext-forfeit {
-                background: #fff;
-                border: 1px solid #e5e5e5;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 border-left: 3px solid #752122;
                 border-radius: 6px;
                 padding: 20px 24px;
@@ -192,8 +192,8 @@ export function renderTermSheet(params) {
 
             /* Warning Block */
             .ext-warning {
-                background: #fafafa;
-                border: 1px solid #e5e5e5;
+                background: #FAF4E6;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 6px;
                 padding: 20px 24px;
                 margin-bottom: 16px;
@@ -235,8 +235,8 @@ export function renderTermSheet(params) {
                 align-items: flex-start;
                 gap: 10px;
                 padding: 16px 20px;
-                background: #fff;
-                border: 1px solid #e5e5e5;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 6px;
                 margin-bottom: 16px;
                 cursor: pointer;
@@ -268,8 +268,8 @@ export function renderTermSheet(params) {
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
                 color: #111111;
-                background: #ffffff;
-                border: 1px solid #e5e5e5;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 8px;
                 cursor: pointer;
                 font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -297,7 +297,7 @@ export function renderTermSheet(params) {
             .ext-execute:disabled {
                 background: #f5f5f5;
                 color: #999;
-                border-color: #e5e5e5;
+                border-color: rgba(70,55,35,.22);
                 cursor: not-allowed;
                 box-shadow: none;
             }
@@ -323,7 +323,7 @@ export function renderTermSheet(params) {
             }
             .ext-spinner {
                 width: 28px; height: 28px;
-                border: 2px solid #e5e5e5;
+                border: 2px solid rgba(70,55,35,.22);
                 border-top-color: #752122;
                 border-radius: 50%;
                 animation: ext-spin 0.7s linear infinite;
@@ -358,8 +358,8 @@ export function renderTermSheet(params) {
             .ext-connect-gate {
                 text-align: center;
                 padding: 40px 24px;
-                background: #fff;
-                border: 1px solid #e5e5e5;
+                background: #F5EDDA;
+                border: 1px solid rgba(70,55,35,.22);
                 border-radius: 6px;
                 margin-bottom: 16px;
             }

@@ -138,12 +138,28 @@
    Institutional grade. WCAG AA minimum. Zero softness.
    ================================================================ */
 
-/* ── Design Tokens ── */
+/* ── Design Tokens ──
+   ONE GROUND FOR THE WHOLE APPLICATION.
+
+   These were #FAF8F5 and #FFFFFF — a near-white page with white panels on
+   it. The market, the landing page and the rivalry views were rebuilt on
+   warm parchment, so every route that had not been touched announced itself
+   by turning the screen white at the moment of navigation. The tokens are
+   the ledger's now, so a page inherits the right ground by default and only
+   pages with hardcoded fills need visiting.
+
+   The borders had to move with them: #E5E5E5 is a cool grey that all but
+   disappears on parchment, and every table rule and card edge in the
+   application resolves through it. Warm, slightly deeper values keep the
+   ruling visible on the new ground.
+
+   Text stays near-black. It measures 13:1 on this parchment, and warming it
+   would cost contrast for no gain. */
 :root {
     /* Backgrounds */
-    --bg-page: #FAF8F5;
-    --bg-panel: #FFFFFF;
-    --bg-subtle: #FAF8F5;
+    --bg-page: #F1E8D3;
+    --bg-panel: #F5EDDA;
+    --bg-subtle: #FAF4E6;
 
     /* Text hierarchy — all WCAG AA compliant on white */
     --text-primary: #111111;
@@ -156,18 +172,23 @@
     /* placeholder, lowest-priority info */
 
     /* Brand */
-    --red: #5C1414;
-    --red-hover: #6B1212;
-    --red-light: #FEF2F2;
-    --green: #145c14;
-    --green-light: #F0FDF4;
+    /* The ledger's oxblood pair, so the whole application uses the colour the
+       market and the landing page use. The two tints were #FEF2F2 and
+       #F0FDF4 — a cool pink and a cool mint, both of which read as web
+       notification chips against parchment. Washes of the ink itself sit on
+       the paper instead. */
+    --red: #7C1D2B;
+    --red-hover: #5E1420;
+    --red-light: rgba(124,29,43,.07);
+    --green: #3F5A31;
+    --green-light: rgba(63,90,49,.09);
 
-    /* Borders */
-    --divider: #E5E5E5;
+    /* Borders — warm, because a cool grey rule vanishes on parchment */
+    --divider: rgba(70,55,35,.22);
     /* structural borders */
-    --divider-strong: #DCDCDC;
+    --divider-strong: rgba(70,55,35,.32);
     /* row separators that need more contrast */
-    --divider-subtle: #F0F0F0;
+    --divider-subtle: rgba(70,55,35,.12);
     /* lightest internal dividers */
 
     /* Spacing rhythm */

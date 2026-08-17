@@ -5,9 +5,9 @@
 export function renderYouTubeCallback() {
     return `
         <style>
-            .cb-page { min-height: calc(100vh - 72px); background: #fafafa; display: flex; align-items: center; justify-content: center; font-family: 'Sora', 'Inter', -apple-system, sans-serif; position: relative; overflow: hidden; }
+            .cb-page { min-height: calc(100vh - 72px); background: #FAF4E6; display: flex; align-items: center; justify-content: center; font-family: 'Sora', 'Inter', -apple-system, sans-serif; position: relative; overflow: hidden; }
             .cb-page::before { content: ''; position: absolute; top: -40%; left: -20%; width: 140%; height: 140%; background: radial-gradient(ellipse at center, rgba(92,20,20,0.03) 0%, transparent 70%); pointer-events: none; }
-            .cb-card { position: relative; background: #fff; border: 1px solid #eaeaea; width: 100%; max-width: 480px; padding: 56px 48px 48px; text-align: center; box-shadow: 0 4px 24px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.03); animation: cbSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+            .cb-card { position: relative; background: #F5EDDA; border: 1px solid rgba(70,55,35,.22); width: 100%; max-width: 480px; padding: 56px 48px 48px; text-align: center; box-shadow: 0 4px 24px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.03); animation: cbSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
             @keyframes cbSlideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
             .cb-icon-wrap { width: 72px; height: 72px; margin: 0 auto 28px; position: relative; display: flex; align-items: center; justify-content: center; }
             .cb-icon-ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid #e8f4ed; animation: cbRingPulse 2s ease-in-out infinite; }
@@ -36,7 +36,7 @@ export function renderYouTubeCallback() {
             <div class="cb-card">
                 <div id="youtube-cb-loading">
                     <div class="cb-icon-wrap">
-                        <div style="width:20px;height:20px;border:2px solid #eee;border-top-color:#111;border-radius:50%;animation:cbSlideUp 0.7s linear infinite;"></div>
+                        <div style="width:20px;height:20px;border:2px solid rgba(70,55,35,.18);border-top-color:#111;border-radius:50%;animation:cbSlideUp 0.7s linear infinite;"></div>
                     </div>
                     <div class="cb-status-label" style="color:#999;">Verifying</div>
                     <h2 class="cb-title">Connecting YouTube</h2>

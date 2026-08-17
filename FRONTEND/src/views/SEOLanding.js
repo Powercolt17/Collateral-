@@ -8,7 +8,7 @@ export function renderSEOLanding(params) {
 
     return `
         <style>
-            .seo { min-height: 100vh; background: #fff; font-family: 'Sora', sans-serif; }
+            .seo { min-height: 100vh; background: #F5EDDA; font-family: 'Sora', sans-serif; }
             .seo-hero {
                 text-align: center; padding: 100px 24px 60px;
                 max-width: 720px; margin: 0 auto;
@@ -38,7 +38,7 @@ export function renderSEOLanding(params) {
             .seo-cta:hover { background: #6e1c1c; }
 
             /* How it works */
-            .seo-how { background: #fafafa; padding: 80px 24px; }
+            .seo-how { background: #FAF4E6; padding: 80px 24px; }
             .seo-how-inner { max-width: 900px; margin: 0 auto; }
             .seo-how-tag {
                 font-family: 'JetBrains Mono', monospace; font-size: 10px;
