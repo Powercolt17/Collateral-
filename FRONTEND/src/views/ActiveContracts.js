@@ -1927,6 +1927,72 @@ export function renderActiveContracts() {
                 border-bottom: 1px solid var(--mb-line-soft);
             }
 
+            /* ---- issue a rivalry, without leaving the market ----
+               This used to send the reader to /rivalry, a page built on the
+               old design system that the product no longer uses. The form is
+               the market's own now: same paper, same rules, same oxblood, and
+               the board behind it refreshes in place when a challenge posts. */
+            .mb-rm-back {
+                display: none; position: fixed; inset: 0; z-index: 1000;
+                background: rgba(40,28,14,.55);
+                align-items: center; justify-content: center; padding: 24px;
+            }
+            .mb-rm-back.open { display: flex; }
+            .mb-rm {
+                background: var(--mb-paper); border: 1px solid rgba(86,66,42,.34);
+                box-shadow: 0 1px 2px rgba(70,52,30,.10), 0 34px 74px rgba(60,40,20,.24);
+                width: 560px; max-width: 100%; max-height: 88vh; overflow-y: auto;
+                padding: 30px 34px 26px; position: relative;
+            }
+            .mb-rm-top { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 16px; border-bottom: 2px solid var(--mb-ink); }
+            .mb-rm-kick { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: var(--mb-ox); font-weight: 500; }
+            .mb-rm-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 27px; font-weight: 600; line-height: 1; margin-top: 7px; }
+            .mb-rm-x { background: none; border: 0; cursor: pointer; font-size: 17px; color: var(--mb-muted); line-height: 1; padding: 4px; }
+            .mb-rm-x:hover { color: var(--mb-ox-deep); }
+
+            .mb-rm-f { padding: 16px 0 0; border-bottom: 1px solid var(--mb-line-soft); }
+            .mb-rm-f:last-of-type { border-bottom: 0; }
+            .mb-rm-lab {
+                display: block; margin-bottom: 10px;
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--mb-muted);
+            }
+            .mb-rm-hint { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .04em; color: var(--mb-muted); margin: 9px 0 14px; }
+            .mb-rm-row { display: flex; gap: 8px; flex-wrap: wrap; }
+            /* One pill treatment for every choice in this form. The old one had
+               three different active states — black, dark red, near-black —
+               for type, stake and tier. */
+            .mb-rm-p {
+                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-size: 11px; letter-spacing: .08em; color: var(--mb-ink-soft);
+                background: rgba(250,244,230,.75); border: 1px solid var(--mb-line-firm);
+                padding: 10px 15px; cursor: pointer; min-height: 40px;
+                transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+            }
+            .mb-rm-p:hover { background: rgba(70,55,35,.05); }
+            .mb-rm-p.on { background: var(--mb-ink); color: #F6EEDD; border-color: var(--mb-ink); }
+            .mb-rm-p.grow { flex: 1 1 0; text-align: center; }
+            .mb-rm-p b { display: block; font-weight: 500; }
+            .mb-rm-p .t { display: block; font-size: 10px; margin-top: 4px; color: var(--mb-ox); }
+            .mb-rm-p.on .t { color: rgba(246,238,221,.72); }
+            .mb-rm-in, .mb-rm-sel {
+                width: 100%; padding: 12px 13px; min-height: 44px;
+                background: rgba(250,244,230,.75); border: 1px solid var(--mb-line-firm);
+                border-radius: 0; color: var(--mb-ink); outline: none;
+                font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 13px;
+            }
+            .mb-rm-in:focus, .mb-rm-sel:focus { border-color: var(--mb-ox); }
+            .mb-rm-sel { appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235F5540' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
+            .mb-rm-terms {
+                display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+                margin-top: 18px; padding: 14px 16px; border: 1px solid var(--mb-line-firm);
+                background: rgba(250,244,230,.75);
+                font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; color: var(--mb-muted);
+            }
+            .mb-rm-terms b { font-family: "Cormorant Garamond", Georgia, serif; font-size: 21px; font-weight: 600; color: var(--mb-ink); }
+            .mb-rm-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--mb-line); }
+            .mb-rm-err { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .04em; color: var(--mb-ox); }
+
             /* ---- issue band ----
                THE DEEP OXBLOOD, not the mid tone. This band is the heaviest
                thing on the page and it sits directly under the card grid; at
@@ -2286,11 +2352,97 @@ export function renderActiveContracts() {
 
                 <div class="mb-issue">
                     <span class="t">No match?</span>
-                    <!-- ?create=1 opens the challenge form on arrival. Without
-                         it this button named an action and performed a
-                         navigation: it dropped the reader onto a list of other
-                         people's duels with no sign of where to issue one. -->
-                    <button type="button" class="a" onclick="window.router.navigate('/rivalry?create=1')">Create a Rivalry &rarr;</button>
+                    <!-- Opens the form on THIS page. It used to navigate to
+                         /rivalry — a different page on the old design system —
+                         so the one button whose whole job was "issue a
+                         challenge" performed a navigation and left the reader
+                         to find the form themselves. -->
+                    <button type="button" class="a" id="mb-open-rivalry">Create a Rivalry &rarr;</button>
+                </div>
+
+                <!-- ── ISSUE A RIVALRY ──
+                     Same page, same paper. Every value the API needs is a
+                     choice here: type, opponent, metric, stake, tier, window. -->
+                <div class="mb-rm-back" id="mb-rivalry-modal" role="dialog" aria-modal="true" aria-labelledby="mb-rm-h">
+                    <div class="mb-rm">
+                        <div class="mb-rm-top">
+                            <div>
+                                <div class="mb-rm-kick">Rivalry &middot; Head-to-head</div>
+                                <div class="mb-rm-title" id="mb-rm-h">Issue a challenge</div>
+                            </div>
+                            <button type="button" class="mb-rm-x" id="mb-rm-close" aria-label="Close">&#10005;</button>
+                        </div>
+
+                        <div class="mb-rm-f">
+                            <span class="mb-rm-lab">Challenge type</span>
+                            <div class="mb-rm-row" id="mb-rm-type">
+                                <button type="button" class="mb-rm-p grow on" data-type="direct">Direct challenge</button>
+                                <button type="button" class="mb-rm-p grow" data-type="open">Open challenge</button>
+                            </div>
+                            <div class="mb-rm-hint" id="mb-rm-type-hint">Sent to one operator, who has 48 hours to accept.</div>
+                        </div>
+
+                        <div class="mb-rm-f" id="mb-rm-opp-f">
+                            <span class="mb-rm-lab">Opponent</span>
+                            <input class="mb-rm-in" id="mb-rm-opp" type="text" placeholder="@username" autocomplete="off">
+                            <div class="mb-rm-hint">The operator you are challenging.</div>
+                        </div>
+
+                        <div class="mb-rm-f">
+                            <span class="mb-rm-lab">Competition metric</span>
+                            <select class="mb-rm-sel" id="mb-rm-metric">
+                                <option value="revenue_growth">Revenue growth &middot; Stripe</option>
+                                <option value="follower_growth">Follower growth &middot; X</option>
+                                <option value="subscriber_growth">Subscriber growth &middot; YouTube</option>
+                                <option value="views_growth">Views growth &middot; YouTube</option>
+                                <option value="sales_growth">Sales growth &middot; Shopify</option>
+                            </select>
+                            <div class="mb-rm-hint">Both sides are measured on this, read-only, from the source.</div>
+                        </div>
+
+                        <div class="mb-rm-f">
+                            <span class="mb-rm-lab">Your stake</span>
+                            <div class="mb-rm-row" id="mb-rm-stake">
+                                <button type="button" class="mb-rm-p on" data-amount="100">$100</button>
+                                <button type="button" class="mb-rm-p" data-amount="250">$250</button>
+                                <button type="button" class="mb-rm-p" data-amount="500">$500</button>
+                                <button type="button" class="mb-rm-p" data-amount="1000">$1,000</button>
+                                <button type="button" class="mb-rm-p" data-amount="2500">$2,500</button>
+                                <button type="button" class="mb-rm-p" data-amount="5000">$5,000</button>
+                            </div>
+                            <div class="mb-rm-hint">Your opponent matches it. Winner takes the pool.</div>
+                        </div>
+
+                        <div class="mb-rm-f">
+                            <span class="mb-rm-lab">Target</span>
+                            <div class="mb-rm-row" id="mb-rm-tier">
+                                <button type="button" class="mb-rm-p grow on" data-tier="DUEL"><b>Duel</b><span class="t">+15%</span></button>
+                                <button type="button" class="mb-rm-p grow" data-tier="WAR"><b>War</b><span class="t">+25%</span></button>
+                                <button type="button" class="mb-rm-p grow" data-tier="BLOOD"><b>Blood</b><span class="t">+40%</span></button>
+                            </div>
+                            <div class="mb-rm-hint">Both operators are measured against this growth target.</div>
+                        </div>
+
+                        <div class="mb-rm-f">
+                            <span class="mb-rm-lab">Window</span>
+                            <div class="mb-rm-row" id="mb-rm-days">
+                                <button type="button" class="mb-rm-p grow" data-days="7">7 days</button>
+                                <button type="button" class="mb-rm-p grow on" data-days="14">14 days</button>
+                                <button type="button" class="mb-rm-p grow" data-days="30">30 days</button>
+                                <button type="button" class="mb-rm-p grow" data-days="90">90 days</button>
+                            </div>
+                        </div>
+
+                        <div class="mb-rm-terms">
+                            <span>At risk <b id="mb-rm-risk">$100</b></span>
+                            <span>Total pool <b id="mb-rm-pool">$200</b></span>
+                        </div>
+
+                        <div class="mb-rm-foot">
+                            <span class="mb-rm-err" id="mb-rm-err"></span>
+                            <button type="button" class="mb-wbtn" id="mb-rm-submit">Issue challenge &rarr;</button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -2934,6 +3086,125 @@ export function initActiveContracts() {
         });
     }
 
+
+    /* ═══ ISSUE A RIVALRY, ON THIS PAGE ═══
+       The form posts to the same POST /v1/rivalries the old page used; what
+       changed is that the reader never leaves the market to reach it, and the
+       board behind refreshes in place when a challenge posts. */
+    (function wireRivalryForm() {
+        const back = document.getElementById('mb-rivalry-modal');
+        const openBtn = document.getElementById('mb-open-rivalry');
+        if (!back || !openBtn) return;
+
+        // metric key -> what the API needs. Same mapping the old form used.
+        const METRICS = {
+            revenue_growth:    { platform: 'STRIPE',  metricType: 'REVENUE',     metricKey: 'net_settled_amount' },
+            follower_growth:   { platform: 'X',       metricType: 'FOLLOWERS',   metricKey: 'followers' },
+            subscriber_growth: { platform: 'YOUTUBE', metricType: 'SUBSCRIBERS', metricKey: 'subscribers' },
+            views_growth:      { platform: 'YOUTUBE', metricType: 'VIEWS',       metricKey: 'views_30d' },
+            sales_growth:      { platform: 'SHOPIFY', metricType: 'GROSS_SALES', metricKey: 'gross_sales' },
+        };
+
+        const state = { type: 'direct', stake: 100, tier: 'DUEL', days: 14 };
+        const $ = (id) => document.getElementById(id);
+        const err = $('mb-rm-err');
+        const oppField = $('mb-rm-opp-f');
+        const submit = $('mb-rm-submit');
+
+        const money = (n) => '$' + n.toLocaleString('en-US');
+        const paint = () => {
+            $('mb-rm-risk').textContent = money(state.stake);
+            $('mb-rm-pool').textContent = money(state.stake * 2);
+            oppField.hidden = state.type !== 'direct';
+            $('mb-rm-type-hint').textContent = state.type === 'direct'
+                ? 'Sent to one operator, who has 48 hours to accept.'
+                : 'Posted to the board. Any operator can take the other side.';
+        };
+
+        /* One handler per pill row: mark the pressed one, clear its siblings,
+           store the value. aria-pressed rides along so the choice is readable
+           without seeing the fill. */
+        const row = (id, key, attr, cast) => {
+            const host = $(id);
+            if (!host) return;
+            host.querySelectorAll('.mb-rm-p').forEach((b) => {
+                b.setAttribute('aria-pressed', b.classList.contains('on') ? 'true' : 'false');
+                b.addEventListener('click', () => {
+                    host.querySelectorAll('.mb-rm-p').forEach((x) => {
+                        x.classList.remove('on'); x.setAttribute('aria-pressed', 'false');
+                    });
+                    b.classList.add('on'); b.setAttribute('aria-pressed', 'true');
+                    state[key] = cast(b.dataset[attr]);
+                    err.textContent = '';
+                    paint();
+                });
+            });
+        };
+        row('mb-rm-type', 'type', 'type', String);
+        row('mb-rm-stake', 'stake', 'amount', Number);
+        row('mb-rm-tier', 'tier', 'tier', String);
+        row('mb-rm-days', 'days', 'days', Number);
+
+        const open = () => { back.classList.add('open'); err.textContent = ''; paint(); };
+        const close = () => back.classList.remove('open');
+        openBtn.addEventListener('click', open);
+        $('mb-rm-close').addEventListener('click', close);
+        back.addEventListener('click', (e) => { if (e.target === back) close(); });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && back.classList.contains('open')) close();
+        });
+
+        submit.addEventListener('click', async () => {
+            const opponent = ($('mb-rm-opp').value || '').trim().replace(/^@/, '');
+            if (state.type === 'direct' && !opponent) {
+                err.textContent = 'Name the operator you are challenging';
+                return;
+            }
+            // The write needs a session; say so here rather than at the API.
+            const signedIn = !!(window.api.hasAuthToken && window.api.hasAuthToken());
+            if (!signedIn) {
+                close();
+                if (window.app && window.app.openAccessModal) window.app.openAccessModal();
+                return;
+            }
+
+            const m = METRICS[$('mb-rm-metric').value] || METRICS.revenue_growth;
+            const was = submit.textContent;
+            submit.disabled = true;
+            submit.textContent = 'Issuing…';
+            err.textContent = '';
+            try {
+                const payload = {
+                    platform: m.platform,
+                    metricType: m.metricType,
+                    metricKey: m.metricKey,
+                    stakePerSideCents: state.stake * 100,
+                    durationDays: state.days,
+                    rivalryTier: state.tier,
+                };
+                if (state.type === 'direct') payload.opponentUsername = opponent;
+
+                const res = await window.api.createRivalry(payload);
+                if (!res || res.ok === false) {
+                    err.textContent = (res && res.error) || 'The challenge could not be issued';
+                    return;
+                }
+                close();
+                // The board is the confirmation: reload it rather than
+                // announcing success over a page still showing the old market.
+                boardState = 'loading';
+                renderRivalries();
+                loadBoard();
+            } catch (e) {
+                err.textContent = (e && e.message) || 'The challenge could not be issued';
+            } finally {
+                submit.disabled = false;
+                submit.textContent = was;
+            }
+        });
+
+        paint();
+    })();
 
     // Rules modal listener
     const rulesBtn = document.getElementById('btn-rules');
