@@ -1276,7 +1276,11 @@ export function renderActiveContracts() {
                    tags, ledger heads and the footer. #695F47 is the same hue
                    walked down until it clears on all three grounds this section
                    uses: 5.17 page, 5.41 card paper, 4.55 active chip. */
-                --mb-muted: #695F47;
+                /* Another step down from #695F47. This carries every mono label
+                   on the page — column heads, row descriptors, the legend, the
+                   footnote — all at 10-11px, where a value that merely passes
+                   AA still reads as faint. 6.1:1 on this cream. */
+                --mb-muted: #5F5540;
                 /* Only ever on 20px/600 text, which is large by WCAG, so it is
                    allowed to stay faint. The two places it sat on small text —
                    the Adjust hints at 8.5px and the VS marks at 9px — now take
@@ -1354,7 +1358,21 @@ export function renderActiveContracts() {
             .mb-w-head h2 .ox { color: var(--mb-ox); }
             .mb-lede { font-size: 16px; line-height: 1.55; color: var(--mb-ink-soft); margin: 10px 0 0; }
 
-            .mb-wiz { background: var(--mb-paper); border: 1px solid var(--mb-line-firm); box-shadow: 0 26px 60px rgba(60,40,20,.16); }
+            /* A DOCUMENT LYING ON PARCHMENT, not a card floating over it.
+               Two shadows: a 2px contact shadow that sits the sheet ON the
+               page, and a very wide, very faint one that gives it thickness.
+               A single mid shadow is what reads as a floating SaaS card — the
+               contact edge is the whole difference. The border is warmed and
+               brought up a step so the sheet has its own edge rather than
+               relying on the shadow to find it. */
+            .mb-wiz {
+                background: var(--mb-paper);
+                border: 1px solid rgba(86,66,42,.34);
+                box-shadow:
+                    0 1px 2px rgba(70,52,30,.07),
+                    0 2px 5px rgba(70,52,30,.05),
+                    0 34px 74px rgba(60,40,20,.13);
+            }
             .mb-wiz-top {
                 display: flex; align-items: center; justify-content: space-between; gap: 20px;
                 padding: 18px 28px; border-bottom: 1px solid var(--mb-line);
@@ -1373,14 +1391,28 @@ export function renderActiveContracts() {
                 width: 26px; height: 26px; border-radius: 50%;
                 display: flex; align-items: center; justify-content: center;
                 font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px;
+                line-height: 1;
                 border: 1.4px solid var(--mb-line-firm); color: var(--mb-muted); background: var(--mb-paper);
                 flex: none; transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
             }
             .mb-stp .disc.done { background: var(--mb-win); border-color: var(--mb-win); color: #F1EAD8; }
-            .mb-stp .disc.on { background: var(--mb-ox); border-color: var(--mb-ox); color: #F6EEDD; box-shadow: 0 0 0 4px rgba(124,29,43,.13); }
+            /* The step you are on is the one thing in this bar that should
+               carry weight: two pixels larger, the deep oxblood rather than the
+               mid tone, and a wider, fainter ring so it reads as emphasis
+               rather than as a focus outline. Terms and Sign stay as they are.
+               The negative margin keeps the extra 2px from nudging the row. */
+            .mb-stp .disc.on {
+                width: 28px; height: 28px; margin: -1px;
+                background: var(--mb-ox-deep); border-color: var(--mb-ox-deep); color: #F6EEDD;
+                font-weight: 500;
+                box-shadow: 0 0 0 5px rgba(94,20,32,.10);
+            }
             .mb-stp .lb { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--mb-muted); }
-            .mb-stp .lb.act { color: var(--mb-ink); }
-            .mb-stp .bar { width: 34px; height: 1px; background: var(--mb-line-firm); margin: 0 12px; flex: none; }
+            .mb-stp .lb.act { color: var(--mb-ink); font-weight: 500; }
+            /* Was --mb-line-firm at 28% and disappeared between the discs.
+               Slightly darker and a touch longer, and the flex row centres it
+               against the disc's midline rather than the label's baseline. */
+            .mb-stp .bar { width: 36px; height: 1px; background: rgba(70,55,35,.38); margin: 0 13px; flex: none; align-self: center; }
 
             .mb-wiz-body { padding: 26px 28px 8px; }
             /* min-width: 0, WITHOUT WHICH overflow-x: auto DOES NOTHING on the
@@ -1487,9 +1519,15 @@ export function renderActiveContracts() {
             }
             .mb-md:empty { display: none; }
             .mb-mx-cell { display: flex; justify-content: center; align-items: center; align-self: stretch; padding: 15px 6px; }
-            /* Warm neutral, not green: the tint marks the column, it does not
-               claim the bank is attached. That claim is the ✓ CONNECTED chip. */
-            .mb-bankcol { background: rgba(70,55,35,.05); }
+            /* PARCHMENT, NOT GREY. rgba(70,55,35,.05) is a brown-grey wash and
+               over cream it desaturates to something closer to newsprint than
+               paper — the column read as a shaded UI region rather than as a
+               heavier stock. This is a warm ochre at low alpha: the same family
+               as the page, one step deeper, so the column looks like part of
+               the sheet. Still not green — the tint marks the column, it does
+               not claim the bank is attached. That claim is the ✓ CONNECTED
+               chip. */
+            .mb-bankcol { background: rgba(163,124,54,.085); }
             /* Three states, and they are legible without colour: filled = the
                source is connected, ring = it is the one this metric needs, rule
                = not applicable. Colour alone would fail anyone who cannot see it. */
@@ -1515,30 +1553,35 @@ export function renderActiveContracts() {
                "Ready ✓", "Bank required" — which replaces every child node. An
                inline icon would survive exactly until the first state refresh. */
             .mb-mx-avail .ss-go {
-                display: inline-flex; align-items: center;
-                color: var(--mb-ox); text-decoration: none; cursor: pointer;
+                /* white-space:nowrap is the alignment fix. The brand mark is a
+                   background image at a fixed inset, so when the label wrapped
+                   to two lines the icon stayed pinned to the first and the
+                   button grew away from it — "CONNECT SHOPIFY →" was breaking
+                   after the word and dropping its arrow onto a second row. */
+                display: inline-flex; align-items: center; white-space: nowrap;
+                color: var(--mb-ox-deep); text-decoration: none; cursor: pointer;
                 background-color: transparent; background-repeat: no-repeat;
                 background-position: 14px 50%; background-size: 13px 13px;
-                border: 1px solid rgba(124,29,43,.45); border-radius: 0;
+                border: 1px solid rgba(124,29,43,.62); border-radius: 0;
                 padding: 9px 15px; text-align: left;
                 font: inherit; letter-spacing: inherit; text-transform: inherit;
                 transition: background-color 150ms ease, border-color 150ms ease;
             }
-            .mb-mx-avail .ss-go:hover { background-color: rgba(124,29,43,.08); border-color: var(--mb-ox); text-decoration: none; }
+            .mb-mx-avail .ss-go:hover { background-color: rgba(124,29,43,.09); border-color: var(--mb-ox-deep); text-decoration: none; }
             /* .ss-metric:hover .ss-go nudges the old tile's text link sideways.
                A bordered button sliding out from under its own row is not that. */
             .ss-metric:hover .mb-mx-avail .ss-go { transform: none; opacity: 1; }
             .mb-mx-avail .ss-go[data-source="mrr"] {
                 padding-left: 35px;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237C1D2B'%3E%3Cpath d='M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z'/%3E%3C/svg%3E");
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235E1420'%3E%3Cpath d='M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z'/%3E%3C/svg%3E");
             }
             .mb-mx-avail .ss-go[data-source="orders"] {
                 padding-left: 35px;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237C1D2B'%3E%3Cpath d='M15.337 23.979l7.216-1.561s-2.604-17.613-2.625-17.73c-.018-.116-.114-.192-.211-.192s-1.929-.136-1.929-.136-1.275-1.274-1.439-1.411c-.045-.037-.075-.057-.121-.074l-.914 21.104h.023zM11.71 11.305s-.81-.424-1.774-.424c-1.447 0-1.504.906-1.504 1.141 0 1.232 3.24 1.715 3.24 4.629 0 2.295-1.44 3.76-3.406 3.76-2.354 0-3.54-1.465-3.54-1.465l.646-2.086s1.245 1.066 2.28 1.066c.675 0 .975-.545.975-.932 0-1.619-2.654-1.694-2.654-4.359-.034-2.237 1.571-4.416 4.827-4.416 1.257 0 1.875.361 1.875.361l-.945 2.715-.02.01zM11.17.83c.136 0 .271.038.405.135-.984.465-2.064 1.639-2.508 3.992-.656.213-1.293.405-1.889.578C7.697 3.75 8.951.84 11.17.84V.83zm1.235 2.949v.135c-.754.232-1.583.484-2.394.736.466-1.777 1.333-2.645 2.085-2.971.193.501.309 1.176.309 2.1zm.539-2.234c.694.074 1.141.867 1.429 1.755-.349.114-.735.231-1.158.366v-.252c0-.752-.096-1.371-.271-1.871v.002zm2.992 1.289c-.02 0-.06.021-.078.021s-.289.075-.714.21c-.423-1.233-1.176-2.37-2.508-2.37h-.115C12.135.209 11.669 0 11.265 0 8.159 0 6.675 3.877 6.21 5.846c-1.194.365-2.063.636-2.16.674-.675.213-.694.232-.772.87-.075.462-1.83 14.063-1.83 14.063L15.009 24l.927-21.166z'/%3E%3C/svg%3E");
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235E1420'%3E%3Cpath d='M15.337 23.979l7.216-1.561s-2.604-17.613-2.625-17.73c-.018-.116-.114-.192-.211-.192s-1.929-.136-1.929-.136-1.275-1.274-1.439-1.411c-.045-.037-.075-.057-.121-.074l-.914 21.104h.023zM11.71 11.305s-.81-.424-1.774-.424c-1.447 0-1.504.906-1.504 1.141 0 1.232 3.24 1.715 3.24 4.629 0 2.295-1.44 3.76-3.406 3.76-2.354 0-3.54-1.465-3.54-1.465l.646-2.086s1.245 1.066 2.28 1.066c.675 0 .975-.545.975-.932 0-1.619-2.654-1.694-2.654-4.359-.034-2.237 1.571-4.416 4.827-4.416 1.257 0 1.875.361 1.875.361l-.945 2.715-.02.01zM11.17.83c.136 0 .271.038.405.135-.984.465-2.064 1.639-2.508 3.992-.656.213-1.293.405-1.889.578C7.697 3.75 8.951.84 11.17.84V.83zm1.235 2.949v.135c-.754.232-1.583.484-2.394.736.466-1.777 1.333-2.645 2.085-2.971.193.501.309 1.176.309 2.1zm.539-2.234c.694.074 1.141.867 1.429 1.755-.349.114-.735.231-1.158.366v-.252c0-.752-.096-1.371-.271-1.871v.002zm2.992 1.289c-.02 0-.06.021-.078.021s-.289.075-.714.21c-.423-1.233-1.176-2.37-2.508-2.37h-.115C12.135.209 11.669 0 11.265 0 8.159 0 6.675 3.877 6.21 5.846c-1.194.365-2.063.636-2.16.674-.675.213-.694.232-.772.87-.075.462-1.83 14.063-1.83 14.063L15.009 24l.927-21.166z'/%3E%3C/svg%3E");
             }
             .mb-mx-avail .ss-go[data-source="views"] {
                 padding-left: 35px;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237C1D2B'%3E%3Cpath d='M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'/%3E%3C/svg%3E");
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235E1420'%3E%3Cpath d='M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'/%3E%3C/svg%3E");
             }
             /* Ready is a state, not an errand: green badge, no brand mark, no
                "connect" affordance to click through. */
@@ -1711,18 +1754,31 @@ export function renderActiveContracts() {
             }
 
             /* ---- wizard buttons ---- */
+            /* THE DEEP OXBLOOD, and a shadow tinted with it rather than a grey
+               one — a wine button over a grey drop reads as a sticker. */
             .mb-wbtn {
                 display: inline-flex; align-items: center; justify-content: center; gap: 11px;
-                background: var(--mb-ox); color: #F6EEDD;
+                background: var(--mb-ox-deep); color: #F8F1E2;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 11.5px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500;
                 padding: 14px 26px; border: 0; border-radius: 0; cursor: pointer;
-                box-shadow: 0 12px 26px rgba(94,20,32,.2);
+                box-shadow: 0 1px 2px rgba(74,15,25,.22), 0 14px 30px rgba(74,15,25,.20);
                 transition: background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
             }
-            .mb-wbtn:hover { background: var(--mb-ox-deep); transform: translateY(-1px); }
-            .mb-wbtn:active { transform: none; }
-            .mb-wbtn[disabled] { opacity: .45; cursor: not-allowed; box-shadow: none; transform: none; background: var(--mb-ox); }
+            .mb-wbtn:hover { background: #4A0F19; transform: translateY(-1px); box-shadow: 0 1px 2px rgba(74,15,25,.26), 0 18px 36px rgba(74,15,25,.24); }
+            .mb-wbtn:active { transform: none; box-shadow: 0 1px 2px rgba(74,15,25,.22); }
+            /* NOT A FADED VERSION OF THE FILLED BUTTON. opacity:.45 over
+               oxblood produced the dusty pink — a colour that is in no part of
+               this palette, sitting where the primary action goes. An unmet
+               action is outlined and quiet instead: legible, obviously inert,
+               and it does not spend the page's strongest colour on a control
+               that cannot be used yet. */
+            .mb-wbtn[disabled] {
+                background: transparent; color: var(--mb-muted);
+                border: 1px solid var(--mb-line-firm);
+                padding: 13px 25px;
+                box-shadow: none; transform: none; cursor: not-allowed; opacity: 1;
+            }
             /* The label is replaced while the write is in flight, so the width is
                pinned first — a button that shrinks mid-request moves the footer
                under the reader's cursor. */
