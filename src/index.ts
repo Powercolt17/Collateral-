@@ -165,10 +165,36 @@ server.listen(PORT, '0.0.0.0', () => {
                 console.error('[startup] ⚠️ Schema check failed (DB may be unavailable):', err);
             }
 
-            // Seed simulated activity (makes platform look alive with fresh data)
+            /* SEED, DO NOT WIPE.
+               This called refreshSimulatedActivity() on every boot, which
+               opens by deleting every sim rivalry, its participants, its
+               snapshots, its ledger events and finally the sim users
+               themselves — then re-seeds from scratch. Every deploy therefore
+               destroyed the demo market and rebuilt it, so anything added
+               between deploys (by the seeder, by an ops call, by hand)
+               survived only until the next push. A restart loop would do it
+               repeatedly.
+
+               It is also a DELETE against the users table running
+               automatically at startup, which is a large blast radius for a
+               cosmetic feature — the LIKE pattern is the only thing standing
+               between it and real accounts.
+
+               Boot now runs the additive seeder: it creates what is missing
+               and leaves what exists alone. The destructive refresh is still
+               available deliberately, via POST /ops/refresh-activity or
+               REFRESH_SIM_ON_BOOT=true, for when the demo set genuinely needs
+               rebuilding from nothing. */
             try {
-                const { refreshSimulatedActivity } = await import('./db/refresh-activity.js');
-                await refreshSimulatedActivity();
+                if (process.env.REFRESH_SIM_ON_BOOT === 'true') {
+                    console.warn('[startup] REFRESH_SIM_ON_BOOT is set — wiping and rebuilding simulated activity');
+                    const { refreshSimulatedActivity } = await import('./db/refresh-activity.js');
+                    await refreshSimulatedActivity();
+                } else {
+                    const { seedSimulatedActivity } = await import('./db/seed-activity.js');
+                    const result = await seedSimulatedActivity();
+                    console.log('[startup] simulated activity seeded (additive):', JSON.stringify(result));
+                }
             } catch (err) {
                 console.error('[startup] ⚠️ Activity seed failed (continuing):', err);
             }
