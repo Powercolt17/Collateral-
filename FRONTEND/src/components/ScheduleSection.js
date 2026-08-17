@@ -143,7 +143,7 @@ export function renderScheduleSection() {
           --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
           --serif:"EB Garamond",Georgia,serif;
           --display:"Cormorant Garamond",Georgia,serif;
-          width:100%;max-width:1440px;margin:0 auto;padding:76px 90px 80px;
+          width:100%;max-width:1440px;margin:0 auto;padding:52px 90px 48px;
           background:var(--parch);color:var(--ink);font-family:var(--serif);
           -webkit-font-smoothing:antialiased;
         }
@@ -199,7 +199,7 @@ export function renderScheduleSection() {
           color:var(--ink-soft);max-width:640px}
 
         @media (max-width:1100px){
-          .sch{padding:60px 40px 60px}
+          .sch{padding:44px 40px 44px}
           .sch-grid{gap:48px}
           .sch h2{font-size:38px}
           .sch-ans{padding-right:40px}

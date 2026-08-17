@@ -131,7 +131,7 @@ export function renderRecordSection() {
           -webkit-font-smoothing:antialiased;
         }
         .rec *{box-sizing:border-box;margin:0;padding:0}
-        .rec-wrap{width:100%;max-width:1440px;margin:0 auto;padding:76px 90px 72px;position:relative}
+        .rec-wrap{width:100%;max-width:1440px;margin:0 auto;padding:52px 90px 48px;position:relative}
 
         .rec-wm{position:absolute;top:34px;right:80px;font-family:var(--rec-display);
           font-weight:600;font-size:190px;line-height:.8;color:rgba(33,27,18,.05);

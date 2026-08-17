@@ -80,7 +80,7 @@ export function renderFlowSection() {
           --serif:"EB Garamond",Georgia,serif;
           --display:"Cormorant Garamond",Georgia,serif;
           position:relative;width:100%;max-width:1440px;margin:0 auto;
-          padding:76px 90px 72px;
+          padding:52px 90px 48px;
           background:var(--parch);color:var(--ink);
           font-family:var(--serif);-webkit-font-smoothing:antialiased;
         }
@@ -246,7 +246,7 @@ export function renderFlowSection() {
 
         /* ---- narrow ---- */
         @media (max-width:1100px){
-          .flw{padding:60px 40px 56px}
+          .flw{padding:44px 40px 40px}
           .flw-wm{font-size:140px;right:36px}
           .flw h2{font-size:40px}
         }

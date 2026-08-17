@@ -80,7 +80,7 @@ export function renderCaseSection() {
           -webkit-font-smoothing:antialiased;
         }
         .cs *{box-sizing:border-box;margin:0;padding:0}
-        .cs-wrap{max-width:1440px;margin:0 auto;padding:76px 90px 72px}
+        .cs-wrap{max-width:1440px;margin:0 auto;padding:52px 90px 48px}
         /* minmax(0,...) rather than bare fr. A grid track defaults to a floor of
            min-content, so the table dragged the whole column out to its own
            min-width and the section overflowed with it. */

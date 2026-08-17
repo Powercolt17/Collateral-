@@ -96,7 +96,7 @@ export function renderOracleSection() {
           -webkit-font-smoothing:antialiased;
         }
         .orc *{box-sizing:border-box;margin:0;padding:0}
-        .orc-wrap{width:100%;max-width:1440px;margin:0 auto;padding:76px 90px 72px}
+        .orc-wrap{width:100%;max-width:1440px;margin:0 auto;padding:52px 90px 48px}
 
         /* ---- intro ---- */
         .orc-intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.82fr);

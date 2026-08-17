@@ -104,7 +104,7 @@ export function renderStructuresSection(o = {}) {
         .stc-reg.stc-br{border-left:0;border-top:0}
         .stc-reg.stc-br::after{border-left:0;border-top:0;right:1px;bottom:1px}
         .stc-paper-tx::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.06;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.stc-w3.stc-org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-        .stc-wrap{max-width:1440px;margin:0 auto;padding:100px 64px 68px}
+        .stc-wrap{max-width:1440px;margin:0 auto;padding:64px 64px 48px}
         .stc-kicker{display:inline-flex;align-items:center;gap:13px;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.30em;text-transform:uppercase;color:var(--ox);font-weight:500;margin-bottom:24px}
         .stc-kicker .stc-r{height:1px;width:30px;background:var(--ox);opacity:.75}
         .stc h2{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:52px;line-height:1.0;margin-bottom:20px}

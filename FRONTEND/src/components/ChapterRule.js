@@ -206,7 +206,7 @@ export function renderChapterRuleStyles() {
           background:#F3EADB;
           /* 100px of air between chapters, inside the 80-120 asked for, on top
              of each section's own padding. */
-          padding:50px 51px;
+          padding:24px 51px;
         }
         .cl-rule i{
           display:block;height:1px;flex:1 1 auto;min-width:0;
@@ -221,7 +221,7 @@ export function renderChapterRuleStyles() {
         .cl-rule svg{display:block;flex:0 0 auto}
 
         @media (max-width:820px){
-          .cl-rule{padding:34px 20px;gap:11px;margin:0}
+          .cl-rule{padding:18px 20px;gap:11px;margin:0}
           .cl-rule svg{width:9px;height:9px}
         }
         @media (prefers-reduced-motion:reduce){.cl-rule{transition:none}}

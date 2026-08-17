@@ -87,7 +87,7 @@ export function renderPriceSection() {
           --serif:"EB Garamond",Georgia,serif;
           --display:"Cormorant Garamond",Georgia,serif;
           position:relative;width:100%;max-width:1440px;margin:0 auto;
-          padding:76px 90px 72px;background:var(--parch);color:var(--ink);
+          padding:52px 90px 48px;background:var(--parch);color:var(--ink);
           font-family:var(--serif);-webkit-font-smoothing:antialiased;
         }
         .prc *{box-sizing:border-box;margin:0;padding:0}
@@ -219,7 +219,7 @@ export function renderPriceSection() {
           text-transform:uppercase;color:var(--muted)}
 
         @media (max-width:1100px){
-          .prc{padding:60px 40px 56px}
+          .prc{padding:44px 40px 40px}
           .prc-wm{font-size:140px;right:36px}
           .prc h2{font-size:40px}
           .prc-tiers{gap:16px}
