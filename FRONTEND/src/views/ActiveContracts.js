@@ -2685,6 +2685,18 @@ export function initActiveContracts() {
             list.sort((a, b) => (a.state === 'open' ? -1 : b.state === 'open' ? 1 : 0));
         }
 
+        /* SIXTEEN CARDS, MAXIMUM.
+           Cut AFTER filtering and sorting, so the sixteen shown are the top of
+           the order the reader asked for rather than the first sixteen the API
+           happened to return — switching to Ending soonest changes which
+           sixteen these are.
+
+           Cut BEFORE the count is written, so "N results" always equals the
+           number of cards under it. A count that disagrees with the board is
+           the same class of bug as the hero and the odometers disagreeing. */
+        const BOARD_MAX = 16;
+        if (list.length > BOARD_MAX) list = list.slice(0, BOARD_MAX);
+
         if (count) count.textContent = String(list.length);
 
         if (list.length === 0) {
