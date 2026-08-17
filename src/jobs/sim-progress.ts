@@ -293,12 +293,31 @@ export async function runSimProgressJob(): Promise<{ updated: number; snapshots:
             const durationDays = rivalry.duration_days || 14;
             const daysElapsed = Math.floor((now.getTime() - activatedAt.getTime()) / 86400000);
             
-            // Expected: ~2 snapshots per day (1 per participant)
-            // If we have way more than expected, nuke and rebuild
-            const expectedMax = (daysElapsed + 1) * 2 * 1.5; // 1.5x buffer
-            
-            if (existingCount > expectedMax || existingCount > daysElapsed * 4) {
-                console.log(`[SimProgress] 🧹 Rivalry ${rivalry.id.slice(0,8)} has ${existingCount} snapshots (expected ~${Math.round(expectedMax)}). Rebuilding...`);
+            /* Expected: ~2 snapshots per day, one per participant.
+
+               REBUILDS ON TOO FEW AS WELL AS TOO MANY. This only ever checked
+               the upper bound, so a rivalry that arrived with no history — one
+               inserted directly, or one whose first tick happened today —
+               stayed at a single verification forever. The job appended one
+               point per run and never filled in the days between activation
+               and now, so the chart drew a dot where a curve belonged and the
+               contract looked like it had been measured once in three weeks.
+
+               Both bounds now trigger the same rebuild, which regenerates the
+               whole series deterministically from the rivalry id, so a rebuilt
+               chart is identical to the one it replaced apart from the points
+               that were missing. */
+            const expectedPerDay = 2;
+            const expected = (daysElapsed + 1) * expectedPerDay;
+            const expectedMax = expected * 1.5;
+            const expectedMin = expected * 0.6;
+            const tooMany = existingCount > expectedMax || existingCount > daysElapsed * 4;
+            // Only from a day in: a rivalry activated an hour ago legitimately
+            // has one reading and must not be rebuilt on every pass.
+            const tooFew = daysElapsed >= 1 && existingCount < expectedMin;
+
+            if (tooMany || tooFew) {
+                console.log(`[SimProgress] 🧹 Rivalry ${rivalry.id.slice(0,8)} has ${existingCount} snapshots (expected ~${expected}, ${tooFew ? 'backfilling' : 'trimming'}). Rebuilding...`);
                 
                 // Delete ALL snapshots
                 await db.execute(sql`

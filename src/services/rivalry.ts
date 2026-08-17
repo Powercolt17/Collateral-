@@ -31,6 +31,29 @@ import {
 } from './rivalry-state-derivation.js';
 import { computeBalances } from './balances.js';
 
+/**
+ * A display handle for an operator, falling back to the user record.
+ *
+ * The identity table is the canonical place for a username, but a user can
+ * exist without an identity row — and when that happened both sides of a
+ * rivalry rendered as "@unknown" on a public board, next to their real
+ * percentages and their real stake. The user record carries the handle too,
+ * so the fallback is a read of something already true rather than a guess.
+ *
+ * Returns null, not "unknown", when there is genuinely nothing to show: the
+ * callers distinguish "no opponent yet" from "an opponent we cannot name",
+ * and a literal "unknown" collapsed the two.
+ */
+async function usernameForUser(userId: string | null): Promise<string | null> {
+    if (!userId) return null;
+    try {
+        const row = await db.select().from(users).where(eq(users.id, userId)).then(r => r[0]);
+        return (row as any)?.xUsername || null;
+    } catch {
+        return null;
+    }
+}
+
 // =============================================================================
 // CONSTANTS
 // =============================================================================
@@ -633,8 +656,11 @@ export async function listRivalries(options: {
             results.push({
                 ...rivalry,
                 state,
-                challengerUsername: challengerIdentity?.username || 'unknown',
-                opponentUsername: opponentIdentity?.username || null,
+                challengerUsername: challengerIdentity?.username
+                    || await usernameForUser(rivalry.challengerUserId),
+                opponentUsername: rivalry.opponentUserId
+                    ? (opponentIdentity?.username || await usernameForUser(rivalry.opponentUserId))
+                    : null,
                 participants,
                 poolCents: rivalry.stakePerSideCents * 2,
             });
@@ -683,8 +709,10 @@ export async function getRivalryDetail(rivalryId: string) {
     return {
         ...rivalry,
         state,
-        challengerUsername: challengerIdentity?.username || 'unknown',
-        opponentUsername: opponentIdentity?.username || 'unknown',
+        challengerUsername: challengerIdentity?.username
+            || await usernameForUser(rivalry.challengerUserId),
+        opponentUsername: opponentIdentity?.username
+            || await usernameForUser(rivalry.opponentUserId),
         participants,
         events,
         metrics,
