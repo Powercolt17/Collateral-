@@ -3444,17 +3444,32 @@ html.js-motion-active .reveal.is-in .r-rule {
      reads as breathing room rather than as a seam. If the sections still run
      together after this, the honest fix is a delimiter rather than more space:
      they are all one colour, and no amount of distance changes that. */
+  /* 24, DOWN FROM 88, BECAUSE THE CHAPTER RULE NOW DOES THIS JOB.
+     This margin is older than the dividers. It was the only thing separating
+     one section from the next back when they ran straight into each other, and
+     88px was the right answer to that question. The chapter rule then arrived
+     with its own air, and nothing came back to reconcile the two — so every
+     boundary was paying for the separation twice over:
+
+         chapter rule padding-bottom     24
+         this margin                     88
+         section wrapper padding-top     52
+         --------------------------------------
+                                        164px
+
+     before a single word of the new chapter. The rule is the delimiter now, so
+     this only has to cover the sections that do not have one above them. */
   .lp > section {
-    margin-top: 88px;
+    margin-top: 24px;
   }
   @media (max-width: 900px) {
     .lp > section {
-      margin-top: 60px;
+      margin-top: 18px;
     }
   }
   @media (max-width: 600px) {
     .lp > section {
-      margin-top: 44px;
+      margin-top: 14px;
     }
   }
 
