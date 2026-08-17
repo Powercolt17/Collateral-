@@ -2286,7 +2286,11 @@ export function renderActiveContracts() {
 
                 <div class="mb-issue">
                     <span class="t">No match?</span>
-                    <button type="button" class="a" onclick="window.router.navigate('/rivalry')">Create a Rivalry &rarr;</button>
+                    <!-- ?create=1 opens the challenge form on arrival. Without
+                         it this button named an action and performed a
+                         navigation: it dropped the reader onto a list of other
+                         people's duels with no sign of where to issue one. -->
+                    <button type="button" class="a" onclick="window.router.navigate('/rivalry?create=1')">Create a Rivalry &rarr;</button>
                 </div>
             </section>
 

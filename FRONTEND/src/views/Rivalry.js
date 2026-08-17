@@ -411,21 +411,21 @@ export function renderRivalry() {
             }
             .rv-modal-backdrop {
                 position: fixed; inset: 0;
-                background: rgba(0,0,0,0.4); backdrop-filter: blur(6px);
+                background: rgba(40,28,14,.55);
                 z-index: 80; display: none;
                 align-items: center; justify-content: center;
             }
             .rv-modal-backdrop.open { display: flex; }
             .rv-modal-backdrop.open .rv-modal { animation: rv-modalIn .2s var(--rv-ease) both; }
             .rv-modal {
-                background: #fff;
+                background: #F5EDDA;
                 width: 480px;
                 max-width: 90vw;
                 max-height: 85vh;
                 overflow-y: auto;
-                border: 1px solid #eaeaea;
-                border-radius: 12px;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+                border: 1px solid rgba(86,66,42,.34);
+                border-radius: 0;
+                box-shadow: 0 1px 2px rgba(70,52,30,.10), 0 34px 74px rgba(60,40,20,.22);
                 padding: 36px;
                 position: relative;
                 transition: background 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -434,42 +434,42 @@ export function renderRivalry() {
             .rv-modal::before {
                 content: '';
                 position: absolute; top: 0; left: 0; right: 0;
-                height: 0; border-radius: 12px 12px 0 0;
+                height: 0; border-radius: 0;
                 background: transparent;
                 transition: all 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
             }
             .rv-modal.tier-war::before {
-                height: 3px; background: #8b4444;
+                height: 3px; background: #7C1D2B;
             }
             .rv-modal.tier-blood::before {
-                height: 4px; background: #7A1C1C;
+                height: 4px; background: #5E1420;
             }
             .rv-modal-header {
                 display: flex; align-items: center;
                 justify-content: space-between; margin-bottom: 28px;
             }
             .rv-modal-title {
-                font-size: 20px; font-weight: 700; color: #111;
+                font-family: "Cormorant Garamond", Georgia, serif; font-size: 24px; font-weight: 600; color: #211B12;
                 letter-spacing: -0.3px;
             }
             .rv-modal-close {
                 background: none; border: none; cursor: pointer;
-                padding: 4px; color: #999; font-size: 18px;
+                padding: 4px; color: #5F5540; font-size: 18px;
             }
-            .rv-modal-close:hover { color: #333; }
+            .rv-modal-close:hover { color: #5E1420; }
             .rv-form-group { margin-bottom: 20px; }
             .rv-form-label {
-                font-size: 12px; font-weight: 500; color: #6B6B6B;
-                font-family: 'Sora', sans-serif;
+                font-size: 12px; font-weight: 500; color: #5F5540; letter-spacing: .14em; text-transform: uppercase;
+                font-family: "IBM Plex Mono", monospace;
                 margin-bottom: 6px; display: block;
             }
             .rv-form-input {
                 width: 100%; height: 44px;
-                background: #fff; border: 1px solid #E5E5E5;
-                border-radius: 8px; padding: 0 14px; font-size: 14px;
-                color: #1A1A1A; outline: none;
+                background: #FAF4E6; border: 1px solid rgba(86,66,42,.30);
+                border-radius: 0; padding: 0 14px; font-size: 14px;
+                color: #211B12; outline: none;
                 transition: border-color 0.15s, box-shadow 0.15s;
-                font-family: 'Sora', sans-serif;
+                font-family: "IBM Plex Mono", monospace;
                 box-sizing: border-box;
             }
             .rv-form-input:focus {
@@ -478,10 +478,10 @@ export function renderRivalry() {
             }
             .rv-form-select {
                 width: 100%; height: 44px;
-                background: #fff; border: 1px solid #E5E5E5;
-                border-radius: 8px; padding: 0 14px; font-size: 14px;
-                color: #1A1A1A; outline: none;
-                font-family: 'Sora', sans-serif;
+                background: #FAF4E6; border: 1px solid rgba(86,66,42,.30);
+                border-radius: 0; padding: 0 14px; font-size: 14px;
+                color: #211B12; outline: none;
+                font-family: "IBM Plex Mono", monospace;
                 box-sizing: border-box; cursor: pointer; appearance: none;
                 background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
                 background-repeat: no-repeat;
@@ -494,8 +494,8 @@ export function renderRivalry() {
             .rv-duration-pills { display: flex; gap: 8px; }
             .rv-dur-pill {
                 flex: 1; height: 40px;
-                border: 1px solid #e5e5e5; border-radius: 8px;
-                background: #fff; font-family: 'JetBrains Mono', monospace;
+                border: 1px solid rgba(86,66,42,.30); border-radius: 0;
+                background: #F5EDDA; font-family: "IBM Plex Mono", monospace;
                 font-size: 11px; font-weight: 600; color: #999;
                 cursor: pointer; display: flex; align-items: center;
                 justify-content: center;
@@ -503,13 +503,13 @@ export function renderRivalry() {
             }
             .rv-dur-pill:hover { border-color: #ccc; color: #666; }
             .rv-dur-pill.active {
-                background: #111; color: #fff; border-color: #111;
+                background: #211B12; color: #F6EEDD; border-color: #211B12;
             }
             .rv-stake-pills { display: flex; gap: 8px; flex-wrap: wrap; }
             .rv-stake-pill {
                 height: 40px; padding: 0 20px;
-                border: 1px solid #e5e5e5; border-radius: 8px;
-                background: #fff; font-family: 'JetBrains Mono', monospace;
+                border: 1px solid rgba(86,66,42,.30); border-radius: 0;
+                background: #F5EDDA; font-family: "IBM Plex Mono", monospace;
                 font-size: 12px; font-weight: 700; color: #999;
                 cursor: pointer; display: flex; align-items: center;
                 justify-content: center; letter-spacing: 0.02em;
@@ -517,7 +517,7 @@ export function renderRivalry() {
             }
             .rv-stake-pill:hover { border-color: #999; color: #333; }
             .rv-stake-pill.active {
-                background: #111; color: #fff; border-color: #111;
+                background: #211B12; color: #F6EEDD; border-color: #211B12;
             }
             .rv-modal.high-stakes .rv-stake-pill.active {
                 background: var(--rv-brand);
@@ -527,17 +527,17 @@ export function renderRivalry() {
                 display: flex; gap: 8px;
             }
             .rv-tier-pill {
-                flex: 1; padding: 12px; border: 1px solid #e5e5e5;
-                border-radius: 8px; background: #fff; cursor: pointer;
+                flex: 1; padding: 12px; border: 1px solid rgba(86,66,42,.30);
+                border-radius: 0; background: #F5EDDA; cursor: pointer;
                 transition: all 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
                 text-align: center;
             }
             .rv-tier-pill:hover { border-color: #999; }
             .rv-tier-pill.active {
-                background: #111; border-color: #111;
+                background: #211B12; border-color: #211B12;
             }
             .rv-tier-pill.active .rv-tier-name,
-            .rv-tier-pill.active .rv-tier-target { color: #fff; }
+            .rv-tier-pill.active .rv-tier-target { color: #F6EEDD; }
             /* Tier severity indicator */
             .rv-tier-severity {
                 display: flex; flex-direction: column; align-items: center;
@@ -554,7 +554,7 @@ export function renderRivalry() {
                 transition: all 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
             }
             .rv-tier-severity-label {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: "IBM Plex Mono", monospace;
                 font-size: 9px; font-weight: 700;
                 letter-spacing: 0.14em;
                 text-transform: uppercase;
@@ -576,24 +576,24 @@ export function renderRivalry() {
 
             /* Tier pill left accent bars */
             .rv-tier-pill[data-tier="WAR"].active {
-                border-left: 3px solid #8b4444;
+                border-left: 3px solid #7C1D2B;
             }
             .rv-tier-pill[data-tier="BLOOD"].active {
-                border-left: 4px solid #7A1C1C;
+                border-left: 4px solid #5E1420;
                 padding: 14px 12px;
             }
             .rv-tier-pill[data-tier="BLOOD"].active .rv-tier-name {
                 font-size: 12px;
             }
             .rv-tier-name {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: "IBM Plex Mono", monospace;
                 font-size: 11px; font-weight: 800;
                 letter-spacing: 0.1em; color: #333;
                 display: block;
                 transition: all 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
             }
             .rv-tier-target {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: "IBM Plex Mono", monospace;
                 font-size: 10px; font-weight: 500;
                 color: #999; letter-spacing: 0.02em;
                 display: block;
@@ -1091,6 +1091,37 @@ export async function initRivalry() {
     }
 
     if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    /* ── ?create=1 OPENS THE CHALLENGE FORM ──────────────────────────────
+       "Create a Rivalry" on the market board sent the reader to this page
+       and stopped there, leaving them on a list of other people's duels to
+       find the form themselves — the button named an action and performed a
+       navigation. The whole flow already existed; nothing linked to it.
+
+       The parameter is stripped once consumed, so a refresh or a shared URL
+       does not reopen the form over the page. */
+    try {
+        const params = new URLSearchParams(window.location.search || '');
+        if (params.get('create') === '1') {
+            const modal = document.getElementById('rv-challenge-modal');
+            if (modal) modal.classList.add('open');
+            params.delete('create');
+            const qs = params.toString();
+            window.history.replaceState(null, '',
+                window.location.pathname + (qs ? '?' + qs : ''));
+        }
+    } catch (e) { /* deep link is a convenience; never block the page for it */ }
+
+    /* Escape closes it, which it did not before — the only ways out were the
+       ✕ and a click on the backdrop. */
+    if (!window._rvEscBound) {
+        window._rvEscBound = true;
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') return;
+            const m = document.getElementById('rv-challenge-modal');
+            if (m && m.classList.contains('open')) m.classList.remove('open');
+        });
+    }
 
     const grid = document.getElementById('rv-grid');
     const countLbl = document.getElementById('rv-count');
