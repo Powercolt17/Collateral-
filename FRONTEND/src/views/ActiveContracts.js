@@ -1932,7 +1932,26 @@ export function renderActiveContracts() {
                old design system that the product no longer uses. The form is
                the market's own now: same paper, same rules, same oxblood, and
                the board behind it refreshes in place when a challenge posts. */
+            /* CARRIES ITS OWN TOKENS, because it does not stay inside .mb.
+               The sheet is hoisted to <body> when it opens so it can escape
+               the section's stacking context — and .mb is where every --mb-*
+               is declared, so a hoisted sheet would have lost its entire
+               palette and fallen back to unstyled. These are the same values,
+               declared where the element will actually live. */
             .mb-rm-back {
+                --mb-paper: #F5EDDA;
+                --mb-ink: #211B12;
+                --mb-ink-soft: #574E3D;
+                --mb-muted: #5F5540;
+                --mb-faint: #7A6E52;
+                --mb-ox: #7C1D2B;
+                --mb-ox-deep: #5E1420;
+                --mb-win: #3F5A31;
+                --mb-line: rgba(70,55,35,.18);
+                --mb-line-soft: rgba(70,55,35,.10);
+                --mb-line-firm: rgba(70,55,35,.28);
+                font-family: "EB Garamond", Georgia, serif;
+                color: var(--mb-ink);
                 display: none; position: fixed; inset: 0; z-index: 1000;
                 background: rgba(38,26,12,.62);
                 align-items: center; justify-content: center; padding: 24px;
@@ -2098,7 +2117,12 @@ export function renderActiveContracts() {
             .mb-c-act.accept:hover { background: var(--mb-ox-deep); transform: translateY(-1px); }
             .mb-c-act.accept:active { transform: none; box-shadow: none; }
             .mb-c-act.view:hover, .mb-chip:hover, .mb-seg button:hover { background: rgba(70,55,35,.06); }
-            .mb a:focus-visible, .mb button:focus-visible, .mb input:focus-visible { outline: 2px solid var(--mb-ox); outline-offset: 2px; }
+            /* .mb-rm-back is listed alongside .mb because the challenge sheet
+               is hoisted out of .mb to <body> when it opens, and a scoped
+               focus ring would have gone with it. */
+            .mb a:focus-visible, .mb button:focus-visible, .mb input:focus-visible,
+            .mb-rm-back button:focus-visible, .mb-rm-back input:focus-visible,
+            .mb-rm-back select:focus-visible { outline: 2px solid var(--mb-ox); outline-offset: 2px; }
             @media (prefers-reduced-motion: reduce) {
                 .mb-c-act, .mb-chip, .mb-seg button, .mb-issue .a,
                 .mb-wbtn, .mb-pill, .mb-stp .disc, .mb-mx-avail .ss-go { transition: none; }
@@ -3190,8 +3214,32 @@ export function initActiveContracts() {
         row('mb-rm-tier', 'tier', 'tier', String);
         row('mb-rm-days', 'days', 'days', Number);
 
-        const open = () => { back.classList.add('open'); err.textContent = ''; paint(); };
-        const close = () => back.classList.remove('open');
+        /* THE SHEET IS MOVED TO <body> BEFORE IT OPENS.
+           It is authored inside <section class="mb">, whose subtree creates a
+           stacking context — so z-index:1000 was resolving against THAT
+           context rather than the document, and the fixed header at z-index 50
+           painted over the top of the sheet. The kicker and the close control
+           were underneath it.
+
+           Raising the number would not have fixed it: inside a stacking
+           context no value escapes the parent. Reparenting does, and it keeps
+           the modal immune to whatever the section grows later. */
+        let hoisted = false;
+        const open = () => {
+            if (!hoisted) { document.body.appendChild(back); hoisted = true; }
+            back.classList.add('open');
+            err.textContent = '';
+            // Always opens at the top of the form, never where it was left.
+            const sc = back.querySelector('.mb-rm-scroll');
+            if (sc) sc.scrollTop = 0;
+            // The page behind must not scroll under the sheet.
+            document.body.style.overflow = 'hidden';
+            paint();
+        };
+        const close = () => {
+            back.classList.remove('open');
+            document.body.style.overflow = '';
+        };
         openBtn.addEventListener('click', open);
         $('mb-rm-close').addEventListener('click', close);
         back.addEventListener('click', (e) => { if (e.target === back) close(); });
