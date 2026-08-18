@@ -1564,8 +1564,8 @@ export function renderActiveContracts() {
             /* THE ROWS SIT ON THE PARCHMENT, NOT ON A PLATE.
                .ss-metric is the hook the wizard's JS needs, and it is also an
                old style rule from the two-up tiles this step used to be:
-               `.ss-metric { background: var(--plate,#FBFAF6) }`, with
-               `.ss-metric.ready { background:#F7ECEE }` behind it. Carrying the
+               .ss-metric { background: var(--plate,#FBFAF6) }, with
+               .ss-metric.ready { background:#F7ECEE } behind it. Carrying the
                class for the JS meant inheriting the paint, so the three source
                rows sat on a near-white slab in the middle of the sheet — the
                matrix used to cancel exactly this and the override went out with
