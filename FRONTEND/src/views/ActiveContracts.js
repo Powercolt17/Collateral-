@@ -1639,18 +1639,26 @@ export function renderActiveContracts() {
             .mb-src-proves .mb-src-state::before,
             .mb-src-sub .mb-src-state::before { content: "· "; color: var(--mb-faint, #B4A98C); }
 
-            /* data-connected is set by paintSources() from the real Plaid /
-               Stripe / Shopify / YouTube status. It marks the source as
-               attached, which is a different fact from the metric being ready
-               to contract on — that one still needs the bank behind it, and
-               the button says so. */
-            .mb-src-row[data-connected="1"] .mb-src-un::after,
-            .mb-src-hero[data-connected="1"] .mb-src-proves b::after {
-                content: " · Connected"; color: var(--mb-win); font-weight: 500;
+            /* SAID ONCE. data-connected is still set by paintSources() from the
+               real Plaid / Stripe / Shopify / YouTube status, but it no longer
+               prints "· CONNECTED" into the meta line. The control beside it
+               reads "✓ Connected" now that the bank gate has moved off the row,
+               and a row saying Connected twice, inches apart, in two different
+               type styles, reads as two different facts. It styles the control
+               instead: attached is green and quiet.
+
+               CHOSEN IS THE LOUD ONE. Solid wine is reserved for .sel — the one
+               row the Continue button is about. Making every connected row
+               solid would put three equal claims on the step and none of them
+               would mean "this is the one". */
+            .mb-src-row[data-connected="1"] .mb-src-btn,
+            .mb-src-hero[data-connected="1"] .mb-src-big {
+                color: var(--mb-win); border-color: rgba(78,107,62,.45);
+                background: rgba(78,107,62,.08); box-shadow: none;
             }
-            .mb-src-row.ready .mb-src-btn,
-            .mb-src-hero.ready .mb-src-big {
-                background-color: var(--mb-ox); border-color: var(--mb-ox); color: var(--mb-paper2, #FAF4E6);
+            .mb-src-row.sel .mb-src-btn,
+            .mb-src-hero.sel .mb-src-big {
+                background: var(--mb-ox); border-color: var(--mb-ox); color: var(--mb-paper2, #FAF4E6);
             }
             /* Nothing to click while history accrues, so the control stops
                looking like a button and says what is actually happening. */
@@ -3471,6 +3479,7 @@ export function initActiveContracts() {
                     if (tile) tile.classList.add('waiting');
                     if (go) go.textContent = label ? 'Unlocks ' + label : 'Not enough history yet';
                 });
+                renderFoot();
                 return;
             }
 
@@ -3490,6 +3499,11 @@ export function initActiveContracts() {
             applyCardState('mrr',    !!(stripe && stripe.connected),  'Stripe',  bankConnected);
             applyCardState('orders', !!(shopify && shopify.connected), 'Shopify', bankConnected);
             applyCardState('views',  !!(youtube && youtube.connected), 'YouTube', bankConnected);
+
+            // The Continue gate reads data-bank, so it must repaint whenever
+            // that changes -- otherwise attaching a bank leaves the button dead
+            // with its reason still on screen.
+            renderFoot();
         }
 
         function setCardState(metric, text) {
@@ -3513,51 +3527,59 @@ export function initActiveContracts() {
          * @param platform         the source this metric reads from
          * @param bankConnected    the shared prerequisite, reported separately
          *
-         * Three states, and each one says the true thing about this row:
-         *   source missing            -> "Connect {Platform} →"   (actionable)
-         *   source attached, no bank  -> "Bank required"          (not "Ready")
-         *   both                      -> "Ready ✓"
+         * A ROW ANSWERS ONE QUESTION: is this source attached.
+         *   source missing   -> "Connect {Platform} →"   (actionable)
+         *   source attached  -> "✓ Connected"            (status)
+         *   and chosen       -> "Selected ✓"
          *
-         * The middle state is the one that matters. Saying "Ready" for MRR when
-         * Stripe is attached but no bank exists would send someone to a builder
-         * that cannot price anything — the bait-and-switch the old code was
-         * guarding against, which it did by mislabelling the row instead.
+         * bankConnected is still taken, and still matters — nothing can be
+         * priced without a bank — but it is no longer answered here. It read
+         * "Bank required" on an attached source, which put a satisfied
+         * connection next to an error and made the row look broken. It gates
+         * Continue in renderFoot() instead: one precondition, stated once, on
+         * the control it blocks. The class is still set for anything that needs
+         * to know.
          */
         function applyCardState(metric, sourceConnected, platform, bankConnected) {
             const tile = ssRoot.querySelector('.ss-metric[data-metric="' + metric + '"]');
             if (!tile) return;
             const go = tile.querySelector('.ss-go');
             const req = tile.querySelector('.ss-m-req');
-            const ready = sourceConnected && bankConnected;
+            /* STATUS ON THE ROW, THE BANK GATE ON CONTINUE.
+               This stamped "Bank required" on any row whose own source was
+               attached with no bank behind it — so a connected Stripe read
+               "UNLOCKS · MRR · CONNECTED" and, four inches to its right,
+               "BANK REQUIRED". Both statements true; read together, a
+               contradiction — a satisfied connection wearing an error.
 
-            tile.classList.toggle('ready', ready);
-            tile.classList.toggle('locked', !ready);
+               The underlying rule has not moved. The bank sets the baseline and
+               settles every contract, so nothing can be priced without it. But
+               that is a precondition of the STEP, not a fault in the row, and
+               it is now said once, on the Continue button it actually blocks.
+               A row states one thing: is this source attached.
+
+               So .ready means "this source is attached" and governs whether the
+               metric can be chosen. Choosing is allowed with no bank; leaving
+               step 1 is not. */
+            tile.classList.toggle('ready', !!sourceConnected);
+            tile.classList.toggle('locked', !sourceConnected);
             tile.classList.toggle('needs-bank', !!sourceConnected && !bankConnected);
             tile.classList.remove('waiting');
 
-            // The dots are painted by paintSources() from the same fetch, so
-            // they are not re-derived here — one mechanism, not two.
-
-            if (ready) {
+            if (sourceConnected) {
                 // A chosen row says so. This runs again on every state refresh,
-                // and overwriting "Selected ✓" with "Ready ✓" would silently
-                // un-say the choice while leaving the wine spine drawn.
-                if (go) go.textContent = tile.classList.contains('sel') ? 'Selected ✓' : 'Ready ✓';
+                // and overwriting "Selected ✓" would silently un-say the choice
+                // while leaving the wine spine drawn.
+                if (go) go.textContent = tile.classList.contains('sel') ? 'Selected ✓' : '✓ Connected';
                 if (req) req.remove();
                 return;
             }
-            // Not ready any more: whatever was chosen here is no longer choosable.
+            // Source gone: whatever was chosen here is no longer choosable.
             tile.classList.remove('sel');
             if (!go) return;
-            if (!sourceConnected) {
-                go.textContent = platform === 'bank'
-                    ? 'Connect bank →'
-                    : 'Connect ' + platform + ' →';
-            } else {
-                // Its own source is attached; the only thing left is the bank,
-                // and that is step 01 rather than an action on this row.
-                go.textContent = 'Bank required';
-            }
+            go.textContent = platform === 'bank'
+                ? 'Connect bank →'
+                : 'Connect ' + platform + ' →';
         }
 
         loadSourceState();
@@ -3796,11 +3818,13 @@ export function initActiveContracts() {
 
             if (row.classList.contains('ready')) { selectMetric(metric); return; }
 
-            // Its own source is attached but the bank is not: the bank is the
-            // outstanding prerequisite, so that is the flow to start.
-            const via = row.classList.contains('needs-bank')
-                ? 'bank'
-                : WIZ_METRICS[metric].connectVia;
+            /* Past the .ready check, this source is NOT attached, so attaching
+               it is the only action the row has. The old branch here diverted
+               to the bank flow when .needs-bank was set — but needs-bank means
+               the source IS attached, which now returns above as a selection.
+               It was unreachable, and it would have hijacked a click on
+               "Connect Shopify" into a Plaid popup. */
+            const via = WIZ_METRICS[metric].connectVia;
 
             if (via === 'bank') {
                 if (window.app && typeof window.app.connectBank === 'function') {
@@ -4423,9 +4447,22 @@ export function initActiveContracts() {
             wizFoot.innerHTML = '';
 
             if (wiz.step === 1) {
-                wizFoot.appendChild(footNote('Read-only · revocable anytime'));
+                /* THE BANK GATE LIVES HERE, AND NOWHERE ELSE ON THIS STEP.
+                   Every metric needs the bank: it sets the underwriting
+                   baseline and it is the settlement rail, so a contract cannot
+                   be priced without one whichever source measures it. That used
+                   to be stamped on each platform row, where it made a connected
+                   Stripe look broken. It blocks exactly one thing — leaving
+                   step 1 — so it is stated on exactly that control, with the
+                   reason next to it rather than a button that is merely dead. */
+                const root = document.getElementById('ss-root');
+                const bankOk = !!root && root.getAttribute('data-bank') === 'connected';
+                let why = 'Read-only · revocable anytime';
+                if (!wiz.metric) why = 'Choose what you are measuring';
+                else if (!bankOk) why = 'Connect your bank to continue — it settles every contract';
+                wizFoot.appendChild(footNote(why));
                 wizFoot.appendChild(footBtn('Continue → Set terms',
-                    () => goStep(2), !wiz.metric));
+                    () => goStep(2), !wiz.metric || !bankOk));
                 return;
             }
             if (wiz.step === 2) {
