@@ -1713,21 +1713,134 @@ export function renderActiveContracts() {
                 border: 0; background: transparent; font-family: var(--mono, var(--font-data));
                 font-size: 13px; width: 62px; outline: none; color: var(--mb-ink);
             }
-            .mb-payout {
-                display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin-top: 4px;
-                padding: 15px 20px; border: 1px solid var(--mb-line-firm); background: rgba(250,244,230,.75);
+            /* ── STEP 2 · SET YOUR TERMS ──────────────────────────────────── */
+
+            /* The record is still loading, or could not be read. The controls
+               stay live underneath either way — the terms are the operator's
+               own choice and do not wait on a price. */
+            .mb-t2-pend {
+                display: flex; align-items: center; gap: 13px; margin: 0 0 22px;
+                border: 1px solid rgba(124,29,43,.4); background: rgba(124,29,43,.06);
+                padding: 14px 18px;
             }
-            .mb-payout .mult { font-family: var(--font-content); font-variant-numeric: tabular-nums; font-size: 34px; font-weight: 700; color: var(--mb-ox); line-height: 1; }
-            .mb-payout .mk { font-family: var(--mono, var(--font-data)); font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-muted); margin-top: 4px; }
-            .mb-payout .plain { flex: 1 1 260px; font-size: 14px; line-height: 1.45; color: var(--mb-ink-soft); }
-            .mb-payout .plain b { color: var(--mb-ink); }
-            .mb-payout .out { text-align: right; font-family: var(--mono, var(--font-data)); font-size: 11px; line-height: 1.7; font-weight: 500; }
-            .mb-payout .out .w { color: var(--mb-win); }
-            .mb-payout .out .l { color: var(--mb-ox); }
-            /* No price yet, or none that can be quoted. The strip says which,
-               instead of showing a multiplier nothing produced. */
-            .mb-payout.mb-unpriced { color: var(--mb-muted); }
-            .mb-payout.mb-unpriced .mult { color: var(--mb-faint); }
+            .mb-t2-pend .sp {
+                width: 15px; height: 15px; flex: none; border-radius: 50%;
+                border: 2px solid rgba(124,29,43,.3); border-top-color: var(--mb-ox);
+                animation: mb-t2-spin 900ms linear infinite;
+            }
+            /* An error is not in progress, so it does not spin. */
+            .mb-t2-pend.err .sp { animation: none; border-top-color: rgba(124,29,43,.3); }
+            @keyframes mb-t2-spin { to { transform: rotate(360deg); } }
+            .mb-t2-pend .pt { font-size: 14px; line-height: 1.45; color: var(--mb-ink-soft); }
+            .mb-t2-pend .pt b { color: var(--mb-ink); font-weight: 600; }
+            .mb-t2-retry {
+                margin-left: auto; font-family: var(--mono, var(--font-data));
+                font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase;
+                color: var(--mb-ox); border: 1px solid rgba(124,29,43,.45);
+                background: var(--mb-paper2, #FAF4E6); padding: 8px 14px;
+                white-space: nowrap; cursor: pointer;
+            }
+            .mb-t2-retry:hover { background: rgba(124,29,43,.09); }
+
+            .mb-t2-ctrl { margin-bottom: 24px; min-width: 0; }
+            .mb-t2-clab { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+            .mb-t2-clab .l { font-family: var(--mono, var(--font-data)); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-ink-soft); }
+            .mb-t2-clab .hint { font-family: var(--mono, var(--font-data)); font-size: 9px; letter-spacing: .06em; color: var(--mb-faint, #B4A98C); }
+            .mb-t2-hint { font-family: var(--mono, var(--font-data)); font-size: 9.5px; letter-spacing: .06em; color: var(--mb-muted); margin-top: 9px; }
+
+            .mb-t2-sldwrap { display: flex; align-items: center; gap: 22px; }
+            .mb-t2-sldval {
+                font-family: var(--font-content); font-variant-numeric: tabular-nums;
+                font-size: 40px; font-weight: 600; color: var(--mb-ox); line-height: 1;
+                min-width: 96px;
+            }
+            .mb-t2-slider { flex: 1; min-width: 0; }
+            .mb-t2-range {
+                -webkit-appearance: none; appearance: none; width: 100%; height: 4px;
+                background: var(--mb-line); outline: none; display: block; margin: 0 0 10px;
+            }
+            .mb-t2-range::-webkit-slider-thumb {
+                -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+                border-radius: 50%; background: var(--mb-paper, #F5EDDA);
+                border: 2.5px solid var(--mb-ox); cursor: pointer;
+                box-shadow: 0 2px 5px rgba(60,40,20,.2);
+            }
+            .mb-t2-range::-moz-range-thumb {
+                width: 18px; height: 18px; border-radius: 50%;
+                background: var(--mb-paper, #F5EDDA); border: 2.5px solid var(--mb-ox);
+                cursor: pointer;
+            }
+            .mb-t2-range:disabled { opacity: .45; }
+            .mb-t2-ticks {
+                display: flex; justify-content: space-between;
+                font-family: var(--mono, var(--font-data)); font-size: 9px;
+                letter-spacing: .06em; color: var(--mb-faint, #B4A98C);
+            }
+
+            .mb-t2-two { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; }
+            .mb-t2-pills { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+            .mb-t2-pill {
+                font-family: var(--mono, var(--font-data)); font-size: 11px;
+                letter-spacing: .08em; text-transform: uppercase; color: var(--mb-ink-soft);
+                border: 1px solid var(--mb-line-firm); background: var(--mb-paper2, #FAF4E6);
+                padding: 10px 17px; cursor: pointer;
+            }
+            .mb-t2-pill.on { background: var(--mb-ink); color: var(--mb-paper2, #FAF4E6); border-color: var(--mb-ink); }
+            /* A tier the record does not support is shown and disabled rather
+               than hidden: the ladder is the same for everyone, and which rungs
+               are out of reach is information. */
+            .mb-t2-pill:disabled { opacity: .4; cursor: not-allowed; }
+            .mb-t2-amtin {
+                font-family: var(--mono, var(--font-data)); font-size: 13px; color: var(--mb-ink);
+                border: 1px solid var(--mb-line-firm); background: var(--mb-paper2, #FAF4E6);
+                padding: 9px 14px; display: inline-flex; align-items: center; gap: 4px;
+            }
+            .mb-t2-amtin .d { color: var(--mb-muted); }
+            .mb-t2-amtin input {
+                border: 0; background: transparent; font-family: var(--mono, var(--font-data));
+                font-size: 13px; width: 62px; outline: none; color: var(--mb-ink);
+            }
+
+            .mb-t2-pay { border: 1.5px solid var(--mb-ink); background: var(--mb-paper2, #FAF4E6); margin-top: 6px; }
+            .mb-t2-paytop {
+                display: flex; align-items: center; justify-content: space-between; gap: 18px;
+                padding: 18px 22px 14px; border-bottom: 1px solid var(--mb-line);
+            }
+            .mb-t2-ml { display: flex; align-items: baseline; gap: 12px; }
+            .mb-t2-mult {
+                font-family: var(--font-content); font-variant-numeric: tabular-nums;
+                font-size: 34px; font-weight: 600; color: var(--mb-ox); line-height: 1;
+            }
+            .mb-t2-multlab {
+                font-family: var(--mono, var(--font-data)); font-size: 9px; letter-spacing: .16em;
+                text-transform: uppercase; color: var(--mb-muted); line-height: 1.5;
+            }
+            .mb-t2-priced {
+                font-family: var(--mono, var(--font-data)); font-size: 9px; letter-spacing: .1em;
+                text-transform: uppercase; color: var(--mb-win); display: flex;
+                align-items: center; gap: 7px; text-align: right;
+            }
+            .mb-t2-priced .g { width: 6px; height: 6px; border-radius: 50%; background: var(--mb-win); flex: none; }
+            .mb-t2-priced.waiting { color: var(--mb-muted); }
+            .mb-t2-risk {
+                padding: 16px 22px; font-family: var(--font-content); font-size: 21px;
+                font-weight: 500; line-height: 1.4; color: var(--mb-ink);
+            }
+            .mb-t2-risk b.p { color: var(--mb-win); font-weight: 600; }
+            .mb-t2-risk b.s { color: var(--mb-ink); font-weight: 600; }
+            .mb-t2-outs { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--mb-line); }
+            .mb-t2-out { padding: 15px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+            .mb-t2-out.hit { border-right: 1px solid var(--mb-line); }
+            .mb-t2-out .ol { font-family: var(--mono, var(--font-data)); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--mb-muted); }
+            .mb-t2-out .ol b { display: block; color: var(--mb-ink); font-size: 11px; letter-spacing: .1em; margin-bottom: 3px; }
+            .mb-t2-out .oa { font-family: var(--font-content); font-variant-numeric: tabular-nums; font-size: 26px; font-weight: 600; }
+            .mb-t2-out.hit .oa { color: var(--mb-win); }
+            .mb-t2-out.miss .oa { color: var(--mb-ox); }
+            /* Nothing priced yet. The frame stays so the step does not jump when
+               the figures arrive, but it must not read as a live quote. */
+            .mb-t2-pay.mb-t2-ghost { border-color: var(--mb-line-firm); }
+            .mb-t2-pay.mb-t2-ghost .mb-t2-mult { color: var(--mb-faint, #B4A98C); }
+            .mb-t2-pay.mb-t2-ghost .mb-t2-risk { color: var(--mb-muted); font-size: 18px; }
 
             /* ---- the certificate ----
                ONE FRAME. Registration ticks at the corners, not a second border
@@ -2237,6 +2350,16 @@ export function renderActiveContracts() {
                 .mb-src-note { max-width: none; text-align: left; }
                 .mb-src-row { grid-template-columns: 40px minmax(0, 1fr); row-gap: 12px; }
                 .mb-src-btn { grid-column: 2; justify-self: start; }
+                /* Window and stake sit side by side on desktop; at this width
+                   two pill rows in half a column wrap into a ragged block. */
+                .mb-t2-two { grid-template-columns: 1fr; gap: 0; }
+                .mb-t2-sldwrap { flex-direction: column; align-items: flex-start; gap: 12px; }
+                .mb-t2-sldval { min-width: 0; }
+                .mb-t2-slider { width: 100%; }
+                .mb-t2-outs { grid-template-columns: 1fr; }
+                .mb-t2-out.hit { border-right: 0; border-bottom: 1px solid var(--mb-line); }
+                .mb-t2-pend { flex-wrap: wrap; }
+                .mb-t2-retry { margin-left: 0; }
                 .mb-lrowh, .mb-lrow { min-width: 560px; }
                 .mb-lrowh, .mb-lrow { grid-template-columns: 96px 1fr 110px 100px 100px 84px; }
                 .mb-drow { grid-template-columns: 108px 1fr max-content; gap: 10px; }
@@ -3993,41 +4116,85 @@ export function initActiveContracts() {
             return row;
         }
 
+        /* THE PAYOUT STRIP.
+           Multiplier, where it came from, the sentence, and the two outcomes.
+           Nothing here is computed locally beyond stake × multiplier — price()
+           owns that and returns null when the server has priced nothing, so the
+           strip renders its awaiting state rather than a plausible number. */
         function payoutStrip() {
-            const strip = wEl('div', 'mb-payout');
+            const strip = wEl('div', 'mb-t2-pay');
             const p = price();
             const m = WIZ_METRICS[wiz.metric];
+            const t = currentTier();
 
-            const left = wEl('div');
-            left.appendChild(wEl('div', 'mult', p ? p.multiplier.toFixed(1) + '×' : '—'));
-            left.appendChild(wEl('div', 'mk', 'Payout'));
-            strip.appendChild(left);
+            const top = wEl('div', 'mb-t2-paytop');
+            const ml = wEl('div', 'mb-t2-ml');
+            ml.appendChild(wEl('span', 'mb-t2-mult', p ? p.multiplier.toFixed(1) + '×' : '—'));
+            const mlab = wEl('span', 'mb-t2-multlab');
+            mlab.appendChild(document.createTextNode('Payout'));
+            mlab.appendChild(document.createElement('br'));
+            mlab.appendChild(document.createTextNode('multiplier'));
+            ml.appendChild(mlab);
+            top.appendChild(ml);
 
-            const plain = wEl('div', 'plain');
+            const src = wEl('span', 'mb-t2-priced' + (p ? '' : ' waiting'));
+            if (p) {
+                src.appendChild(wEl('span', 'g'));
+                const months = wiz.terms && wiz.terms.monthsAnalyzed;
+                /* WHERE THE PRICE CAME FROM, ACCURATELY. Bank contracts are
+                   priced off the operator's own trailing deposits, so the month
+                   count is real and worth naming. Every other platform is the
+                   fixed tier policy — saying "priced from your 12-month record"
+                   there would credit a record the server never read. */
+                src.appendChild(document.createTextNode(
+                    wiz.terms && wiz.terms.pricedFromHistory
+                        ? 'Priced from your ' + (months ? months + '-month' : '') + ' record'
+                        : 'Priced from the ' + (t && t.label ? t.label : 'standard') + ' tier'));
+            } else {
+                src.textContent = 'Awaiting your record…';
+            }
+            top.appendChild(src);
+            strip.appendChild(top);
+
+            const risk = wEl('div', 'mb-t2-risk');
             if (!p) {
-                strip.classList.add('mb-unpriced');
-                const t = currentTier();
-                plain.textContent = t && !t.available
+                strip.classList.add('mb-t2-ghost');
+                risk.textContent = t && !t.available
                     ? (t.unavailableReason || 'This tier is not available on your record yet.')
-                    : 'Choose an amount to see what it returns.';
-                strip.appendChild(plain);
+                    : 'Your payout and risk sentence appear here once pricing loads.';
+                strip.appendChild(risk);
                 return strip;
             }
 
             const tgt = targetDisplay();
-            plain.appendChild(document.createTextNode('Risk '));
-            plain.appendChild(wEl('b', null, money0(wiz.stake)));
-            plain.appendChild(document.createTextNode(' to earn '));
-            plain.appendChild(wEl('b', null, money0(p.profitIfMet)));
-            plain.appendChild(document.createTextNode(
-                ' profit if ' + m.short + ' reaches ' + (tgt || 'the target')
-                + ' in ' + p.windowDays + ' days.'));
-            strip.appendChild(plain);
+            risk.appendChild(document.createTextNode('Risk '));
+            risk.appendChild(wEl('b', 's', money0(wiz.stake)));
+            risk.appendChild(document.createTextNode(' to make '));
+            risk.appendChild(wEl('b', 'p', money0(p.profitIfMet) + ' profit'));
+            risk.appendChild(document.createTextNode(' if your '));
+            risk.appendChild(wEl('b', 's', m.short + ' reaches ' + (tgt || 'the target')));
+            risk.appendChild(document.createTextNode(' in '));
+            risk.appendChild(wEl('b', 's', p.windowDays + ' days'));
+            risk.appendChild(document.createTextNode('.'));
+            strip.appendChild(risk);
 
-            const out = wEl('div', 'out');
-            out.appendChild(wEl('div', 'w', '◆ Hit · +' + money0(p.profitIfMet)));
-            out.appendChild(wEl('div', 'l', 'Miss · −' + money0(wiz.stake)));
-            strip.appendChild(out);
+            const outs = wEl('div', 'mb-t2-outs');
+            const hit = wEl('div', 'mb-t2-out hit');
+            const hl = wEl('span', 'ol');
+            hl.appendChild(wEl('b', null, 'Hit target'));
+            hl.appendChild(document.createTextNode('You receive · ' + p.multiplier.toFixed(1) + '×'));
+            hit.appendChild(hl);
+            hit.appendChild(wEl('span', 'oa', money0(p.payoutIfMet)));
+            outs.appendChild(hit);
+
+            const miss = wEl('div', 'mb-t2-out miss');
+            const xl = wEl('span', 'ol');
+            xl.appendChild(wEl('b', null, 'Miss target'));
+            xl.appendChild(document.createTextNode('Stake settles to pool'));
+            miss.appendChild(xl);
+            miss.appendChild(wEl('span', 'oa', '−' + money0(wiz.stake)));
+            outs.appendChild(miss);
+            strip.appendChild(outs);
             return strip;
         }
 
@@ -4037,59 +4204,106 @@ export function initActiveContracts() {
             host.innerHTML = '';
             host.appendChild(summaryRow('source'));
             host.appendChild(wEl('div', 'mb-act-head', 'Step 2 of 3 · Set your terms'));
-            const h = wEl('h3', 'mb-act-title', 'Put capital on your target');
-            host.appendChild(h);
+            host.appendChild(wEl('h3', 'mb-act-title', 'Put capital on your target.'));
 
-            if (wiz.termsError) {
-                host.appendChild(wEl('p', 'mb-act-sub', wiz.termsError));
-                return;
+            const priced = !!wiz.terms && !wiz.termsError;
+
+            /* THE CONTROLS STAY UP WHILE THE RECORD LOADS.
+               This returned early on !wiz.terms and printed one line, so a slow
+               or unreadable baseline left the step empty and there was nothing
+               to do but wait or leave. The terms are the operator's own choice
+               and do not depend on the price — so they render either way, and
+               only the payout waits. */
+            host.appendChild(wEl('p', 'mb-act-sub', priced
+                ? (wiz.terms.pricedFromHistory
+                    ? 'Your payout is priced from your own verified record — the harder the target, the higher the multiple.'
+                    : 'Your payout is priced from the tier you choose — the harder the target, the higher the multiple.')
+                : 'Set a target, window, and stake — your payout prices as soon as your record loads.'));
+
+            if (!priced) {
+                const pend = wEl('div', 'mb-t2-pend' + (wiz.termsError ? ' err' : ''));
+                pend.setAttribute('role', 'status');
+                pend.appendChild(wEl('span', 'sp'));
+                const pt = wEl('div', 'pt');
+                const m = WIZ_METRICS[wiz.metric];
+                if (wiz.termsError) {
+                    pt.appendChild(wEl('b', null, wiz.termsError));
+                } else {
+                    pt.appendChild(wEl('b', null, 'Reading your ' + m.verified.replace(' verified', '')
+                        + ' history to price this contract.'));
+                    pt.appendChild(document.createTextNode(
+                        ' This usually takes a few seconds. You can set your terms now — the payout'
+                        + ' appears once your record loads.'));
+                }
+                pend.appendChild(pt);
+                const retry = wEl('button', 'mb-t2-retry', '↻ Retry');
+                retry.type = 'button';
+                retry.addEventListener('click', () => { loadTerms(); });
+                pend.appendChild(retry);
+                host.appendChild(pend);
             }
-            if (!wiz.terms) {
-                host.appendChild(wEl('p', 'mb-act-sub', 'Reading your record…'));
-                return;
-            }
 
-            host.appendChild(wEl('p', 'mb-act-sub', wiz.terms.pricedFromHistory
-                ? 'Priced from your last ' + (wiz.terms.monthsAnalyzed || 'twelve') + ' months — a harder target pays more.'
-                : 'Priced from your verified record — a harder target pays more.'));
-
-            const tiers = wiz.terms.tiers || [];
+            const tiers = (wiz.terms && wiz.terms.tiers) || [];
             const t = currentTier();
 
-            // ---- the target ladder
-            const f1 = wEl('div', 'mb-field');
-            const l1 = wEl('div', 'mb-flabel');
-            l1.appendChild(wEl('span', 'k', 'Target'));
-            l1.appendChild(wEl('span', 'v', targetDisplay() || '—'));
+            /* ---- target growth ----
+               THE SLIDER MOVES BETWEEN TIERS, NOT ALONG A FREE PERCENTAGE.
+               The design draws 5%–50% as a continuous range, which would say
+               that dragging right buys a bigger multiple. It does not: the
+               server sets growth, window and multiplier together per risk tier
+               (GROWTH_TARGETS / SYSTEM_DURATIONS / PAYOUT_MULTIPLIERS), and
+               POST /v1/contracts recomputes the payout from the tier and
+               ignores anything the client sends. A free slider would print a
+               target the multiplier does not answer to — the one number on the
+               page that must never be invented. So it has a stop per real
+               tier, and the ticks are those tiers' own figures. */
+            const f1 = wEl('div', 'mb-t2-ctrl');
+            const l1 = wEl('div', 'mb-t2-clab');
+            l1.appendChild(wEl('span', 'l', 'Target growth'));
+            if (tiers.length) {
+                const lo = tiers[0], hi = tiers[tiers.length - 1];
+                if (lo.growthPct != null && hi.growthPct != null) {
+                    l1.appendChild(wEl('span', 'hint', '+' + lo.growthPct + '% — +' + hi.growthPct + '%'));
+                }
+            }
             f1.appendChild(l1);
+
+            const sw = wEl('div', 'mb-t2-sldwrap');
+            sw.appendChild(wEl('div', 'mb-t2-sldval', targetDisplay() || '—'));
+            const sl = wEl('div', 'mb-t2-slider');
             const range = document.createElement('input');
-            range.type = 'range'; range.className = 'mb-range';
+            range.type = 'range'; range.className = 'mb-t2-range';
             range.min = '0'; range.max = String(Math.max(0, tiers.length - 1)); range.step = '1';
             range.value = String(wiz.tierIdx);
+            range.disabled = !tiers.length;
             range.setAttribute('aria-label', 'Target difficulty');
             range.addEventListener('input', function () {
                 wiz.tierIdx = Number(this.value) || 0;
                 wiz.stake = clampStake(wiz.stake);
                 renderStep2(); renderFoot();
             });
-            f1.appendChild(range);
-            const ticks = wEl('div', 'mb-ticks');
+            sl.appendChild(range);
+            const ticks = wEl('div', 'mb-t2-ticks');
             tiers.forEach((tt) => ticks.appendChild(wEl('span', null,
-                tt.label + (tt.growthPct != null ? ' +' + tt.growthPct + '%' : ''))));
-            f1.appendChild(ticks);
+                tt.growthPct != null ? '+' + tt.growthPct + '%' : tt.label)));
+            sl.appendChild(ticks);
+            sw.appendChild(sl);
+            f1.appendChild(sw);
             if (t && !t.available) {
-                f1.appendChild(wEl('div', 'mb-hint', t.unavailableReason || 'Not available on your record yet'));
+                f1.appendChild(wEl('div', 'mb-t2-hint', t.unavailableReason || 'Not available on your record yet'));
             }
             host.appendChild(f1);
 
-            // ---- the window, which the tier sets
-            const f2 = wEl('div', 'mb-field');
-            const l2 = wEl('div', 'mb-flabel');
-            l2.appendChild(wEl('span', 'k', 'Window'));
+            const two = wEl('div', 'mb-t2-two');
+
+            // ---- window · set by the tier, so it selects one
+            const f2 = wEl('div', 'mb-t2-ctrl');
+            const l2 = wEl('div', 'mb-t2-clab');
+            l2.appendChild(wEl('span', 'l', 'Window'));
             f2.appendChild(l2);
-            const wp = wEl('div', 'mb-pills');
+            const wp = wEl('div', 'mb-t2-pills');
             tiers.forEach((tt, i) => {
-                const b = wEl('button', 'mb-pill' + (i === wiz.tierIdx ? ' on' : ''), tt.windowDays + ' Days');
+                const b = wEl('button', 'mb-t2-pill' + (i === wiz.tierIdx ? ' on' : ''), tt.windowDays + 'd');
                 b.type = 'button';
                 if (!tt.available) b.disabled = true;
                 b.addEventListener('click', () => {
@@ -4099,27 +4313,26 @@ export function initActiveContracts() {
                 wp.appendChild(b);
             });
             f2.appendChild(wp);
-            f2.appendChild(wEl('div', 'mb-hint',
-                'The window comes with the target — a harder target runs shorter.'));
-            host.appendChild(f2);
+            two.appendChild(f2);
 
-            // ---- the stake
-            const f3 = wEl('div', 'mb-field');
-            const l3 = wEl('div', 'mb-flabel');
-            l3.appendChild(wEl('span', 'k', 'Amount at risk'));
-            f3.appendChild(l3);
-            const sp = wEl('div', 'mb-pills');
+            // ---- stake · the one genuinely free number, inside the tier's bounds
+            const f3 = wEl('div', 'mb-t2-ctrl');
+            const l3 = wEl('div', 'mb-t2-clab');
+            l3.appendChild(wEl('span', 'l', 'Amount at risk'));
             const min = t ? Math.round((t.minStakeUsdCents || 0) / 100) : 0;
             const max = t ? Math.round((t.maxStakeUsdCents || 0) / 100) : 0;
-            [100, 250, 500, 1000].forEach((v) => {
-                const b = wEl('button', 'mb-pill' + (v === wiz.stake ? ' on' : ''), money0(v));
+            if (min || max) l3.appendChild(wEl('span', 'hint', money0(min) + ' — ' + money0(max)));
+            f3.appendChild(l3);
+            const sp = wEl('div', 'mb-t2-pills');
+            [100, 250, 500].forEach((v) => {
+                const b = wEl('button', 'mb-t2-pill' + (v === wiz.stake ? ' on' : ''), money0(v));
                 b.type = 'button';
                 if ((min && v < min) || (max && v > max)) b.disabled = true;
                 b.addEventListener('click', () => { wiz.stake = clampStake(v); renderStep2(); renderFoot(); });
                 sp.appendChild(b);
             });
-            const box = wEl('span', 'mb-stakein');
-            box.appendChild(wEl('span', 'cur', '$'));
+            const box = wEl('span', 'mb-t2-amtin');
+            box.appendChild(wEl('span', 'd', '$'));
             const inp = document.createElement('input');
             inp.type = 'text'; inp.inputMode = 'numeric';
             inp.value = wiz.stake == null ? '' : String(wiz.stake);
@@ -4138,11 +4351,8 @@ export function initActiveContracts() {
             box.appendChild(inp);
             sp.appendChild(box);
             f3.appendChild(sp);
-            if (min || max) {
-                f3.appendChild(wEl('div', 'mb-hint',
-                    'This tier takes ' + money0(min) + ' to ' + money0(max) + '.'));
-            }
-            host.appendChild(f3);
+            two.appendChild(f3);
+            host.appendChild(two);
 
             host.appendChild(payoutStrip());
         }
@@ -4151,7 +4361,7 @@ export function initActiveContracts() {
         function refreshPayoutOnly() {
             const host = document.getElementById('mb-wstep-2');
             if (!host) return;
-            const old = host.querySelector('.mb-payout');
+            const old = host.querySelector('.mb-t2-pay');
             if (old) host.replaceChild(payoutStrip(), old);
             renderFoot();
         }
