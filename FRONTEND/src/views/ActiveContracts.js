@@ -1561,6 +1561,27 @@ export function renderActiveContracts() {
                 color: var(--mb-muted); white-space: nowrap;
             }
 
+            /* THE ROWS SIT ON THE PARCHMENT, NOT ON A PLATE.
+               .ss-metric is the hook the wizard's JS needs, and it is also an
+               old style rule from the two-up tiles this step used to be:
+               `.ss-metric { background: var(--plate,#FBFAF6) }`, with
+               `.ss-metric.ready { background:#F7ECEE }` behind it. Carrying the
+               class for the JS meant inheriting the paint, so the three source
+               rows sat on a near-white slab in the middle of the sheet — the
+               matrix used to cancel exactly this and the override went out with
+               it. Cancelled again, here, next to the rules that need it.
+
+               .ss-m-state is the same story: it is display:block with a 10px
+               bottom margin from the tile layout, which would drop the live
+               state line onto its own line and open a gap under it. It reads
+               inline here, after the text it qualifies. */
+            .mb-src-row, .mb-src-row.ready { background: none; padding: 16px 4px; }
+            /* .ss-metric.ready is two classes and would otherwise outrank the
+               single-class .mb-src-hero and paint the hero pink once the bank
+               is attached. */
+            .mb-src-hero, .mb-src-hero.ready { background: var(--mb-paper2, #FAF4E6); padding: 26px 28px; }
+            .mb-src-state, .ss-metric .mb-src-state { display: inline; margin: 0; }
+
             /* -- the three exceptions -- */
             .mb-src-row {
                 display: grid; grid-template-columns: 40px minmax(0, 1fr) auto;
