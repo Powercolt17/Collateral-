@@ -1476,232 +1476,175 @@ export function renderActiveContracts() {
                scrollbar; it just silently CUTS the right-hand columns off, which
                is the worst of the three outcomes. Above the point where they
                fit, auto is inert. */
-            .mb-matrix, .mb-ltable { overflow-x: auto; }
-            .mb-matrix { border-top: 2px solid var(--mb-ink); }
-            /* NO GAP, AND THE PADDING LIVES IN THE CELLS. A column gap would cut
-               the bank column's tint into four floating blocks; with the cells
-               stretched edge to edge it reads as one continuous spine down the
-               table, which is the point — the bank is the column every other
-               row depends on. */
-            .mb-mx-h, .mb-mx-r {
-                display: grid;
-                /* minmax(0,…) ON EVERY COLUMN, AND IT IS THE WHOLE BUG.
-                   Each row here is its OWN grid — the header is one, every
-                   metric row is another — so column widths resolve per row and
-                   are not shared between them. A bare 1.32fr is really
-                   minmax(auto, 1.32fr): the column may not shrink below its
-                   content's min-content width. The Choose column holds a
-                   different button in every row ("Connect Bank →" against
-                   "Connect Shopify →" with a brand mark), so that floor came
-                   out different per row, the flexible columns absorbed the
-                   difference, and each row placed its columns somewhere
-                   slightly different.
+            .mb-ltable { overflow-x: auto; }
+            /* ── STEP 1 · CONNECT YOUR SOURCE ────────────────────────────────
+               The metric matrix is gone. It asked the reader to cross-reference
+               four metrics against four sources in a 6-column grid to work out
+               that the bank covers most of them — a lookup table for what is
+               really one recommendation and three exceptions. This says the
+               recommendation first and lists the exceptions under it.
 
-                   Measured before this change, the Bank column started at
-                   30.74% of the header, 29.50% of the MRR row and 29.13% of
-                   the last two — so the tinted column stepped left as it went
-                   down the table and the bottom box hung off the ones above
-                   it. It was never the boxes; it was the columns under them.
+               FONTS ARE THE SITE'S, NOT THE SHEET'S. The reference sheet loads
+               Cormorant Garamond and EB Garamond and styles bare *, body and
+               h2. Pasted as authored it would have re-imported two typefaces
+               the site deliberately migrated off and restyled every element in
+               the document. Everything below is scoped under .mb-src and set in
+               the house tokens.
 
-                   minmax(0,…) removes the content floor, so all six columns
-                   resolve as pure proportions and every row lands on the same
-                   grid. It also makes the band stops below exact rather than
-                   approximately right. */
-                grid-template-columns:
-                    minmax(0, 1.9fr) minmax(0, .74fr) minmax(0, .74fr)
-                    minmax(0, .74fr) minmax(0, .74fr) minmax(0, 1.32fr);
-                align-items: center; gap: 0; padding: 0;
-                /* THE BANK TINT IS ONE BAND PER ROW, NOT A BOX PER CELL.
-                   It was a background on .mb-bankcol — the header span and the
-                   four body cells — so the "continuous spine" the rule above
-                   describes was really five separate rectangles that only
-                   looked continuous while every one of them happened to fill
-                   its row. Any cell that did not (a row taller than its own
-                   contents, a state class repainting it) left an untinted gap,
-                   and the column came out as a stack of uneven boxes with the
-                   last one visibly short.
+               THE JS CONTRACT IS UNCHANGED. loadSourceState() and
+               applyCardState() find their targets by .ss-metric[data-metric]
+               and write into .ss-go and .ss-m-state, and they toggle .ready /
+               .waiting / .needs-bank on the row. Those hooks are all still on
+               the markup, so the real connection state still drives this step.
+               Only the presentation moved. */
 
-                   Painting the band on the ROW instead makes that impossible:
-                   the row is edge to edge and full height by construction, so
-                   the bands stack seamlessly no matter what any cell does.
-
-                   The stops are the grid itself. Columns are
-                   1.9 .74 .74 .74 .74 1.32 = 6.18fr, so the bank column runs
-                   1.9/6.18 = 30.744% to 2.64/6.18 = 42.718%. Change the
-                   template and these two numbers change with it.
-
-                   It is background-IMAGE deliberately. Row state (:hover, .sel)
-                   sets background-color, and the two compose instead of one
-                   erasing the other. */
-                background-image: linear-gradient(to right,
-                    transparent 0 30.744%,
-                    rgba(163,124,54,.085) 30.744% 42.718%,
-                    transparent 42.718% 100%);
+            /* -- the bank, as the recommendation -- */
+            .mb-src-hero {
+                position: relative; border: 1.5px solid var(--mb-ink);
+                background: var(--mb-paper2, #FAF4E6);
+                padding: 26px 28px; display: grid;
+                grid-template-columns: auto minmax(0, 1fr) auto;
+                gap: 24px; align-items: center; cursor: pointer;
             }
-            /* The header reserves the ✓ CONNECTED chip's line whether or not the
-               chip is showing. Without this the whole table jumps down by ~14px
-               the moment the bank connects, and the header cell stops matching
-               the height of the body cells beneath it. */
-            .mb-mx-h { border-bottom: 1px solid var(--mb-line); min-height: 58px; }
-            .mb-mx-h span {
+            .mb-src-hero::before {
+                content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+                width: 4px; background: var(--mb-ox);
+            }
+            .mb-src-ico {
+                width: 60px; height: 60px; border: 1px solid var(--mb-line-firm);
+                background: var(--mb-paper, #F5EDDA); display: flex; flex: none;
+                align-items: center; justify-content: center; color: var(--mb-ox);
+            }
+            .mb-src-ico svg { width: 30px; height: 30px; display: block; }
+            .mb-src-rec {
+                display: inline-flex; align-items: center; gap: 8px;
                 font-family: var(--mono, var(--font-data));
-                font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
-                color: var(--mb-muted); text-align: center;
-                display: flex; flex-direction: column; justify-content: center; align-items: center;
-                align-self: stretch; padding: 13px 8px;
+                font-size: 8.5px; letter-spacing: .16em; text-transform: uppercase;
+                color: var(--mb-ox); font-weight: 500; margin-bottom: 9px;
             }
-            .mb-mx-h span.l { text-align: left; align-items: flex-start; }
-            .mb-mx-h span.rt { text-align: right; align-items: flex-end; }
-            /* The chip states a fact, so it appears only when the fact is true.
-               #ss-root already carries data-bank, set by loadSourceState(). */
-            .mb-mx-h .conn { display: none; color: var(--mb-win); font-size: 8.5px; margin-top: 4px; letter-spacing: .12em; }
-            #ss-root[data-bank="connected"] .mb-mx-h .conn { display: block; }
-            /* EVERY ROW THE SAME HEIGHT.
-               Row height was set by whatever the metric column happened to
-               contain, and that column carries an optional third line —
-               .ss-m-state, the live "4 of 6 months" readout, which is
-               :empty-collapsed until the JS has something to write there. So
-               rows with a state line stood ~17px taller than rows without one.
-               Nowhere is that more visible than the tinted Bank column, where
-               the tint is painted per cell and the row rules cut it into a
-               stack of boxes: unequal rows make a column of unequal boxes, and
-               the dots inside them stop sharing a rhythm down the page.
+            .mb-src-d { width: 5px; height: 5px; background: var(--mb-ox); transform: rotate(45deg); flex: none; }
+            .mb-src-h {
+                font-family: var(--font-content); font-size: 26px; font-weight: 600;
+                line-height: 1; margin: 0 0 9px; color: var(--mb-ink);
+            }
+            .mb-src-desc { font-size: 14.5px; line-height: 1.5; color: var(--mb-ink-soft); max-width: 430px; margin: 0; }
+            .mb-src-desc b { color: var(--mb-ink); font-weight: 600; }
+            .mb-src-proves {
+                margin-top: 11px; display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
+                font-family: var(--mono, var(--font-data)); font-size: 10px;
+                letter-spacing: .06em; color: var(--mb-muted);
+            }
+            .mb-src-proves b { color: var(--mb-ink); font-weight: 500; text-transform: uppercase; letter-spacing: .1em; }
+            .mb-src-cta { display: flex; flex-direction: column; align-items: flex-end; gap: 9px; }
+            .mb-src-big {
+                font-family: var(--mono, var(--font-data)); font-size: 12px;
+                letter-spacing: .12em; text-transform: uppercase;
+                color: var(--mb-paper2, #FAF4E6); background: var(--mb-ox);
+                border: 1px solid var(--mb-ox); padding: 15px 24px;
+                white-space: nowrap; cursor: pointer;
+                display: inline-flex; align-items: center; gap: 10px;
+                box-shadow: 0 8px 20px rgba(124,29,43,.16);
+            }
+            .mb-src-big:hover { background: var(--mb-ox-deep); border-color: var(--mb-ox-deep); }
+            .mb-src-note {
+                font-family: var(--mono, var(--font-data)); font-size: 9px;
+                letter-spacing: .06em; color: var(--mb-faint, #B4A98C);
+                max-width: 190px; text-align: right; line-height: 1.5;
+            }
 
-               86px is the tall case measured out — 30px of cell padding, a
-               21px metric name at 20px/1.05, and two 9.5px descriptor lines at
-               17.4px each including their 6px lead. Rows shorter than that are
-               padded up to it and their contents centre; the grid already
-               carries align-items:center. */
-            .mb-mx-r { border-bottom: 1px solid var(--mb-line-soft); min-height: 86px; }
-            .mb-mx-r:last-child { border-bottom: 0; }
-            /* .ss-metric (the shared hook these rows still answer to) paints card
-               stock and a left rule for the old two-up tiles. In the table the
-               rows sit on the parchment itself, and .ready must not repaint the
-               row pink — the READY badge in the last column carries that state. */
-            .mb-matrix .mb-mx-r,
-            .mb-matrix .mb-mx-r.ready { background-color: transparent; border-left: 0; }
-            .mb-mx-metric { padding: 15px 8px; min-width: 0; }
-            .mb-mn { font-family: var(--font-content); font-size: 20px; font-weight: 600; color: var(--mb-ink); line-height: 1.05; }
-            .mb-md {
-                font-family: var(--mono, var(--font-data));
-                font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase;
-                color: var(--mb-muted); margin-top: 6px;
+            /* -- the divider -- */
+            .mb-src-or { display: flex; align-items: center; gap: 18px; margin: 28px 0 20px; }
+            .mb-src-or .ln { flex: 1; height: 1px; background: var(--mb-line); }
+            .mb-src-or .t {
+                font-family: var(--mono, var(--font-data)); font-size: 10px;
+                letter-spacing: .18em; text-transform: uppercase;
+                color: var(--mb-muted); white-space: nowrap;
             }
-            .mb-md:empty { display: none; }
-            .mb-mx-cell { display: flex; justify-content: center; align-items: center; align-self: stretch; padding: 15px 6px; }
-            /* PARCHMENT, NOT GREY. rgba(70,55,35,.05) is a brown-grey wash and
-               over cream it desaturates to something closer to newsprint than
-               paper — the column read as a shaded UI region rather than as a
-               heavier stock. This is a warm ochre at low alpha: the same family
-               as the page, one step deeper, so the column looks like part of
-               the sheet. Still not green — the tint marks the column, it does
-               not claim the bank is attached. That claim is the ✓ CONNECTED
-               chip. */
-            /* .mb-bankcol is now only a hook for the column's contents. The tint
-               it used to carry is the row band above. */
-            /* Three states, and they are legible without colour: filled = the
-               source is connected, ring = it is the one this metric needs, rule
-               = not applicable. Colour alone would fail anyone who cannot see it. */
-            .mb-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--mb-win); flex: none; }
-            .mb-dot-o { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--mb-ox); flex: none; }
-            .mb-dot-e { width: 7px; height: 1px; background: var(--mb-line-firm); flex: none; }
-            /* The key, above the table. Four rows of dots with no legend made the
-               reader infer three states from context; naming them costs one line. */
-            .mb-mx-legend { display: flex; align-items: center; flex-wrap: wrap; gap: 9px 26px; margin: 16px 0 14px; }
-            .mb-lg {
+
+            /* -- the three exceptions -- */
+            .mb-src-row {
+                display: grid; grid-template-columns: 40px minmax(0, 1fr) auto;
+                gap: 18px; align-items: center; padding: 16px 4px;
+                border-bottom: 1px solid var(--mb-line-soft); cursor: pointer;
+            }
+            .mb-src-row:first-child { border-top: 1px solid var(--mb-line-soft); }
+            .mb-src-row:hover { background-color: rgba(70,55,35,.03); }
+            .mb-src-mk {
+                width: 38px; height: 38px; border: 1px solid var(--mb-line-firm);
+                background: var(--mb-paper2, #FAF4E6); display: flex; flex: none;
+                align-items: center; justify-content: center; color: var(--mb-ink);
+            }
+            .mb-src-mk svg { width: 18px; height: 18px; display: block; }
+            .mb-src-name {
+                font-family: var(--font-content); font-size: 19px; font-weight: 600;
+                line-height: 1; display: flex; align-items: baseline; gap: 11px; flex-wrap: wrap;
+                color: var(--mb-ink);
+            }
+            .mb-src-un {
+                font-family: var(--mono, var(--font-data)); font-size: 9.5px;
+                letter-spacing: .08em; text-transform: uppercase;
+                color: var(--mb-muted); font-weight: 400;
+            }
+            .mb-src-un b { color: var(--mb-ox); font-weight: 500; }
+            .mb-src-sub {
+                font-family: var(--mono, var(--font-data)); font-size: 10px;
+                letter-spacing: .02em; color: var(--mb-faint, #B4A98C); margin-top: 6px;
+            }
+            .mb-src-btn {
+                font-family: var(--mono, var(--font-data)); font-size: 10px;
+                letter-spacing: .1em; text-transform: uppercase;
+                color: var(--mb-ink-soft); border: 1px solid var(--mb-line-firm);
+                background: var(--mb-paper2, #FAF4E6); padding: 9px 15px;
+                white-space: nowrap; cursor: pointer;
                 display: inline-flex; align-items: center; gap: 9px;
-                font-family: var(--mono, var(--font-data));
-                font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mb-muted);
             }
-            .mb-mx-avail {
-                display: flex; justify-content: flex-end; align-items: center;
-                padding: 11px 8px 11px 6px;
-                font-family: var(--mono, var(--font-data));
-                font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
-            }
-            /* THE BRAND MARKS ARE BACKGROUNDS, NOT CHILD <svg>s. applyCardState()
-               drives this button through textContent — "Connect Stripe →",
-               "Ready ✓", "Bank required" — which replaces every child node. An
-               inline icon would survive exactly until the first state refresh. */
-            .mb-mx-avail .ss-go {
-                /* white-space:nowrap is the alignment fix. The brand mark is a
-                   background image at a fixed inset, so when the label wrapped
-                   to two lines the icon stayed pinned to the first and the
-                   button grew away from it — "CONNECT SHOPIFY →" was breaking
-                   after the word and dropping its arrow onto a second row. */
-                display: inline-flex; align-items: center; white-space: nowrap;
-                color: var(--mb-ox-deep); text-decoration: none; cursor: pointer;
-                background-color: transparent; background-repeat: no-repeat;
-                background-position: 14px 50%; background-size: 13px 13px;
-                border: 1px solid rgba(124,29,43,.62); border-radius: 0;
-                padding: 9px 15px; text-align: left;
-                font: inherit; letter-spacing: inherit; text-transform: inherit;
-                transition: background-color 150ms ease, border-color 150ms ease;
-            }
-            .mb-mx-avail .ss-go:hover { background-color: rgba(124,29,43,.09); border-color: var(--mb-ox-deep); text-decoration: none; }
-            /* .ss-metric:hover .ss-go nudges the old tile's text link sideways.
-               A bordered button sliding out from under its own row is not that. */
-            .ss-metric:hover .mb-mx-avail .ss-go { transform: none; opacity: 1; }
-            .mb-mx-avail .ss-go[data-source="mrr"] {
-                padding-left: 35px;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235E1420'%3E%3Cpath d='M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z'/%3E%3C/svg%3E");
-            }
-            .mb-mx-avail .ss-go[data-source="orders"] {
-                padding-left: 35px;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235E1420'%3E%3Cpath d='M15.337 23.979l7.216-1.561s-2.604-17.613-2.625-17.73c-.018-.116-.114-.192-.211-.192s-1.929-.136-1.929-.136-1.275-1.274-1.439-1.411c-.045-.037-.075-.057-.121-.074l-.914 21.104h.023zM11.71 11.305s-.81-.424-1.774-.424c-1.447 0-1.504.906-1.504 1.141 0 1.232 3.24 1.715 3.24 4.629 0 2.295-1.44 3.76-3.406 3.76-2.354 0-3.54-1.465-3.54-1.465l.646-2.086s1.245 1.066 2.28 1.066c.675 0 .975-.545.975-.932 0-1.619-2.654-1.694-2.654-4.359-.034-2.237 1.571-4.416 4.827-4.416 1.257 0 1.875.361 1.875.361l-.945 2.715-.02.01zM11.17.83c.136 0 .271.038.405.135-.984.465-2.064 1.639-2.508 3.992-.656.213-1.293.405-1.889.578C7.697 3.75 8.951.84 11.17.84V.83zm1.235 2.949v.135c-.754.232-1.583.484-2.394.736.466-1.777 1.333-2.645 2.085-2.971.193.501.309 1.176.309 2.1zm.539-2.234c.694.074 1.141.867 1.429 1.755-.349.114-.735.231-1.158.366v-.252c0-.752-.096-1.371-.271-1.871v.002zm2.992 1.289c-.02 0-.06.021-.078.021s-.289.075-.714.21c-.423-1.233-1.176-2.37-2.508-2.37h-.115C12.135.209 11.669 0 11.265 0 8.159 0 6.675 3.877 6.21 5.846c-1.194.365-2.063.636-2.16.674-.675.213-.694.232-.772.87-.075.462-1.83 14.063-1.83 14.063L15.009 24l.927-21.166z'/%3E%3C/svg%3E");
-            }
-            .mb-mx-avail .ss-go[data-source="views"] {
-                padding-left: 35px;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235E1420'%3E%3Cpath d='M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'/%3E%3C/svg%3E");
-            }
-            /* Ready is a state, not an errand: green badge, no brand mark, no
-               "connect" affordance to click through. */
-            .mb-matrix .ss-metric.ready .mb-mx-avail .ss-go {
-                color: var(--mb-win); border-color: rgba(63,90,49,.45);
-                background-color: rgba(63,90,49,.09); background-image: none;
-                padding-left: 15px;
-            }
-            .mb-matrix .ss-metric.ready .mb-mx-avail .ss-go:hover {
-                background-color: rgba(63,90,49,.16); border-color: var(--mb-win);
-            }
-            /* Source attached but bank still missing, or waiting on history to
-               accrue. Neither is an action on this row — it names the outstanding
-               prerequisite — so neither gets a button's border or a brand mark. */
-            .mb-matrix .ss-metric.needs-bank .mb-mx-avail .ss-go,
-            .mb-matrix .ss-metric.waiting .mb-mx-avail .ss-go {
-                color: var(--mb-muted); cursor: default; text-decoration: none;
-                background: none; border-color: transparent; padding: 9px 0;
-            }
-            .mb-matrix .ss-metric.needs-bank .mb-mx-avail .ss-go:hover,
-            .mb-matrix .ss-metric.waiting .mb-mx-avail .ss-go:hover {
-                background: none; border-color: transparent; text-decoration: none;
-            }
-            .mb-mx-note {
-                margin-top: 16px; display: flex; align-items: center; gap: 9px;
-                font-family: var(--mono, var(--font-data));
-                font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--mb-muted);
-            }
+            .mb-src-btn svg { width: 12px; height: 12px; display: block; }
+            .mb-src-btn:hover { background-color: rgba(124,29,43,.09); border-color: var(--mb-ox-deep); color: var(--mb-ox-deep); }
 
-            /* ---- choosing a metric ----
-               The spine is the selection, and it is on the LEFT edge of the row
-               rather than a fill across it: the bank column already carries a
-               tint, and two washes in one row stopped reading as two different
-               facts. */
-            .mb-mx-r.mb-selectable { cursor: pointer; }
-            .mb-mx-r.mb-selectable:hover { background-color: rgba(70,55,35,.03); }
-            .mb-matrix .mb-mx-r.sel,
-            .mb-matrix .mb-mx-r.sel.ready { background-color: rgba(124,29,43,.05); position: relative; }
-            .mb-mx-r.sel::before {
+            .mb-src-foot {
+                margin-top: 24px; display: flex; align-items: flex-start; gap: 10px;
+                font-family: var(--mono, var(--font-data)); font-size: 9.5px;
+                letter-spacing: .06em; text-transform: uppercase;
+                color: var(--mb-muted); line-height: 1.6;
+            }
+            .mb-src-mkd { width: 8px; height: 8px; background: var(--mb-ox-deep); transform: rotate(45deg); flex: none; margin-top: 4px; }
+
+            /* -- the states applyCardState() sets, said in this layout --
+               .ss-m-state is the live line ("4 of 6 months — unlocks in March").
+               It is :empty-collapsed so a row with nothing to report shows no
+               blank gap where the sentence would go. */
+            .mb-src-state { font-family: var(--mono, var(--font-data)); font-size: 9.5px; letter-spacing: .06em; color: var(--mb-ox); }
+            .mb-src-state:empty { display: none; }
+            .mb-src-proves .mb-src-state::before,
+            .mb-src-sub .mb-src-state::before { content: "· "; color: var(--mb-faint, #B4A98C); }
+
+            /* data-connected is set by paintSources() from the real Plaid /
+               Stripe / Shopify / YouTube status. It marks the source as
+               attached, which is a different fact from the metric being ready
+               to contract on — that one still needs the bank behind it, and
+               the button says so. */
+            .mb-src-row[data-connected="1"] .mb-src-un::after,
+            .mb-src-hero[data-connected="1"] .mb-src-proves b::after {
+                content: " · Connected"; color: var(--mb-win); font-weight: 500;
+            }
+            .mb-src-row.ready .mb-src-btn,
+            .mb-src-hero.ready .mb-src-big {
+                background-color: var(--mb-ox); border-color: var(--mb-ox); color: var(--mb-paper2, #FAF4E6);
+            }
+            /* Nothing to click while history accrues, so the control stops
+               looking like a button and says what is actually happening. */
+            .mb-src-row.waiting, .mb-src-hero.waiting { cursor: default; }
+            .mb-src-row.waiting .mb-src-btn,
+            .mb-src-hero.waiting .mb-src-big {
+                background: none; border-color: transparent; box-shadow: none;
+                color: var(--mb-muted); padding-left: 0; padding-right: 0;
+            }
+            .mb-src-row.waiting:hover { background-color: transparent; }
+            .mb-src-hero.sel, .mb-src-row.sel { position: relative; background-color: rgba(124,29,43,.05); }
+            .mb-src-row.sel::before {
                 content: ""; position: absolute; left: 0; top: 0; bottom: 0;
                 width: 3px; background: var(--mb-ox);
             }
-            /* Chosen: solid, because it is the one row the footer's Continue is
-               about. Ready-but-unchosen stays the green badge. */
-            .mb-matrix .ss-metric.sel .mb-mx-avail .ss-go {
-                background-color: var(--mb-ox); background-image: none;
-                border-color: var(--mb-ox); color: #F6EEDD; padding-left: 15px;
-            }
-            .mb-matrix .ss-metric.sel .mb-mx-avail .ss-go:hover { background-color: var(--mb-ox-deep); border-color: var(--mb-ox-deep); }
 
             /* ---- terms ---- */
             .mb-field { margin-bottom: 22px; }
@@ -2212,7 +2155,7 @@ export function renderActiveContracts() {
             .mb-rm-back select:focus-visible { outline: 2px solid var(--mb-ox); outline-offset: 2px; }
             @media (prefers-reduced-motion: reduce) {
                 .mb-c-act, .mb-chip, .mb-seg button, .mb-issue .a,
-                .mb-wbtn, .mb-pill, .mb-stp .disc, .mb-mx-avail .ss-go { transition: none; }
+                .mb-wbtn, .mb-pill, .mb-stp .disc, .mb-src-btn, .mb-src-big { transition: none; }
                 .mb-c-act.accept:hover, .mb-wbtn:hover { transform: none; }
                 /* The seal stamps in on signing. Under reduced motion it is
                    simply there — the fact is the seal, not the impact. */
@@ -2256,10 +2199,15 @@ export function renderActiveContracts() {
                 .mb-chips, .mb-seg { overflow-x: auto; flex-wrap: nowrap; max-width: 100%; }
                 /* A floor for the scroll containers above, so the columns keep
                    a readable width inside the scroll instead of crushing. */
-                /* 760, not 560: the availability column now carries a bordered
-                   button with a brand mark rather than a bare text link, and it
-                   wraps to two lines under about 720. */
-                .mb-mx-h, .mb-mx-r { min-width: 760px; }
+                /* The matrix needed a 760px floor because six columns cannot
+                   compress. Step 1 is three stacking blocks now, so it has no
+                   floor to hold — it reflows instead of scrolling sideways. */
+                .mb-src-hero { grid-template-columns: auto minmax(0, 1fr); row-gap: 18px; padding: 20px; }
+                .mb-src-cta { grid-column: 1 / -1; align-items: stretch; }
+                .mb-src-big { justify-content: center; }
+                .mb-src-note { max-width: none; text-align: left; }
+                .mb-src-row { grid-template-columns: 40px minmax(0, 1fr); row-gap: 12px; }
+                .mb-src-btn { grid-column: 2; justify-self: start; }
                 .mb-lrowh, .mb-lrow { min-width: 560px; }
                 .mb-lrowh, .mb-lrow { grid-template-columns: 96px 1fr 110px 100px 100px 84px; }
                 .mb-drow { grid-template-columns: 108px 1fr max-content; gap: 10px; }
@@ -2379,69 +2327,66 @@ export function renderActiveContracts() {
                         <div class="mb-wiz-body">
                             <!-- ── STEP 1 · connect & choose ── -->
                             <div class="mb-wstep on" data-step="1">
-                                <div class="mb-act-head">Step 1 of 3 &middot; Connect &amp; choose</div>
-                                <h3 class="mb-act-title">Connect your source, pick a metric</h3>
-                                <p class="mb-act-sub">Money settles through your bank. Connect Stripe, Shopify or YouTube to unlock the counts a statement can&rsquo;t see.</p>
+                                <div class="mb-act-head">Step 1 of 3 &middot; Connect your source</div>
+                                <h3 class="mb-act-title">Start with your bank.</h3>
+                                <p class="mb-act-sub">It counts every dollar that lands and settles every contract &mdash; the one connection most goals need.</p>
 
-                                <div class="mb-mx-legend">
-                                    <span class="mb-lg"><span class="mb-dot"></span> Verified &amp; ready</span>
-                                    <span class="mb-lg"><span class="mb-dot-o"></span> Connect to unlock</span>
-                                    <span class="mb-lg"><span class="mb-dot-e"></span> Not applicable</span>
-                                </div>
-
-                                <div class="mb-matrix">
-                                    <div class="mb-mx-h">
-                                        <span class="l">Metric</span>
-                                        <span class="mb-bankcol">Bank<span class="conn" id="mb-bank-conn">&#10003; Connected</span></span>
-                                        <span>Stripe</span>
-                                        <span>Shopify</span>
-                                        <span>YouTube</span>
-                                        <span class="rt">Choose</span>
+                                <!-- THE BANK IS THE HERO, AND IT KEEPS THE MATRIX'S HOOKS.
+                                     .ss-metric[data-metric] / .ss-go / .ss-m-state are what
+                                     loadSourceState() and applyCardState() read; the layout
+                                     changed, the contract with the JS did not. -->
+                                <div class="mb-src-hero ss-metric locked" data-metric="money">
+                                    <span class="mb-src-ico" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.4 22.2 8.1H1.8z"/><rect x="2.3" y="8.9" width="19.4" height="1.5"/><rect x="3.7" y="11.2" width="1.7" height="6.7"/><rect x="7.45" y="11.2" width="1.7" height="6.7"/><rect x="11.15" y="11.2" width="1.7" height="6.7"/><rect x="14.85" y="11.2" width="1.7" height="6.7"/><rect x="18.6" y="11.2" width="1.7" height="6.7"/><rect x="2.3" y="18.5" width="19.4" height="1.5"/><rect x="1.2" y="20.7" width="21.6" height="1.6"/></svg>
+                                    </span>
+                                    <div class="mb-src-main">
+                                        <div class="mb-src-rec"><span class="mb-src-d"></span> Recommended &middot; Covers most goals</div>
+                                        <h4 class="mb-src-h">Connect your bank</h4>
+                                        <p class="mb-src-desc">Counts <b>every dollar that lands</b> &mdash; a sale, a client check, a bonus, a tip &mdash; no matter where it came from. The widest net, and it settles every contract automatically.</p>
+                                        <div class="mb-src-proves">Proves &middot; <b>Money received</b><span class="mb-src-state ss-m-state"></span></div>
                                     </div>
-
-                                    <!-- The static descriptor and the live state line are two
-                                         different .mb-md rows. .ss-m-state is the one the JS
-                                         writes ("4 of 6 months — unlocks in March") and it is
-                                         :empty-collapsed until it has something to say, so the
-                                         usual row shows one line, not a blank second one. -->
-                                    <div class="mb-mx-r ss-metric locked" data-metric="money">
-                                        <div class="mb-mx-metric"><div class="mb-mn">Money received</div><div class="mb-md">Income &middot; in dollars</div><div class="mb-md ss-m-state"></div></div>
-                                        <div class="mb-mx-cell mb-bankcol"><span class="mb-dot-o" data-src="bank"></span></div>
-                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="stripe"></span></div>
-                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="shopify"></span></div>
-                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="youtube"></span></div>
-                                        <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="money">Connect bank &rarr;</button></div>
-                                    </div>
-
-                                    <div class="mb-mx-r ss-metric locked ss-gated" data-metric="mrr">
-                                        <div class="mb-mx-metric"><div class="mb-mn">MRR</div><div class="mb-md">Recurring revenue</div><div class="mb-md ss-m-state"></div></div>
-                                        <div class="mb-mx-cell mb-bankcol"><span class="mb-dot-e" data-src="bank"></span></div>
-                                        <div class="mb-mx-cell"><span class="mb-dot-o" data-src="stripe"></span></div>
-                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="shopify"></span></div>
-                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="youtube"></span></div>
-                                        <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="mrr">Connect Stripe &rarr;</button></div>
-                                    </div>
-
-                                    <div class="mb-mx-r ss-metric locked ss-gated" data-metric="orders">
-                                        <div class="mb-mx-metric"><div class="mb-mn">Orders</div><div class="mb-md">Order count</div><div class="mb-md ss-m-state"></div></div>
-                                        <div class="mb-mx-cell mb-bankcol"><span class="mb-dot-e" data-src="bank"></span></div>
-                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="stripe"></span></div>
-                                        <div class="mb-mx-cell"><span class="mb-dot-o" data-src="shopify"></span></div>
-                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="youtube"></span></div>
-                                        <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="orders">Connect Shopify &rarr;</button></div>
-                                    </div>
-
-                                    <div class="mb-mx-r ss-metric locked ss-gated" data-metric="views">
-                                        <div class="mb-mx-metric"><div class="mb-mn">Views</div><div class="mb-md">View count</div><div class="mb-md ss-m-state"></div></div>
-                                        <div class="mb-mx-cell mb-bankcol"><span class="mb-dot-e" data-src="bank"></span></div>
-                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="stripe"></span></div>
-                                        <div class="mb-mx-cell"><span class="mb-dot-e" data-src="shopify"></span></div>
-                                        <div class="mb-mx-cell"><span class="mb-dot-o" data-src="youtube"></span></div>
-                                        <div class="mb-mx-avail"><button type="button" class="ss-go" data-source="views">Connect YouTube &rarr;</button></div>
+                                    <div class="mb-src-cta">
+                                        <button type="button" class="ss-go mb-src-big" data-source="money">Connect bank &rarr;</button>
+                                        <div class="mb-src-note">Read-only via Plaid &middot; we exclude transfers between your own accounts</div>
                                     </div>
                                 </div>
 
-                                <div class="mb-mx-note"><span class="mb-mark"></span> Your bank settles every contract. Stripe, Shopify and YouTube only unlock metrics a statement can&rsquo;t see.</div>
+                                <div class="mb-src-or">
+                                    <span class="ln"></span>
+                                    <span class="t">Or &mdash; measure one thing, exactly</span>
+                                    <span class="ln"></span>
+                                </div>
+
+                                <div class="mb-src-list">
+                                    <div class="mb-src-row ss-metric locked ss-gated" data-metric="mrr">
+                                        <span class="mb-src-mk" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305z"/></svg></span>
+                                        <div class="mb-src-body">
+                                            <div class="mb-src-name">Stripe<span class="mb-src-un">Unlocks &middot; <b>MRR</b></span></div>
+                                            <div class="mb-src-sub">Active recurring subscription revenue<span class="mb-src-state ss-m-state"></span></div>
+                                        </div>
+                                        <button type="button" class="ss-go mb-src-btn" data-source="mrr"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305z"/></svg> Connect Stripe &rarr;</button>
+                                    </div>
+
+                                    <div class="mb-src-row ss-metric locked ss-gated" data-metric="orders">
+                                        <span class="mb-src-mk" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.337 23.979l7.216-1.561s-2.604-17.613-2.625-17.73c-.018-.116-.114-.192-.211-.192s-1.929-.136-1.929-.136-1.275-1.274-1.439-1.411c-.045-.037-.075-.057-.121-.074l-.914 21.104h.023zM11.71 11.305s-.81-.424-1.774-.424c-1.447 0-1.504.906-1.504 1.141 0 1.232 3.24 1.715 3.24 4.629 0 2.295-1.44 3.76-3.406 3.76-2.354 0-3.54-1.465-3.54-1.465l.646-2.086s1.245 1.066 2.28 1.066c.675 0 .975-.545.975-.932 0-1.619-2.654-1.694-2.654-4.359-.034-2.237 1.571-4.416 4.827-4.416 1.257 0 1.875.361 1.875.361l-.945 2.715-.02.01zM11.17.83c.136 0 .271.038.405.135-.984.465-2.064 1.639-2.508 3.992-.656.213-1.293.405-1.889.578C7.697 3.75 8.951.84 11.17.84V.83zm1.235 2.949v.135c-.754.232-1.583.484-2.394.736.466-1.777 1.333-2.645 2.085-2.971.193.501.309 1.176.309 2.1zm.539-2.234c.694.074 1.141.867 1.429 1.755-.349.114-.735.231-1.158.366v-.252c0-.752-.096-1.371-.271-1.871v.002zm2.992 1.289c-.02 0-.06.021-.078.021s-.289.075-.714.21c-.423-1.233-1.176-2.37-2.508-2.37h-.115C12.135.209 11.669 0 11.265 0 8.159 0 6.675 3.877 6.21 5.846c-1.194.365-2.063.636-2.16.674-.675.213-.694.232-.772.87-.075.462-1.83 14.063-1.83 14.063L15.009 24l.927-21.166z"/></svg></span>
+                                        <div class="mb-src-body">
+                                            <div class="mb-src-name">Shopify<span class="mb-src-un">Unlocks &middot; <b>Orders</b></span></div>
+                                            <div class="mb-src-sub">Paid order count &mdash; not revenue<span class="mb-src-state ss-m-state"></span></div>
+                                        </div>
+                                        <button type="button" class="ss-go mb-src-btn" data-source="orders"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.337 23.979l7.216-1.561s-2.604-17.613-2.625-17.73c-.018-.116-.114-.192-.211-.192s-1.929-.136-1.929-.136-1.275-1.274-1.439-1.411c-.045-.037-.075-.057-.121-.074l-.914 21.104h.023zM11.71 11.305s-.81-.424-1.774-.424c-1.447 0-1.504.906-1.504 1.141 0 1.232 3.24 1.715 3.24 4.629 0 2.295-1.44 3.76-3.406 3.76-2.354 0-3.54-1.465-3.54-1.465l.646-2.086s1.245 1.066 2.28 1.066c.675 0 .975-.545.975-.932 0-1.619-2.654-1.694-2.654-4.359-.034-2.237 1.571-4.416 4.827-4.416 1.257 0 1.875.361 1.875.361l-.945 2.715-.02.01zM11.17.83c.136 0 .271.038.405.135-.984.465-2.064 1.639-2.508 3.992-.656.213-1.293.405-1.889.578C7.697 3.75 8.951.84 11.17.84V.83zm1.235 2.949v.135c-.754.232-1.583.484-2.394.736.466-1.777 1.333-2.645 2.085-2.971.193.501.309 1.176.309 2.1zm.539-2.234c.694.074 1.141.867 1.429 1.755-.349.114-.735.231-1.158.366v-.252c0-.752-.096-1.371-.271-1.871v.002zm2.992 1.289c-.02 0-.06.021-.078.021s-.289.075-.714.21c-.423-1.233-1.176-2.37-2.508-2.37h-.115C12.135.209 11.669 0 11.265 0 8.159 0 6.675 3.877 6.21 5.846c-1.194.365-2.063.636-2.16.674-.675.213-.694.232-.772.87-.075.462-1.83 14.063-1.83 14.063L15.009 24l.927-21.166z"/></svg> Connect Shopify &rarr;</button>
+                                    </div>
+
+                                    <div class="mb-src-row ss-metric locked ss-gated" data-metric="views">
+                                        <span class="mb-src-mk" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
+                                        <div class="mb-src-body">
+                                            <div class="mb-src-name">YouTube<span class="mb-src-un">Unlocks &middot; <b>Views</b></span></div>
+                                            <div class="mb-src-sub">Public views &amp; subscribers<span class="mb-src-state ss-m-state"></span></div>
+                                        </div>
+                                        <button type="button" class="ss-go mb-src-btn" data-source="views"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg> Connect YouTube &rarr;</button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-src-foot"><span class="mb-src-mkd"></span> These narrow your goal to a single source &mdash; connect one only if the bank can&rsquo;t see it (views, order count, recurring revenue).</div>
                             </div>
 
                             <!-- ── STEP 2 · terms ── written by the wizard -->
@@ -3407,25 +3352,22 @@ export function initActiveContracts() {
        because the thing they guarded against cannot happen now. */
     const ssRoot = document.getElementById('ss-root');
     if (ssRoot) {
-        /* THE DOTS AND THE AVAILABILITY COLUMN READ THE SAME REAL STATE.
-           loadSourceState() below already fetches genuine Plaid/Stripe/Shopify/
-           YouTube connection status; this paints it into the new matrix so the
-           grid is not decoration sitting next to live text. */
+        /* CONNECTION STATE, MARKED ON THE ROW THAT OWNS IT.
+           This used to paint a 4x4 grid of dots: it walked [data-src] cells and
+           swapped .mb-dot-o for .mb-dot. Those cells were the matrix, and the
+           matrix is gone — each source now has a row of its own, so the state
+           belongs on the row rather than in a lookup grid.
+
+           loadSourceState() fetches the genuine Plaid/Stripe/Shopify/YouTube
+           status; this records it as data-connected and the CSS marks it. The
+           button text is written by applyCardState(), which is the other half
+           of the same fact. */
         function paintSources(bank, stripe, shopify, youtube) {
-            const state = { bank: bank, stripe: stripe, shopify: shopify, youtube: youtube };
-            ssRoot.querySelectorAll('[data-src]').forEach((cell) => {
-                const src = cell.getAttribute('data-src');
-                // A ring means "this metric needs this source"; filled means it
-                // is connected. Never downgrade a rule to a ring.
-                const needed = cell.classList.contains('mb-dot-o') || cell.classList.contains('mb-dot');
-                if (!needed) return;
-                cell.className = state[src] ? 'mb-dot' : 'mb-dot-o';
-                cell.setAttribute('data-src', src);
+            const state = { money: bank, mrr: stripe, orders: shopify, views: youtube };
+            Object.keys(state).forEach((metric) => {
+                const row = ssRoot.querySelector('.ss-metric[data-metric="' + metric + '"]');
+                if (row) row.setAttribute('data-connected', state[metric] ? '1' : '0');
             });
-            // The chip is also gated in CSS off #ss-root[data-bank]; setting the
-            // attribute here keeps it correct if the stylesheet ever moves.
-            const conn = document.getElementById('mb-bank-conn');
-            if (conn) conn.hidden = !bank;
         }
 
         /* THE ROW CLICK USED TO NAVIGATE TO /solo/new. That route does not
@@ -3804,7 +3746,7 @@ export function initActiveContracts() {
             // A different source prices differently, so nothing priced under the
             // old one survives the change.
             wiz.terms = null; wiz.termsError = null; wiz.stake = null; wiz.baseline = null; wiz.tierIdx = 0;
-            ssRoot.querySelectorAll('.mb-mx-r').forEach((r) => r.classList.remove('sel'));
+            ssRoot.querySelectorAll('.ss-metric[data-metric]').forEach((r) => r.classList.remove('sel'));
             const row = metricRow(metric);
             if (row) {
                 row.classList.add('sel');
@@ -3876,7 +3818,7 @@ export function initActiveContracts() {
             return p;
         }
 
-        ssRoot.querySelectorAll('.mb-mx-r.ss-metric').forEach((row) => {
+        ssRoot.querySelectorAll('.ss-metric[data-metric]').forEach((row) => {
             const metric = row.getAttribute('data-metric');
             row.classList.add('mb-selectable');
             row.addEventListener('click', () => metricAction(metric));
@@ -4502,7 +4444,7 @@ export function initActiveContracts() {
                 wiz.metric = null; wiz.terms = null; wiz.termsError = null;
                 wiz.stake = null; wiz.baseline = null; wiz.tierIdx = 0;
                 wiz.clauses = [false, false, false]; wiz.contract = null; wiz.signError = null;
-                ssRoot.querySelectorAll('.mb-mx-r').forEach((r) => r.classList.remove('sel'));
+                ssRoot.querySelectorAll('.ss-metric[data-metric]').forEach((r) => r.classList.remove('sel'));
                 loadSourceState();
                 goStep(1);
             }));
