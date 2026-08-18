@@ -1862,7 +1862,11 @@ export function renderActiveContracts() {
             .mb-drow .k { font-family: var(--mono, var(--font-data)); font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-muted); }
             .mb-drow .lead { height: 1px; border-bottom: 1px dotted rgba(70,55,35,.3); }
             .mb-drow .v { font-family: var(--mono, var(--font-data)); font-size: 12px; color: var(--mb-ink); font-weight: 500; text-align: right; }
+            /* GREEN IS MONEY RETURNING, WINE IS MONEY LOST. Wine carries loss
+               everywhere else on this site, so a payout printed in it reads as
+               an alarm on the one line meant to be the reward. */
             .mb-drow .v.ox { color: var(--mb-ox); }
+            .mb-drow .v.win { color: var(--mb-win); }
             .mb-clauses { margin: 16px 0 4px; }
             .mb-citem {
                 display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left;
@@ -1903,6 +1907,7 @@ export function renderActiveContracts() {
             .mb-exec .eline { display: inline-flex; gap: 22px; flex-wrap: wrap; justify-content: center; margin-top: 20px; padding: 14px 24px; border: 1px solid var(--mb-line); background: rgba(250,244,230,.75); }
             .mb-exec .eline .k { font-family: var(--mono, var(--font-data)); font-size: 8.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--mb-muted); }
             .mb-exec .eline .v { font-family: var(--font-content); font-variant-numeric: tabular-nums; font-size: 18px; font-weight: 600; margin-top: 3px; }
+            .mb-exec .eline .v.win { color: var(--mb-win); }
             .mb-exec-next {
                 margin-top: 18px; font-family: var(--mono, var(--font-data));
                 font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: var(--mb-muted);
@@ -3830,7 +3835,6 @@ export function initActiveContracts() {
             return n;
         }
         const money0 = (n) => '$' + Math.round(n).toLocaleString('en-US');
-        const money2 = (n) => '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const countFmt = (n) => Math.round(n).toLocaleString('en-US');
 
         /** The chosen tier's terms, or null while nothing has been priced. */
@@ -4101,10 +4105,17 @@ export function initActiveContracts() {
             } else {
                 const p = price();
                 const t = currentTier();
+                /* The locked term, not the tier name — this said "Pledge · 30
+                   days", which reads as the contract's type. The tier is still
+                   shown, as the tier, in the small line and on the certificate.
+                   The multiplier stays as shorthand; no bare dollar figure goes
+                   here, because a payout without a total/profit label is the
+                   ambiguity the certificate rows exist to remove. */
                 val.appendChild(document.createTextNode(
-                    (t && t.label ? t.label : 'Terms') + ' · ' + ((t && t.windowDays) || '—') + ' days'));
+                    'Solo Contract · ' + ((t && t.windowDays) || '—') + ' days'));
                 val.appendChild(wEl('small', null, p
                     ? money0(wiz.stake) + ' at risk · ' + p.multiplier.toFixed(1) + '×'
+                        + (t && t.label ? ' · ' + t.label + ' tier' : '')
                     : 'not priced'));
             }
             row.appendChild(val);
@@ -4368,11 +4379,14 @@ export function initActiveContracts() {
 
         // ---- step 3 · review & sign -------------------------------------------
 
-        function docRow(k, v, ox) {
+        /* tone is 'win' for money coming back, 'ox' for money lost, absent for
+           a plain fact. It took a boolean that meant "wine" and was passed for
+           the payout — a gain printed in the loss colour. */
+        function docRow(k, v, tone) {
             const r = wEl('div', 'mb-drow');
             r.appendChild(wEl('span', 'k', k));
             r.appendChild(wEl('span', 'lead'));
-            r.appendChild(wEl('span', 'v' + (ox ? ' ox' : ''), v));
+            r.appendChild(wEl('span', 'v' + (tone ? ' ' + tone : ''), v));
             return r;
         }
 
@@ -4400,16 +4414,43 @@ export function initActiveContracts() {
             dh.appendChild(wEl('span', 'f', 'Form S · 01'));
             doc.appendChild(dh);
 
+            /* "PLEDGE" IS A TIER, NOT A CONTRACT TYPE.
+               This read "Recurring revenue · Pledge", which puts the word where
+               a contract type belongs and made it look like the name for a solo
+               contract. It is not: TIER_LABEL in routes/quote.ts maps the three
+               risk tiers to Pledge / Stake / All In, so Pledge is the STANDARD
+               rung of the ladder the operator picked on step 2 — real server
+               vocabulary, in the wrong slot.
+
+               So the title takes the locked term, and the tier is stated as
+               itself, on its own row below. Nothing is renamed and nothing new
+               is invented. */
             const t = currentTier();
-            doc.appendChild(wEl('h4', 'mb-doc-title',
-                m.short + ' · ' + (t && t.label ? t.label : '')));
+            doc.appendChild(wEl('h4', 'mb-doc-title', m.short + ' · Solo Contract'));
             doc.appendChild(wEl('div', 'mb-doc-sub', 'Stake against your own verified record'));
 
+            /* TOTAL AND PROFIT, NEVER ONE FIGURE.
+               This showed a single row, "Payout if met · +$170.00". At 1.7× on
+               a $100 stake, $170 is the TOTAL returned — the stake back plus $70
+               won — but the leading + reads as a gain, so the row could equally
+               be read as ending with $270. That is the one number on the page a
+               reader must not have to guess at, so it is now two labelled rows
+               with the loss stated beside them.
+
+               total = stake × multiplier and profit = total − stake, both from
+               price(), which does that arithmetic once against the server's own
+               multiplier. */
             const led = wEl('div', 'mb-dled');
-            led.appendChild(docRow('Stake at risk', wiz.stake != null ? money2(wiz.stake) : '—'));
+            led.appendChild(docRow('Stake at risk', wiz.stake != null ? money0(wiz.stake) : '—'));
             led.appendChild(docRow('Target',
                 (targetDisplay() || '—') + (p ? ' in ' + p.windowDays + ' days' : '')));
-            led.appendChild(docRow('Payout if met', p ? '+' + money2(p.payoutIfMet) : '—', true));
+            if (t && t.label) led.appendChild(docRow('Tier', t.label));
+            led.appendChild(docRow('If met · you receive',
+                p ? money0(p.payoutIfMet) + ' total' : '—', 'win'));
+            led.appendChild(docRow('Net profit',
+                p ? '+' + money0(p.profitIfMet) : '—', 'win'));
+            led.appendChild(docRow('If missed · you lose',
+                wiz.stake != null ? '−' + money0(wiz.stake) : '—', 'ox'));
             led.appendChild(docRow('Oracle', m.oracle));
             led.appendChild(docRow('Settlement', 'Automatic · ' + settleLabel(deadlineIso())));
             doc.appendChild(led);
@@ -4517,15 +4558,22 @@ export function initActiveContracts() {
                 + settleLabel(c.deadline) + ' — no further action needed.'));
 
             const line = wEl('div', 'eline');
-            const item = (k, v) => {
+            const item = (k, v, tone) => {
                 const d = wEl('div');
                 d.appendChild(wEl('div', 'k', k));
-                d.appendChild(wEl('div', 'v', v));
+                d.appendChild(wEl('div', 'v' + (tone ? ' ' + tone : ''), v));
                 return d;
             };
+            /* The executed state carried the same ambiguous single figure the
+               certificate did — "Payout if met · +$170.00" — so it splits the
+               same way. c.payout is the server's own payoutAmountUsdCents: the
+               TOTAL returned, so profit is that minus the stake. */
             line.appendChild(item('Contract', c.receipt));
-            line.appendChild(item('At risk', money2(c.stake)));
-            line.appendChild(item('Payout if met', c.payout != null ? '+' + money2(c.payout) : '—'));
+            line.appendChild(item('At risk', money0(c.stake)));
+            line.appendChild(item('If met · you receive',
+                c.payout != null ? money0(c.payout) + ' total' : '—', 'win'));
+            line.appendChild(item('Net profit',
+                c.payout != null ? '+' + money0(c.payout - c.stake) : '—', 'win'));
             line.appendChild(item('Settles', settleLabel(c.deadline)));
             ex.appendChild(line);
 
@@ -4658,6 +4706,17 @@ export function initActiveContracts() {
 
         function renderFoot() {
             if (!wizFoot) return;
+            /* PIN THE WIDTH BEFORE THE LABEL CHANGES.
+               "Sign & Seal · Place $250 in escrow" becomes "Placing in escrow…"
+               mid-request, and the footer rebuilds from scratch, so the button
+               shrinks under the cursor that just pressed it. The old width is
+               measured off the outgoing button and carried onto the new one.
+               (The CSS comment beside .mb-busy claimed this already happened.
+               It did not — nothing measured anything.) */
+            const outgoing = wizFoot.querySelector('.mb-wbtn');
+            const heldWidth = outgoing && !outgoing.disabled
+                ? Math.ceil(outgoing.getBoundingClientRect().width)
+                : 0;
             wizFoot.innerHTML = '';
 
             if (wiz.step === 1) {
@@ -4719,7 +4778,10 @@ export function initActiveContracts() {
                     ? 'Placing in escrow…'
                     : 'Sign & Seal · Place ' + (wiz.stake != null ? money0(wiz.stake) : '—') + ' in escrow';
                 const b = footBtn(label, signContract, !ready || wiz.busy);
-                if (wiz.busy) b.classList.add('mb-busy');
+                if (wiz.busy) {
+                    b.classList.add('mb-busy');
+                    if (heldWidth) b.style.minWidth = heldWidth + 'px';
+                }
                 wizFoot.appendChild(b);
                 return;
             }
