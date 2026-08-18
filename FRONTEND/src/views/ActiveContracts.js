@@ -1485,8 +1485,58 @@ export function renderActiveContracts() {
                row depends on. */
             .mb-mx-h, .mb-mx-r {
                 display: grid;
-                grid-template-columns: 1.9fr .74fr .74fr .74fr .74fr 1.32fr;
+                /* minmax(0,…) ON EVERY COLUMN, AND IT IS THE WHOLE BUG.
+                   Each row here is its OWN grid — the header is one, every
+                   metric row is another — so column widths resolve per row and
+                   are not shared between them. A bare 1.32fr is really
+                   minmax(auto, 1.32fr): the column may not shrink below its
+                   content's min-content width. The Choose column holds a
+                   different button in every row ("Connect Bank →" against
+                   "Connect Shopify →" with a brand mark), so that floor came
+                   out different per row, the flexible columns absorbed the
+                   difference, and each row placed its columns somewhere
+                   slightly different.
+
+                   Measured before this change, the Bank column started at
+                   30.74% of the header, 29.50% of the MRR row and 29.13% of
+                   the last two — so the tinted column stepped left as it went
+                   down the table and the bottom box hung off the ones above
+                   it. It was never the boxes; it was the columns under them.
+
+                   minmax(0,…) removes the content floor, so all six columns
+                   resolve as pure proportions and every row lands on the same
+                   grid. It also makes the band stops below exact rather than
+                   approximately right. */
+                grid-template-columns:
+                    minmax(0, 1.9fr) minmax(0, .74fr) minmax(0, .74fr)
+                    minmax(0, .74fr) minmax(0, .74fr) minmax(0, 1.32fr);
                 align-items: center; gap: 0; padding: 0;
+                /* THE BANK TINT IS ONE BAND PER ROW, NOT A BOX PER CELL.
+                   It was a background on .mb-bankcol — the header span and the
+                   four body cells — so the "continuous spine" the rule above
+                   describes was really five separate rectangles that only
+                   looked continuous while every one of them happened to fill
+                   its row. Any cell that did not (a row taller than its own
+                   contents, a state class repainting it) left an untinted gap,
+                   and the column came out as a stack of uneven boxes with the
+                   last one visibly short.
+
+                   Painting the band on the ROW instead makes that impossible:
+                   the row is edge to edge and full height by construction, so
+                   the bands stack seamlessly no matter what any cell does.
+
+                   The stops are the grid itself. Columns are
+                   1.9 .74 .74 .74 .74 1.32 = 6.18fr, so the bank column runs
+                   1.9/6.18 = 30.744% to 2.64/6.18 = 42.718%. Change the
+                   template and these two numbers change with it.
+
+                   It is background-IMAGE deliberately. Row state (:hover, .sel)
+                   sets background-color, and the two compose instead of one
+                   erasing the other. */
+                background-image: linear-gradient(to right,
+                    transparent 0 30.744%,
+                    rgba(163,124,54,.085) 30.744% 42.718%,
+                    transparent 42.718% 100%);
             }
             /* The header reserves the ✓ CONNECTED chip's line whether or not the
                chip is showing. Without this the whole table jumps down by ~14px
@@ -1529,7 +1579,7 @@ export function renderActiveContracts() {
                rows sit on the parchment itself, and .ready must not repaint the
                row pink — the READY badge in the last column carries that state. */
             .mb-matrix .mb-mx-r,
-            .mb-matrix .mb-mx-r.ready { background: transparent; border-left: 0; }
+            .mb-matrix .mb-mx-r.ready { background-color: transparent; border-left: 0; }
             .mb-mx-metric { padding: 15px 8px; min-width: 0; }
             .mb-mn { font-family: var(--font-content); font-size: 20px; font-weight: 600; color: var(--mb-ink); line-height: 1.05; }
             .mb-md {
@@ -1547,7 +1597,8 @@ export function renderActiveContracts() {
                the sheet. Still not green — the tint marks the column, it does
                not claim the bank is attached. That claim is the ✓ CONNECTED
                chip. */
-            .mb-bankcol { background: rgba(163,124,54,.085); }
+            /* .mb-bankcol is now only a hook for the column's contents. The tint
+               it used to carry is the row band above. */
             /* Three states, and they are legible without colour: filled = the
                source is connected, ring = it is the one this metric needs, rule
                = not applicable. Colour alone would fail anyone who cannot see it. */
@@ -1637,9 +1688,9 @@ export function renderActiveContracts() {
                tint, and two washes in one row stopped reading as two different
                facts. */
             .mb-mx-r.mb-selectable { cursor: pointer; }
-            .mb-mx-r.mb-selectable:hover { background: rgba(70,55,35,.03); }
+            .mb-mx-r.mb-selectable:hover { background-color: rgba(70,55,35,.03); }
             .mb-matrix .mb-mx-r.sel,
-            .mb-matrix .mb-mx-r.sel.ready { background: rgba(124,29,43,.05); position: relative; }
+            .mb-matrix .mb-mx-r.sel.ready { background-color: rgba(124,29,43,.05); position: relative; }
             .mb-mx-r.sel::before {
                 content: ""; position: absolute; left: 0; top: 0; bottom: 0;
                 width: 3px; background: var(--mb-ox);
