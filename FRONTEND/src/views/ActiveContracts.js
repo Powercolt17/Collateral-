@@ -1967,28 +1967,36 @@ export function renderActiveContracts() {
                 display: flex; flex-direction: column;
                 position: relative;
             }
-            .mb-rm-scroll { overflow-y: auto; padding: 22px 30px 4px; }
-            /* A hairline, not a UI scrollbar. */
-            .mb-rm-scroll { scrollbar-width: thin; scrollbar-color: rgba(70,55,35,.28) transparent; }
-            .mb-rm-scroll::-webkit-scrollbar { width: 4px; }
+            .mb-rm-scroll { overflow-y: auto; padding: 18px 28px 18px; }
+            /* A RULE IN THE MARGIN, NOT A SCROLLBAR. A 4px thumb hard against
+               the edge of the sheet still reads as browser furniture. The track
+               is given real width and the thumb is inset inside it with a
+               transparent border and background-clip, so what shows is a short
+               warm rule floating in the paper's own margin. */
+            .mb-rm-scroll { scrollbar-width: thin; scrollbar-color: rgba(70,55,35,.30) transparent; }
+            .mb-rm-scroll::-webkit-scrollbar { width: 11px; }
             .mb-rm-scroll::-webkit-scrollbar-track { background: transparent; }
-            .mb-rm-scroll::-webkit-scrollbar-thumb { background: rgba(70,55,35,.26); }
-            .mb-rm-scroll::-webkit-scrollbar-thumb:hover { background: rgba(70,55,35,.40); }
+            .mb-rm-scroll::-webkit-scrollbar-thumb {
+                background: rgba(70,55,35,.30);
+                border: 4px solid transparent;
+                background-clip: content-box;
+            }
+            .mb-rm-scroll::-webkit-scrollbar-thumb:hover { background: rgba(70,55,35,.46); background-clip: content-box; }
 
-            .mb-rm-top { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 11px; border-bottom: 2px solid var(--mb-ink); }
+            .mb-rm-top { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 9px; border-bottom: 2px solid var(--mb-ink); }
             .mb-rm-kick { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: var(--mb-ox); font-weight: 500; }
-            .mb-rm-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 25px; font-weight: 600; line-height: 1; margin-top: 4px; }
+            .mb-rm-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 24px; font-weight: 600; line-height: 1; margin-top: 3px; }
             .mb-rm-x { background: none; border: 0; cursor: pointer; font-size: 17px; color: var(--mb-muted); line-height: 1; padding: 4px; }
             .mb-rm-x:hover { color: var(--mb-ox-deep); }
 
-            .mb-rm-f { padding: 10px 0 0; border-bottom: 1px solid var(--mb-line-soft); }
+            .mb-rm-f { padding: 8px 0 0; border-bottom: 1px solid var(--mb-line-soft); }
             .mb-rm-f:last-of-type { border-bottom: 0; }
             .mb-rm-lab {
-                display: block; margin-bottom: 7px;
+                display: block; margin-bottom: 6px;
                 font-family: var(--mono, 'IBM Plex Mono', monospace);
                 font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--mb-muted);
             }
-            .mb-rm-hint { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .04em; color: var(--mb-muted); margin: 5px 0 9px; }
+            .mb-rm-hint { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .04em; color: var(--mb-muted); margin: 4px 0 7px; }
             .mb-rm-row { display: flex; gap: 7px; flex-wrap: wrap; }
             /* SEGMENTED, NOT TWO BUTTONS WITH A GAP. The two halves of a single
                either/or read as one control when they share an edge — the gap
@@ -2015,7 +2023,10 @@ export function renderActiveContracts() {
                 transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
             }
             .mb-rm-p:hover { background: rgba(70,55,35,.06); border-color: rgba(86,66,42,.42); }
-            .mb-rm-p.on { background: var(--mb-ink); color: #F6EEDD; border-color: var(--mb-ink); }
+            /* THE DEEP OXBLOOD, not near-black. A selected pill is the strongest
+               mark on this form, and the ink reads as a UI toggle where the
+               wine reads as the house making a choice. */
+            .mb-rm-p.on { background: var(--mb-ox-deep); color: #F8F1E2; border-color: var(--mb-ox-deep); }
             .mb-rm-p.grow { flex: 1 1 0; text-align: center; }
             /* The tier pills carry two lines, so they stack rather than centre
                on one — everything else in the form is a single line. */
@@ -2034,7 +2045,7 @@ export function renderActiveContracts() {
             .mb-rm-sel { appearance: none; cursor: pointer; padding-right: 36px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235F5540' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; }
             .mb-rm-terms {
                 display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
-                margin-top: 12px; padding: 11px 14px; border: 1px solid var(--mb-line-firm);
+                margin-top: 10px; padding: 10px 13px; border: 1px solid var(--mb-line-firm);
                 background: rgba(250,244,230,.8);
                 font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px;
                 letter-spacing: .14em; text-transform: uppercase; color: var(--mb-muted);
@@ -2043,12 +2054,17 @@ export function renderActiveContracts() {
             /* THE ACTION BAR DOES NOT SCROLL. It is the foot of the sheet, on
                the sheet's own paper with a rule above it, so the commitment is
                on screen at every scroll position. */
+            /* The bar is lifted off the form by a rule AND a shadow thrown upward,
+               so the boundary reads even when the last row of the form is
+               scrolled right up against it. */
             .mb-rm-foot {
                 display: flex; align-items: center; justify-content: space-between; gap: 16px;
-                flex: none; padding: 14px 30px; border-top: 1px solid var(--mb-line-firm);
+                flex: none; padding: 13px 28px; border-top: 1px solid rgba(86,66,42,.34);
                 background: var(--mb-paper);
+                box-shadow: 0 -6px 14px rgba(60,40,20,.07);
+                position: relative; z-index: 1;
             }
-            .mb-rm-foot .mb-wbtn { padding: 13px 24px; }
+            .mb-rm-foot .mb-wbtn { padding: 15px 40px; letter-spacing: .2em; }
             .mb-rm-err { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 10px; letter-spacing: .04em; color: var(--mb-ox); }
             @media (max-width: 560px) {
                 .mb-rm-row.six { grid-template-columns: repeat(3, 1fr); }
