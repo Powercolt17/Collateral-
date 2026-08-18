@@ -369,6 +369,77 @@ const contractRoutes: FastifyPluginAsync = async (fastify) => {
     });
 
     /**
+     * GET /v1/ledger/contracts
+     *
+     * Solo contracts for the public register, INCLUDING ONES THAT HAVE NOT
+     * SETTLED. /v1/results deliberately filters to SETTLED_SUCCESS and
+     * SETTLED_FAILURE, which is right for a results feed and wrong for an
+     * append-only ledger: a contract is a public commitment the moment it is
+     * written, and a register that only shows finished business cannot show
+     * anything a user just created.
+     *
+     * Read-only, no auth, and it carries no more identity than /v1/results
+     * does — the principal is anonymised the same way.
+     */
+    fastify.get('/v1/ledger/contracts', async (request, reply) => {
+        try {
+            const result = await db.execute(sql`
+                SELECT
+                    c.id,
+                    c.platform,
+                    c.metric_type       AS "metricType",
+                    c.principal_identity_username AS "principal",
+                    c.lock_amount_usd_cents       AS "stakeCents",
+                    c.payout_amount_usd_cents     AS "payoutCents",
+                    c.risk_tier         AS "riskTier",
+                    c.record_hash       AS "recordHash",
+                    c.deadline_utc      AS "deadlineUtc",
+                    c.created_at        AS "createdAt",
+                    ci.current_state    AS "state",
+                    ci.updated_at       AS "updatedAt"
+                FROM contracts c
+                INNER JOIN contract_index ci ON ci.contract_id = c.id
+                WHERE ci.current_state NOT IN ('DRAFT', 'CANCELLED')
+                ORDER BY c.created_at DESC
+                LIMIT 100
+            `);
+
+            const rows = (result as any).rows || result;
+            const iso = (v: any) => (v instanceof Date ? v.toISOString() : v);
+
+            return {
+                ok: true,
+                contracts: rows.map((row: any) => {
+                    const name = row.principal || 'Anonymous';
+                    const anonymized = name.length > 3 ? name.slice(0, 3) + '***' : name;
+                    const state = String(row.state || '');
+                    return {
+                        id: row.id,
+                        platform: row.platform,
+                        metricType: row.metricType,
+                        principal: anonymized,
+                        stakeCents: Number(row.stakeCents) || 0,
+                        payoutCents: Number(row.payoutCents) || 0,
+                        riskTier: row.riskTier,
+                        recordHash: row.recordHash,
+                        deadlineUtc: iso(row.deadlineUtc),
+                        createdAt: iso(row.createdAt),
+                        updatedAt: iso(row.updatedAt),
+                        state,
+                        result: state === 'SETTLED_SUCCESS' ? 'WIN'
+                            : state === 'SETTLED_FAILURE' ? 'LOSS'
+                                : 'PENDING',
+                    };
+                }),
+            };
+        } catch (error) {
+            console.error('[LedgerContracts] Error:', error);
+            reply.status(500);
+            return { ok: false, error: 'Failed to fetch contracts' };
+        }
+    });
+
+    /**
      * POST /v1/admin/reseed
      * Nuke stale market listings and reseed with correct terms.
      * Hit this once after deploy: POST https://collateral-production.up.railway.app/v1/admin/reseed

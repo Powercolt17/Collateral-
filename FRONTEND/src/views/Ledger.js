@@ -267,7 +267,10 @@ export async function initLedger() {
         X: 'X API', AMAZON: 'Amazon API', PLAID: 'Bank · Plaid',
     };
 
-    const PER_PAGE = 12;
+    /* Ten. Fifteen rows of eight columns is a screenful of register with no
+       air in it, and the pager exists precisely so the page does not have to
+       carry everything. */
+    const PER_PAGE = 10;
     const state = { tab: 'all', plat: 'all', sort: 'newest', q: '', page: 1, rows: [], status: 'loading' };
 
     /* ── the record -> a row ────────────────────────────────────────────
@@ -301,24 +304,34 @@ export async function initLedger() {
         };
     }
 
-    function fromResult(s) {
-        const hash = String(s.recordHash || s.id || '');
-        const stake = Math.round((Number(s.stakeCents) || 0) / 100);
+    /* A solo contract from /v1/ledger/contracts, which carries live ones as
+       well as settled.
+
+       IT REPLACES /v1/results RATHER THAN JOINING IT. That feed returns
+       settled solo contracts AND settled rivalries — the rivalries already
+       arrive from /v1/rivalries, and the solo contracts now arrive here, so
+       reading both would have printed every settled record on the register
+       twice. */
+    function fromContract(c) {
+        const hash = String(c.recordHash || c.id || '');
+        const settled = c.result === 'WIN' || c.result === 'LOSS';
+        const stake = Math.round((Number(c.stakeCents) || 0) / 100);
+        const handle = String(c.principal || '').replace(/^@/, '');
         return {
             kind: 'SOLO',
-            id: s.id,
+            id: c.id,
             receipt: 'SOLO·' + hash.slice(0, 4).toUpperCase() + '·' + hash.slice(4, 8).toUpperCase(),
             hash: '0x' + hash.slice(0, 2) + '…' + hash.slice(-4),
-            operator: s.username ? '@' + s.username : (s.principal || 'Operator'),
-            metric: titleCase(s.metricType || s.principal || 'Contract'),
-            window: s.durationDays ? s.durationDays + 'd' : '',
-            platform: String(s.platform || '').toUpperCase(),
-            oracle: ORACLE[String(s.platform || '').toUpperCase()] || titleCase(s.platform),
-            rail: String(s.settlementRail || 'USD').toUpperCase() === 'CLTR' ? 'CLTR' : 'USD',
+            operator: handle ? '@' + handle : 'Operator',
+            metric: titleCase(c.metricType),
+            window: '',
+            platform: String(c.platform || '').toUpperCase(),
+            oracle: ORACLE[String(c.platform || '').toUpperCase()] || titleCase(c.platform),
+            rail: 'USD',
             stake: stake,
             pool: stake,
-            outcome: s.result === 'WIN' ? 'won' : 'lost',
-            at: s.settledAt || s.createdAt,
+            outcome: settled ? (c.result === 'WIN' ? 'won' : 'lost') : 'active',
+            at: c.updatedAt || c.createdAt,
         };
     }
 
@@ -505,44 +518,105 @@ export async function initLedger() {
         });
     }
 
-    // ── load ──
-    skeleton();
-    const [rv, res] = await Promise.allSettled([
-        api.getRivalries({ limit: 100 }),
-        api.getPublicResults(),
-    ]);
+    /* ── reading the register ──
+       Rivalries and solo contracts, both including everything that has not
+       settled yet, so a contract written a minute ago is on the register a
+       minute later. */
+    async function load() {
+        const [rv, ct] = await Promise.allSettled([
+            api.getRivalries({ limit: 100 }),
+            api.getLedgerContracts(),
+        ]);
 
-    const rows = [];
-    let anyOk = false;
+        const rows = [];
+        let anyOk = false;
 
-    if (rv.status === 'fulfilled' && rv.value && Array.isArray(rv.value.rivalries)) {
-        anyOk = true;
-        rv.value.rivalries.forEach((r) => { if (r && r.id) rows.push(fromRivalry(r)); });
-    } else {
-        console.error('[Ledger] rivalry feed unavailable:', rv.reason);
+        if (rv.status === 'fulfilled' && rv.value && Array.isArray(rv.value.rivalries)) {
+            anyOk = true;
+            rv.value.rivalries.forEach((r) => { if (r && r.id) rows.push(fromRivalry(r)); });
+        } else {
+            console.error('[Ledger] rivalry feed unavailable:', rv.reason);
+        }
+
+        if (ct.status === 'fulfilled' && ct.value && Array.isArray(ct.value.contracts)) {
+            anyOk = true;
+            ct.value.contracts.forEach((c) => { if (c && c.id) rows.push(fromContract(c)); });
+        } else {
+            // Solo contracts are a second source; the register stands without it.
+            console.warn('[Ledger] contract feed unavailable:', ct.reason);
+        }
+
+        return { rows, anyOk };
     }
 
-    if (res.status === 'fulfilled' && res.value && Array.isArray(res.value.results)) {
-        anyOk = true;
-        res.value.results.forEach((s) => { if (s && s.id) rows.push(fromResult(s)); });
-    } else {
-        // Settlements are a second source; the register still stands without it.
-        console.warn('[Ledger] settlement feed unavailable:', res.reason);
-    }
+    // A cheap fingerprint of the register, so a refresh that changed nothing
+    // does not rebuild the table under the reader's cursor.
+    const signature = (rows) => rows.map((r) => r.id + ':' + r.outcome + ':' + r.stake).sort().join('|');
 
-    state.rows = rows;
-    state.status = anyOk ? 'ready' : 'error';
-
-    // The chip says whether the register is actually reading, not "Synced"
-    // regardless of what happened.
     const sync = $('lgx-sync');
-    if (sync && !anyOk) {
-        sync.className = 'lgx-synced stale';
+    const setSync = (ok) => {
+        if (!sync) return;
+        sync.className = 'lgx-synced' + (ok ? '' : ' stale');
         sync.innerHTML = '';
         sync.appendChild(el('span', 'lgx-dot'));
-        sync.appendChild(document.createTextNode(' Unreachable'));
-    }
+        sync.appendChild(document.createTextNode(ok ? ' Live' : ' Unreachable'));
+    };
+
+    skeleton();
+    const first = await load();
+    state.rows = first.rows;
+    state.status = first.anyOk ? 'ready' : 'error';
+    setSync(first.anyOk);
+    let sig = signature(state.rows);
 
     paintStats();
     paint();
+
+    /* ── keeping it alive ──
+       Two different clocks, because they are two different jobs.
+
+       Every 20s the timestamps are re-rendered in place so "47h ago" keeps
+       counting without touching the DOM structure — the register ages by
+       itself even when nothing new has been written.
+
+       Every 45s the feeds are re-read. The table is only rebuilt when the
+       fingerprint actually changes, so a poll that finds nothing new does not
+       yank the rows out from under a reader mid-scroll, and the page and
+       filters they had chosen survive the refresh. Both pause while the tab
+       is hidden. */
+    if (window._lgxTick) { clearInterval(window._lgxTick); window._lgxTick = null; }
+    if (window._lgxPoll) { clearInterval(window._lgxPoll); window._lgxPoll = null; }
+
+    const alive = () => !!document.getElementById('lgx-rows');
+
+    window._lgxTick = setInterval(() => {
+        if (document.hidden) return;
+        if (!alive()) { clearInterval(window._lgxTick); window._lgxTick = null; return; }
+        const list = visible();
+        const start = (state.page - 1) * PER_PAGE;
+        const page = list.slice(start, start + PER_PAGE);
+        rowsEl.querySelectorAll('.lgx-time').forEach((node, i) => {
+            if (page[i]) node.textContent = ago(page[i].at);
+        });
+    }, 20000);
+
+    window._lgxPoll = setInterval(async () => {
+        if (document.hidden) return;
+        if (!alive()) { clearInterval(window._lgxPoll); window._lgxPoll = null; return; }
+        try {
+            const next = await load();
+            if (!next.anyOk) { setSync(false); return; }
+            setSync(true);
+            const nextSig = signature(next.rows);
+            if (nextSig === sig) return;
+            sig = nextSig;
+            state.rows = next.rows;
+            state.status = 'ready';
+            paintStats();
+            paint();
+        } catch (e) {
+            // A failed refresh leaves the last good register on screen.
+            console.warn('[Ledger] refresh failed:', e && e.message);
+        }
+    }, 45000);
 }

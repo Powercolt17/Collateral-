@@ -638,6 +638,17 @@ export async function getPublicLedger() {
     return getPublic('/v1/ledger');
 }
 
+/**
+ * Solo contracts for the public register, settled or not.
+ *
+ * /v1/results filters to settled outcomes, which means a contract someone
+ * just created appears nowhere public. An append-only ledger has to carry
+ * the commitment, not only the conclusion.
+ */
+export async function getLedgerContracts() {
+    return getPublic('/v1/ledger/contracts');
+}
+
 export async function getPublicResults() {
     return getPublic('/v1/results');
 }
@@ -881,6 +892,7 @@ export default {
     getLedgerEvents,
     getPublicLedger,
     getPublicResults,
+    getLedgerContracts,
 
     // Payouts (Stripe Connect Express)
     startPayoutOnboard,
