@@ -3796,11 +3796,15 @@ export function initActiveContracts() {
                 const go = row.querySelector('.ss-go');
                 if (go) go.textContent = 'Selected ✓';
             }
-            // Any row that lost the selection goes back to stating its own state.
+            /* Any row that lost the selection goes back to stating its own
+               state — which is "✓ Connected", the same words applyCardState()
+               uses. This still said "Ready ✓", the label from before the bank
+               gate moved off the rows, so deselecting a row left one row on the
+               step wearing wording no other row could show. */
             ssRoot.querySelectorAll('.ss-metric.ready').forEach((r) => {
                 if (r === row) return;
                 const go = r.querySelector('.ss-go');
-                if (go) go.textContent = 'Ready ✓';
+                if (go) go.textContent = '✓ Connected';
             });
             renderFoot();
         }
@@ -4447,22 +4451,36 @@ export function initActiveContracts() {
             wizFoot.innerHTML = '';
 
             if (wiz.step === 1) {
-                /* THE BANK GATE LIVES HERE, AND NOWHERE ELSE ON THIS STEP.
-                   Every metric needs the bank: it sets the underwriting
-                   baseline and it is the settlement rail, so a contract cannot
-                   be priced without one whichever source measures it. That used
-                   to be stamped on each platform row, where it made a connected
-                   Stripe look broken. It blocks exactly one thing — leaving
-                   step 1 — so it is stated on exactly that control, with the
-                   reason next to it rather than a button that is merely dead. */
+                /* THE GATE IS THE CHOSEN METRIC'S OWN SOURCE, AND NOTHING ELSE.
+                   This required a bank for every metric, on the stated grounds
+                   that the bank sets the underwriting baseline whichever source
+                   measures the goal. The server does not agree, and the server
+                   is what executes: terms-preview and POST /v1/contracts read
+                   Plaid deposits only when platform === 'PLAID'. Stripe,
+                   Shopify and YouTube contracts are priced from the fixed tier
+                   policy — PAYOUT_MULTIPLIERS / GROWTH_TARGETS — and never
+                   touch a bank. So a selected, connected Stripe was held behind
+                   a precondition the write path would not have asked for.
+
+                   For 'money' the bank IS the source, so the same rule still
+                   blocks it until Plaid is attached. One rule, and it matches
+                   what POST /v1/contracts will accept. */
                 const root = document.getElementById('ss-root');
-                const bankOk = !!root && root.getAttribute('data-bank') === 'connected';
+                const row = wiz.metric && root
+                    ? root.querySelector('.ss-metric[data-metric="' + wiz.metric + '"]')
+                    : null;
+                const sourceOk = !!row && row.classList.contains('ready');
                 let why = 'Read-only · revocable anytime';
                 if (!wiz.metric) why = 'Choose what you are measuring';
-                else if (!bankOk) why = 'Connect your bank to continue — it settles every contract';
+                else if (!sourceOk) {
+                    const via = (WIZ_METRICS[wiz.metric] || {}).connectVia || 'the source';
+                    why = wiz.metric === 'money'
+                        ? 'Connect your bank to continue — it reads the record this is priced from'
+                        : 'Connect ' + via.charAt(0).toUpperCase() + via.slice(1) + ' to continue';
+                }
                 wizFoot.appendChild(footNote(why));
                 wizFoot.appendChild(footBtn('Continue → Set terms',
-                    () => goStep(2), !wiz.metric || !bankOk));
+                    () => goStep(2), !wiz.metric || !sourceOk));
                 return;
             }
             if (wiz.step === 2) {
