@@ -50,8 +50,34 @@ function escapeHtml(value) {
         .replace(/"/g, '&quot;');
 }
 
-const usd2 = (n) =>
-    '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+/* WHOLE DOLLARS UNLESS THE RECORD HAS CENTS, and a dash when there is no
+   number at all.
+
+   This was Number(n).toLocaleString(...) with two forced decimals. Handed a
+   field the API does not publish it returned the string "$NaN", which is what
+   three receipt cards printed under CAPITAL STAKED on the landing page, beside
+   a "−$NaN" stub. A formatter that turns missing data into a number-shaped
+   string is how a blank becomes a published figure — so this one refuses:
+   nothing in, dash out. */
+const usd2 = (n) => {
+    if (n === null || n === undefined || n === '') return '—';
+    const v = Number(n);
+    if (!Number.isFinite(v)) return '—';
+    return '$' + v.toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: Number.isInteger(v) ? 0 : 2,
+    });
+};
+
+/* The API sends an ISO timestamp; the sheet prints "14 Mar 2026". The worked
+   examples below are already written that way, so anything unparseable passes
+   through as-is rather than becoming "Invalid Date". */
+const settledDate = (value) => {
+    if (!value) return '';
+    const d = new Date(value);
+    if (!Number.isFinite(d.getTime())) return String(value);
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+};
 
 const usdShort = (n) => {
     const v = Number(n) || 0;
@@ -77,31 +103,50 @@ const EXAMPLES = [
     { ref: 'C-780B', party: '@marcusk', goal: '25,000 followers in 30 days', oracle: 'X', staked: 1500, amount: 1500, outcome: 'lost', settledOn: '02 Mar 2026' },
 ];
 
+/* A LINE THE RECORD CANNOT FILL DOES NOT RENDER.
+   Every field here was interpolated unconditionally, so a payload missing them
+   printed "§ undefined", "undefined · via undefined API" and "undefined
+   oracle" across three cards. A receipt is the one artefact on this site that
+   is supposed to be checkable; a row of undefineds on it reads as a system
+   that does not know its own record. Absent field, no line. */
+const line = (k, v) => (v === '' || v === null || v === undefined || v === '—'
+    ? ''
+    : `<div class="rec-line"><span class="rec-k">${k}</span><span class="rec-fill"></span><span class="rec-v">${escapeHtml(v)}</span></div>`);
+
 function renderReceipt(r, example) {
+    /* OUTCOME IS READ, NOT ASSUMED. This was `r.outcome === 'won'`, so a record
+       that carried no outcome at all fell to false and was stamped DENIED with
+       a negative amount beside it. The rows behind those three cards came from
+       a query filtered to SETTLED_SUCCESS — every one of them a win, published
+       as a loss. Unknown is now its own state and stamps nothing. */
+    const known = r.outcome === 'won' || r.outcome === 'lost';
     const won = r.outcome === 'won';
-    const cls = won ? 'rec-win' : 'rec-loss';
-    const sign = won ? '+' : '−';
-    const amount = sign + usd2(Math.abs(r.amount));
+    const cls = !known ? 'rec-unk' : (won ? 'rec-win' : 'rec-loss');
+    const money = usd2(r.amount);
+    const amount = money === '—' ? '—' : (won ? '+' : '−') + usd2(Math.abs(Number(r.amount)));
+    const settled = settledDate(r.settledOn);
     return `
                     <article class="rec-card${example ? ' rec-eg' : ''}">
                         <div class="rec-top">
                             <div class="rec-head">
                                 <span class="rec-l">${example ? 'Example Receipt' : 'Settlement Receipt'}</span>
-                                <span class="rec-id"><b>&sect;</b> ${escapeHtml(r.ref)}</span>
+                                ${r.ref ? `<span class="rec-id"><b>&sect;</b> ${escapeHtml(r.ref)}</span>` : ''}
                             </div>
-                            <div class="rec-title">${escapeHtml(r.goal)}</div>
-                            <div class="rec-sub">${escapeHtml(r.party)} &middot; via ${escapeHtml(r.oracle)} API</div>
-                            <div class="rec-line"><span class="rec-k">Capital Staked</span><span class="rec-fill"></span><span class="rec-v">${escapeHtml(usd2(r.staked))}</span></div>
-                            <div class="rec-line"><span class="rec-k">Verified By</span><span class="rec-fill"></span><span class="rec-v">${escapeHtml(r.oracle)} oracle</span></div>
-                            <div class="rec-line"><span class="rec-k">Settled On</span><span class="rec-fill"></span><span class="rec-v">${escapeHtml(r.settledOn)}</span></div>
+                            <div class="rec-title">${escapeHtml(r.goal || 'Performance Contract')}</div>
+                            ${r.party && r.oracle
+                                ? `<div class="rec-sub">${escapeHtml(r.party)} &middot; via ${escapeHtml(r.oracle)} API</div>`
+                                : (r.party ? `<div class="rec-sub">${escapeHtml(r.party)}</div>` : '')}
+                            ${line('Capital Staked', usd2(r.staked))}
+                            ${line('Verified By', r.oracle ? r.oracle + ' oracle' : '')}
+                            ${line('Settled On', settled)}
                         </div>
                         <div class="rec-tear" aria-hidden="true"></div>
                         <div class="rec-stub ${cls}">
                             <div>
                                 <div class="rec-amt">${escapeHtml(amount)}</div>
-                                <div class="rec-amt-sub">${won ? 'Stake + payout returned' : 'Forfeited to match pool'}</div>
+                                ${known ? `<div class="rec-amt-sub">${won ? 'Stake + payout returned' : 'Forfeited to match pool'}</div>` : ''}
                             </div>
-                            <span class="rec-stamp ${cls}">${won ? 'Approved' : 'Denied'}</span>
+                            ${known ? `<span class="rec-stamp ${cls}">${won ? 'Approved' : 'Denied'}</span>` : ''}
                         </div>
                     </article>`;
 }
@@ -179,6 +224,10 @@ export function renderRecordSection() {
           font-variant-numeric:tabular-nums lining-nums}
         .rec-stub.rec-win .rec-amt{color:var(--rec-win)}
         .rec-stub.rec-loss .rec-amt{color:var(--rec-ox)}
+        /* A settlement whose outcome the record does not state. Neutral stock,
+           ink figure, no stamp — it must not read as either result. */
+        .rec-stub.rec-unk{background:transparent}
+        .rec-stub.rec-unk .rec-amt{color:var(--rec-ink,#211B12)}
         .rec-amt-sub{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
           color:var(--rec-muted);margin-top:8px}
         .rec-stamp{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;

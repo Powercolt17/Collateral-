@@ -1488,7 +1488,11 @@ export function renderActiveContracts() {
                 grid-template-columns: 1.9fr .74fr .74fr .74fr .74fr 1.32fr;
                 align-items: center; gap: 0; padding: 0;
             }
-            .mb-mx-h { border-bottom: 1px solid var(--mb-line); }
+            /* The header reserves the ✓ CONNECTED chip's line whether or not the
+               chip is showing. Without this the whole table jumps down by ~14px
+               the moment the bank connects, and the header cell stops matching
+               the height of the body cells beneath it. */
+            .mb-mx-h { border-bottom: 1px solid var(--mb-line); min-height: 58px; }
             .mb-mx-h span {
                 font-family: var(--mono, var(--font-data));
                 font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
@@ -1502,7 +1506,23 @@ export function renderActiveContracts() {
                #ss-root already carries data-bank, set by loadSourceState(). */
             .mb-mx-h .conn { display: none; color: var(--mb-win); font-size: 8.5px; margin-top: 4px; letter-spacing: .12em; }
             #ss-root[data-bank="connected"] .mb-mx-h .conn { display: block; }
-            .mb-mx-r { border-bottom: 1px solid var(--mb-line-soft); }
+            /* EVERY ROW THE SAME HEIGHT.
+               Row height was set by whatever the metric column happened to
+               contain, and that column carries an optional third line —
+               .ss-m-state, the live "4 of 6 months" readout, which is
+               :empty-collapsed until the JS has something to write there. So
+               rows with a state line stood ~17px taller than rows without one.
+               Nowhere is that more visible than the tinted Bank column, where
+               the tint is painted per cell and the row rules cut it into a
+               stack of boxes: unequal rows make a column of unequal boxes, and
+               the dots inside them stop sharing a rhythm down the page.
+
+               86px is the tall case measured out — 30px of cell padding, a
+               21px metric name at 20px/1.05, and two 9.5px descriptor lines at
+               17.4px each including their 6px lead. Rows shorter than that are
+               padded up to it and their contents centre; the grid already
+               carries align-items:center. */
+            .mb-mx-r { border-bottom: 1px solid var(--mb-line-soft); min-height: 86px; }
             .mb-mx-r:last-child { border-bottom: 0; }
             /* .ss-metric (the shared hook these rows still answer to) paints card
                stock and a left rule for the old two-up tiles. In the table the

@@ -1,35 +1,32 @@
 /**
  * Collateral — "Every contract settles in public".
  *
- * Built to the supplied register design: operator, goal, verifying oracle,
- * stake, live progress and status, under a four-figure summary bar.
+ * The register on the landing page: operator, goal, verifying oracle, stake,
+ * term progress and status, under a four-figure summary bar.
  *
- * ── THE ROW DATA IS A DEMO SET ───────────────────────────────────────────────
- * ROWS and SUMMARY below are the design's own figures, shipped as specified.
- * They are NOT the register. /v1/market/homepage-stats currently reports
- * capitalLocked 2000, contractsSettled 0, totalPaidOut 0 and recentSettlements
- * [], and /v1/market/contracts carries no operator and no progress field at
- * all — the only stats object on a contract is {executions1h:0,
- * executions24h:0, capital24hCents:0, lastExecutionAt:null}.
+ * ── THE ROWS ARE LIVE ────────────────────────────────────────────────────────
+ * They were not. This file shipped a DEMO array of six invented operators
+ * (Jordan R., Samantha C., Alex M. …) with invented stakes, and a SUMMARY of
+ * four invented figures ($8.7M / 49 / 54 / 71%), on the landing page of a
+ * product whose claim is that its record is public and cannot be edited.
  *
- * Two columns therefore cannot come from the API as it stands:
+ * Rows now come from /v1/rivalries, the same public feed the /ledger route
+ * reads. The summary comes from /v1/rivalries/stats. renderLedgerSection()
+ * paints the frame with the figures struck out; initLedgerSection() fetches
+ * and fills it. Nothing renders a number the API did not return.
  *
- *   OPERATOR   needs an owner on the contract. lgFromMarket had to set party
- *              to the literal 'OPEN' because the market endpoint returns none.
- *   PROGRESS   needs current-vs-target. contractMetricCurrent holds exactly
- *              that (progressPct, computed in src/services/oracle.ts) but no
- *              public endpoint exposes it. capacityRemaining is the nearest
- *              published field and is NOT the same thing — it is how many
- *              slots are unsold, and its total is not published either, so a
- *              percentage from it would be wrong.
+ * ── PROGRESS IS TERM PROGRESS, AND SAYS SO ───────────────────────────────────
+ * The metric's CURRENT value is still not published anywhere public.
+ * contract_metric_current holds it (progressPct, computed in
+ * services/oracle.ts) but no route exposes it, so a "+9.4% against a +15%
+ * target" readout on this page would be a number with no source behind it —
+ * which is exactly what the demo rows were.
  *
- * SWITCHING TO LIVE IS ONE FUNCTION. Everything renders through fromApi()
- * below, which is the single seam: point it at an endpoint returning the same
- * shape and delete DEMO. Nothing else in this file knows where rows come from.
- * The shape a row needs is documented on the ROW_SHAPE comment.
- *
- * The backend work that unblocks it: expose principalIdentityUsername on the
- * market listing, and publish progressPct from contract_metric_current.
+ * What IS published is the contract's term: activatedAt, durationDays. So the
+ * bar measures how far through its window a contract is, and every label on it
+ * says term — "Day 4 of 14", "29% of term". That is a true statement about a
+ * real column. When metric progress is published, swap termOf() and relabel;
+ * the column shape does not change.
  *
  * ── SCOPING ──────────────────────────────────────────────────────────────────
  * Every selector sits under .lg and the keyframes are prefixed lg-. The sheet
@@ -37,73 +34,134 @@
  * document with the hero, the header and the market views, so pasted as
  * authored it would restyle all of them. h2 not h1: the hero owns the page's.
  *
- * ── THE TICKER ───────────────────────────────────────────────────────────────
- * The design advances one row every 2.6s so the register reads as a live feed.
- * That is a presentation device on demo data, not an oracle read — the real
- * poll cadence is 1h for X and YouTube and 6h for Stripe and Shopify, per
- * DEFAULT_CADENCE_MS. It stops entirely under prefers-reduced-motion.
+ * ── NO TICKER ────────────────────────────────────────────────────────────────
+ * The design advanced one row every 2.6s so the register read as a live feed.
+ * On demo data that was a presentation device; against the API it would be a
+ * random walk drawn over real contracts, which is the thing DuelSection
+ * refused to ship. The rows refresh on the poll below and not otherwise.
  */
 
-const TICK_MS = 2600;
+import api from '../api.js';
+
+/* How often the register refetches. The oracle cadence behind it is 1h for X
+   and YouTube and 6h for Stripe and Shopify (DEFAULT_CADENCE_MS), so this is
+   already far tighter than anything it can observe; it exists to pick up new
+   contracts, not to animate. */
+const POLL_MS = 60000;
 
 /* HOW MANY ROWS THE REGISTER SHOWS AT ONCE.
    Six rows at 96px was 605px of table under a 178px head — the section ran
-   1.22 screens on a 1855px display and was reported as taking too much room.
-   Five is the same register, one row shorter; the ticker still moves through
-   the whole set, so nothing is hidden, only less is shown at rest. */
+   1.22 screens on a 1855px display and was reported as taking too much room. */
 const VISIBLE_ROWS = 5;
 
-/* ROW_SHAPE — what fromApi() must return per row:
+/* ROW_SHAPE — what fromApi() returns per row:
      n        register number, string
      op       { name, role, initials }
      goal     { title, sub }
      oracle   { key: stripe|shopify|youtube|x|plaid|github, name }
-     stake    { value, unit }
-     prog     { type: pct|ratio|count|features, cur, target }
+     stake    { value, rail }              rail is USD or CLTR
+     prog     { day, days }                term elapsed, both from the record
      status   { state: live|verifying|settling, note } */
-const DEMO = [
-    { n: '044', op: { name: 'Jordan R.', role: 'Founder', initials: 'JR' },
-      goal: { title: 'Increase Monthly Stripe Revenue', sub: 'Target +15%' },
-      oracle: { key: 'stripe', name: 'Stripe' }, stake: { value: '$100', unit: 'USDC' },
-      prog: { type: 'pct', cur: 8.4, target: 15 },
-      status: { state: 'live', note: '9 Days Left' } },
-    { n: '043', op: { name: 'Samantha C.', role: 'E-Commerce', initials: 'SC' },
-      goal: { title: 'Increase Shopify GMV', sub: 'Target +25%' },
-      oracle: { key: 'shopify', name: 'Shopify' }, stake: { value: '$500', unit: 'USDC' },
-      prog: { type: 'pct', cur: 17.2, target: 25 },
-      status: { state: 'live', note: '12 Days Left' } },
-    { n: '042', op: { name: 'Alex M.', role: 'Agency Owner', initials: 'AC' },
-      goal: { title: 'Close 18 New Clients', sub: 'Target 18 clients' },
-      oracle: { key: 'plaid', name: 'Plaid' }, stake: { value: '$250', unit: 'USDC' },
-      prog: { type: 'ratio', cur: 12, target: 18 },
-      status: { state: 'live', note: '6 Days Left' } },
-    { n: '041', op: { name: 'Katherine L.', role: 'SaaS Founder', initials: 'KL' },
-      goal: { title: 'Launch SaaS v2', sub: 'Target product live' },
-      oracle: { key: 'github', name: 'GitHub' }, stake: { value: '$300', unit: 'USDC' },
-      prog: { type: 'features', cur: 80, target: 100 },
-      status: { state: 'verifying', note: 'Oracle Update' } },
-    { n: '040', op: { name: 'William T.', role: 'Content Creator', initials: 'WT' },
-      goal: { title: 'Reach 10,000 YouTube Subscribers', sub: 'Target 10,000 subscribers' },
-      oracle: { key: 'youtube', name: 'YouTube' }, stake: { value: '$150', unit: 'USDC' },
-      prog: { type: 'count', cur: 7240, target: 10000 },
-      status: { state: 'live', note: '14 Days Left' } },
-    { n: '039', op: { name: 'Daniel W.', role: 'DTC Brand', initials: 'DW' },
-      goal: { title: 'Reduce Customer Churn', sub: 'Target −20%' },
-      oracle: { key: 'stripe', name: 'Stripe' }, stake: { value: '$200', unit: 'USDC' },
-      prog: { type: 'pct', cur: -11.3, target: -20 },
-      status: { state: 'settling', note: 'In Progress' } },
-];
 
-const SUMMARY = [
-    { v: '$8.7M', l: 'Capital Locked', i: '<path d="M3 21h18M4 21V10M20 21V10M4 10l8-6 8 6M9 21v-7M15 21v-7"/>' },
-    { v: '49', l: 'Live Contracts', i: '<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M3 20c0-3 2.5-5 5-5s5 2 5 5M13 20c.3-2.5 2.2-4.2 4.5-4.2S21.7 17.5 22 20"/>' },
-    { v: '54', l: 'Settling Today', i: '<circle cx="12" cy="13" r="8"/><path d="M12 13V8M12 13l4 2M12 2h0"/>' },
-    { v: '71%', l: 'Average Completion', i: '<path d="M3 17l5-5 4 4 8-8M15 8h5v5"/>' },
-];
+const ORACLE_NAME = {
+    STRIPE: 'Stripe', SHOPIFY: 'Shopify', YOUTUBE: 'YouTube',
+    X: 'X', TWITTER: 'X', PLAID: 'Plaid', GITHUB: 'GitHub',
+};
 
-/** THE SEAM. Replace this body with a fetch returning ROW_SHAPE and the whole
- *  section goes live without another edit. */
-function fromApi() { return DEMO; }
+/* WHOLE DOLLARS, WITH SEPARATORS. Stakes are stored in cents and are whole
+   dollars in practice; printing "$500.00" on a register invites the eye to
+   look for cents that never vary. Cents appear only if the record has them. */
+const money = (cents) => {
+    const n = (Number(cents) || 0) / 100;
+    return '$' + n.toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: Number.isInteger(n) ? 0 : 2,
+    });
+};
+
+const titleCase = (s) => String(s || '')
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+
+const initialsOf = (handle) => {
+    const h = String(handle || '').replace(/^@/, '');
+    if (!h) return '—';
+    const parts = h.split(/[._-]+/).filter(Boolean);
+    if (parts.length > 1) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return h.slice(0, 2).toUpperCase();
+};
+
+/* Day N of M, from activatedAt + durationDays. Not activated yet -> day 0, and
+   the caller prints the term rather than a position inside it. */
+function termOf(r) {
+    const days = Number(r.durationDays) || 0;
+    if (!days) return null;
+    if (!r.activatedAt) return { day: 0, days: days };
+    const started = new Date(r.activatedAt).getTime();
+    if (!Number.isFinite(started)) return { day: 0, days: days };
+    const elapsed = (Date.now() - started) / 86400000;
+    return { day: Math.min(days, Math.max(0, Math.round(elapsed * 10) / 10)), days: days };
+}
+
+const STATE_MAP = {
+    ACTIVE: 'live', BOTH_FUNDED: 'live', VERIFYING: 'verifying',
+    SETTLING: 'settling', SETTLED: 'settling', DRAW: 'settling',
+    CHALLENGE_ISSUED: 'settling',
+};
+
+function fromRivalry(r, i) {
+    const state = STATE_MAP[String(r.state || '').toUpperCase()] || 'live';
+    const term = termOf(r);
+    const growth = r.targetGrowthPct != null
+        ? (Number(r.targetGrowthPct) < 0 ? '−' : '+') + Math.abs(parseFloat(r.targetGrowthPct)) + '%'
+        : null;
+    const plat = String(r.platform || '').toUpperCase();
+    const key = plat === 'TWITTER' ? 'x' : plat.toLowerCase();
+    const challenger = r.challengerUsername ? '@' + r.challengerUsername : 'Operator';
+    let note = 'Awaiting Opponent';
+    if (state === 'live' && term) note = Math.max(0, Math.ceil(term.days - term.day)) + ' Days Left';
+    else if (state === 'verifying') note = 'Oracle Update';
+    else if (r.state === 'SETTLED' || r.state === 'DRAW') note = 'Settled';
+    return {
+        n: String(i + 1).padStart(3, '0'),
+        id: r.id,
+        op: {
+            name: challenger,
+            role: r.opponentUsername ? 'vs @' + r.opponentUsername : 'Open Seat',
+            initials: initialsOf(challenger),
+        },
+        goal: {
+            title: titleCase(r.metricType) + (growth ? ' ' + growth : ''),
+            sub: growth ? 'Target ' + growth : 'Head to head',
+        },
+        oracle: { key: key, name: ORACLE_NAME[plat] || titleCase(r.platform) },
+        stake: {
+            value: money(r.stakePerSideCents),
+            rail: String(r.settlementRail || 'USD').toUpperCase() === 'CLTR' ? 'CLTR' : 'USD',
+        },
+        prog: term,
+        status: { state: state, note: note },
+    };
+}
+
+/** THE SEAM. Everything renders through this; it is the only thing in the file
+ *  that knows where rows come from. */
+async function fromApi() {
+    const res = await api.getRivalries({ limit: 40 });
+    const list = (res && res.rivalries) || [];
+    return list.map(fromRivalry);
+}
+
+/* The summary bar. Four figures, each one a field on /v1/rivalries/stats —
+   there is no source for "settling today" or "average completion", so those
+   two tiles carry figures that exist rather than figures that read well. */
+const SUMMARY_KEYS = [
+    { l: 'Capital Locked', f: (s) => money(s.totalCapitalLockedCents) },
+    { l: 'Live Contracts', f: (s) => String(s.activeRivalries != null ? s.activeRivalries : 0) },
+    { l: 'Settled', f: (s) => String(s.settledRivalries != null ? s.settledRivalries : 0) },
+    { l: 'Largest Pool', f: (s) => money(s.largestPoolCents) },
+];
 
 const MARKS = {
     stripe: '<svg viewBox="0 0 24 24"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"/></svg>',
@@ -124,10 +182,22 @@ function escapeHtml(value) {
         .replace(/"/g, '&quot;');
 }
 
+/* TWO READOUTS, NOT THREE. The cell carried the position, the target on its
+   own uppercase line, the bar, and the ratio under it — four stacked figures
+   in a 197px column, and the target appeared a second time in the Goal cell
+   directly to its left. The target now sits inline with the position it
+   qualifies, and the ratio is the bar's caption rather than a line of its
+   own. */
 function renderRow(r) {
     const p = r.prog;
+    const pct = p && p.days ? Math.min(100, (p.day / p.days) * 100) : 0;
+    const pos = p
+        ? (p.day > 0 ? 'Day ' + (Number.isInteger(p.day) ? p.day : p.day.toFixed(1)) : 'Not started')
+        : '—';
+    const term = p ? p.days + '-day term' : '';
+    const cap = p && p.day > 0 ? Math.round(pct) + '% of term' : (p ? 'Awaiting activation' : '');
     return `
-                    <div class="lg-row" data-type="${escapeHtml(p.type)}" data-cur="${escapeHtml(p.cur)}" data-target="${escapeHtml(p.target)}" data-live="${r.status.state === 'live' ? '1' : '0'}">
+                    <div class="lg-row" data-id="${escapeHtml(r.id || '')}">
                         <div class="lg-n">${escapeHtml(r.n)}</div>
                         <div class="lg-op">
                             <span class="lg-ava">${escapeHtml(r.op.initials)}</span>
@@ -138,12 +208,14 @@ function renderRow(r) {
                             <span class="lg-badge lg-b-${escapeHtml(r.oracle.key)}" aria-hidden="true">${MARKS[r.oracle.key] || ''}</span>
                             <span><span class="lg-brand">${escapeHtml(r.oracle.name)}</span><span class="lg-vtag">${SHIELD}Verified</span></span>
                         </div>
-                        <div class="lg-stake"><span class="lg-st-v">${escapeHtml(r.stake.value)}</span><span class="lg-st-u">${escapeHtml(r.stake.unit)}</span></div>
+                        <div class="lg-stake">
+                            <span class="lg-st-v">${escapeHtml(r.stake.value)}</span>
+                            <span class="lg-rail${r.stake.rail === 'CLTR' ? ' cltr' : ''}">${escapeHtml(r.stake.rail)}</span>
+                        </div>
                         <div class="lg-prog">
-                            <span class="lg-pv">&mdash;</span>
-                            <span class="lg-pt">${escapeHtml(r.goal.sub)}</span>
-                            <span class="lg-pbar"><span class="lg-pfill"></span></span>
-                            <span class="lg-pot">&mdash;</span>
+                            <span class="lg-pv">${escapeHtml(pos)}<span class="lg-pt">${term ? ' · ' + escapeHtml(term) : ''}</span></span>
+                            <span class="lg-pbar"><span class="lg-pfill" style="width:${pct}%"></span></span>
+                            <span class="lg-pcap">${escapeHtml(cap)}</span>
                         </div>
                         <div class="lg-status lg-s-${escapeHtml(r.status.state)}">
                             <span class="lg-s-top"><span class="lg-sdot"></span><span class="lg-s1">${escapeHtml(r.status.state)}</span></span>
@@ -158,13 +230,24 @@ export function renderLedgerSection(options = {}) {
        the landing page with it — the kind of loss that leaves the route
        reachable but undiscoverable. */
     const { onSeeFullLedger } = options;
-    const rows = fromApi().slice(0, VISIBLE_ROWS).map(renderRow).join('');
-    const stats = SUMMARY.map((s) => `
+
+    /* The frame paints empty and initLedgerSection() fills it. Rows are a
+       skeleton rather than placeholder contracts — a fake row that is later
+       replaced is still a fake row while it is on screen.
+
+       THE STAT ICONS ARE GONE. Each tile carried a 22px stroked line-icon — a
+       little house, two heads, a clock, a rising arrow — under the figure.
+       They are the one stroked-vector idiom on a page whose entire vocabulary
+       is rules, small-caps and engraved marks, and they read as the dashboard
+       template the rest of the design is at pains not to be. The figure and
+       its label carry the tile; nothing was communicated by the pictogram that
+       the label did not already say. */
+    const stats = SUMMARY_KEYS.map((s, i) => `
                         <div class="lg-stat">
-                            <div class="lg-sv">${escapeHtml(s.v)}</div>
+                            <div class="lg-sv" data-stat="${i}">&mdash;</div>
                             <div class="lg-sl">${escapeHtml(s.l)}</div>
-                            <svg class="lg-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">${s.i}</svg>
                         </div>`).join('');
+    const rows = `<div class="lg-loading">Reading the register&hellip;</div>`;
 
     return `
         <style>
@@ -185,9 +268,17 @@ export function renderLedgerSection(options = {}) {
 
         .lg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:51px;margin-bottom:17px}
         .lg-head-l{min-width:0}
-        .lg h2{font-family:var(--lg-display);font-weight:600;color:var(--lg-ox);
-          font-size:clamp(28.9px,2.9vw,41px);line-height:1;text-transform:uppercase;
-          font-variant:small-caps;letter-spacing:.01em;margin-bottom:11px}
+        /* ONE HOUSE VOICE FOR HEADINGS. This was set entirely in wine, in
+           uppercase small-caps, with no full stop — three departures at once
+           from the hero and the structures section, which set sentence case in
+           ink with a single wine word and a period. A section heading that
+           shouts while its neighbours speak reads as a different site.
+           DM Serif Display ships one weight; 600 here would have been
+           synthesised. */
+        .lg h2{font-family:var(--lg-display);font-weight:400;color:var(--lg-ink);
+          font-size:clamp(28.9px,2.9vw,41px);line-height:1.06;
+          letter-spacing:.01em;margin-bottom:11px}
+        .lg h2 .ox{color:var(--lg-ox)}
         .lg-lede{font-size:14px;line-height:1.6;color:var(--lg-ink-soft);max-width:527px}
 
         .lg-sum{padding-top:5.1px}
@@ -198,7 +289,7 @@ export function renderLedgerSection(options = {}) {
           color:var(--lg-ink);line-height:1;font-variant-numeric:tabular-nums lining-nums}
         .lg-sl{font-family:var(--lg-mono);font-size:9px;letter-spacing:.16em;
           text-transform:uppercase;color:var(--lg-muted);margin:6.8px 0 10.2px}
-        .lg-ic{width:22.1px;height:22.1px;color:var(--lg-muted);opacity:.8;margin:0 auto;display:block}
+
         .lg-mkt{margin-top:17px;padding-top:11.9px;border-top:1px solid var(--lg-line);
           text-align:right;font-family:var(--lg-mono);font-size:10px;letter-spacing:.22em;
           text-transform:uppercase;color:var(--lg-muted)}
@@ -219,7 +310,6 @@ export function renderLedgerSection(options = {}) {
         .lg-row{padding:12px 0;border-bottom:1px solid var(--lg-line-soft);position:relative}
         .lg-row::after{content:"";position:absolute;inset:0;background:rgba(124,29,43,.05);
           opacity:0;pointer-events:none}
-        .lg-row.lg-flash::after{animation:lg-flash 1.1s ease-out}
 
         .lg-n{font-family:var(--lg-mono);font-size:10.2px;color:var(--lg-muted)}
         .lg-op{display:flex;align-items:center;gap:11.9px;min-width:0}
@@ -253,21 +343,31 @@ export function renderLedgerSection(options = {}) {
         .lg-shield{width:9.4px;height:9.4px;flex:none;color:var(--lg-win)}
 
         .lg-st-v{display:block;font-family:var(--lg-mono);font-size:13.6px;color:var(--lg-ink)}
-        .lg-st-u{display:block;font-family:var(--lg-mono);font-size:9px;
-          letter-spacing:.14em;color:var(--lg-muted);margin-top:3.4px}
+        /* THE RAIL, NOT "USDC". The unit under every stake read USDC — a
+           stablecoin this product does not settle in. Contracts settle in USD
+           or in CLTR, and the row now prints whichever the record carries, as
+           a bordered mark rather than loose text so it reads as a rail and not
+           as part of the figure. Same badge as the /ledger register. */
+        .lg-rail{display:inline-block;margin-top:4.6px;font-family:var(--lg-mono);
+          font-size:8.6px;letter-spacing:.12em;text-transform:uppercase;
+          border:1px solid var(--lg-line);padding:2.4px 5.4px;color:var(--lg-muted)}
+        .lg-rail.cltr{color:var(--lg-ox);border-color:rgba(124,29,43,.4)}
 
         .lg-prog{display:flex;flex-direction:column;min-width:0}
         .lg-pv{font-family:var(--lg-mono);font-size:15.3px;font-weight:500;color:var(--lg-ox);
           letter-spacing:.01em;transition:opacity .35s ease}
-        .lg-pv.lg-tick{animation:lg-tick .55s ease}
-        .lg-pt{font-family:var(--lg-mono);font-size:9.5px;letter-spacing:.14em;
-          text-transform:uppercase;color:var(--lg-muted);margin-top:4.2px}
+        /* Inline with the position it qualifies, not stacked under it. */
+        .lg-pt{font-family:var(--lg-mono);font-size:10.4px;letter-spacing:.04em;
+          color:var(--lg-muted);font-weight:400}
         .lg-pbar{position:relative;height:2px;background:var(--lg-track);
-          margin:6px 0 4px;border-radius:2px;overflow:hidden}
+          margin:7px 0 5px;border-radius:2px;overflow:hidden}
         .lg-pfill{position:absolute;left:0;top:0;height:100%;width:0;background:var(--lg-ox);
           opacity:.55;border-radius:2px;transition:width .9s cubic-bezier(.22,1,.36,1)}
-        .lg-pot{font-family:var(--lg-mono);font-size:9px;letter-spacing:.14em;
+        .lg-pcap{font-family:var(--lg-mono);font-size:9px;letter-spacing:.14em;
           text-transform:uppercase;color:var(--lg-faint)}
+
+        .lg-loading,.lg-none{padding:44px 12px;text-align:center;font-family:var(--lg-mono);
+          font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--lg-muted)}
 
         .lg-status{display:flex;flex-direction:column}
         .lg-s-top{display:flex;align-items:center;gap:6.8px}
@@ -285,8 +385,6 @@ export function renderLedgerSection(options = {}) {
 
         @keyframes lg-pulse{0%{box-shadow:0 0 0 0 rgba(124,29,43,.45)}
           70%{box-shadow:0 0 0 5.1px rgba(124,29,43,0)}100%{box-shadow:0 0 0 0 rgba(124,29,43,0)}}
-        @keyframes lg-tick{0%{opacity:.35;transform:translateY(-1px)}100%{opacity:1;transform:none}}
-        @keyframes lg-flash{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
 
         .lg-foot{display:flex;justify-content:space-between;align-items:center;gap:20.4px;
           margin-top:28.9px;padding-top:17px;border-top:1px solid var(--lg-line);
@@ -313,7 +411,7 @@ export function renderLedgerSection(options = {}) {
           .lg-stats{flex-wrap:wrap;gap:11.9px 0}
           .lg-stat{flex:1 1 40%;padding:0 10.2px;text-align:left}
           .lg-stat:first-child{padding-left:0}
-          .lg-ic{margin:0}
+
           .lg-mkt{text-align:left}
           /* The seven-column grid cannot hold at phone width. The row becomes two
              stacked bands: operator and goal, then the numbers. Verified-by and
@@ -339,7 +437,7 @@ export function renderLedgerSection(options = {}) {
             <div class="lg-wrap">
                 <div class="lg-head">
                     <div class="lg-head-l">
-                        <h2 id="lg-title">Every contract<br />settles in public</h2>
+                        <h2 id="lg-title">Every contract<br />settles in <span class="ox">public</span>.</h2>
                         <p class="lg-lede">Every contract follows the same rules. Performance is
                             verified by the connected data source, settlement happens automatically,
                             and the final result becomes part of a permanent public execution record.
@@ -356,7 +454,8 @@ export function renderLedgerSection(options = {}) {
                     <div class="lg-cols">
                         <span>&#8470;</span><span>Operator</span><span>Goal</span>
                         <span>Verified By</span><span>At Stake</span><span>Progress</span><span>Status</span>
-                    </div>${rows}
+                    </div>
+                    <div class="lg-body">${rows}</div>
                 </div>
 
                 <div class="lg-foot">
@@ -375,80 +474,100 @@ export function renderLedgerSection(options = {}) {
  * real cadence is 1h for X and YouTube and 6h for Stripe and Shopify. It never
  * runs under prefers-reduced-motion, and it never crosses the target: each type
  * clamps below 100% so a row cannot appear to have settled itself on screen.
+/* Fills the register from the API and keeps it current.
+ *
+ * WHAT THIS USED TO DO. It read each row's data-cur off the DOM and then, every
+ * 2.6s, advanced one of them by `Math.sin(idx * 12.9898) * 43758.5453 % 1` —
+ * a seeded random walk — flashing the row and pulsing the figure so the motion
+ * read as an oracle update arriving. On the demo rows that was a slideshow. The
+ * moment the rows became real contracts it would have been invented movement
+ * drawn over real money, which is the exact device DuelSection was written to
+ * refuse. It is gone; there is no client-side animation of any figure here.
+ *
+ * The register refetches on POLL_MS and repaints only when the data changed,
+ * so a contract appearing or settling shows up without the section flickering
+ * every minute.
  */
 export function initLedgerSection() {
     const section = document.querySelector('.lg');
     if (!section) return;
+    const body = section.querySelector('.lg-body');
+    if (!body) return;
 
+    const statEls = [...section.querySelectorAll('.lg-sv')];
+    let last = '';
+
+    const signature = (rows) => rows
+        .map((r) => [r.id, r.status.state, r.status.note, r.prog ? r.prog.day : ''].join(':'))
+        .join('|');
+
+    const paintRows = (rows) => {
+        if (!rows.length) {
+            body.innerHTML = '<div class="lg-none">No contracts on the register yet</div>';
+            return;
+        }
+        body.innerHTML = rows.slice(0, VISIBLE_ROWS).map(renderRow).join('');
+    };
+
+    const loadRows = async () => {
+        let rows;
+        try {
+            rows = await fromApi();
+        } catch (err) {
+            /* Say so rather than falling back to a set of rows that look real.
+               An empty register is a fact; a populated one that is wrong is
+               not recoverable once someone has read it. */
+            if (!last) body.innerHTML = '<div class="lg-none">Register unavailable</div>';
+            return;
+        }
+        const sig = signature(rows);
+        if (sig === last) return;
+        last = sig;
+        paintRows(rows);
+    };
+
+    const loadStats = async () => {
+        let s;
+        try {
+            const res = await api.getRivalryStats();
+            s = res && res.stats;
+        } catch (err) {
+            return;
+        }
+        if (!s) return;
+        SUMMARY_KEYS.forEach((k, i) => {
+            if (statEls[i]) statEls[i].textContent = k.f(s);
+        });
+    };
+
+    loadRows();
+    loadStats();
+
+    /* One clock, stopped while the tab is hidden — a landing page left open in
+       a background tab should not keep hitting the API all afternoon. */
+    if (window._lgPoll) clearInterval(window._lgPoll);
+    window._lgPoll = setInterval(() => {
+        if (document.hidden) return;
+        loadRows();
+        loadStats();
+    }, POLL_MS);
+
+    /* The verifying row's sub-label cycles through what the oracle is doing.
+       Left in: it describes a state the row is genuinely in, and it moves no
+       figure. */
     const reduce = window.matchMedia
         && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    const rows = [...section.querySelectorAll('.lg-row')].map((el) => ({
-        el,
-        type: el.dataset.type,
-        cur: Number(el.dataset.cur),
-        target: Number(el.dataset.target),
-        live: el.dataset.live === '1',
-        pv: el.querySelector('.lg-pv'),
-        pot: el.querySelector('.lg-pot'),
-        fill: el.querySelector('.lg-pfill'),
-    }));
-    if (!rows.length) return;
-
-    const pctOf = (r) => {
-        if (r.type === 'pct') return Math.abs(r.cur) / Math.abs(r.target) * 100;
-        if (r.type === 'features') return r.cur;
-        return r.cur / r.target * 100;
-    };
-    const fmt = (r) => {
-        if (r.type === 'pct') return (r.cur < 0 ? '−' : '+') + Math.abs(r.cur).toFixed(1) + '%';
-        if (r.type === 'ratio') return Math.round(r.cur) + ' / ' + r.target;
-        if (r.type === 'count') return Math.round(r.cur).toLocaleString('en-US');
-        return Math.round(r.cur) + '%';
-    };
-    const paint = (r, tick) => {
-        const pct = Math.min(100, pctOf(r));
-        r.pv.textContent = fmt(r);
-        r.pot.textContent = Math.round(pct) + '% of target';
-        r.fill.style.width = pct + '%';
-        if (tick && !reduce) {
-            r.pv.classList.remove('lg-tick'); void r.pv.offsetWidth; r.pv.classList.add('lg-tick');
-            r.el.classList.remove('lg-flash'); void r.el.offsetWidth; r.el.classList.add('lg-flash');
-        }
-    };
-    rows.forEach((r) => paint(r, false));
     if (reduce) return;
-
-    const liveRows = rows.filter((r) => r.live);
-    if (liveRows.length) {
-        let idx = 0;
-        setInterval(() => {
-            const r = liveRows[idx % liveRows.length];
-            idx += 1;
-            const k = Math.abs((Math.sin(idx * 12.9898) * 43758.5453) % 1);
-            if (r.type === 'pct') {
-                r.cur = Math.min(Math.abs(r.target) * 0.985, Math.abs(r.cur) + (0.1 + k * 0.35))
-                    * (r.target < 0 ? -1 : 1);
-            } else if (r.type === 'ratio') {
-                r.cur = Math.min(r.target - 1, r.cur + (k > 0.55 ? 1 : 0));
-            } else if (r.type === 'count') {
-                r.cur = Math.min(r.target * 0.985, r.cur + Math.round(30 + k * 160));
-            }
-            paint(r, true);
-        }, TICK_MS);
-    }
-
-    const vsub = section.querySelector('.lg-s-verifying .lg-s2');
-    if (vsub) {
-        const states = ['Oracle Update', 'Syncing…', 'Reading Repo'];
-        let vi = 0;
-        setInterval(() => {
-            vsub.classList.add('lg-fade');
-            setTimeout(() => {
-                vi = (vi + 1) % states.length;
-                vsub.textContent = states[vi];
-                vsub.classList.remove('lg-fade');
-            }, 400);
-        }, 3200);
-    }
+    if (window._lgVerify) clearInterval(window._lgVerify);
+    window._lgVerify = setInterval(() => {
+        const vsub = section.querySelector('.lg-s-verifying .lg-s2');
+        if (!vsub) return;
+        const states = ['Oracle Update', 'Syncing…', 'Reading Source'];
+        const next = (states.indexOf(vsub.textContent.trim()) + 1) % states.length;
+        vsub.classList.add('lg-fade');
+        setTimeout(() => {
+            vsub.textContent = states[next];
+            vsub.classList.remove('lg-fade');
+        }, 400);
+    }, 3200);
 }

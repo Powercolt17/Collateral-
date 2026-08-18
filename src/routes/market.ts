@@ -110,18 +110,38 @@ export default async function marketRoutes(fastify: FastifyInstance) {
         const rivalryActive = Number(getRows(rivalryActiveRes)[0]?.total || 0);
         const activeContractsCount = soloActive + (rivalryActive * 2);
 
-        // Query recent settlements (limit to 3 rows)
+        /* Recent settlements — the three newest, WON OR LOST.
+
+           This selected two columns, platform and payout, and filtered to
+           SETTLED_SUCCESS. The receipt cards on the landing page read seven
+           fields off each row, so five of them printed `undefined` and the
+           stake printed `$NaN`; and because a row carried no outcome, every
+           one of them — all wins, by the filter — was stamped DENIED with a
+           negative amount against it. Wins shown as losses is the worst
+           direction for that error to run on a page selling a settlement
+           guarantee.
+
+           So: publish what the receipt needs, and carry failures too. The
+           section's own heading is "including the ones that hurt" — filtering
+           them out made it a wins-only feed wearing a fairness label.
+
+           EMAIL IS NOT SELECTED. It was, and was one field access away from a
+           public endpoint. x_username or nothing. */
         const recentSettlementsRes = await db.execute(sql`
-            SELECT 
+            SELECT
+              c.id,
               c.platform,
               c.metric_type,
+              c.lock_amount_usd_cents,
               c.payout_amount_usd_cents,
-              u.x_username,
-              u.email
+              c.record_hash,
+              le.event_type,
+              le.timestamp_utc,
+              u.x_username
             FROM contracts c
             JOIN users u ON c.principal_user_id = u.id
             JOIN ledger_events le ON c.id = le.contract_id
-            WHERE le.event_type = 'SETTLED_SUCCESS'
+            WHERE le.event_type IN ('SETTLED_SUCCESS', 'SETTLED_FAILURE')
             ORDER BY le.timestamp_utc DESC
             LIMIT 3
         `);
@@ -141,10 +161,30 @@ export default async function marketRoutes(fastify: FastifyInstance) {
             return 'Performance Goal Contract';
         }
 
+        const ORACLE_NAME: Record<string, string> = {
+            STRIPE: 'Stripe', SHOPIFY: 'Shopify', YOUTUBE: 'YouTube',
+            X: 'X', TWITTER: 'X', PLAID: 'Plaid', GITHUB: 'GitHub',
+        };
+
         const recentSettlements = getRows(recentSettlementsRes).map((row: any) => {
-            const goal = getContractTitle(row.platform, row.metric_type);
-            const reward = Math.round(Number(row.payout_amount_usd_cents || 0) / 100);
-            return { goal, reward };
+            const won = row.event_type === 'SETTLED_SUCCESS';
+            const staked = Math.round(Number(row.lock_amount_usd_cents || 0) / 100);
+            const payout = Math.round(Number(row.payout_amount_usd_cents || 0) / 100);
+            const plat = String(row.platform || '').toUpperCase();
+            const hash = String(row.record_hash || row.id || '');
+            return {
+                ref: hash ? hash.slice(0, 8).toUpperCase() : '',
+                goal: getContractTitle(row.platform, row.metric_type),
+                party: row.x_username ? '@' + row.x_username : 'Operator',
+                oracle: ORACLE_NAME[plat] || plat,
+                outcome: won ? 'won' : 'lost',
+                staked,
+                // A win returns the payout; a loss forfeits the stake.
+                amount: won ? payout : staked,
+                settledOn: row.timestamp_utc,
+                // Kept so an older frontend build reading `reward` still works.
+                reward: payout,
+            };
         });
 
         return {
