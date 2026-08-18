@@ -6,7 +6,7 @@ export function renderContractDetail(params) {
                 max-width: 1200px;
                 margin: 0 auto;
                 padding: 40px 40px 100px;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 color: #111;
                 background: #F5EDDA;
                 min-height: calc(100vh - 72px);
@@ -16,7 +16,7 @@ export function renderContractDetail(params) {
             /* Breadcrumb */
             .cd-breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 40px; }
             .cd-breadcrumb a, .cd-breadcrumb span {
-                font-size: 10px; font-family: 'JetBrains Mono', monospace;
+                font-size: 10px; font-family: var(--font-data);
                 text-transform: uppercase; letter-spacing: 0.1em; color: #a3a3a3;
                 text-decoration: none; transition: color 150ms; cursor: pointer;
             }
@@ -62,7 +62,7 @@ export function renderContractDetail(params) {
             
             .cd-badge {
                 display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
-                font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+                font-family: var(--font-data); font-size: 10px; font-weight: 700;
                 text-transform: uppercase; letter-spacing: 0.1em;
             }
             .cd-badge .dot { width: 5px; height: 5px; border-radius: 50%; }
@@ -85,7 +85,7 @@ export function renderContractDetail(params) {
             .cd-stat { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
             .cd-stat-val { font-size: 22px; font-weight: 400; letter-spacing: -0.5px; color: #111; line-height: 1; }
             .cd-stat-val.green { color: #16a34a; }
-            .cd-stat-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #ccc; }
+            .cd-stat-lbl { font-family: var(--font-data); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #ccc; }
 
             /* Layout */
             .cd-layout {
@@ -142,7 +142,7 @@ export function renderContractDetail(params) {
             }
             .cd-block-header {
                 display: flex; align-items: center; gap: 8px;
-                font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+                font-family: var(--font-data); font-size: 10px; font-weight: 700;
                 text-transform: uppercase; letter-spacing: 0.12em; color: #bbb;
                 margin-bottom: 24px;
             }
@@ -159,7 +159,7 @@ export function renderContractDetail(params) {
             }
             @media (max-width: 600px) { .cd-details-grid { grid-template-columns: repeat(2, 1fr); } }
             .cd-detail-item { display: flex; flex-direction: column; gap: 8px; }
-            .cd-detail-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #ccc; }
+            .cd-detail-lbl { font-family: var(--font-data); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #ccc; }
             .cd-detail-val { font-size: 14px; font-weight: 500; color: #111; }
             .fw-bold { font-weight: 700 !important; }
 
@@ -167,11 +167,11 @@ export function renderContractDetail(params) {
                 display: flex; align-items: center; justify-content: space-between;
                 margin-top: 8px;
             }
-            .cd-hash-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #a3a3a3; word-break: break-all; }
+            .cd-hash-val { font-family: var(--font-data); font-size: 12px; color: #a3a3a3; word-break: break-all; }
             .cd-copy-btn {
                 display: inline-flex; align-items: center; gap: 6px;
                 padding: 6px 12px; background: #F5EDDA; border: 1px solid rgba(70,55,35,.22);
-                font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+                font-family: var(--font-data); font-size: 9px; font-weight: 700;
                 text-transform: uppercase; letter-spacing: 0.1em; color: #888;
                 cursor: pointer; transition: all 150ms;
             }
@@ -186,7 +186,7 @@ export function renderContractDetail(params) {
                 margin-bottom: 16px;
             }
             .cd-perf-item { display: flex; flex-direction: column; gap: 8px; }
-            .cd-perf-lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #ccc; }
+            .cd-perf-lbl { font-family: var(--font-data); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #ccc; }
             .cd-perf-val { font-size: 15px; font-weight: 600; color: #111; }
             .cd-perf-val.green { color: #5C1414; } /* Updated to match screenshot: red val */
 
@@ -201,7 +201,7 @@ export function renderContractDetail(params) {
                 height: 100%; background: #5C1414; transition: width 0.5s ease-out;
             }
             .cd-progress-pct {
-                font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #111;
+                font-family: var(--font-data); font-size: 11px; font-weight: 700; color: #111;
             }
             .cd-progress-note {
                 display: flex; align-items: center; gap: 8px;
@@ -231,7 +231,7 @@ export function renderContractDetail(params) {
             .cd-btn-wrap { display: flex; flex-direction: column; gap: 8px; }
             .cd-btn {
                 display: flex; align-items: center; justify-content: space-between;
-                padding: 14px 20px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+                padding: 14px 20px; font-family: var(--font-data); font-size: 10px; font-weight: 700;
                 text-transform: uppercase; letter-spacing: 0.1em; color: #fff; background: #111;
                 border: none; cursor: pointer; text-decoration: none; transition: background 150ms;
             }
@@ -246,7 +246,7 @@ export function renderContractDetail(params) {
             }
             .cd-share-btn {
                 flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
-                padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+                padding: 12px 16px; font-family: var(--font-content); font-size: 12px; font-weight: 600;
                 border: 1px solid rgba(70,55,35,.22); background: #F5EDDA; color: #111; cursor: pointer;
                 transition: all 150ms; letter-spacing: 0.02em;
             }
@@ -284,19 +284,19 @@ export function renderContractDetail(params) {
             }
             .cd-event-left { display: flex; align-items: center; gap: 10px; }
             .cd-event-name {
-                font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+                font-family: var(--font-data); font-size: 11px; font-weight: 600;
                 color: #111; letter-spacing: 0.04em; text-transform: uppercase;
             }
             .cd-event-name.future-text { color: #ccc; font-weight: 400; }
             .cd-event-chip {
-                font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700;
+                font-family: var(--font-data); font-size: 8px; font-weight: 700;
                 letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 6px;
             }
             .cd-event-chip.done { color: #0F5132; }
             .cd-event-chip.pending { color: #5C1414; }
             .cd-event-chip.future { color: #d4d4d4; }
             .cd-event-time {
-                font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #bbb;
+                font-family: var(--font-data); font-size: 10px; color: #bbb;
                 letter-spacing: 0.02em; white-space: nowrap;
             }
         </style>

@@ -17,7 +17,7 @@ export function renderFunding() {
             .cap {
                 background: #FAF4E6;
                 min-height: calc(100vh - 72px);
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 color: #111;
             }
 
@@ -58,7 +58,7 @@ export function renderFunding() {
                 font-size: 13px;
                 color: #666;
                 margin: 8px 0 0;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 letter-spacing: 0.2px;
             }
             .cap-deposit-btn {
@@ -72,7 +72,7 @@ export function renderFunding() {
                 border: none;
                 cursor: pointer;
                 transition: all 0.2s ease;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 white-space: nowrap;
                 flex-shrink: 0;
                 position: relative;
@@ -102,7 +102,7 @@ export function renderFunding() {
                 border-left: 3px solid #5C1414;
                 padding: 14px 18px;
                 margin-bottom: 24px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 11px;
                 color: #5C1414;
                 text-transform: uppercase;
@@ -127,7 +127,7 @@ export function renderFunding() {
                 display: flex;
             }
             .cap-warning-link {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 11px;
                 font-weight: 700;
                 color: #5C1414;
@@ -185,7 +185,7 @@ export function renderFunding() {
             }
             .cap-stat:hover::before { width: 100%; }
             .cap-stat-lbl {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -194,7 +194,7 @@ export function renderFunding() {
                 transition: color 0.2s ease;
             }
             .cap-stat-val {
-                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-family: var(--font-content), sans-serif;
                 font-size: 22px;
                 font-weight: 800;
                 color: #111111;
@@ -247,7 +247,7 @@ export function renderFunding() {
                 border-bottom: 1px solid #f0f0f0;
             }
             .cap-section-title {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 10px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -255,7 +255,7 @@ export function renderFunding() {
                 color: #5C1414;
             }
             .cap-add-btn {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 10px;
                 font-weight: 700;
                 color: #888;
@@ -298,13 +298,13 @@ export function renderFunding() {
                 flex: 1;
             }
             .cap-row-identifier {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 13px;
                 color: #111;
                 font-weight: 500;
             }
             .cap-row-detail {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 12px;
                 color: #888;
             }
@@ -312,7 +312,7 @@ export function renderFunding() {
                 display: inline-flex;
             }
             .cap-action-btn {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 11px;
                 font-weight: 700;
                 color: #888;
@@ -333,7 +333,7 @@ export function renderFunding() {
                 display: inline-flex;
                 align-items: center;
                 padding: 3px 8px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -358,7 +358,7 @@ export function renderFunding() {
 
             /* ── Caption Text ── */
             .cap-caption-text {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 10px;
                 color: #888;
                 margin-top: 8px;
@@ -380,7 +380,7 @@ export function renderFunding() {
                 gap: 3px;
             }
             .cap-footer-lbl {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -388,7 +388,7 @@ export function renderFunding() {
                 color: #bbb;
             }
             .cap-footer-val {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 10px;
                 color: #666;
             }
@@ -478,7 +478,7 @@ export function renderFunding() {
                 background: #FAF4E6;
             }
             .cap-modal-title {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 11px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -503,13 +503,13 @@ export function renderFunding() {
                 font-size: 12px;
                 color: #666;
                 margin-bottom: 20px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
             }
             .cap-modal-footer {
                 padding: 14px 22px;
                 border-top: 1px solid #f0f0f0;
                 background: #FAF4E6;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 10px;
                 color: #999;
                 text-align: center;
@@ -534,7 +534,7 @@ export function renderFunding() {
             .cap-error {
                 font-size: 11px;
                 color: #5C1414;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 margin-bottom: 12px;
                 display: none;
             }
@@ -553,7 +553,7 @@ export function renderFunding() {
                 border: none;
                 cursor: pointer;
                 transition: all 0.2s;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 border-radius: 3px;
             }
             .cap-btn-primary:hover {
@@ -574,7 +574,7 @@ export function renderFunding() {
                 border: none;
                 cursor: pointer;
                 transition: all 0.2s;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 margin-top: 8px;
                 border-radius: 3px;
             }
@@ -594,7 +594,7 @@ export function renderFunding() {
                 border: 1px solid rgba(70,55,35,.22);
                 cursor: pointer;
                 transition: all 0.15s;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 border-radius: 3px;
             }
             .cap-btn-ghost:hover { border-color: #5C1414; color: #5C1414; }
@@ -605,7 +605,7 @@ export function renderFunding() {
             }
             .cap-input-lbl {
                 display: block;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -622,7 +622,7 @@ export function renderFunding() {
                 top: 50%;
                 transform: translateY(-50%);
                 color: #5C1414;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 18px;
                 font-weight: 700;
             }
@@ -631,7 +631,7 @@ export function renderFunding() {
                 padding: 14px 14px 14px 32px;
                 border: 1px solid rgba(70,55,35,.22);
                 font-size: 24px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 color: #111;
                 background: #FAF4E6;
                 box-sizing: border-box;
@@ -671,7 +671,7 @@ export function renderFunding() {
                 margin: 0 0 8px;
             }
             .cap-success-amt {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 28px;
                 font-weight: 700;
                 color: #5C1414;
@@ -680,7 +680,7 @@ export function renderFunding() {
             .cap-success-sub {
                 font-size: 12px;
                 color: #888;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 margin-bottom: 24px;
             }
         </style>
@@ -725,7 +725,7 @@ export function renderFunding() {
                 <div class="cap-warning-banner" id="payout-warning-banner">
                     <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                         <i data-lucide="alert-triangle" style="width: 14px; height: 14px; color: #5C1414; flex-shrink: 0;"></i>
-                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #5C1414;">
+                        <span style="font-family: var(--font-data); font-size: 11px; color: #5C1414;">
                             No settlement destination configured. You can deposit capital, but payouts can't be issued until a bank account is added.
                         </span>
                     </div>
@@ -812,7 +812,7 @@ export function renderFunding() {
                         <div id="payment-request-button" style="margin-bottom:16px;"></div>
                         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
                             <div style="flex:1;height:1px;background:rgba(70,55,35,.22);"></div>
-                            <span style="font-family:'JetBrains Mono', monospace;font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:0.1em;">or enter card</span>
+                            <span style="font-family:var(--font-data);font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:0.1em;">or enter card</span>
                             <div style="flex:1;height:1px;background:rgba(70,55,35,.22);"></div>
                         </div>
                     </div>
@@ -1121,7 +1121,7 @@ export async function initFunding() {
                     base: {
                         fontSize: '15px',
                         color: '#111',
-                        fontFamily: "'JetBrains Mono', monospace",
+                        fontFamily: "var(--font-data)",
                         '::placeholder': { color: '#bbb' },
                     },
                     invalid: { color: '#752122' },

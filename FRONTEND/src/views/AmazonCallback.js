@@ -5,7 +5,7 @@
 export function renderAmazonCallback() {
     return `
         <style>
-            .amz-cb { min-height: 100vh; background: #FAF4E6; display: flex; align-items: center; justify-content: center; font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+            .amz-cb { min-height: 100vh; background: #FAF4E6; display: flex; align-items: center; justify-content: center; font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif; }
             .amz-cb-card { background: #F5EDDA; border: 1px solid rgba(70,55,35,.22); border-radius: 12px; padding: 40px 32px; max-width: 420px; width: 100%; text-align: center; }
             @keyframes cl-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
             @keyframes cl-pulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
@@ -16,7 +16,7 @@ export function renderAmazonCallback() {
             .amz-cb-icon.error { background: rgba(220, 38, 38, 0.1); }
             .amz-cb h2 { font-size: 18px; font-weight: 600; color: #111; margin: 0 0 8px; }
             .amz-cb p { font-size: 14px; color: #737373; margin: 0 0 16px; }
-            .amz-cb-detail { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: #a3a3a3; margin-bottom: 24px; }
+            .amz-cb-detail { font-size: 12px; font-family: var(--font-data); color: #a3a3a3; margin-bottom: 24px; }
             .amz-cb-btn { display: inline-block; padding: 10px 24px; background: #111; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 150ms; }
             .amz-cb-btn:hover { background: #333; }
             .amz-cb-error-msg { font-size: 13px; color: #dc2626; margin-bottom: 20px; }

@@ -6,23 +6,23 @@ export function renderProfile() {
     return `
         <style>
             /* ===== PROFILE TERMINAL — INSTITUTIONAL DESIGN ===== */
-            .prf{background: #FAF4E6;min-height:calc(100vh - 64px);font-family:'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif,-apple-system,sans-serif;color:#111;font-variant-numeric:tabular-nums}
+            .prf{background: #FAF4E6;min-height:calc(100vh - 64px);font-family:var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif,-apple-system,sans-serif;color:#111;font-variant-numeric:tabular-nums}
 
             /* Header */
             .prf-header{background: #F5EDDA;border-bottom:1px solid #DCDCDC;padding:32px 32px 0}
             .prf-header-inner{max-width:1120px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-bottom:24px}
-            .prf-name{font-size:26px;font-weight:700;color:#111111;font-family:'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif,sans-serif;letter-spacing:-0.5px;margin:0 0 6px;display:flex;align-items:center;gap:10px}
-            .prf-hash{font-size:11px;color:#8A8A8A;font-family:'JetBrains Mono', monospace;letter-spacing:0.5px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+            .prf-name{font-size:26px;font-weight:700;color:#111111;font-family:var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif,sans-serif;letter-spacing:-0.5px;margin:0 0 6px;display:flex;align-items:center;gap:10px}
+            .prf-hash{font-size:11px;color:#8A8A8A;font-family:var(--font-data);letter-spacing:0.5px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
             .prf-header-actions{display:flex;gap:8px;flex-shrink:0;align-items:center}
-            .prf-btn-ghost{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;background: #F5EDDA;border:1px solid rgba(70,55,35,.22);cursor:pointer;font-size:11px;font-weight:700;color:#444444;text-transform:uppercase;letter-spacing:0.5px;font-family:'JetBrains Mono', monospace;transition:all 0.12s}
+            .prf-btn-ghost{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;background: #F5EDDA;border:1px solid rgba(70,55,35,.22);cursor:pointer;font-size:11px;font-weight:700;color:#444444;text-transform:uppercase;letter-spacing:0.5px;font-family:var(--font-data);transition:all 0.12s}
             .prf-btn-ghost:hover{border-color:#DCDCDC;color:#111111}
 
             /* Tabs */
             .prf-tabs{display:flex;gap:0;padding:0 32px;border-bottom:1px solid #DCDCDC;background: #F5EDDA;position:sticky;top:56px;z-index:40}
-            .prf-tab{padding:14px 18px;font-size:12px;font-weight:600;color:#444444;background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif,sans-serif;text-transform:uppercase;letter-spacing:0.3px;transition:color 0.12s;white-space:nowrap}
+            .prf-tab{padding:14px 18px;font-size:12px;font-weight:600;color:#444444;background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif,sans-serif;text-transform:uppercase;letter-spacing:0.3px;transition:color 0.12s;white-space:nowrap}
             .prf-tab:hover{color:#111111}
             .prf-tab.active{color:#111111;font-weight:700;border-bottom-color:#5C1414}
-            .prf-tab-count{font-size:10px;background:#f3f4f6;color:#444444;padding:1px 6px;border-radius:999px;margin-left:6px;font-family:'JetBrains Mono', monospace;font-weight:600}
+            .prf-tab-count{font-size:10px;background:#f3f4f6;color:#444444;padding:1px 6px;border-radius:999px;margin-left:6px;font-family:var(--font-data);font-weight:600}
             .prf-tab.active .prf-tab-count{background:#fef2f2;color:#5C1414}
 
             /* Metric Cards Row */
@@ -31,10 +31,10 @@ export function renderProfile() {
             .prf-mc::after{content:'';position:absolute;top:14px;bottom:14px;left:0;width:3px;background:#f0f0f0;border-radius:0 2px 2px 0;transition:background 0.15s}
             .prf-mc:hover{border-color:#bbb;box-shadow:0 4px 12px rgba(0,0,0,0.04)}
             .prf-mc:hover::after{background:#5C1414}
-            .prf-mc-label{font-size:10px;color:#6B6B6B;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;font-family:'JetBrains Mono', monospace;margin-bottom:10px}
+            .prf-mc-label{font-size:10px;color:#6B6B6B;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;font-family:var(--font-data);margin-bottom:10px}
             .prf-mc-value{font-size:26px;font-weight:700;color:#111111;letter-spacing:-0.5px}
             .prf-mc-value.red{color:#5C1414}
-            .prf-mc-sub{font-size:10px;color:#8A8A8A;font-family:'JetBrains Mono', monospace;margin-top:6px}
+            .prf-mc-sub{font-size:10px;color:#8A8A8A;font-family:var(--font-data);margin-top:6px}
 
             /* Content */
             .prf-content{max-width:1120px;margin:24px auto 0;padding:0 32px 80px}
@@ -44,11 +44,11 @@ export function renderProfile() {
             .prf-card{background: #F5EDDA;border:1px solid #DCDCDC;overflow:hidden}
             .prf-card+.prf-card{margin-top:18px}
             .prf-card-hd{padding:14px 22px;border-bottom:1px solid rgba(70,55,35,.22);background: #FAF4E6;display:flex;justify-content:space-between;align-items:center}
-            .prf-card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#6B6B6B;font-family:'JetBrains Mono', monospace;margin:0}
+            .prf-card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#6B6B6B;font-family:var(--font-data);margin:0}
             .prf-card-bd{padding:22px}
 
             /* Badge — universal */
-            .prf-badge{font-size:10px;font-weight:600;height:22px;display:inline-flex;align-items:center;padding:0 8px;border-radius:4px;font-family:'JetBrains Mono', monospace;letter-spacing:0.4px;text-transform:uppercase;line-height:1;white-space:nowrap}
+            .prf-badge{font-size:10px;font-weight:600;height:22px;display:inline-flex;align-items:center;padding:0 8px;border-radius:4px;font-family:var(--font-data);letter-spacing:0.4px;text-transform:uppercase;line-height:1;white-space:nowrap}
             .prf-badge.active,.prf-badge.connected,.prf-badge.settled-success{background:#f0fdf4;color:#15803d}
             .prf-badge.locked,.prf-badge.elevated{background:#fff7ed;color:#9a3412}
             .prf-badge.forfeited,.prf-badge.maximum,.prf-badge.disconnected{background:#fef2f2;color:#5C1414}
@@ -63,7 +63,7 @@ export function renderProfile() {
             .prf-sg-item{padding:16px 22px;border-bottom:1px solid #F0F0F0;border-right:1px solid #F0F0F0}
             .prf-sg-item:nth-child(2n){border-right:none}
             .prf-sg-item:nth-last-child(-n+2){border-bottom:none}
-            .prf-sg-label{font-size:10px;color:#8A8A8A;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;font-family:'JetBrains Mono', monospace;margin-bottom:6px}
+            .prf-sg-label{font-size:10px;color:#8A8A8A;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;font-family:var(--font-data);margin-bottom:6px}
             .prf-sg-val{font-size:15px;font-weight:700;color:#111111}
 
             /* Activity Feed */
@@ -77,19 +77,19 @@ export function renderProfile() {
             .prf-feed-icon.forfeit{background:#fef2f2;color:#991b1b}
             .prf-feed-icon.source{background:#f5f5f5;color:#555}
             .prf-feed-text{flex:1;color:#444444;font-weight:500}
-            .prf-feed-amt{font-weight:700;font-family:'JetBrains Mono', monospace;font-size:12px;color:#111111}
-            .prf-feed-time{font-size:10px;color:#8A8A8A;font-family:'JetBrains Mono', monospace;white-space:nowrap}
+            .prf-feed-amt{font-weight:700;font-family:var(--font-data);font-size:12px;color:#111111}
+            .prf-feed-time{font-size:10px;color:#8A8A8A;font-family:var(--font-data);white-space:nowrap}
 
             /* Identity panel */
             .prf-id-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #F0F0F0}
             .prf-id-row:last-child{border-bottom:none}
-            .prf-id-label{font-size:10px;color:#8A8A8A;text-transform:uppercase;letter-spacing:0.5px;font-family:'JetBrains Mono', monospace;font-weight:600}
+            .prf-id-label{font-size:10px;color:#8A8A8A;text-transform:uppercase;letter-spacing:0.5px;font-family:var(--font-data);font-weight:600}
             .prf-id-val{font-size:13px;color:#111111;font-weight:600;display:flex;align-items:center;gap:6px;text-align:right}
 
             /* Score bars */
             .prf-score-row{margin-bottom:14px}
             .prf-score-row:last-child{margin-bottom:0}
-            .prf-score-hd{display:flex;justify-content:space-between;font-size:10px;color:#8A8A8A;text-transform:uppercase;letter-spacing:0.5px;font-family:'JetBrains Mono', monospace;margin-bottom:6px}
+            .prf-score-hd{display:flex;justify-content:space-between;font-size:10px;color:#8A8A8A;text-transform:uppercase;letter-spacing:0.5px;font-family:var(--font-data);margin-bottom:6px}
             .prf-score-bar{height:5px;background:#f0f0f0;overflow:hidden}
             .prf-score-fill{height:100%;transition:width 0.6s ease-out}
             .prf-score-fill.green{background:#15803d}
@@ -103,17 +103,17 @@ export function renderProfile() {
             .prf-cx:hover::after{background:#5C1414}
             .prf-cx:last-child{border-bottom:none}
             .prf-cx-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-            .prf-cx-id{font-size:10px;color:#8A8A8A;font-family:'JetBrains Mono', monospace;letter-spacing:0.5px}
+            .prf-cx-id{font-size:10px;color:#8A8A8A;font-family:var(--font-data);letter-spacing:0.5px}
             .prf-cx-title{font-size:14px;font-weight:700;color:#111111;margin-bottom:10px;line-height:1.35}
             .prf-cx-meta{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-            .prf-cx-mi{font-size:11px;color:#6B6B6B;font-family:'JetBrains Mono', monospace}
+            .prf-cx-mi{font-size:11px;color:#6B6B6B;font-family:var(--font-data)}
             .prf-cx-stake{font-size:15px;font-weight:700;color:#111111;letter-spacing:-0.3px;margin-left:auto}
             .prf-cx-progress{height:3px;background:#f0f0f0;margin-top:10px;overflow:hidden}
             .prf-cx-progress-fill{height:100%;background:#5C1414;transition:width 0.4s}
             .prf-cx-actions{display:flex;gap:8px;margin-top:12px}
 
             /* Provider dot */
-            .prf-prov{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#4b5563;font-family:'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif,sans-serif}
+            .prf-prov{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#4b5563;font-family:var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif,sans-serif}
             .prf-prov-dot{width:6px;height:6px;border-radius:50%}
             .prf-prov-dot.stripe{background:#635bff}
             .prf-prov-dot.x{background:#0a0a0a}
@@ -123,13 +123,13 @@ export function renderProfile() {
 
             /* Filter Bar */
             .prf-filters{display:flex;gap:6px;padding:14px 22px;border-bottom:1px solid #f0f0f0;flex-wrap:wrap;align-items:center;background: #FAF4E6}
-            .prf-filter-label{font-size:10px;color:#9ca3af;text-transform:uppercase;font-family:'JetBrains Mono', monospace;margin-right:4px;font-weight:600;letter-spacing:0.5px}
-            .prf-pill{padding:5px 12px;font-size:11px;color:#4b5563;background: #F5EDDA;font-weight:500;border:1px solid rgba(70,55,35,.22);border-radius:999px;cursor:pointer;transition:all 0.15s;font-family:'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif,sans-serif}
+            .prf-filter-label{font-size:10px;color:#9ca3af;text-transform:uppercase;font-family:var(--font-data);margin-right:4px;font-weight:600;letter-spacing:0.5px}
+            .prf-pill{padding:5px 12px;font-size:11px;color:#4b5563;background: #F5EDDA;font-weight:500;border:1px solid rgba(70,55,35,.22);border-radius:999px;cursor:pointer;transition:all 0.15s;font-family:var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif,sans-serif}
             .prf-pill:hover{border-color:#ccc;color:#111}
             .prf-pill.active{background: #F5EDDA;color:#111;border-color:#111;font-weight:600}
 
             /* CTA */
-            .prf-cta{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 20px;height:44px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;font-family:'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif,sans-serif;border-radius:0;cursor:pointer;transition:all 150ms ease;background: #F5EDDA;color:#111111;border:1px solid rgba(70,55,35,.22);box-shadow:none}
+            .prf-cta{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 20px;height:44px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;font-family:var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif,sans-serif;border-radius:0;cursor:pointer;transition:all 150ms ease;background: #F5EDDA;color:#111111;border:1px solid rgba(70,55,35,.22);box-shadow:none}
             .prf-cta:hover{border-color:#5C1414;color:#5C1414;transform:translateY(-1px)}
             .prf-cta:active{background:#5C1414;color:#ffffff;border-color:#5C1414;box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);transform:translateY(0)}
             .prf-cta:focus-visible{outline:2px solid rgba(92,20,20,0.4);outline-offset:2px}
@@ -147,13 +147,13 @@ export function renderProfile() {
             .prf-pcard.disconnected{opacity:0.6}
             .prf-pcard-icon{width:40px;height:40px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-weight:700;font-size:16px;color:#fff}
             .prf-pcard-name{font-size:14px;font-weight:700;color:#111111;margin-bottom:4px}
-            .prf-pcard-scope{font-size:10px;color:#8A8A8A;font-family:'JetBrains Mono', monospace;margin-bottom:12px}
+            .prf-pcard-scope{font-size:10px;color:#8A8A8A;font-family:var(--font-data);margin-bottom:12px}
             .prf-pcard-actions{display:flex;gap:6px;margin-top:14px}
 
             /* Timeline */
             .prf-tl{position:relative}
             .prf-tl-line{position:absolute;left:7px;top:0;bottom:0;width:1px;background:rgba(70,55,35,.22)}
-            .prf-tl-day{font-size:10px;color:#8A8A8A;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;font-family:'JetBrains Mono', monospace;padding:16px 0 8px 28px;position:relative}
+            .prf-tl-day{font-size:10px;color:#8A8A8A;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;font-family:var(--font-data);padding:16px 0 8px 28px;position:relative}
             .prf-tl-item{position:relative;padding:12px 0 12px 28px;border-bottom:1px solid #F0F0F0}
             .prf-tl-item:last-child{border-bottom:none}
             .prf-tl-dot{position:absolute;left:3px;top:16px;width:9px;height:9px;border-radius:50%;background:#d4d4d4;border:2px solid #fafafa}
@@ -163,10 +163,10 @@ export function renderProfile() {
             .prf-tl-dot.amber{background:#d97706}
             .prf-tl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
             .prf-tl-desc{font-size:13px;font-weight:500;color:#444444;flex:1}
-            .prf-tl-ref{font-size:10px;color:#8A8A8A;font-family:'JetBrains Mono', monospace;cursor:pointer}
+            .prf-tl-ref{font-size:10px;color:#8A8A8A;font-family:var(--font-data);cursor:pointer}
             .prf-tl-ref:hover{color:#921818}
-            .prf-tl-amt{font-size:12px;font-weight:700;font-family:'JetBrains Mono', monospace;color:#111111}
-            .prf-tl-time{font-size:10px;color:#8A8A8A;font-family:'JetBrains Mono', monospace;margin-left:auto;white-space:nowrap}
+            .prf-tl-amt{font-size:12px;font-weight:700;font-family:var(--font-data);color:#111111}
+            .prf-tl-time{font-size:10px;color:#8A8A8A;font-family:var(--font-data);margin-left:auto;white-space:nowrap}
 
             /* Settlement row card */
             .prf-sr{border-bottom:1px solid #f0f0f0;transition:background 0.1s}
@@ -175,14 +175,14 @@ export function renderProfile() {
             .prf-sr-main:hover{background: #FAF4E6}
             .prf-sr-info{flex:1;min-width:0}
             .prf-sr-title{font-size:13px;font-weight:600;color:#111;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-            .prf-sr-sub{font-size:10px;color:#8A8A8A;font-family:'JetBrains Mono', monospace}
+            .prf-sr-sub{font-size:10px;color:#8A8A8A;font-family:var(--font-data)}
             .prf-sr-right{text-align:right;flex-shrink:0}
-            .prf-sr-amt{font-size:14px;font-weight:700;color:#111111;font-family:'Inter',sans-serif}
-            .prf-sr-date{font-size:10px;color:#8A8A8A;font-family:'JetBrains Mono', monospace;margin-top:2px}
+            .prf-sr-amt{font-size:14px;font-weight:700;color:#111111;font-family: var(--font-content)}
+            .prf-sr-date{font-size:10px;color:#8A8A8A;font-family:var(--font-data);margin-top:2px}
             .prf-sr-detail{display:none;padding:0 22px 16px;border-top:1px solid #F0F0F0}
             .prf-sr.expanded .prf-sr-detail{display:block}
             .prf-sr-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;padding:14px 0}
-            .prf-sr-detail-label{font-size:9px;color:#8A8A8A;text-transform:uppercase;letter-spacing:0.5px;font-family:'JetBrains Mono', monospace}
+            .prf-sr-detail-label{font-size:9px;color:#8A8A8A;text-transform:uppercase;letter-spacing:0.5px;font-family:var(--font-data)}
             .prf-sr-detail-val{font-size:12px;color:#444444;font-weight:600;margin-top:2px}
 
             /* Skeleton */
@@ -196,10 +196,10 @@ export function renderProfile() {
             .prf-empty{padding:48px 20px;text-align:center}
             .prf-empty-icon{width:48px;height:48px;border:2px dashed rgba(70,55,35,.22);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#d4d4d4}
             .prf-empty-title{font-size:14px;font-weight:600;color:#333;margin-bottom:4px}
-            .prf-empty-sub{font-size:11px;color:#9ca3af;font-family:'JetBrains Mono', monospace;margin-bottom:20px}
+            .prf-empty-sub{font-size:11px;color:#9ca3af;font-family:var(--font-data);margin-bottom:20px}
 
             /* Footer micro */
-            .prf-footer{max-width:1120px;margin:0 auto;padding:24px 32px;display:flex;align-items:center;gap:8px;font-size:10px;color:#d4d4d4;font-family:'JetBrains Mono', monospace;text-transform:uppercase;letter-spacing:0.5px}
+            .prf-footer{max-width:1120px;margin:0 auto;padding:24px 32px;display:flex;align-items:center;gap:8px;font-size:10px;color:#d4d4d4;font-family:var(--font-data);text-transform:uppercase;letter-spacing:0.5px}
             .prf-footer-dot{width:5px;height:5px;background:#22c55e;border-radius:50%}
 
             /* Profile Avatar */
@@ -207,7 +207,7 @@ export function renderProfile() {
             .prf-avatar-wrap:hover .prf-avatar-overlay{opacity:1}
             .prf-avatar{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#111;overflow:hidden;border:2px solid rgba(70,55,35,.22);transition:border-color 0.15s}
             .prf-avatar-wrap:hover .prf-avatar{border-color:#5C1414}
-            .prf-avatar-initial{font-family:'Sora','Helvetica Neue',sans-serif;font-size: 22px;font-weight:700;color:#fff}
+            .prf-avatar-initial{font-family:var(--font-content),'Helvetica Neue',sans-serif;font-size: 22px;font-weight:700;color:#fff}
             .prf-avatar-img{width:100%;height:100%;object-fit:cover;image-rendering:auto}
             .prf-avatar-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.15s;border-radius:50%}
             .prf-avatar-overlay svg{color:#fff;opacity:0.9}
@@ -217,7 +217,7 @@ export function renderProfile() {
             .prf-modal-bg.open{display:flex}
             .prf-modal{background: #F5EDDA;border-radius:12px;width:440px;max-width:90vw;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,0.15);max-height:85vh;overflow-y:auto}
             .prf-modal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-            .prf-modal-title{font-size:12px;font-weight:600;color:#111;font-family:'JetBrains Mono', monospace;text-transform:uppercase;letter-spacing:0.5px}
+            .prf-modal-title{font-size:12px;font-weight:600;color:#111;font-family:var(--font-data);text-transform:uppercase;letter-spacing:0.5px}
             .prf-modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border:none;border-radius:6px;cursor:pointer;color:#666;font-size:16px}
             .prf-modal-close:hover{background:#eee}
             .prf-modal-rule{padding:10px 0;border-bottom:1px solid #f5f5f5;font-size:13px;color:#333;display:flex;align-items:flex-start;gap:8px}
@@ -344,7 +344,7 @@ export function renderProfile() {
                             <div class="prf-card">
                                 <div class="prf-card-hd">
                                     <h3 class="prf-card-title">Recent Activity</h3>
-                                    <span style="font-size:10px;color:#9ca3af;font-family:'JetBrains Mono', monospace" id="activity-count"></span>
+                                    <span style="font-size:10px;color:#9ca3af;font-family:var(--font-data)" id="activity-count"></span>
                                 </div>
                                 <div id="activity-feed">
                                     <div class="prf-empty"><div class="prf-empty-sub">Loading activity...</div></div>
@@ -422,7 +422,7 @@ export function renderProfile() {
                         <div class="prf-mc"><div class="prf-mc-label">Last Settlement</div><div class="prf-mc-value" id="sh-last" style="font-size:16px">—</div></div>
                     </div>
                     <div class="prf-card">
-                        <div class="prf-card-hd"><h3 class="prf-card-title">Settlement Records</h3><span style="font-size:10px;color:#9ca3af;font-family:'JetBrains Mono', monospace" id="sh-count"></span></div>
+                        <div class="prf-card-hd"><h3 class="prf-card-title">Settlement Records</h3><span style="font-size:10px;color:#9ca3af;font-family:var(--font-data)" id="sh-count"></span></div>
                         <div id="settlement-list">
                             <div class="prf-skel-card" style="border:none;border-radius:0"><div class="prf-skel prf-skel-line" style="width:70%"></div><div class="prf-skel prf-skel-line" style="width:40%"></div></div>
                         </div>
@@ -438,7 +438,7 @@ export function renderProfile() {
                             <div class="prf-skel-card"><div class="prf-skel prf-skel-block"></div></div>
                         </div>
                     </div>
-                    <p style="font-size:10px;color:#d4d4d4;font-family:'JetBrains Mono', monospace;margin-top:12px;text-transform:uppercase;letter-spacing:0.5px">
+                    <p style="font-size:10px;color:#d4d4d4;font-family:var(--font-data);margin-top:12px;text-transform:uppercase;letter-spacing:0.5px">
                         Verification sources are immutably bound to this identity.
                     </p>
                 </div>
@@ -459,7 +459,7 @@ export function renderProfile() {
                     <div class="prf-card">
                         <div class="prf-card-hd">
                             <h3 class="prf-card-title">Immutable Event Record</h3>
-                            <span style="font-size:10px;color:#9ca3af;font-family:'JetBrains Mono', monospace;text-transform:uppercase">All Events Are Final</span>
+                            <span style="font-size:10px;color:#9ca3af;font-family:var(--font-data);text-transform:uppercase">All Events Are Final</span>
                         </div>
                         <div class="prf-card-bd" style="padding:0 22px 22px">
                             <div id="timeline-list" class="prf-tl">
@@ -871,7 +871,7 @@ export async function initProfile() {
                                 <div><div class="prf-sr-detail-label">Window</div><div class="prf-sr-detail-val">${wd || '—'}d</div></div>
                                 <div><div class="prf-sr-detail-label">Source</div><div class="prf-sr-detail-val">${c.platform || '—'}</div></div>
                                 <div><div class="prf-sr-detail-label">Metric</div><div class="prf-sr-detail-val">${c.metricType || '—'}</div></div>
-                                <div><div class="prf-sr-detail-label">Contract ID</div><div class="prf-sr-detail-val" style="font-family:'JetBrains Mono', monospace;font-size:10px">${c.id}</div></div>
+                                <div><div class="prf-sr-detail-label">Contract ID</div><div class="prf-sr-detail-val" style="font-family:var(--font-data);font-size:10px">${c.id}</div></div>
                                 <div><div class="prf-sr-detail-label">State</div><div class="prf-sr-detail-val"><span class="prf-badge ${cls}">${st}</span></div></div>
                             </div>
                             <button class="prf-cta ghost sm" onclick="event.stopPropagation();navigator.clipboard.writeText(window.location.origin+'/contracts/${c.id}')">
@@ -1005,12 +1005,12 @@ export async function initProfile() {
 
                 html += `
                     <div style="margin-bottom: 16px; padding: 12px; background: #FAF4E6; border: 1px solid rgba(70,55,35,.22); border-radius: 6px;">
-                        <div style="font-size: 10px; font-weight: 700; color: #8A8A8A; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; margin-bottom: 6px;">Connected Wallet</div>
+                        <div style="font-size: 10px; font-weight: 700; color: #8A8A8A; font-family: var(--font-data); text-transform: uppercase; margin-bottom: 6px;">Connected Wallet</div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                            <span style="font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: #111;">${shortAddr}</span>
+                            <span style="font-size: 13px; font-weight: 700; font-family: var(--font-data); color: #111;">${shortAddr}</span>
                             <span class="prf-badge ${isLinked ? 'connected' : 'pending'}">${isLinked ? 'Linked' : 'Not Linked'}</span>
                         </div>
-                        <div style="font-size: 10px; color: #8A8A8A; font-family: 'JetBrains Mono', monospace;">
+                        <div style="font-size: 10px; color: #8A8A8A; font-family: var(--font-data);">
                             Network: <span style="font-weight: 600; color: ${u.chainId === 4663 ? '#10B981' : '#D82224'};">${chainName}</span>
                         </div>
                         ${!isLinked ? `
@@ -1023,7 +1023,7 @@ export async function initProfile() {
             } else {
                 html += `
                     <div style="margin-bottom: 16px; padding: 12px; background: #FAF4E6; border: 1px dashed rgba(70,55,35,.22); border-radius: 6px; text-align: center;">
-                        <div style="font-size: 11px; color: #6B6B6B; font-family: 'Sora', sans-serif; margin-bottom: 8px;">No wallet connected to session.</div>
+                        <div style="font-size: 11px; color: #6B6B6B; font-family: var(--font-content); margin-bottom: 8px;">No wallet connected to session.</div>
                         <button class="prf-cta sm" style="width: 100%; justify-content: center;" onclick="window.appKit.open()">
                             Connect Wallet
                         </button>
@@ -1032,11 +1032,11 @@ export async function initProfile() {
             }
 
             // 2. Linked Wallets List
-            html += `<div style="font-size: 10px; font-weight: 700; color: #8A8A8A; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid rgba(70,55,35,.18); padding-bottom: 6px;">Linked Wallets (${linked.length})</div>`;
+            html += `<div style="font-size: 10px; font-weight: 700; color: #8A8A8A; font-family: var(--font-data); text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid rgba(70,55,35,.18); padding-bottom: 6px;">Linked Wallets (${linked.length})</div>`;
 
             if (linked.length === 0) {
                 html += `
-                    <div style="font-size: 11px; color: #9CA3AF; text-align: center; padding: 12px 0; font-family: 'Sora', sans-serif;">
+                    <div style="font-size: 11px; color: #9CA3AF; text-align: center; padding: 12px 0; font-family: var(--font-content);">
                         No wallets linked to this account yet.
                     </div>
                 `;
@@ -1051,11 +1051,11 @@ export async function initProfile() {
                         <div style="padding: 10px 0; border-bottom: 1px solid #F0F0F0; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
                             <div>
                                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
-                                    <span style="font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', monospace; color: #111;">${short}</span>
+                                    <span style="font-size: 13px; font-weight: 600; font-family: var(--font-data); color: #111;">${short}</span>
                                     ${isPrimary ? '<span class="prf-badge controlled" style="background: #FFF7ED; color: #C2410C;">Primary</span>' : ''}
                                     ${isCurrent ? '<span class="prf-badge active" style="font-size: 8px; height: 14px; padding: 0 4px;">Active</span>' : ''}
                                 </div>
-                                <div style="font-size: 10px; color: #8A8A8A; font-family: 'JetBrains Mono', monospace;">
+                                <div style="font-size: 10px; color: #8A8A8A; font-family: var(--font-data);">
                                     Linked: ${fmtDate(w.verifiedAt)}
                                 </div>
                             </div>

@@ -41,10 +41,10 @@ export function renderLedger() {
                 --line-firm: rgba(70,55,35,.28);
                 --wintint: rgba(78,107,62,.08);
                 --oxtint: rgba(124,29,43,.06);
-                --lmono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+                --lmono: var(--font-data);
                 background: var(--parch);
                 color: var(--ink);
-                font-family: "EB Garamond", Georgia, serif;
+                font-family: var(--font-content);
                 -webkit-font-smoothing: antialiased;
                 min-height: 100vh;
                 box-sizing: border-box;
@@ -62,7 +62,7 @@ export function renderLedger() {
             .lgx-kick { display: inline-flex; align-items: center; gap: 12px; font-family: var(--lmono); font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: var(--ox); font-weight: 500; margin-bottom: 18px; }
             .lgx-kick .r { height: 1px; width: 28px; background: var(--ox); opacity: .75; }
             .lgx-titlerow { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
-            .lgx-h1 { font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(34px,5vw,52px); font-weight: 600; line-height: 1; margin: 0; }
+            .lgx-h1 { font-family: var(--font-display); font-size: clamp(34px,5vw,52px); font-weight: 400; line-height: 1; margin: 0; }
             .lgx-h1 .ox { color: var(--ox); }
             .lgx-synced { display: inline-flex; align-items: center; gap: 8px; font-family: var(--lmono); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; font-weight: 500; color: var(--win); border: 1px solid rgba(78,107,62,.45); background: var(--wintint); padding: 6px 12px; }
             .lgx-synced.stale { color: var(--ox); border-color: rgba(124,29,43,.45); background: var(--oxtint); }
@@ -74,7 +74,7 @@ export function renderLedger() {
             .lgx-statreg { display: grid; grid-template-columns: repeat(3,1fr); border: 1px solid var(--line-firm); margin: 30px 0 38px; background: var(--paper); box-shadow: 0 12px 28px rgba(60,40,20,.06); }
             .lgx-stat { padding: 22px 28px; border-left: 1px solid var(--line-soft); min-width: 0; }
             .lgx-stat:first-child { border-left: 0; }
-            .lgx-stat .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(28px,3.4vw,38px); font-weight: 600; line-height: 1; }
+            .lgx-stat .v { font-family: var(--font-content); font-variant-numeric: tabular-nums; font-size: clamp(28px,3.4vw,38px); font-weight: 600; line-height: 1; }
             .lgx-stat .v.win { color: var(--win); }
             .lgx-stat .k { font-family: var(--lmono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
 
@@ -121,13 +121,13 @@ export function renderLedger() {
             .lgx-rid { font-family: var(--lmono); font-size: 13px; color: var(--ink); font-weight: 500; }
             .lgx-rhash { font-family: var(--lmono); font-size: 9.5px; color: var(--faint); margin-top: 4px; }
             .lgx-op { font-family: var(--lmono); font-size: 12px; color: var(--ink-soft); overflow-wrap: anywhere; }
-            .lgx-metric { font-family: "Cormorant Garamond", Georgia, serif; font-size: 18px; font-weight: 600; color: var(--ink); }
+            .lgx-metric { font-family: var(--font-content); font-size: 18px; font-weight: 600; color: var(--ink); }
             .lgx-metric .w { font-family: var(--lmono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 400; margin-left: 7px; }
             .lgx-ora { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
             .lgx-ora .src { font-family: var(--lmono); font-size: 10.5px; color: var(--ink-soft); white-space: nowrap; }
             .lgx-rail { font-family: var(--lmono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; border: 1px solid var(--line-firm); padding: 3px 6px; color: var(--muted); }
             .lgx-rail.cltr { color: var(--ox); border-color: rgba(124,29,43,.4); }
-            .lgx-stake { font-family: "Cormorant Garamond", Georgia, serif; font-size: 20px; font-weight: 600; text-align: right; }
+            .lgx-stake { font-family: var(--font-content); font-variant-numeric: tabular-nums; font-size: 20px; font-weight: 600; text-align: right; }
             .lgx-pill { font-family: var(--lmono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500; padding: 5px 10px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; justify-self: start; }
             .lgx-pill.won { color: var(--win); background: rgba(78,107,62,.13); border: 1px solid rgba(78,107,62,.5); }
             .lgx-pill.lost { color: var(--ox); background: var(--oxtint); border: 1px solid rgba(124,29,43,.45); }
@@ -137,7 +137,7 @@ export function renderLedger() {
             .lgx-time { font-family: var(--lmono); font-size: 10.5px; color: var(--muted); text-align: right; }
 
             .lgx-note { padding: 42px 12px; text-align: center; font-family: var(--lmono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line-soft); }
-            .lgx-note .sub { display: block; margin-top: 10px; letter-spacing: .02em; text-transform: none; font-family: "EB Garamond", Georgia, serif; font-size: 15px; color: var(--ink-soft); }
+            .lgx-note .sub { display: block; margin-top: 10px; letter-spacing: .02em; text-transform: none; font-family: var(--font-content); font-size: 15px; color: var(--ink-soft); }
             .lgx-skel { padding: 15px 12px; border-bottom: 1px solid var(--line-soft); }
             .lgx-skel span { height: 12px; background: rgba(70,55,35,.07); display: block; }
 

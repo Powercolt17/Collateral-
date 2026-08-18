@@ -28,7 +28,7 @@
 .promo-text {
     font-size: 11px;
     font-weight: 600;
-    font-family: 'Sora', 'Inter', sans-serif;
+    font-family: var(--font-content);
     letter-spacing: 1px;
     text-transform: uppercase;
     background: linear-gradient(to right, rgba(255,255,255,0.6) 20%, #fff 40%, #fff 60%, rgba(255,255,255,0.6) 80%);
@@ -96,47 +96,64 @@
     text-transform: uppercase !important;
     color: #0E1420 !important;
 }
-/* Override Inter's slashed zero with a clean zero from system fonts */
-@font-face {
-    font-family: 'Inter';
-    src: local('Segoe UI'), local('Arial'), local('Helvetica Neue'), local('Helvetica'), local('Roboto'), local('SF Pro Display');
-    unicode-range: U+0030;
-    font-weight: 100 900;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Inter';
-    src: local('Segoe UI'), local('Arial'), local('Helvetica Neue'), local('Helvetica'), local('Roboto'), local('SF Pro Display');
-    unicode-range: U+0030;
-    font-weight: 100 900;
-    font-style: italic;
-    font-display: swap;
-}
-
-/* Override JetBrains Mono's dotted zero with a clean zero from system fonts */
-@font-face {
-    font-family: 'JetBrains Mono';
-    src: local('Segoe UI'), local('Arial'), local('Helvetica Neue'), local('Helvetica'), local('Roboto'), local('SF Pro Display');
-    unicode-range: U+0030;
-    font-weight: 100 900;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'JetBrains Mono';
-    src: local('Segoe UI'), local('Arial'), local('Helvetica Neue'), local('Helvetica'), local('Roboto'), local('SF Pro Display');
-    unicode-range: U+0030;
-    font-weight: 100 900;
-    font-style: italic;
-    font-display: swap;
-}
+/* The Inter and JetBrains Mono zero-overrides are gone with the fonts they
+   patched. Both mapped local() faces onto U+0030 to replace a slashed or
+   dotted zero; neither family is loaded now, so the rules matched nothing and
+   only cost four extra face lookups a page. Source Serif 4 and IBM Plex Mono
+   both draw a plain zero. */
 
 
 /* ================================================================
    COLLATERAL.MARKET — GLOBAL TYPOGRAPHY & CONTRAST SYSTEM
    Institutional grade. WCAG AA minimum. Zero softness.
    ================================================================ */
+
+/* ── Typography ──
+   THREE FAMILIES, ASSIGNED BY PURPOSE RATHER THAN BY TAG.
+
+   --font-display  DM Serif Display   headlines, brand, editorial statements
+   --font-content  Source Serif 4     money, names, titles, body -- anything read
+   --font-data     IBM Plex Mono      labels, IDs, column heads, status, metadata
+
+   The application previously loaded eleven families and referenced ten:
+   Cormorant Garamond, EB Garamond, JetBrains Mono, Sora, Archivo, Inter,
+   Inter Tight, Public Sans, Plus Jakarta Sans, IBM Plex Sans and Newsreader.
+   Half of those were never a deliberate choice -- they arrived with a
+   component and stayed.
+
+   A LARGE FINANCIAL VALUE IS CONTENT, NOT DISPLAY. Cormorant carried both
+   the headlines and every stake, pool and percentage on the site; moving it
+   wholesale to a display face would have put decorative numerals on money.
+   Money reads in Source Serif 4 with tabular figures so columns line up.
+*/
+:root {
+    --font-display: "DM Serif Display", Georgia, "Times New Roman", serif;
+    --font-content: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --font-data: var(--font-data);
+    /* Legacy aliases. --display resolves to CONTENT, not the display face,
+       and that is deliberate: the older blocks use var(--display) for stat
+       values and dashboard figures as often as for headings, so pointing it
+       at DM Serif Display would put display numerals on money in exactly the
+       places nobody would think to check. The display face is only used where
+       it is asked for by name. */
+    --display: var(--font-content);
+    --body: var(--font-content);
+    --mono: var(--font-data);
+}
+
+/* DM Serif Display ships one cut. Without this a rule asking for 600 gets a
+   smeared synthetic bold instead of the drawn face, which on a display serif
+   at 52px is unmistakable. Everything set in it is already heavy by design. */
+[style*="--font-display"], .font-display { font-synthesis: none; }
+:root { font-synthesis-weight: none; }
+
+/* DM Serif Display ships ONE cut. Without this, a rule asking for 600 gets a
+   smeared synthetic bold instead of the drawn face — unmistakable on a display
+   serif at 52px. The three loaded families all carry real weights for
+   everything asked of them, so nothing needs faking anywhere. */
+:root { font-synthesis-weight: none; }
+/* Figures that sit in a column line up. */
+.tnum, table, .tabular { font-variant-numeric: tabular-nums; }
 
 /* ── Design Tokens ──
    ONE GROUND FOR THE WHOLE APPLICATION.
@@ -225,7 +242,7 @@ html {
 }
 
 body {
-    font-family: 'Neue Haas Grotesk Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-content);
     font-size: 16px;
     line-height: 1.5;
     color: var(--text-primary);
@@ -294,7 +311,7 @@ p {
 
 /* Mono utility */
 .mono {
-    font-family: 'Inter', monospace;
+    font-family: var(--font-data);
 }
 
 /* ── Global Amount Styling ── */
@@ -304,7 +321,7 @@ p {
 [class*="-stat-value"] {
     font-weight: 700;
     color: var(--text-primary);
-    font-family: 'Inter', monospace;
+    font-family: var(--font-data);
     letter-spacing: -0.5px;
 }
 
@@ -319,7 +336,7 @@ p {
     text-transform: uppercase;
     letter-spacing: 1.2px;
     color: var(--text-tertiary);
-    font-family: 'Inter', monospace;
+    font-family: var(--font-data);
 }
 
 /* ── Row Height Rhythm ── */
@@ -337,7 +354,7 @@ p {
     font-weight: 700 !important;
     opacity: 1 !important;
     border-width: 1px !important;
-    font-family: 'Inter', monospace !important;
+    font-family: var(--font-data) !important;
 }
 
 /* ── Borders — Structural Clarity ── */
@@ -547,7 +564,7 @@ button[class*="-connect"]:hover,
     padding: 10px 16px;
     text-align: left;
     border-bottom: 2px solid var(--divider);
-    font-family: 'Inter', monospace;
+    font-family: var(--font-data);
 }
 
 .creators-table tbody td {
@@ -581,7 +598,7 @@ button[class*="-connect"]:hover,
     text-transform: uppercase;
     letter-spacing: 1.5px;
     color: var(--red);
-    font-family: 'Inter', monospace;
+    font-family: var(--font-data);
     display: block;
     margin-bottom: 6px;
 }
@@ -613,7 +630,7 @@ button[class*="-connect"]:hover,
     padding: 14px 20px;
     border-radius: 6px;
     font-size: 15px;
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-family: var(--font-data), 'Fira Code', monospace;
     color: var(--red);
     font-weight: 600;
     margin: 12px 0;

@@ -280,7 +280,7 @@ export function renderHeader(currentRoute = '') {
                 transform: translateY(1px);
             }
             .ch-section-label {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 9.2px;
                 font-weight: 500;
                 letter-spacing: 0.2em;
@@ -354,7 +354,7 @@ export function renderHeader(currentRoute = '') {
 
             /* Micro-labels: Darkened to #333F51 for WCAG AA 4.5:1 Contrast */
             .ch-cap-lbl {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 8.5px;
                 font-weight: 600;
                 letter-spacing: 0.12em;
@@ -365,7 +365,7 @@ export function renderHeader(currentRoute = '') {
 
             /* Values: Left-aligned Tabular Nums & Integer formatting */
             .ch-cap-val {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 13.5px;
                 font-weight: 700;
                 font-variant-numeric: tabular-nums !important;
@@ -390,7 +390,7 @@ export function renderHeader(currentRoute = '') {
                 border: none;
                 border-radius: var(--r, 2px);
                 cursor: pointer;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 letter-spacing: 0.12em;
                 text-transform: uppercase;
                 transition: background 150ms ease;
@@ -402,7 +402,7 @@ export function renderHeader(currentRoute = '') {
                beside it, which is what makes the header read as one object
                rather than a wordmark with a toolbar bolted to its right. */
             .ch-nav-link {
-                font-family: "Trajan Pro", "Cinzel", Georgia, serif;
+                font-family: var(--font-data);
                 /* 11.5 -> 11px and the ink drops to --ink-soft, so the two
                    secondary links sit back and GET STARTED is unambiguously
                    the only call to action in the bar.
@@ -445,7 +445,7 @@ export function renderHeader(currentRoute = '') {
             }
 
             .ch-cta-btn {
-                font-family: "Trajan Pro", "Cinzel", Georgia, serif;
+                font-family: var(--font-data);
                 font-size: 11.5px;
                 font-weight: 400;
                 font-synthesis: none;
@@ -509,7 +509,7 @@ export function renderHeader(currentRoute = '') {
                 border-radius: var(--r, 2px);
                 background: var(--ink, #0E1420);
                 color: #FFF8F5;
-                font-family: var(--display, 'Archivo', sans-serif);
+                font-family: var(--display, var(--font-content));
                 font-size: 10.5px;
                 font-weight: 800;
                 display: flex;
@@ -558,7 +558,7 @@ export function renderHeader(currentRoute = '') {
 
             /* Visible MENU Text Label */
             .ch-menu-label {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 11px;
                 font-weight: 700;
                 letter-spacing: 0.16em;
@@ -668,7 +668,7 @@ export function renderHeader(currentRoute = '') {
                 box-sizing: border-box;
             }
             .pnl-header-title {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 11px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -720,7 +720,7 @@ export function renderHeader(currentRoute = '') {
                 overflow: hidden;
             }
             .pnl-user-initial {
-                font-family: var(--display, 'Archivo', sans-serif);
+                font-family: var(--display, var(--font-content));
                 font-size: 15px;
                 font-weight: 800;
                 color: #FFF8F5;
@@ -737,7 +737,7 @@ export function renderHeader(currentRoute = '') {
                 min-width: 0;
             }
             .pnl-user-name {
-                font-family: var(--display, 'Archivo', sans-serif);
+                font-family: var(--display, var(--font-content));
                 font-size: 14px;
                 font-weight: 700;
                 color: var(--ink, #0E1420);
@@ -746,7 +746,7 @@ export function renderHeader(currentRoute = '') {
                 text-overflow: ellipsis;
             }
             .pnl-user-role {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 9px;
                 font-weight: 500;
                 letter-spacing: 0.08em;
@@ -776,7 +776,7 @@ export function renderHeader(currentRoute = '') {
             }
             .pnl-cap-col { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
             .pnl-cap-lbl {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 8px;
                 font-weight: 500;
                 letter-spacing: 0.08em;
@@ -785,7 +785,7 @@ export function renderHeader(currentRoute = '') {
                 white-space: nowrap;
             }
             .pnl-cap-val {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 13px;
                 font-weight: 700;
                 font-variant-numeric: tabular-nums !important;
@@ -827,7 +827,7 @@ export function renderHeader(currentRoute = '') {
             .pnl-scroll-mask.at-bottom { opacity: 0; }
 
             .pnl-section-label {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 9px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -851,7 +851,7 @@ export function renderHeader(currentRoute = '') {
                 align-items: center;
                 justify-content: space-between;
                 box-sizing: border-box;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
                 text-decoration: none;
@@ -906,7 +906,7 @@ export function renderHeader(currentRoute = '') {
                 align-items: center;
                 padding: 8px 24px 8px 36px;
                 min-height: 36px;
-                font-family: var(--display, 'Archivo', sans-serif);
+                font-family: var(--display, var(--font-content));
                 font-size: 13px;
                 font-weight: 500;
                 color: var(--ink-2, #4A5464);
@@ -941,7 +941,7 @@ export function renderHeader(currentRoute = '') {
                 min-height: 44px;
                 background: var(--blood, #7A1C29);
                 color: #FFF8F5;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 11px;
                 font-weight: 700;
                 letter-spacing: 0.12em;
@@ -963,7 +963,7 @@ export function renderHeader(currentRoute = '') {
             .pnl-status-left { display: flex; align-items: center; gap: 8px; }
             .pnl-status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--win, #186B4A); }
             .pnl-status-text {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 10px;
                 font-weight: 700;
                 letter-spacing: 0.12em;
@@ -984,7 +984,7 @@ export function renderHeader(currentRoute = '') {
             }
             .pnl-meta-item { display: flex; flex-direction: column; gap: 2px; }
             .pnl-meta-label {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 8.5px;
                 font-weight: 500;
                 letter-spacing: 0.12em;
@@ -992,7 +992,7 @@ export function renderHeader(currentRoute = '') {
                 color: #333F51;
             }
             .pnl-meta-value {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 11px;
                 font-weight: 600;
                 color: var(--ink, #0E1420);
@@ -1005,7 +1005,7 @@ export function renderHeader(currentRoute = '') {
                 border-top: 1px solid var(--rule, #DCD5C6);
             }
             .pnl-legal a {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 9.5px;
                 color: #333F51;
                 text-decoration: none;
@@ -1306,7 +1306,7 @@ export function renderHeader(currentRoute = '') {
            behind this, at the same height, and still visible with the drawer
            open — printing it twice on one line would read as a mistake. */
         .pnl-drawer .pnl-header-title {
-            font-family: "Cormorant Garamond", Georgia, serif !important;
+            font-family: var(--font-content) !important;
             font-size: 15px;
             font-weight: 600;
             letter-spacing: .24em;
@@ -1348,7 +1348,7 @@ export function renderHeader(currentRoute = '') {
            below it stays, because that one distinguishes two groups from each
            other, which is what a label is for. */
         .pnl-drawer .pnl-section-label {
-            font-family: "IBM Plex Mono", ui-monospace, monospace !important;
+            font-family: var(--font-data), ui-monospace, monospace !important;
             font-size: 8.5px;
             font-weight: 500;
             letter-spacing: .26em;
@@ -1373,7 +1373,7 @@ export function renderHeader(currentRoute = '') {
             border-bottom: none;
         }
         .pnl-drawer .pnl-nav-link {
-            font-family: "Cormorant Garamond", Georgia, serif !important;
+            font-family: var(--font-content) !important;
             font-size: 20px !important;
             font-weight: 600;
             letter-spacing: .15em;
@@ -1510,7 +1510,7 @@ export function renderHeader(currentRoute = '') {
            more border doing a job indentation already does), the face matches
            the rest of the drawer, and the size drops to 14.5 against 20. */
         .pnl-drawer .pnl-subnav-link {
-            font-family: "EB Garamond", Georgia, serif !important;
+            font-family: var(--font-content) !important;
             font-size: 14.5px !important;
             font-weight: 400;
             letter-spacing: .05em;
@@ -1554,7 +1554,7 @@ export function renderHeader(currentRoute = '') {
 
         /* ---------- ACCOUNT LINKS (signed in) ---------- */
         .pnl-drawer .pnl-acct-link {
-            font-family: "EB Garamond", Georgia, serif !important;
+            font-family: var(--font-content) !important;
             font-size: 14px !important;
             letter-spacing: .16em;
             color: #3A3126;
@@ -1591,7 +1591,7 @@ export function renderHeader(currentRoute = '') {
             color: #F3EADB;
             border: none;
             border-radius: 2px;
-            font-family: "Cormorant Garamond", Georgia, serif !important;
+            font-family: var(--font-content) !important;
             font-size: 13px; font-weight: 600;
             letter-spacing: .26em; text-transform: uppercase;
             cursor: pointer; text-decoration: none;
@@ -1627,7 +1627,7 @@ export function renderHeader(currentRoute = '') {
             background: transparent !important;
             border: none !important;
             color: #6B5F4C !important;
-            font-family: "IBM Plex Mono", ui-monospace, monospace !important;
+            font-family: var(--font-data), ui-monospace, monospace !important;
             font-size: 10px !important;
             font-weight: 500 !important;
             letter-spacing: .26em !important;
@@ -1678,7 +1678,7 @@ export function renderHeader(currentRoute = '') {
             100% { box-shadow: 0 0 0 0 rgba(95,125,79,0); }
         }
         .pnl-drawer .pnl-status-text {
-            font-family: "IBM Plex Mono", ui-monospace, monospace !important;
+            font-family: var(--font-data), ui-monospace, monospace !important;
             font-size: 9px;
             font-weight: 500;
             letter-spacing: .22em;
@@ -1695,7 +1695,7 @@ export function renderHeader(currentRoute = '') {
             margin: 8px 0 0;
             padding: 0 0 0 15px;
             border-top: none;
-            font-family: "IBM Plex Mono", ui-monospace, monospace;
+            font-family: var(--font-data), ui-monospace, monospace;
             font-size: 9px;
             font-weight: 400;
             letter-spacing: .16em;
@@ -1709,7 +1709,7 @@ export function renderHeader(currentRoute = '') {
 
         /* ---------- TYPE BASE ---------- */
         .pnl-drawer, .pnl-drawer .pnl-body, .pnl-drawer .pnl-legal {
-            font-family: "EB Garamond", Georgia, "Times New Roman", serif;
+            font-family: var(--font-content), Georgia, "Times New Roman", serif;
             color: #2A2118;
         }
 
@@ -1726,16 +1726,16 @@ export function renderHeader(currentRoute = '') {
         }
         .pnl-drawer .pnl-user-badge { background: #7A1C29; border-radius: 2px; }
         .pnl-drawer .pnl-user-name {
-            font-family: "Cormorant Garamond", Georgia, serif;
+            font-family: var(--font-content);
             font-size: 16px; font-weight: 600; letter-spacing: .04em;
         }
         .pnl-drawer .pnl-user-role,
         .pnl-drawer .pnl-cap-lbl {
-            font-family: "IBM Plex Mono", ui-monospace, monospace;
+            font-family: var(--font-data), ui-monospace, monospace;
             letter-spacing: .18em; color: #7C6E58;
         }
         .pnl-drawer .pnl-cap-val {
-            font-family: "Cormorant Garamond", Georgia, serif;
+            font-family: var(--font-content);
             font-size: 16px; font-weight: 600;
         }
         .pnl-drawer .pnl-capital-summary:hover { background: rgba(122,28,41,.03); }

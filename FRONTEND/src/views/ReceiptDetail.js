@@ -191,7 +191,7 @@ export async function initReceiptDetail(params) {
             <!-- Header -->
             <div class="border-b border-neutral-200">
                 <div class="max-w-4xl mx-auto px-8 py-8">
-                    <h1 class="text-2xl font-semibold tracking-tight text-neutral-900 mb-3" style="font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                    <h1 class="text-2xl font-semibold tracking-tight text-neutral-900 mb-3" style="font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;">
                         CONTRACT EXECUTION RECEIPT
                     </h1>
                     <p class="text-sm text-neutral-600 mb-4">
@@ -251,7 +251,7 @@ export async function initReceiptDetail(params) {
 
                 <!-- Contract Terms -->
                 <div class="mb-10">
-                    <h2 class="text-lg font-semibold text-neutral-900 mb-4 border-b border-neutral-200 pb-3" style="font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                    <h2 class="text-lg font-semibold text-neutral-900 mb-4 border-b border-neutral-200 pb-3" style="font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;">
                         CONTRACT TERMS
                     </h2>
                     <div>
@@ -324,7 +324,7 @@ export async function initReceiptDetail(params) {
 
                 <!-- Execution Timeline -->
                 <div class="mb-10">
-                    <h2 class="text-lg font-semibold text-neutral-900 mb-4 border-b border-neutral-200 pb-3" style="font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                    <h2 class="text-lg font-semibold text-neutral-900 mb-4 border-b border-neutral-200 pb-3" style="font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;">
                         EXECUTION TIMELINE
                     </h2>
                     <div class="bg-neutral-900 p-6">

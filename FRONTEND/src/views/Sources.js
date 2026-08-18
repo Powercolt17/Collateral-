@@ -31,10 +31,10 @@ export function renderSources() {
               --rule: #DCD5C6;
               --rule-soft: #EAE4D8;
               --rule-strong: #BDB3A0;
-              --display: "Archivo", system-ui, sans-serif;
-              --wordmark: "Archivo", system-ui, sans-serif;
-              --body: "Public Sans", system-ui, sans-serif;
-              --mono: "IBM Plex Mono", ui-monospace, monospace;
+              --display: var(--font-display);
+              --wordmark: var(--font-display);
+              --body: var(--font-content);
+              --mono: var(--font-data), ui-monospace, monospace;
               --r: 2px;
               --lift: 0 1px 2px rgba(14,20,32,.04), 0 12px 28px -18px rgba(14,20,32,.22);
             }
@@ -42,7 +42,7 @@ export function renderSources() {
             .src {
                 background: var(--paper, #F7F4ED);
                 min-height: 100vh;
-                font-family: var(--body, 'Public Sans', sans-serif);
+                font-family: var(--body, var(--font-content));
                 color: var(--ink, #0E1420);
                 padding-bottom: 100px;
                 position: relative;
@@ -61,7 +61,7 @@ export function renderSources() {
 
             /* Clerical Mono Label Utility */
             .mono-lbl {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 10.5px;
                 letter-spacing: .16em;
                 text-transform: uppercase;
@@ -75,7 +75,7 @@ export function renderSources() {
                 padding: 60px 32px 24px;
             }
             .src-hero-title {
-                font-family: var(--display, 'Archivo', sans-serif);
+                font-family: var(--display, var(--font-content));
                 font-size: 40px;
                 font-weight: 700;
                 letter-spacing: -.026em;
@@ -105,7 +105,7 @@ export function renderSources() {
             }
             .src-stat-group { display: flex; flex-direction: column; gap: 6px; }
             .src-stat-value {
-                font-family: var(--display, 'Archivo', sans-serif);
+                font-family: var(--display, var(--font-content));
                 font-size: 30px;
                 font-weight: 700;
                 letter-spacing: -.026em;
@@ -114,7 +114,7 @@ export function renderSources() {
                 line-height: 1;
             }
             .src-stat-label {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 10.5px;
                 text-transform: uppercase;
                 letter-spacing: .16em;
@@ -164,19 +164,19 @@ export function renderSources() {
                 gap: 16px;
             }
             .src-conn-name {
-                font-family: var(--display, 'Archivo', sans-serif);
+                font-family: var(--display, var(--font-content));
                 font-size: 16px;
                 font-weight: 700;
                 color: var(--ink, #0E1420);
             }
             .src-conn-date {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 11px;
                 color: var(--ink-3, #6E7686);
             }
 
             .src-badge-verified {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 10px;
                 font-weight: 700;
                 letter-spacing: 0.16em;
@@ -221,12 +221,12 @@ export function renderSources() {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 11px;
                 font-weight: 700;
             }
             .src-flow-lbl {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 10.5px;
                 font-weight: 600;
                 color: var(--ink-2, #4A5464);
@@ -252,7 +252,7 @@ export function renderSources() {
                 gap: 28px;
             }
             .why-ver-title {
-                font-family: var(--display, 'Archivo', sans-serif);
+                font-family: var(--display, var(--font-content));
                 font-size: 20px;
                 font-weight: 700;
                 color: var(--ink, #0E1420);
@@ -298,7 +298,7 @@ export function renderSources() {
             }
 
             .why-ver-node-title {
-                font-family: var(--display, 'Archivo', sans-serif);
+                font-family: var(--display, var(--font-content));
                 font-size: 14px;
                 font-weight: 700;
                 color: var(--ink, #0E1420);
@@ -350,7 +350,7 @@ export function renderSources() {
                 border: 1px solid #7A1C29 !important;
                 border-radius: var(--r, 2px);
                 padding: 12px 20px;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 11px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -544,7 +544,7 @@ export function renderSources() {
                     <div class="src-prov-card">
                         <div>
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                                <span style="font-family:var(--display, 'Archivo', sans-serif); font-size:16px; font-weight:700; display:flex; align-items:center; gap:8px;">
+                                <span style="font-family:var(--display, var(--font-content)); font-size:16px; font-weight:700; display:flex; align-items:center; gap:8px;">
                                     <span class="src-platform-dot"></span> Shopify Admin API
                                 </span>
                                 <span class="mono-lbl" style="background:rgba(122,28,41,0.08); color:#7A1C29; padding:2px 6px; border-radius:2px;">COMMERCE</span>
@@ -563,7 +563,7 @@ export function renderSources() {
                     <div class="src-prov-card coming-soon">
                         <div>
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                                <span class="src-conn-name" style="font-family:var(--display, 'Archivo', sans-serif); font-size:16px; font-weight:700; display:flex; align-items:center; gap:8px;">
+                                <span class="src-conn-name" style="font-family:var(--display, var(--font-content)); font-size:16px; font-weight:700; display:flex; align-items:center; gap:8px;">
                                     <span class="src-platform-dot"></span> Amazon Seller API
                                 </span>
                                 <span class="mono-lbl">PIPELINE</span>
@@ -581,7 +581,7 @@ export function renderSources() {
                     <div class="src-prov-card coming-soon">
                         <div>
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                                <span class="src-conn-name" style="font-family:var(--display, 'Archivo', sans-serif); font-size:16px; font-weight:700; display:flex; align-items:center; gap:8px;">
+                                <span class="src-conn-name" style="font-family:var(--display, var(--font-content)); font-size:16px; font-weight:700; display:flex; align-items:center; gap:8px;">
                                     <span class="src-platform-dot"></span> TikTok Creator API
                                 </span>
                                 <span class="mono-lbl">PIPELINE</span>

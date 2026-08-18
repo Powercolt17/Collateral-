@@ -68,12 +68,12 @@ function ensureModal() {
             }
             .exec-header-title {
                 font-size: 11px; font-weight: 600; color: #374151;
-                font-family: 'Inter', 'JetBrains Mono', monospace;
+                font-family: 'Inter', var(--font-data);
                 text-transform: uppercase; letter-spacing: 0.08em;
             }
             .exec-header-id {
                 font-size: 10px; color: #9ca3af;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 letter-spacing: 0.04em;
             }
 
@@ -87,12 +87,12 @@ function ensureModal() {
             }
             .exec-tier-label {
                 font-size: 11px; font-weight: 600; color: #374151;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 text-transform: uppercase; letter-spacing: 0.06em;
             }
             .exec-tier-badge {
                 font-size: 11px; font-weight: 700; color: #111;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 text-transform: uppercase; letter-spacing: 0.04em;
             }
             .exec-stake-presets {
@@ -103,7 +103,7 @@ function ensureModal() {
                 flex: 1; padding: 10px 0; border: none;
                 background: #F5EDDA; color: #374151;
                 font-size: 13px; font-weight: 600;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 cursor: pointer; transition: all 120ms ease;
                 border-right: 1px solid rgba(70,55,35,.22);
                 font-variant-numeric: tabular-nums;
@@ -125,11 +125,11 @@ function ensureModal() {
             .exec-outcome-label {
                 font-size: 11px; color: #6b7280;
                 text-transform: uppercase; letter-spacing: 0.06em;
-                font-family: 'JetBrains Mono', monospace; font-weight: 500;
+                font-family: var(--font-data); font-weight: 500;
             }
             .exec-outcome-value {
                 font-size: 16px; font-weight: 700;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 letter-spacing: -0.01em;
                 font-variant-numeric: tabular-nums;
             }
@@ -146,7 +146,7 @@ function ensureModal() {
             /* Escrow */
             .exec-escrow {
                 font-size: 10px; color: #9ca3af; text-align: center;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 letter-spacing: 0.02em;
                 margin-bottom: 16px;
             }
@@ -162,7 +162,7 @@ function ensureModal() {
             }
             .exec-risk-text {
                 font-size: 12px; color: #374151; line-height: 1.5;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
             }
 
             /* ── Primary Button — Dual-State ── */
@@ -172,7 +172,7 @@ function ensureModal() {
                 border: 1px solid rgba(70,55,35,.22);
                 font-size: 12px; font-weight: 600;
                 text-transform: uppercase; letter-spacing: 0.06em;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 cursor: pointer; overflow: hidden;
                 transition: all 150ms ease;
                 box-shadow: none;
@@ -207,7 +207,7 @@ function ensureModal() {
             .exec-btn-cancel {
                 width: 100%; border: none; background: transparent;
                 color: #9ca3af; font-size: 11px; font-weight: 500;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 cursor: pointer; padding: 8px; margin-top: 4px;
                 transition: color 150ms; letter-spacing: 0.02em;
             }
@@ -218,7 +218,7 @@ function ensureModal() {
                 background: #fef2f2; border: 1px solid #e5c5c5;
                 padding: 10px 14px; margin-top: 12px;
                 font-size: 11px; color: #752122;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 border-radius: 4px; display: none;
             }
 
@@ -228,12 +228,12 @@ function ensureModal() {
             .exec-success-title {
                 font-size: 11px; font-weight: 700; color: #166534;
                 text-transform: uppercase; letter-spacing: 0.06em;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 margin-bottom: 4px;
             }
             .exec-success-sub {
                 font-size: 10px; color: #9ca3af;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
             }
             .exec-success-actions {
                 display: flex; gap: 8px; margin-top: 16px;
@@ -242,7 +242,7 @@ function ensureModal() {
                 flex: 1; padding: 12px; border: none;
                 font-size: 11px; font-weight: 600;
                 text-transform: uppercase; letter-spacing: 0.04em;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 cursor: pointer; transition: all 150ms;
                 border-radius: 4px;
             }
@@ -647,32 +647,32 @@ function showSuccess(bodyEl, stake, multiplier, contractId, fundingMethod = 'USD
             <div style="background: #FAF4E6;border:1px solid rgba(70,55,35,.22);border-radius:6px;padding:16px;margin:20px 0 12px;text-align:left;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
                     <span style="font-size:16px;">🐦</span>
-                    <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;font-family:'JetBrains Mono', monospace;color:#111;">Boost Your Payout</span>
+                    <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;font-family:var(--font-data);color:#111;">Boost Your Payout</span>
                 </div>
-                <div style="font-size:12px;color:#374151;line-height:1.5;margin-bottom:12px;font-family:'Sora','Helvetica Neue',sans-serif;">
+                <div style="font-size:12px;color:#374151;line-height:1.5;margin-bottom:12px;font-family:var(--font-content),'Helvetica Neue',sans-serif;">
                     Share your contract on X to earn <strong>+5% extra profit</strong> if you succeed.
                 </div>
-                <div style="display:flex;gap:6px;font-size:10px;color:#6b7280;font-family:'JetBrains Mono', monospace;margin-bottom:14px;">
+                <div style="display:flex;gap:6px;font-size:10px;color:#6b7280;font-family:var(--font-data);margin-bottom:14px;">
                     <span>Normal: ${fmt(payout)}</span>
                     <span>→</span>
                     <span style="color:#166534;font-weight:600;">Boosted: ${fmt(bonusPayout)} (+${fmt(bonusProfit)})</span>
                 </div>
-                <button id="exec-share-x" style="width:100%;padding:10px;background:#0f1419;color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;font-family:'Sora',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 150ms;">
+                <button id="exec-share-x" style="width:100%;padding:10px;background:#0f1419;color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;font-family:var(--font-content);display:flex;align-items:center;justify-content:center;gap:8px;transition:background 150ms;">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                     Share on X
                 </button>
             </div>
 
             <div id="exec-tweet-verify" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:14px;margin-bottom:12px;text-align:left;">
-                <div style="font-size:11px;font-weight:600;color:#166534;margin-bottom:8px;font-family:'JetBrains Mono', monospace;text-transform:uppercase;letter-spacing:0.04em;">Paste Your Tweet URL</div>
-                <input id="exec-tweet-url" type="text" placeholder="https://x.com/you/status/..." style="width:100%;padding:8px 10px;border:1px solid #d4d4d4;border-radius:4px;font-size:12px;font-family:'JetBrains Mono', monospace;margin-bottom:8px;box-sizing:border-box;">
-                <button id="exec-verify-tweet" style="width:100%;padding:8px;background:#166534;color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:0.04em;font-family:'Sora',sans-serif;">Verify & Activate Bonus</button>
-                <div id="exec-tweet-status" style="font-size:10px;color:#6b7280;margin-top:6px;font-family:'JetBrains Mono', monospace;display:none;"></div>
+                <div style="font-size:11px;font-weight:600;color:#166534;margin-bottom:8px;font-family:var(--font-data);text-transform:uppercase;letter-spacing:0.04em;">Paste Your Tweet URL</div>
+                <input id="exec-tweet-url" type="text" placeholder="https://x.com/you/status/..." style="width:100%;padding:8px 10px;border:1px solid #d4d4d4;border-radius:4px;font-size:12px;font-family:var(--font-data);margin-bottom:8px;box-sizing:border-box;">
+                <button id="exec-verify-tweet" style="width:100%;padding:8px;background:#166534;color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:0.04em;font-family:var(--font-content);">Verify & Activate Bonus</button>
+                <div id="exec-tweet-status" style="font-size:10px;color:#6b7280;margin-top:6px;font-family:var(--font-data);display:none;"></div>
             </div>
 
             <div id="exec-bonus-confirmed" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:12px;margin-bottom:12px;text-align:center;">
                 <div style="font-size:13px;font-weight:700;color:#166534;">🐦 +5% Bonus Activated</div>
-                <div style="font-size:10px;color:#6b7280;margin-top:4px;font-family:'JetBrains Mono', monospace;">Tweet must stay live until settlement</div>
+                <div style="font-size:10px;color:#6b7280;margin-top:4px;font-family:var(--font-data);">Tweet must stay live until settlement</div>
             </div>
 
             <div class="exec-success-actions">

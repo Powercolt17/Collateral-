@@ -174,9 +174,9 @@ export function renderLedgerSection(options = {}) {
           --lg-ox:#7C1D2B; --lg-win:#4E6B3E;
           --lg-line:rgba(60,48,30,.16); --lg-line-soft:rgba(60,48,30,.09);
           --lg-track:rgba(60,48,30,.14);
-          --lg-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
-          --lg-serif:"EB Garamond",Georgia,serif;
-          --lg-display:"Cormorant Garamond",Georgia,serif;
+          --lg-mono:var(--font-data);
+          --lg-serif:var(--font-content);
+          --lg-display:var(--font-display);
           background:var(--lg-parch);color:var(--lg-ink);
           font-family:var(--lg-serif);-webkit-font-smoothing:antialiased;
         }

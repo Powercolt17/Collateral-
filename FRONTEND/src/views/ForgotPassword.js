@@ -68,7 +68,7 @@ export function renderForgotPassword() {
             font-weight: 800;
             color: #111;
             letter-spacing: 0.1em;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-data);
         }
         .fp-title {
             font-size: 24px;
@@ -99,7 +99,7 @@ export function renderForgotPassword() {
             color: #888;
             letter-spacing: 1.5px;
             text-transform: uppercase;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-data);
         }
         .fp-input {
             width: 100%;
@@ -145,7 +145,7 @@ export function renderForgotPassword() {
             text-transform: uppercase;
             cursor: pointer;
             transition: opacity 0.2s;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-data);
         }
         .fp-button:hover { opacity: 0.85; }
         .fp-button:disabled {

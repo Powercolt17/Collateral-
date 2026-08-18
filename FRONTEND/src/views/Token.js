@@ -65,7 +65,7 @@ export function renderToken() {
             .cltr-page {
                 background: var(--paper, #F7F4ED);
                 min-height: 100vh;
-                font-family: 'Sora', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                font-family: var(--font-content), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
                 color: #111111;
                 padding-bottom: 120px;
             }
@@ -109,7 +109,7 @@ export function renderToken() {
             .cltr-title-desc {
                 font-size: 11px;
                 color: #666;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 letter-spacing: 1.5px;
                 text-transform: uppercase;
                 margin-top: 6px;
@@ -157,7 +157,7 @@ export function renderToken() {
                 50% { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
             }
             .cltr-status-lbl {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 10px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -177,7 +177,7 @@ export function renderToken() {
                 color: #FFFFFF;
                 border: none;
                 padding: 10px 18px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 10px;
                 font-weight: 700;
                 letter-spacing: 0.5px;
@@ -228,7 +228,7 @@ export function renderToken() {
                 flex: 1;
             }
             .cltr-focal-lbl {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 10px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -237,7 +237,7 @@ export function renderToken() {
                 margin-bottom: 12px;
             }
             .cltr-focal-num {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 54px;
                 font-weight: 800;
                 letter-spacing: -2px;
@@ -259,7 +259,7 @@ export function renderToken() {
                 gap: 4px;
             }
             .cltr-focal-mini-lbl {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -267,7 +267,7 @@ export function renderToken() {
                 color: #888;
             }
             .cltr-focal-mini-num {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 20px;
                 font-weight: 700;
                 color: #111;
@@ -294,7 +294,7 @@ export function renderToken() {
                 border-color: rgba(92, 20, 20, 0.2);
             }
             .cltr-metric-lbl {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -304,7 +304,7 @@ export function renderToken() {
                 display: block;
             }
             .cltr-metric-val {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 20px;
                 font-weight: 700;
                 color: #111;
@@ -345,7 +345,7 @@ export function renderToken() {
                 padding-bottom: 16px;
             }
             .cltr-panel-title {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 11px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -367,7 +367,7 @@ export function renderToken() {
             .cltr-field-lbl-row {
                 display: flex;
                 justify-content: space-between;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -388,7 +388,7 @@ export function renderToken() {
                 padding-right: 80px;
                 border: 1px solid rgba(70,55,35,.22);
                 background: #FAF4E6;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 18px;
                 font-weight: 700;
                 color: #111;
@@ -422,7 +422,7 @@ export function renderToken() {
                 right: 18px;
                 top: 50%;
                 transform: translateY(-50%);
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 11px;
                 font-weight: 700;
                 color: #888;
@@ -460,7 +460,7 @@ export function renderToken() {
                 margin-bottom: 2px;
             }
             .cltr-lock-yield {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 8px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -474,7 +474,7 @@ export function renderToken() {
                 border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
                 padding: 18px 20px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 11px;
                 display: flex;
                 flex-direction: column;
@@ -500,7 +500,7 @@ export function renderToken() {
                 background: #7A1C29;
                 color: #FFFFFF;
                 border: none;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 11px;
                 font-weight: 700;
                 letter-spacing: 1.5px;
@@ -566,7 +566,7 @@ export function renderToken() {
                 padding: 12px 14px;
             }
             .cltr-burn-period-lbl {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 8px;
                 color: #888;
                 text-transform: uppercase;
@@ -574,7 +574,7 @@ export function renderToken() {
                 margin-bottom: 4px;
             }
             .cltr-burn-period-num {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 12px;
                 font-weight: 700;
                 color: #111;
@@ -599,7 +599,7 @@ export function renderToken() {
                 gap: 4px;
             }
             .cltr-rep-lbl {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 8px;
                 font-weight: 700;
                 color: #888;
@@ -607,7 +607,7 @@ export function renderToken() {
                 letter-spacing: 0.5px;
             }
             .cltr-rep-val {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 16px;
                 font-weight: 700;
                 color: #111;
@@ -630,21 +630,21 @@ export function renderToken() {
                 gap: 4px;
             }
             .cltr-rep-score-lbl {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 color: rgba(255, 255, 255, 0.5);
                 text-transform: uppercase;
                 letter-spacing: 1px;
             }
             .cltr-rep-score-val {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 32px;
                 font-weight: 800;
                 color: #FFFFFF;
                 line-height: 1;
             }
             .cltr-badge-glow {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 font-weight: 700;
                 padding: 6px 12px;
@@ -676,7 +676,7 @@ export function renderToken() {
                 color: #111;
             }
             .cltr-trust-alloc {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 11px;
                 color: #7A1C29;
                 font-weight: 700;
@@ -697,7 +697,7 @@ export function renderToken() {
             .cltr-trust-meta {
                 display: flex;
                 justify-content: space-between;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 color: #888;
                 margin-bottom: 16px;
@@ -712,14 +712,14 @@ export function renderToken() {
                 border-radius: 4px;
             }
             .cltr-trust-claim-lbl {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 color: #888;
                 text-transform: uppercase;
                 display: block;
             }
             .cltr-trust-claim-val {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 13px;
                 font-weight: 700;
                 color: #7A1C29;
@@ -729,7 +729,7 @@ export function renderToken() {
                 color: #FFFFFF;
                 border: none;
                 padding: 8px 14px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -747,7 +747,7 @@ export function renderToken() {
             }
             .cltr-contract-addr-row {
                 margin-top: 12px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 8px;
                 color: #888;
                 display: flex;
@@ -794,7 +794,7 @@ export function renderToken() {
             }
             .cltr-feed-time {
                 display: block;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 8px;
                 color: #888;
                 margin-top: 2px;
@@ -834,7 +834,7 @@ export function renderToken() {
                 text-align: left;
             }
             .cltr-data-table th {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 text-transform: uppercase;
                 letter-spacing: 1px;
@@ -846,7 +846,7 @@ export function renderToken() {
             .cltr-data-table td {
                 padding: 14px 16px;
                 border-bottom: 1px solid #F0F0F0;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
             }
             .cltr-data-table tr:last-child td {
                 border-bottom: none;
@@ -872,7 +872,7 @@ export function renderToken() {
                 color: #FFFFFF;
                 border: none;
                 padding: 4px 10px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -1132,7 +1132,7 @@ export function renderToken() {
                 border: none;
                 border-bottom: 2px solid transparent;
                 padding: 12px 4px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 11px;
                 font-weight: 700;
                 color: #666;
@@ -1200,7 +1200,7 @@ export function renderToken() {
             .wp-container {
                 max-width: 800px;
                 margin: 0 auto;
-                font-family: 'Sora', sans-serif;
+                font-family: var(--font-content);
                 color: #111;
                 line-height: 1.7;
             }
@@ -1228,7 +1228,7 @@ export function renderToken() {
                 margin-bottom: 24px;
             }
             .wp-box-title {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 10px;
                 font-weight: 700;
                 color: #7A1C29;
@@ -1246,7 +1246,7 @@ export function renderToken() {
             }
             .wp-math {
                 background: #F5F5F5;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 12px;
                 padding: 20px;
                 border-radius: 4px;
@@ -1256,7 +1256,7 @@ export function renderToken() {
                 border-left: 3px solid #7A1C29;
             }
             .wp-math-vars {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 11px;
                 color: #666;
                 margin-top: 12px;
@@ -1272,7 +1272,7 @@ export function renderToken() {
                 background: #F5F5F5;
                 text-align: left;
                 padding: 12px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-weight: 700;
                 font-size: 10px;
                 letter-spacing: 0.5px;
@@ -1357,7 +1357,7 @@ export function renderToken() {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 11px;
                 font-weight: 700;
                 margin-bottom: 8px;
@@ -1386,7 +1386,7 @@ export function renderToken() {
 
             /* --- PILLARS SECTION --- */
             .pillars-section-title {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 10px;
                 font-weight: 700;
                 color: #7A1C29;
@@ -1459,7 +1459,7 @@ export function renderToken() {
                 flex: 1;
             }
             .pillar-card-link {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 font-weight: 700;
                 color: #7A1C29;
@@ -1527,7 +1527,7 @@ export function renderToken() {
                 padding-right: 0;
             }
             .snapshot-lbl {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 8px;
                 font-weight: 700;
                 color: #888;
@@ -1535,7 +1535,7 @@ export function renderToken() {
                 letter-spacing: 0.5px;
             }
             .snapshot-val {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 15px;
                 font-weight: 700;
                 color: #111;
@@ -1650,7 +1650,7 @@ export function renderToken() {
 
             /* --- PULL QUOTE STYLES --- */
             .cltr-pull-quote {
-                font-family: 'Sora', sans-serif;
+                font-family: var(--font-content);
                 font-size: 18px;
                 font-weight: 600;
                 color: #7A1C29;
@@ -1686,7 +1686,7 @@ export function renderToken() {
                 border-right: none;
             }
             .stats-dashboard-num {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 32px;
                 font-weight: 800;
                 color: #111111;
@@ -1694,7 +1694,7 @@ export function renderToken() {
                 letter-spacing: -1px;
             }
             .stats-dashboard-lbl {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 font-weight: 700;
                 color: #888;
@@ -1814,35 +1814,35 @@ export function renderToken() {
                             
                             <!-- Central Node (Protocol Core) -->
                             <circle cx="300" cy="150" r="28" fill="#7A1C29" stroke="#FFF" stroke-width="2" class="trust-network-node" />
-                            <text x="300" y="154" font-family="JetBrains Mono" font-size="9" fill="#FFF" font-weight="bold" text-anchor="middle">CLTR</text>
+                            <text x="300" y="154" font-family=var(--font-data) font-size="9" fill="#FFF" font-weight="bold" text-anchor="middle">CLTR</text>
                             
                             <!-- Outer Nodes (Role Play) -->
                             <!-- Client -->
                             <circle cx="100" cy="150" r="16" fill="#FFF" stroke="#111" stroke-width="1.5" class="trust-network-node" />
                             <circle cx="100" cy="150" r="4" fill="#7A1C29" class="pulse-dot" />
-                            <text x="100" y="125" font-family="JetBrains Mono" font-size="8" fill="#111" font-weight="bold" text-anchor="middle">CLIENT</text>
+                            <text x="100" y="125" font-family=var(--font-data) font-size="8" fill="#111" font-weight="bold" text-anchor="middle">CLIENT</text>
                             
                             <!-- Executor -->
                             <circle cx="200" cy="80" r="16" fill="#FFF" stroke="#111" stroke-width="1.5" class="trust-network-node" />
-                            <text x="200" y="55" font-family="JetBrains Mono" font-size="8" fill="#111" font-weight="bold" text-anchor="middle">EXECUTOR</text>
+                            <text x="200" y="55" font-family=var(--font-data) font-size="8" fill="#111" font-weight="bold" text-anchor="middle">EXECUTOR</text>
                             
                             <!-- Validator Node 1 -->
                             <circle cx="350" cy="80" r="16" fill="#FFF" stroke="#111" stroke-width="1.5" class="trust-network-node" />
                             <circle cx="350" cy="80" r="4" fill="#7A1C29" class="pulse-dot" />
-                            <text x="350" y="55" font-family="JetBrains Mono" font-size="8" fill="#111" font-weight="bold" text-anchor="middle">VALIDATOR 01</text>
+                            <text x="350" y="55" font-family=var(--font-data) font-size="8" fill="#111" font-weight="bold" text-anchor="middle">VALIDATOR 01</text>
                             
                             <!-- API Adapter -->
                             <circle cx="500" cy="150" r="16" fill="#FFF" stroke="#7A1C29" stroke-width="1.5" class="trust-network-node" />
-                            <text x="500" y="125" font-family="JetBrains Mono" font-size="8" fill="#7A1C29" font-weight="bold" text-anchor="middle">STRIPE API</text>
+                            <text x="500" y="125" font-family=var(--font-data) font-size="8" fill="#7A1C29" font-weight="bold" text-anchor="middle">STRIPE API</text>
                             
                             <!-- Validator Node 2 -->
                             <circle cx="350" cy="220" r="16" fill="#FFF" stroke="#111" stroke-width="1.5" class="trust-network-node" />
-                            <text x="350" y="250" font-family="JetBrains Mono" font-size="8" fill="#111" font-weight="bold" text-anchor="middle">VALIDATOR 02</text>
+                            <text x="350" y="250" font-family=var(--font-data) font-size="8" fill="#111" font-weight="bold" text-anchor="middle">VALIDATOR 02</text>
                             
                             <!-- Staker -->
                             <circle cx="200" cy="220" r="16" fill="#FFF" stroke="#111" stroke-width="1.5" class="trust-network-node" />
                             <circle cx="200" cy="220" r="4" fill="#7A1C29" class="pulse-dot" />
-                            <text x="200" y="250" font-family="JetBrains Mono" font-size="8" fill="#111" font-weight="bold" text-anchor="middle">STAKER</text>
+                            <text x="200" y="250" font-family=var(--font-data) font-size="8" fill="#111" font-weight="bold" text-anchor="middle">STAKER</text>
                         </svg>
                     </div>
 
@@ -1987,10 +1987,10 @@ export function renderToken() {
                                 <svg width="240" height="100" viewBox="0 0 240 100" fill="none">
                                     <!-- Nodes -->
                                     <rect x="10" y="30" width="70" height="30" rx="3" fill="#FFF" stroke="rgba(70,55,35,.22)" stroke-width="1.5"/>
-                                    <text x="45" y="49" font-family="JetBrains Mono" font-size="9" fill="#111" text-anchor="middle" font-weight="bold">PROMISE</text>
+                                    <text x="45" y="49" font-family=var(--font-data) font-size="9" fill="#111" text-anchor="middle" font-weight="bold">PROMISE</text>
                                     
                                     <rect x="160" y="30" width="70" height="30" rx="3" fill="#FFF" stroke="rgba(70,55,35,.22)" stroke-width="1.5"/>
-                                    <text x="195" y="49" font-family="JetBrains Mono" font-size="9" fill="#888" text-anchor="middle">DELIVERY</text>
+                                    <text x="195" y="49" font-family=var(--font-data) font-size="9" fill="#888" text-anchor="middle">DELIVERY</text>
                                     
                                     <!-- Broken Arrow / Gap -->
                                     <path d="M 85 45 L 110 45" stroke="#D82224" stroke-width="1.5" stroke-dasharray="3 3"/>
@@ -2010,19 +2010,19 @@ export function renderToken() {
                             <div class="vis-diag-container">
                                 <svg width="240" height="100" viewBox="0 0 240 100" fill="none">
                                     <rect x="10" y="35" width="60" height="30" rx="3" fill="#FFF" stroke="rgba(70,55,35,.22)" stroke-width="1.5"/>
-                                    <text x="40" y="53" font-family="JetBrains Mono" font-size="8" fill="#111" text-anchor="middle">LOCKED ESCROW</text>
+                                    <text x="40" y="53" font-family=var(--font-data) font-size="8" fill="#111" text-anchor="middle">LOCKED ESCROW</text>
                                     
                                     <path d="M 75 50 L 95 50" stroke="#7A1C29" stroke-width="1.5"/>
                                     <polygon points="95,50 90,47 90,53" fill="#7A1C29"/>
                                     
                                     <rect x="100" y="35" width="40" height="30" rx="3" fill="#FFF" stroke="#7A1C29" stroke-width="1.5"/>
-                                    <text x="120" y="53" font-family="JetBrains Mono" font-size="8" fill="#7A1C29" text-anchor="middle" font-weight="bold">VERIFY</text>
+                                    <text x="120" y="53" font-family=var(--font-data) font-size="8" fill="#7A1C29" text-anchor="middle" font-weight="bold">VERIFY</text>
                                     
                                     <path d="M 145 50 L 165 50" stroke="#7A1C29" stroke-width="1.5"/>
                                     <polygon points="165,50 160,47 160,53" fill="#7A1C29"/>
                                     
                                     <rect x="170" y="35" width="60" height="30" rx="3" fill="#FFF" stroke="rgba(70,55,35,.22)" stroke-width="1.5"/>
-                                    <text x="200" y="53" font-family="JetBrains Mono" font-size="8" fill="#111" text-anchor="middle">RELEASED</text>
+                                    <text x="200" y="53" font-family=var(--font-data) font-size="8" fill="#111" text-anchor="middle">RELEASED</text>
                                 </svg>
                             </div>
                             <p class="vis-card-p">
@@ -2041,8 +2041,8 @@ export function renderToken() {
                                 <svg width="240" height="100" viewBox="0 0 240 100" fill="none">
                                     <!-- Dial representation -->
                                     <rect x="30" y="25" width="180" height="50" rx="4" fill="#111" stroke="rgba(70,55,35,.22)" stroke-width="1"/>
-                                    <text x="45" y="42" font-family="JetBrains Mono" font-size="7" fill="#888">ExID LEVEL</text>
-                                    <text x="45" y="62" font-family="JetBrains Mono" font-size="16" fill="#FFF" font-weight="bold">920 <tspan font-size="9" fill="#10B981" font-weight="normal">▲ +35</tspan></text>
+                                    <text x="45" y="42" font-family=var(--font-data) font-size="7" fill="#888">ExID LEVEL</text>
+                                    <text x="45" y="62" font-family=var(--font-data) font-size="16" fill="#FFF" font-weight="bold">920 <tspan font-size="9" fill="#10B981" font-weight="normal">▲ +35</tspan></text>
                                     <rect x="135" y="45" width="60" height="8" rx="4" fill="#222"/>
                                     <rect x="135" y="45" width="48" height="8" rx="4" fill="#7A1C29"/>
                                 </svg>
@@ -2059,20 +2059,20 @@ export function renderToken() {
                                 <svg width="240" height="100" viewBox="0 0 240 100" fill="none">
                                     <!-- Central Node -->
                                     <circle cx="120" cy="50" r="16" fill="#7A1C29" stroke="#FFF" stroke-width="1.5"/>
-                                    <text x="120" y="53" font-family="JetBrains Mono" font-size="8" fill="#FFF" text-anchor="middle" font-weight="bold">CLTR</text>
+                                    <text x="120" y="53" font-family=var(--font-data) font-size="8" fill="#FFF" text-anchor="middle" font-weight="bold">CLTR</text>
                                     
                                     <!-- Platform spokes -->
                                     <line x1="120" y1="34" x2="120" y2="15" stroke="#CCC" stroke-width="1.2"/>
-                                    <text x="120" y="10" font-family="JetBrains Mono" font-size="7" fill="#666" text-anchor="middle">STRIPE</text>
+                                    <text x="120" y="10" font-family=var(--font-data) font-size="7" fill="#666" text-anchor="middle">STRIPE</text>
                                     
                                     <line x1="134" y1="42" x2="185" y2="25" stroke="#CCC" stroke-width="1.2"/>
-                                    <text x="195" y="23" font-family="JetBrains Mono" font-size="7" fill="#666">SHOPIFY</text>
+                                    <text x="195" y="23" font-family=var(--font-data) font-size="7" fill="#666">SHOPIFY</text>
                                     
                                     <line x1="106" y1="42" x2="55" y2="25" stroke="#CCC" stroke-width="1.2"/>
-                                    <text x="45" y="23" font-family="JetBrains Mono" font-size="7" fill="#666" text-anchor="end">GITHUB</text>
+                                    <text x="45" y="23" font-family=var(--font-data) font-size="7" fill="#666" text-anchor="end">GITHUB</text>
                                     
                                     <line x1="120" y1="66" x2="120" y2="85" stroke="#CCC" stroke-width="1.2"/>
-                                    <text x="120" y="93" font-family="JetBrains Mono" font-size="7" fill="#666" text-anchor="middle">TWITTER</text>
+                                    <text x="120" y="93" font-family=var(--font-data) font-size="7" fill="#666" text-anchor="middle">TWITTER</text>
                                 </svg>
                             </div>
                             <p class="vis-card-p">
@@ -2148,7 +2148,7 @@ export function renderToken() {
                         <div class="cltr-panel">
                             <div class="cltr-panel-hdr">
                                 <span class="cltr-panel-title">COMMITMENT STAKING</span>
-                                <span style="font-family:'JetBrains Mono', monospace; font-size:10px; font-weight:700; color:#10B981;">MAX YIELD: 25%</span>
+                                <span style="font-family:var(--font-data); font-size:10px; font-weight:700; color:#10B981;">MAX YIELD: 25%</span>
                             </div>
 
                             <div class="cltr-stake-wrap">
@@ -2201,14 +2201,14 @@ export function renderToken() {
                                 </div>
 
                                 <button class="cltr-action-submit" id="stake-btn" disabled>STAKE CLTR</button>
-                                <div style="display:flex; justify-content:center; gap: 6px; margin-top: 14px; font-family:'JetBrains Mono', monospace; font-size:10px;">
+                                <div style="display:flex; justify-content:center; gap: 6px; margin-top: 14px; font-family:var(--font-data); font-size:10px;">
                                     <span style="color:#666;">Need CLTR?</span>
                                     <a href="https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x7b69C7E57d7004EB2374E5Aabb9db5334aE73B9f" target="_blank" style="color:#7A1C29; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:2px;">
                                         <span>Buy on Uniswap</span>
                                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
                                     </a>
                                 </div>
-                                <div style="margin-top: 16px; padding: 12px; border: 1px dashed rgba(70,55,35,.22); border-radius: 4px; font-family:'Sora', sans-serif; font-size: 10px; color: #888; line-height: 1.5; text-align: left;">
+                                <div style="margin-top: 16px; padding: 12px; border: 1px dashed rgba(70,55,35,.22); border-radius: 4px; font-family:var(--font-content); font-size: 10px; color: #888; line-height: 1.5; text-align: left;">
                                     <strong>Staking Disclosure:</strong> Yield accrual calculations are theoretical, paid out externally/off-chain, and are not guaranteed or enforced by the smart contract. Staked CLTR principal is securely held on-chain and returned 1:1 upon lock expiration.
                                 </div>
                             </div>
@@ -2218,7 +2218,7 @@ export function renderToken() {
                         <div class="cltr-panel">
                             <div class="cltr-panel-hdr">
                                 <span class="cltr-panel-title">ACTIVE COMMITMENT POSITIONS</span>
-                                <span style="font-family:'JetBrains Mono', monospace; font-size:10px; color:#888;" id="stakes-count">0 Positions</span>
+                                <span style="font-family:var(--font-data); font-size:10px; color:#888;" id="stakes-count">0 Positions</span>
                             </div>
 
                             <div class="cltr-table-container">
@@ -2377,7 +2377,7 @@ export function renderToken() {
                                 <span class="cltr-panel-title">LIVE PROTOCOL ACTIVITY</span>
                             </div>
                             <div class="cltr-feed-list" id="activity-feed">
-                                <div style="text-align:center; color:#999; font-size:11px; padding:12px; font-family:'JetBrains Mono', monospace;">Connecting live node feed...</div>
+                                <div style="text-align:center; color:#999; font-size:11px; padding:12px; font-family:var(--font-data);">Connecting live node feed...</div>
                             </div>
                         </div>
 
@@ -2419,28 +2419,28 @@ export function renderToken() {
                             <!-- Flow Diagram -->
                             <div class="flow-container" style="margin-top: 32px; margin-bottom: 0; background: var(--plate, #FFFDF9);">
                                 <div class="flow-step">
-                                    <div class="flow-step-dot" style="font-family: 'JetBrains Mono', monospace; font-size: 8px;">MONEY</div>
-                                    <span style="font-size: 9px; color: #666; font-family: 'JetBrains Mono', monospace;">1. Cash Escrow</span>
+                                    <div class="flow-step-dot" style="font-family: var(--font-data); font-size: 8px;">MONEY</div>
+                                    <span style="font-size: 9px; color: #666; font-family: var(--font-data);">1. Cash Escrow</span>
                                 </div>
                                 <div class="flow-arrow">➔</div>
                                 <div class="flow-step">
-                                    <div class="flow-step-dot" style="font-family: 'JetBrains Mono', monospace; font-size: 8px;">REP</div>
-                                    <span style="font-size: 9px; color: #666; font-family: 'JetBrains Mono', monospace;">2. Historical Score</span>
+                                    <div class="flow-step-dot" style="font-family: var(--font-data); font-size: 8px;">REP</div>
+                                    <span style="font-size: 9px; color: #666; font-family: var(--font-data);">2. Historical Score</span>
                                 </div>
                                 <div class="flow-arrow">➔</div>
                                 <div class="flow-step">
-                                    <div class="flow-step-dot" style="font-family: 'JetBrains Mono', monospace; font-size: 8px;">CONV</div>
-                                    <span style="font-size: 9px; color: #666; font-family: 'JetBrains Mono', monospace;">3. CLTR Bonded</span>
+                                    <div class="flow-step-dot" style="font-family: var(--font-data); font-size: 8px;">CONV</div>
+                                    <span style="font-size: 9px; color: #666; font-family: var(--font-data);">3. CLTR Bonded</span>
                                 </div>
                                 <div class="flow-arrow">➔</div>
                                 <div class="flow-step">
-                                    <div class="flow-step-dot" style="font-family: 'JetBrains Mono', monospace; font-size: 8px;">EXEC</div>
-                                    <span style="font-size: 9px; color: #666; font-family: 'JetBrains Mono', monospace;">4. API Oracle</span>
+                                    <div class="flow-step-dot" style="font-family: var(--font-data); font-size: 8px;">EXEC</div>
+                                    <span style="font-size: 9px; color: #666; font-family: var(--font-data);">4. API Oracle</span>
                                 </div>
                                 <div class="flow-arrow">➔</div>
                                 <div class="flow-step">
-                                    <div class="flow-step-dot" style="font-family: 'JetBrains Mono', monospace; font-size: 8px;">SETTLE</div>
-                                    <span style="font-size: 9px; color: #666; font-family: 'JetBrains Mono', monospace;">5. Payout / Burn</span>
+                                    <div class="flow-step-dot" style="font-family: var(--font-data); font-size: 8px;">SETTLE</div>
+                                    <span style="font-size: 9px; color: #666; font-family: var(--font-data);">5. Payout / Burn</span>
                                 </div>
                             </div>
                         </div>
@@ -2618,16 +2618,16 @@ export function renderToken() {
 
                     <!-- Acquire CLTR Card -->
                     <div style="margin-top: 40px; background: var(--plate, #FFFDF9); border: 1px solid rgba(70,55,35,.22); border-radius: 4px; padding: 32px;">
-                        <h3 class="vis-card-title" style="margin-top:0; font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;">ACQUIRING &amp; TRADING CLTR</h3>
+                        <h3 class="vis-card-title" style="margin-top:0; font-family:var(--font-data); font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;">ACQUIRING &amp; TRADING CLTR</h3>
                         <p class="vis-card-p" style="margin-bottom: 24px;">
                             The Collateral token (CLTR) is a utility asset deployed on the **Robinhood Chain**. You can trade, buy, or sell CLTR directly on Uniswap, or bridge assets to obtain it.
                         </p>
                         <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-                            <a href="https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x7b69C7E57d7004EB2374E5Aabb9db5334aE73B9f" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; background: #7A1C29; color: #FFFFFF; padding: 12px 24px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(92,20,20,0.15); transition: all 0.2s;">
+                            <a href="https://app.uniswap.org/#/swap?inputCurrency=ETH&outputCurrency=0x7b69C7E57d7004EB2374E5Aabb9db5334aE73B9f" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; background: #7A1C29; color: #FFFFFF; padding: 12px 24px; border-radius: 4px; font-family: var(--font-data); font-size: 11px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(92,20,20,0.15); transition: all 0.2s;">
                                 <span>Trade CLTR on Uniswap</span>
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
                             </a>
-                            <a href="#" onclick="window.router.navigate('/docs'); return false;" style="display: inline-flex; align-items: center; gap: 8px; background: var(--plate, #FFFDF9); color: #111111; border: 1px solid rgba(70,55,35,.22); padding: 12px 24px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-decoration: none; transition: all 0.2s;">
+                            <a href="#" onclick="window.router.navigate('/docs'); return false;" style="display: inline-flex; align-items: center; gap: 8px; background: var(--plate, #FFFDF9); color: #111111; border: 1px solid rgba(70,55,35,.22); padding: 12px 24px; border-radius: 4px; font-family: var(--font-data); font-size: 11px; font-weight: 700; text-decoration: none; transition: all 0.2s;">
                                 <span>View Bridging Guide</span>
                             </a>
                         </div>
@@ -2641,11 +2641,11 @@ export function renderToken() {
         <div id="tx-modal" class="cltr-modal-backdrop">
             <div class="cltr-modal-box" style="text-align: left; max-width: 400px; padding: 40px;">
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
-                    <h3 class="cltr-panel-title" style="margin:0; font-size:11px; font-family:'JetBrains Mono', monospace; letter-spacing: 0.5px;">TRANSACTION PIPELINE</h3>
+                    <h3 class="cltr-panel-title" style="margin:0; font-size:11px; font-family:var(--font-data); letter-spacing: 0.5px;">TRANSACTION PIPELINE</h3>
                     <div class="cltr-tx-spinner" style="width:16px; height:16px; margin:0; border-width:2px;"></div>
                 </div>
                 
-                <div class="cltr-stepper" style="display:flex; flex-direction:column; gap:16px; font-family:'JetBrains Mono', monospace; font-size:11px;">
+                <div class="cltr-stepper" style="display:flex; flex-direction:column; gap:16px; font-family:var(--font-data); font-size:11px;">
                     <div class="cltr-step" id="step-approve" style="display:flex; align-items:center; gap:12px; color:#888;">
                         <span class="step-indicator">[ ]</span>
                         <span>Approving CLTR Allowance</span>
@@ -2703,7 +2703,7 @@ export function initToken() {
             <div class="cltr-wallet-status">
                 <div class="cltr-status-indicator" id="w-dot" style="background:#D82224;"></div>
                 <div class="cltr-wallet-text">
-                    <span id="w-status" style="font-family:'JetBrains Mono', monospace; font-size:10px; font-weight:700; color:#111; letter-spacing:0.5px; text-transform:uppercase;">DISCONNECTED</span>
+                    <span id="w-status" style="font-family:var(--font-data); font-size:10px; font-weight:700; color:#111; letter-spacing:0.5px; text-transform:uppercase;">DISCONNECTED</span>
                     <span class="cltr-wallet-hash" id="w-addr">—</span>
                 </div>
             </div>
@@ -2730,22 +2730,22 @@ export function initToken() {
             <div class="cltr-wallet-status" style="border-right: 1px solid rgba(70,55,35,.22); padding-right:24px;">
                 <div class="cltr-status-indicator connected" style="background:#10B981; animation: pulseIndicator 2.5s infinite;"></div>
                 <div class="cltr-wallet-text">
-                    <span style="font-family:'JetBrains Mono', monospace; font-size:10px; font-weight:700; color:#10B981; letter-spacing:0.5px; display:block;">CONNECTED</span>
+                    <span style="font-family:var(--font-data); font-size:10px; font-weight:700; color:#10B981; letter-spacing:0.5px; display:block;">CONNECTED</span>
                     <span class="cltr-wallet-hash" style="display:block; font-size:11px; margin-top:2px; margin-left:0; background:none; padding:0; color:#555;" id="w-addr">${shortAddr}</span>
                 </div>
             </div>
             <div style="border-right: 1px solid rgba(70,55,35,.22); padding-right:24px;">
-                <span style="font-family:'JetBrains Mono', monospace; font-size:8px; color:#888; text-transform:uppercase; display:block; letter-spacing:0.5px;">Conviction Balance</span>
-                <span style="font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:700; color:#111; display:block; margin-top:2px;" id="banner-balance">${formattedBalance} CLTR</span>
+                <span style="font-family:var(--font-data); font-size:8px; color:#888; text-transform:uppercase; display:block; letter-spacing:0.5px;">Conviction Balance</span>
+                <span style="font-family:var(--font-data); font-size:13px; font-weight:700; color:#111; display:block; margin-top:2px;" id="banner-balance">${formattedBalance} CLTR</span>
             </div>
             <div style="border-right: 1px solid rgba(70,55,35,.22); padding-right:24px;">
-                <span style="font-family:'JetBrains Mono', monospace; font-size:8px; color:#888; text-transform:uppercase; display:block; letter-spacing:0.5px;">Network</span>
-                <span style="font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:700; color:#7A1C29; display:block; margin-top:2px;">Robinhood Mainnet</span>
+                <span style="font-family:var(--font-data); font-size:8px; color:#888; text-transform:uppercase; display:block; letter-spacing:0.5px;">Network</span>
+                <span style="font-family:var(--font-data); font-size:12px; font-weight:700; color:#7A1C29; display:block; margin-top:2px;">Robinhood Mainnet</span>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <span style="font-family:'JetBrains Mono', monospace; font-size:8px; color:#888; text-transform:uppercase; display:block; letter-spacing:0.5px;">Identity status</span>
-                    <span style="font-family:'JetBrains Mono', monospace; font-size:11px; font-weight:700; color:#10B981; display:block; margin-top:2px;">Verified Identity</span>
+                    <span style="font-family:var(--font-data); font-size:8px; color:#888; text-transform:uppercase; display:block; letter-spacing:0.5px;">Identity status</span>
+                    <span style="font-family:var(--font-data); font-size:11px; font-weight:700; color:#10B981; display:block; margin-top:2px;">Verified Identity</span>
                 </div>
                 <button class="cltr-connect-btn connected" id="w-disconnect-btn" style="padding: 6px 12px; font-size: 8px;">DISCONNECT</button>
             </div>

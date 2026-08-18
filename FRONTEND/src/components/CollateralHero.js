@@ -346,11 +346,11 @@ export function renderCollateralHero(options = {}) {
              on the page by being the only thing not pulled down. */
           --plate-grade:saturate(1.01) contrast(.94) brightness(1.02);
           background:var(--paper); color:var(--ink);
-          font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+          font-family:var(--font-content);
           -webkit-font-smoothing:antialiased;
         }
         .clt *{box-sizing:border-box;margin:0;padding:0}
-        .clt-mono{font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace}
+        .clt-mono{font-family:var(--font-data)}
 
         /* #app carries pt-24 (96px) to clear the fixed header on every view.
            On this hero that gap is dead paper above the plate AND it costs the
@@ -1404,7 +1404,7 @@ export function renderCollateralHero(options = {}) {
              this costs no new asset. Trajan has no lowercase and no true
              oldstyle figures; Cormorant is the certificate face and its numerals
              sit properly on the baseline at this size. */
-          font-family:"Cormorant Garamond",Georgia,serif;font-synthesis:none;
+          font-family:var(--font-content);font-synthesis:none;
           font-size:clamp(24px,1.94cqw,30px);
           letter-spacing:.005em;line-height:1;
           margin-bottom:clamp(5px,.52cqw,8px);
@@ -1512,7 +1512,7 @@ export function renderCollateralHero(options = {}) {
         .clt-oracles{display:flex;align-items:center;justify-content:center;gap:30px;flex-wrap:wrap}
         .clt-live{
           display:inline-flex;align-items:center;gap:9px;
-          font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+          font-family:var(--font-data);
           font-size:11px;letter-spacing:.2em;text-transform:uppercase;
           color:#5B5140;font-weight:500;transform:translateY(-8px);
         }
@@ -1529,7 +1529,7 @@ export function renderCollateralHero(options = {}) {
         .clt-mark{height:30px;display:flex;align-items:center;justify-content:center}
         .clt-mark svg{width:auto;fill:currentColor;display:block}
         .clt-name{
-          font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+          font-family:var(--font-data);
           font-size:10px;letter-spacing:.22em;text-transform:uppercase;
           color:#9A8C6F;font-weight:500;
         }
@@ -2087,7 +2087,7 @@ export function renderCollateralHero(options = {}) {
           --doc-ox:#6D1F2D;
           --doc-sage-bg:#EFF1E6;
           --doc-ox-bg:#F8EDEA;
-          --doc-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+          --doc-mono:var(--font-data);
 
           position:absolute;z-index:3;
           /* +36px. Two things wanted it lower: the magistrate's head is the

@@ -10,7 +10,7 @@ export function renderTermSheet(params) {
             .ext {
                 background: #FAF4E6;
                 min-height: 100vh;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 color: #111;
             }
 
@@ -33,20 +33,20 @@ export function renderTermSheet(params) {
                 font-size: 12px; color: #888;
                 background: none; border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px; cursor: pointer;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 transition: all 0.15s;
             }
             .ext-back:hover { border-color: #bbb; color: #333; }
             .ext-header-id {
                 font-size: 11px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 color: #999;
                 letter-spacing: 0.5px;
             }
             .ext-header-status {
                 display: inline-flex; align-items: center; gap: 6px;
                 font-size: 11px; color: #065f46;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
             }
@@ -71,14 +71,14 @@ export function renderTermSheet(params) {
                 font-weight: 700;
                 letter-spacing: -0.5px;
                 color: #0a0a0a;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 margin: 0 0 6px;
                 text-transform: uppercase;
             }
             .ext-page-sub {
                 font-size: 13px;
                 color: #666;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 margin: 0;
                 line-height: 1.5;
             }
@@ -109,7 +109,7 @@ export function renderTermSheet(params) {
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
                 color: #555;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 margin: 0;
             }
             .ext-card-body { padding: 24px; }
@@ -133,7 +133,7 @@ export function renderTermSheet(params) {
                 color: #888;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-weight: 500;
                 margin-bottom: 4px;
             }
@@ -141,7 +141,7 @@ export function renderTermSheet(params) {
                 font-size: 18px;
                 font-weight: 600;
                 color: #111;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 letter-spacing: -0.3px;
             }
             .ext-field-value.accent { color: #065f46; }
@@ -154,7 +154,7 @@ export function renderTermSheet(params) {
             .ext-baseline-note {
                 font-size: 11px;
                 color: #999;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 padding: 12px 24px;
                 border-top: 1px solid #f0f0f0;
                 background: #FAF4E6;
@@ -175,13 +175,13 @@ export function renderTermSheet(params) {
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
                 color: #752122;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 margin: 0 0 12px;
             }
             .ext-forfeit-text {
                 font-size: 14px;
                 color: #333;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 line-height: 1.6;
                 margin: 0;
             }
@@ -204,7 +204,7 @@ export function renderTermSheet(params) {
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
                 color: #555;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 margin: 0 0 12px;
             }
             .ext-warning-list {
@@ -214,7 +214,7 @@ export function renderTermSheet(params) {
             .ext-warning-list li {
                 font-size: 13px;
                 color: #444;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 padding: 6px 0;
                 border-bottom: 1px solid #f0f0f0;
                 display: flex;
@@ -254,7 +254,7 @@ export function renderTermSheet(params) {
             .ext-ack-text {
                 font-size: 13px;
                 color: #333;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 line-height: 1.5;
                 user-select: none;
             }
@@ -272,7 +272,7 @@ export function renderTermSheet(params) {
                 border: 1px solid rgba(70,55,35,.22);
                 border-radius: 8px;
                 cursor: pointer;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 transition: all 150ms ease;
                 position: relative;
                 overflow: hidden;
@@ -310,7 +310,7 @@ export function renderTermSheet(params) {
             .ext-footer-text {
                 font-size: 11px;
                 color: #bbb;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 letter-spacing: 0.3px;
             }
 
@@ -487,7 +487,7 @@ export function renderTermSheet(params) {
                             <div class="ext-grid-2">
                                 <div>
                                     <div class="ext-field-label">Snapshot ID</div>
-                                    <div class="ext-field-value small" id="ext-snap-id" style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #888;">—</div>
+                                    <div class="ext-field-value small" id="ext-snap-id" style="font-family: var(--font-data); font-size: 12px; color: #888;">—</div>
                                 </div>
                                 <div>
                                     <div class="ext-field-label">Measured Period</div>

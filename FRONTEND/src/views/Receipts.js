@@ -14,7 +14,7 @@ export function renderReceipts() {
                         <i data-lucide="chevron-right" class="w-3 h-3 text-neutral-300"></i>
                         <span class="font-mono text-[11px] tracking-widest text-neutral-900 uppercase">Receipts</span>
                     </div>
-                    <h1 class="text-2xl font-semibold tracking-tight text-neutral-900 mb-2" style="font-family: 'Sora', sans-serif;">
+                    <h1 class="text-2xl font-semibold tracking-tight text-neutral-900 mb-2" style="font-family: var(--font-content);">
                         ACTIVE RECEIPTS
                     </h1>
                     <p class="text-sm font-mono text-neutral-500">
@@ -72,7 +72,7 @@ export async function initReceipts() {
                     <div class="w-16 h-16 rounded-full border-2 border-dashed border-neutral-200 flex items-center justify-center mb-6">
                         <i data-lucide="file-text" class="w-7 h-7 text-neutral-300"></i>
                     </div>
-                    <h3 class="text-lg font-semibold text-neutral-900 mb-2" style="font-family: 'Sora', sans-serif;">
+                    <h3 class="text-lg font-semibold text-neutral-900 mb-2" style="font-family: var(--font-content);">
                         No Active Contracts
                     </h3>
                     <p class="text-sm text-neutral-500 max-w-sm mb-1">
@@ -165,12 +165,12 @@ export async function initReceipts() {
                 <div class="flex items-center gap-6">
                     <div>
                         <span class="font-mono text-[10px] text-neutral-400 uppercase tracking-widest block mb-1">Active Receipts</span>
-                        <span class="text-xl font-semibold text-neutral-900" style="font-family: 'Sora', sans-serif;">${activeContracts.length}</span>
+                        <span class="text-xl font-semibold text-neutral-900" style="font-family: var(--font-content);">${activeContracts.length}</span>
                     </div>
                     <div class="w-px h-10 bg-neutral-200"></div>
                     <div>
                         <span class="font-mono text-[10px] text-neutral-400 uppercase tracking-widest block mb-1">Total Capital Locked</span>
-                        <span class="text-xl font-semibold text-neutral-900" style="font-family: 'Sora', sans-serif;">${formatUSD(totalLocked)}</span>
+                        <span class="text-xl font-semibold text-neutral-900" style="font-family: var(--font-content);">${formatUSD(totalLocked)}</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">

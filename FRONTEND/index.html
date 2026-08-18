@@ -177,7 +177,7 @@
     <link rel="preload" as="image" href="/assets/images/collateral-senate-frame-soft.jpg"
           fetchpriority="high" media="(min-width: 821px)">
     <link
-        href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Sora:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Sans:wght@500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
         rel="stylesheet" media="print" onload="this.media='all'">
 
     <style>
@@ -306,7 +306,7 @@
 </head>
 
 <body class="min-h-screen flex flex-col font-sans relative text-[#1A1A1A] bg-white antialiased overflow-x-hidden"
-    style="font-family: 'Sora', 'Inter', 'Helvetica Neue', sans-serif; font-feature-settings: 'zero' 0;">
+    style="font-family: var(--font-content); font-feature-settings: 'zero' 0;">
 
     <!-- ═════ LOADING SCREEN ═══════════════════════════════════════════════
          A treasury preparing a contract for registration, not a website
@@ -456,7 +456,7 @@
                 transform: translate(-50%, -50%) scale(1);
             }
             .cl-ld-status {
-                font-family: 'IBM Plex Mono', ui-monospace, monospace;
+                font-family: var(--font-data);
                 font-size: 10px;
                 font-weight: 400;
                 letter-spacing: .30em;
@@ -478,7 +478,7 @@
                 animation: cl-ld-ink 7s ease-in-out infinite;
             }
             .cl-ld-foot {
-                font-family: 'IBM Plex Mono', ui-monospace, monospace;
+                font-family: var(--font-data);
                 font-size: 9.5px;
                 font-weight: 400;
                 letter-spacing: .22em;
@@ -680,7 +680,7 @@
     <!-- Global Footer -->
     <footer id="global-footer" style="
         background: #3B0001; color: rgba(255,255,255,0.6); padding: 0; margin: 0;
-        font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-family: var(--font-content);
         position: relative;
     ">
         <!-- Subtle top accent line -->
@@ -697,13 +697,13 @@
                 </p>
                 <div style="margin-top: 28px; display: flex; align-items: center; gap: 8px;">
                     <div style="width: 6px; height: 6px; background: #22c55e; border-radius: 50%;"></div>
-                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1px;">All systems operational</span>
+                    <span style="font-family: var(--font-data); font-size: 10px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1px;">All systems operational</span>
                 </div>
             </div>
             <!-- Right: Link Columns -->
             <div style="display: flex; gap: 72px; flex-wrap: wrap;">
                 <div>
-                    <div style="font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.8); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; font-family: 'JetBrains Mono', monospace;">
+                    <div style="font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.8); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; font-family: var(--font-data);">
                         Platform</div>
                     <div style="display: flex; flex-direction: column; gap: 14px;">
                         <a href="#" onclick="window.router.navigate('/overview'); return false;"
@@ -719,7 +719,7 @@
                     </div>
                 </div>
                 <div>
-                    <div style="font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.8); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; font-family: 'JetBrains Mono', monospace;">
+                    <div style="font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.8); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; font-family: var(--font-data);">
                         Resources</div>
                     <div style="display: flex; flex-direction: column; gap: 14px;">
                         <a href="#" onclick="window.router.navigate('/docs'); return false;"
@@ -733,7 +733,7 @@
                     </div>
                 </div>
                 <div>
-                    <div style="font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.8); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; font-family: 'JetBrains Mono', monospace;">
+                    <div style="font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.8); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; font-family: var(--font-data);">
                         Legal</div>
                     <div style="display: flex; flex-direction: column; gap: 14px;">
                         <a href="#" onclick="window.router.navigate('/terms'); return false;"
@@ -749,7 +749,7 @@
         <!-- Bottom Bar -->
         <div style="border-top: 1px solid rgba(255,255,255,0.06); max-width: 1200px; margin: 0 auto; padding: 24px 48px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <span style="font-size: 12px; color: rgba(255,255,255,0.25); font-weight: 400;">&copy; 2026 Collateral. All rights reserved.</span>
-            <span style="font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.2); letter-spacing: 1.5px; text-transform: uppercase;">Performance Contracts — v1.0</span>
+            <span style="font-family: var(--font-data); font-size: 9px; color: rgba(255,255,255,0.2); letter-spacing: 1.5px; text-transform: uppercase;">Performance Contracts — v1.0</span>
         </div>
     </footer>
 

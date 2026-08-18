@@ -13,7 +13,7 @@ const C = {
   wineInk: "#F0E3D8",
   wineDim: "#D9A8A8",
   wineBright: "#E8B4B4",
-  mono: '"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
+  mono: 'var(--font-data), ui-monospace, SFMono-Regular, Menlo, monospace',
   display: '"Archivo", -apple-system, "Helvetica Neue", Arial, sans-serif',
 };
 

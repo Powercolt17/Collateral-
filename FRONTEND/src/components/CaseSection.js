@@ -70,9 +70,9 @@ export function renderCaseSection() {
           --cs-win:#4E6B3E;
           --cs-line:rgba(60,48,30,.16);
           --cs-won-tint:rgba(78,107,62,.07);
-          --cs-serif:"EB Garamond",Georgia,serif;
-          --cs-display:"Cormorant Garamond","EB Garamond",Georgia,serif;
-          --cs-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+          --cs-serif:var(--font-content);
+          --cs-display:var(--font-display);
+          --cs-mono:var(--font-data);
 
           background:var(--cs-parch);
           color:var(--cs-ink);

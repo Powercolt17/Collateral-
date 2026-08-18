@@ -4,7 +4,7 @@
 export function renderOnboarding() {
     return `
         <style>
-            .ob { min-height: 100vh; background: #F5EDDA; display: flex; align-items: center; justify-content: center; padding: 40px 20px; font-family: 'Sora', sans-serif; }
+            .ob { min-height: 100vh; background: #F5EDDA; display: flex; align-items: center; justify-content: center; padding: 40px 20px; font-family: var(--font-content); }
             .ob-card { max-width: 560px; width: 100%; }
 
             /* Progress bar */
@@ -20,7 +20,7 @@ export function renderOnboarding() {
                 display: flex; justify-content: space-between; margin-bottom: 8px;
             }
             .ob-progress-label {
-                font-family: 'JetBrains Mono', monospace; font-size: 9px;
+                font-family: var(--font-data); font-size: 9px;
                 letter-spacing: 1px; text-transform: uppercase; color: #ccc;
                 transition: color 0.3s;
             }
@@ -67,14 +67,14 @@ export function renderOnboarding() {
                 width: 100%; padding: 18px; background: #5C1414; color: #fff;
                 border: none; font-size: 14px; font-weight: 700;
                 letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
-                font-family: 'Sora', sans-serif; transition: all 0.3s;
+                font-family: var(--font-content); transition: all 0.3s;
             }
             .ob-btn-primary:hover { background: #6e1c1c; }
             .ob-btn-skip {
                 display: block; width: 100%; text-align: center;
                 margin-top: 16px; font-size: 12px; color: #bbb;
                 background: none; border: none; cursor: pointer;
-                font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px;
+                font-family: var(--font-data); letter-spacing: 0.5px;
             }
             .ob-btn-skip:hover { color: #888; }
 
@@ -233,17 +233,17 @@ export function renderOnboarding() {
 
                     <!-- Referral invite -->
                     <div style="margin-top:40px;padding-top:32px;border-top:1px solid #f0f0f0;">
-                        <div style="font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-bottom:16px;">── Invite & Earn</div>
+                        <div style="font-size:11px;font-family:var(--font-data);letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-bottom:16px;">── Invite & Earn</div>
                         <div style="font-size:14px;color:#555;line-height:1.6;margin-bottom:20px;">
                             Share your referral link and earn a <strong style="color:#5C1414;">profit boost</strong> on every contract. 
                             The more people you refer, the higher your payout multiplier.
                         </div>
                         <div style="display:flex;gap:8px;align-items:center;" id="ob-ref-row">
                             <input type="text" id="ob-ref-link" readonly 
-                                style="flex:1;padding:14px;border:1px solid rgba(70,55,35,.18);font-family:'JetBrains Mono',monospace;font-size:12px;color:#555;background: #FAF4E6;outline:none;"
+                                style="flex:1;padding:14px;border:1px solid rgba(70,55,35,.18);font-family:var(--font-data);font-size:12px;color:#555;background: #FAF4E6;outline:none;"
                                 value="Loading...">
                             <button id="ob-ref-copy" 
-                                style="padding:14px 20px;background:#111;color:#fff;border:none;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;">
+                                style="padding:14px 20px;background:#111;color:#fff;border:none;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:var(--font-content);white-space:nowrap;">
                                 Copy
                             </button>
                         </div>

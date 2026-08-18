@@ -81,7 +81,7 @@ export function renderRivalryDetail() {
                 max-width: 1160px;
                 margin: 0 auto;
                 padding: 4px var(--rv-gutter) 20px;
-                font-family: "EB Garamond", Georgia, serif;
+                font-family: var(--font-content);
                 color: var(--rv-ink);
                 -webkit-font-smoothing: antialiased;
             }
@@ -96,7 +96,7 @@ export function renderRivalryDetail() {
             }
             .rv-page { position: relative; }
             .rv > * { position: relative; z-index: 1; }
-            .rv-mono { font-family: var(--mono, 'IBM Plex Mono', monospace); }
+            .rv-mono { font-family: var(--mono, var(--font-data)); }
 
             .rv-mark {
                 width: 8px; height: 8px; background: var(--rv-ox-deep);
@@ -117,7 +117,7 @@ export function renderRivalryDetail() {
             /* ---- header ---- */
             .rv-kick {
                 display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 12px; letter-spacing: .28em; text-transform: uppercase;
                 color: var(--rv-ox); font-weight: 500; margin-bottom: 16px;
             }
@@ -141,7 +141,7 @@ export function renderRivalryDetail() {
                rest of the site uses for identity and data, never the display
                serif — the serif is for the figures. */
             .rv-mh {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: clamp(21px, 3vw, 31px); font-weight: 500; letter-spacing: .01em; line-height: 1;
             }
             .rv-mh.lead { color: var(--rv-win); }
@@ -149,18 +149,18 @@ export function renderRivalryDetail() {
             .rv-mh.even { color: var(--rv-ink); }
             .rv-vsd { display: flex; flex-direction: column; align-items: center; gap: 5px; }
             .rv-vsd .d { width: 8px; height: 8px; background: var(--rv-ox-deep); transform: rotate(45deg); }
-            .rv-vsd span { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .2em; color: var(--rv-muted); }
+            .rv-vsd span { font-family: var(--mono, var(--font-data)); font-size: 11px; letter-spacing: .2em; color: var(--rv-muted); }
             .rv-sub {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 12px; letter-spacing: .1em; color: var(--rv-muted); margin-top: 12px;
             }
             /* max-width caps how far the figure can drift from the names it
                belongs to; margin-top lifts the eyebrow onto the matchup's line
                rather than leaving it floating above one. */
             .rv-pool { text-align: right; flex: 0 0 auto; max-width: 260px; margin-top: 2px; }
-            .rv-pool .k { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--rv-muted); }
-            .rv-pool .v { font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(34px, 4.4vw, 46px); font-weight: 600; line-height: 1; margin-top: 6px; }
-            .rv-pool .s { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .06em; color: var(--rv-muted); margin-top: 6px; }
+            .rv-pool .k { font-family: var(--mono, var(--font-data)); font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--rv-muted); }
+            .rv-pool .v { font-family: var(--font-content); font-variant-numeric: tabular-nums; font-size: clamp(34px, 4.4vw, 46px); font-weight: 600; line-height: 1; margin-top: 6px; }
+            .rv-pool .s { font-family: var(--mono, var(--font-data)); font-size: 12px; letter-spacing: .06em; color: var(--rv-muted); margin-top: 6px; }
 
             /* ---- facts register ----
                METADATA ONLY. "Current leader" deliberately does not appear
@@ -174,12 +174,12 @@ export function renderRivalryDetail() {
             .rv-fact { padding: 13px 20px; border-left: 1px solid var(--rv-line-soft); min-width: 0; }
             .rv-fact:first-child { border-left: 0; }
             .rv-fact .k {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
                 color: var(--rv-muted); margin-bottom: 7px;
             }
             .rv-fact .v {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 14px; letter-spacing: .02em; color: var(--rv-ink); font-weight: 500;
                 display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
             }
@@ -196,7 +196,7 @@ export function renderRivalryDetail() {
             .rv-shead { display: flex; align-items: center; gap: 20px; margin: 30px 0 18px; }
             .rv-shead.hero { margin-top: 26px; }
             .rv-shead .lab {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 12px; letter-spacing: .26em; text-transform: uppercase;
                 color: var(--rv-ox); font-weight: 500; white-space: nowrap;
                 display: flex; align-items: center; gap: 11px;
@@ -206,7 +206,7 @@ export function renderRivalryDetail() {
                kind of collision that reads as a bug. */
             .rv-shead .ln { flex: 1; height: 1px; min-width: 24px; background: linear-gradient(90deg, var(--rv-line-firm), var(--rv-line-soft)); }
             .rv-shead .rt {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted);
                 white-space: nowrap;
             }
@@ -217,7 +217,7 @@ export function renderRivalryDetail() {
                 box-shadow: 0 22px 48px rgba(60,40,20,.10); padding: 28px 30px 24px;
             }
             .rv-leadby {
-                text-align: center; font-family: var(--mono, 'IBM Plex Mono', monospace);
+                text-align: center; font-family: var(--mono, var(--font-data));
                 font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
                 color: var(--rv-muted); padding-bottom: 4px;
             }
@@ -236,27 +236,27 @@ export function renderRivalryDetail() {
             .rv-side .reg { position: absolute; width: 11px; height: 11px; border: 1.2px solid var(--rv-faint); opacity: .8; }
             .rv-side .reg.bl { bottom: 12px; left: 12px; border-right: 0; border-top: 0; }
             .rv-s-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-            .rv-s-role { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--rv-muted); }
+            .rv-s-role { font-family: var(--mono, var(--font-data)); font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--rv-muted); }
             .rv-s-badge {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 12px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500;
                 padding: 4px 11px; white-space: nowrap;
             }
             .rv-s-badge.lead { color: var(--rv-win); background: var(--rv-wintint); border: 1px solid rgba(78,107,62,.4); }
             .rv-s-badge.trail { color: var(--rv-ox); background: var(--rv-oxtint); border: 1px solid rgba(124,29,43,.4); }
             .rv-s-badge.even { color: var(--rv-muted); border: 1px solid var(--rv-line-firm); }
-            .rv-s-name { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 20px; font-weight: 500; margin-bottom: 6px; color: var(--rv-ink); overflow-wrap: anywhere; }
-            .rv-s-pct { font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(46px, 6vw, 66px); font-weight: 600; line-height: .92; letter-spacing: -.01em; }
+            .rv-s-name { font-family: var(--mono, var(--font-data)); font-size: 20px; font-weight: 500; margin-bottom: 6px; color: var(--rv-ink); overflow-wrap: anywhere; }
+            .rv-s-pct { font-family: var(--font-content); font-variant-numeric: tabular-nums; font-size: clamp(46px, 6vw, 66px); font-weight: 600; line-height: .92; letter-spacing: -.01em; }
             .rv-s-pct.win { color: var(--rv-win); }
             .rv-s-pct.los { color: var(--rv-ox); }
             .rv-s-pct.mut { color: var(--rv-muted); }
-            .rv-s-delta { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .04em; color: var(--rv-muted); margin-top: 9px; }
+            .rv-s-delta { font-family: var(--mono, var(--font-data)); font-size: 12px; letter-spacing: .04em; color: var(--rv-muted); margin-top: 9px; }
             .rv-s-delta .up { color: var(--rv-win); }
             .rv-s-delta .dn { color: var(--rv-ox); }
             .rv-s-metrics { display: flex; justify-content: space-between; gap: 16px; margin: 22px 0 12px; padding-top: 16px; border-top: 1px solid var(--rv-line-soft); }
             .rv-s-metrics .m { min-width: 0; }
-            .rv-s-metrics .m .mk { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--rv-muted); margin-bottom: 5px; }
-            .rv-s-metrics .m .mv { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 15px; color: var(--rv-ink); font-weight: 500; }
+            .rv-s-metrics .m .mk { font-family: var(--mono, var(--font-data)); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--rv-muted); margin-bottom: 5px; }
+            .rv-s-metrics .m .mv { font-family: var(--mono, var(--font-data)); font-size: 15px; color: var(--rv-ink); font-weight: 500; }
             .rv-s-metrics .m.r { text-align: right; }
             .rv-s-metrics .m.r .mv { color: var(--rv-ox); }
             .rv-s-prog { height: 6px; background: rgba(70,55,35,.1); overflow: hidden; margin-bottom: 13px; }
@@ -265,18 +265,18 @@ export function renderRivalryDetail() {
             .rv-side.trail .rv-s-prog .f { background: var(--rv-ox); }
             .rv-side.even .rv-s-prog .f { background: var(--rv-muted); }
             .rv-s-tag {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted);
                 display: inline-flex; align-items: center; gap: 7px;
             }
             .rv-s-tag .d { width: 5px; height: 5px; border-radius: 50%; background: var(--rv-faint); flex: none; }
             .rv-vscol { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 0 6px; }
             .rv-vscol .m { width: 10px; height: 10px; background: var(--rv-ox-deep); transform: rotate(45deg); }
-            .rv-vscol .vt { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 11px; letter-spacing: .2em; color: var(--rv-muted); }
+            .rv-vscol .vt { font-family: var(--mono, var(--font-data)); font-size: 11px; letter-spacing: .2em; color: var(--rv-muted); }
             /* One line about the money, under both panels — not repeated inside
                each one, where it read as two different facts. */
             .rv-escrow {
-                text-align: center; font-family: var(--mono, 'IBM Plex Mono', monospace);
+                text-align: center; font-family: var(--mono, var(--font-data));
                 font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--rv-muted);
                 margin-top: 22px; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
             }
@@ -287,7 +287,7 @@ export function renderRivalryDetail() {
             .rv-chartcard { border: 1px solid var(--rv-line-firm); background: var(--rv-paper); padding: 22px 26px 18px; box-shadow: 0 10px 24px rgba(60,40,20,.05); }
             .rv-chart-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
             .rv-legend { display: flex; gap: 20px; flex-wrap: wrap; }
-            .rv-lg { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; color: var(--rv-ink-soft); }
+            .rv-lg { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono, var(--font-data)); font-size: 12px; color: var(--rv-ink-soft); }
             .rv-lg .sw { width: 14px; height: 3px; flex: none; }
             .rv-lg .sw.g { background: var(--rv-win); }
             .rv-lg .sw.o { background: var(--rv-ox); }
@@ -315,7 +315,7 @@ export function renderRivalryDetail() {
                 background: var(--rv-paper2); border: 1px solid var(--rv-line-firm);
                 box-shadow: 0 10px 24px rgba(60,40,20,.14);
                 padding: 10px 13px; min-width: 172px;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 opacity: 0; transform: translateY(-3px);
                 transition: opacity 140ms ease, transform 140ms ease;
             }
@@ -329,14 +329,14 @@ export function renderRivalryDetail() {
             .rv-tip .mg { margin-top: 7px; padding-top: 7px; border-top: 1px solid var(--rv-line-soft); font-size: 12px; color: var(--rv-muted); }
             .rv-livechip {
                 display: inline-flex; align-items: center; gap: 8px;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--rv-win);
             }
             .rv-livechip .p { width: 6px; height: 6px; border-radius: 50%; background: var(--rv-win); flex: none; animation: rv-blink 2200ms ease-in-out infinite; }
             @keyframes rv-blink { 0%,100% { opacity: 1; } 50% { opacity: .28; } }
             .rv-chart-empty {
                 padding: 44px 8px; text-align: center; color: var(--rv-muted);
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
             }
 
@@ -344,22 +344,22 @@ export function renderRivalryDetail() {
             .rv-olog { display: flex; flex-direction: column; gap: 10px; }
             .rv-oev { border: 1px solid rgba(78,107,62,.5); background: var(--rv-paper2); padding: 16px 20px; box-shadow: 0 0 0 1px rgba(78,107,62,.1); }
             .rv-oev-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
-            .rv-oev-title { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .08em; color: var(--rv-ink); font-weight: 500; display: inline-flex; align-items: center; gap: 9px; }
-            .rv-oev-time { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; color: var(--rv-muted); }
-            .rv-oev-body { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; line-height: 1.8; color: var(--rv-ink-soft); }
+            .rv-oev-title { font-family: var(--mono, var(--font-data)); font-size: 12px; letter-spacing: .08em; color: var(--rv-ink); font-weight: 500; display: inline-flex; align-items: center; gap: 9px; }
+            .rv-oev-time { font-family: var(--mono, var(--font-data)); font-size: 12px; color: var(--rv-muted); }
+            .rv-oev-body { font-family: var(--mono, var(--font-data)); font-size: 12px; line-height: 1.8; color: var(--rv-ink-soft); }
             .rv-oev-body .ar { color: var(--rv-muted); }
             .rv-oev-body b.win { color: var(--rv-win); }
             .rv-oev-body b.ox { color: var(--rv-ox); }
             .rv-oev-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rv-line-soft); }
-            .rv-oev-margin { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; color: var(--rv-muted); }
-            .rv-oev-status { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; color: var(--rv-win); display: inline-flex; align-items: center; gap: 7px; }
+            .rv-oev-margin { font-family: var(--mono, var(--font-data)); font-size: 12px; color: var(--rv-muted); }
+            .rv-oev-status { font-family: var(--mono, var(--font-data)); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; color: var(--rv-win); display: inline-flex; align-items: center; gap: 7px; }
             /* 176px, because the stamp now carries the date as well as the
                clock — at 88 every row wrapped onto two lines. */
             .rv-oevc { display: grid; grid-template-columns: 176px 1fr max-content; align-items: center; gap: 20px; border: 1px solid var(--rv-line); background: var(--rv-paper2); padding: 13px 20px; }
-            .rv-oevc .t { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; color: var(--rv-muted); }
-            .rv-oevc .d { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; color: var(--rv-ink-soft); overflow-wrap: anywhere; }
+            .rv-oevc .t { font-family: var(--mono, var(--font-data)); font-size: 12px; color: var(--rv-muted); }
+            .rv-oevc .d { font-family: var(--mono, var(--font-data)); font-size: 12px; color: var(--rv-ink-soft); overflow-wrap: anywhere; }
             .rv-oevc .d b { color: var(--rv-ink); }
-            .rv-oevc .s { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--rv-win); white-space: nowrap; }
+            .rv-oevc .s { font-family: var(--mono, var(--font-data)); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--rv-win); white-space: nowrap; }
             .rv-oevc.secure .s { color: var(--rv-ox); }
             .rv-oevc.settle .s { color: var(--rv-ox); }
             /* The log opens on the latest reading plus three; the rest are in
@@ -378,7 +378,7 @@ export function renderRivalryDetail() {
                 align-self: center; margin-top: 4px;
                 min-height: 44px; padding: 12px 22px;
                 background: none; border: 1px solid var(--rv-line-firm); cursor: pointer;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
                 color: var(--rv-ink-soft);
                 transition: background 160ms ease, color 160ms ease;
@@ -392,7 +392,7 @@ export function renderRivalryDetail() {
                 border: 1px solid var(--rv-line-firm); background: var(--rv-paper);
             }
             .rv-abtn {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 12px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500;
                 padding: 13px 24px; border: 0; cursor: pointer;
                 transition: background 160ms ease, transform 140ms ease;
@@ -403,7 +403,7 @@ export function renderRivalryDetail() {
             .rv-abtn.decline { background: none; color: var(--rv-ink-soft); border: 1px solid var(--rv-line-firm); }
             .rv-abtn.decline:hover { background: rgba(70,55,35,.06); }
             .rv-abtn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
-            .rv-astatus { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted); }
+            .rv-astatus { font-family: var(--mono, var(--font-data)); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--rv-muted); }
 
             /* ---- footer ---- */
             /* THE CONCLUDING MOMENT. A 2px oxblood rule across the top gives it
@@ -416,20 +416,20 @@ export function renderRivalryDetail() {
                 border: 1px solid var(--rv-line-firm); border-top: 2px solid var(--rv-ox);
                 background: var(--rv-paper);
             }
-            .rv-foot .t { font-family: "Cormorant Garamond", Georgia, serif; font-size: 25px; font-weight: 600; line-height: 1.1; }
-            .rv-foot .s { font-family: var(--mono, 'IBM Plex Mono', monospace); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--rv-muted); margin-top: 8px; }
+            .rv-foot .t { font-family: var(--font-display); font-size: 25px; font-weight: 400; line-height: 1.1; }
+            .rv-foot .s { font-family: var(--mono, var(--font-data)); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--rv-muted); margin-top: 8px; }
             .rv-foot .seal { width: 55px; height: 55px; flex: none; align-self: center; }
             .rv-foot .seal svg { display: block; width: 100%; height: 100%; }
             .rv-back {
                 display: inline-flex; align-items: center; gap: 9px; margin-top: 26px;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
                 color: var(--rv-muted); background: none; border: 0; cursor: pointer;
             }
             .rv-back:hover { color: var(--rv-ox); }
             .rv-notice {
                 padding: 60px 8px; text-align: center; color: var(--rv-muted);
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
             }
 
@@ -1429,7 +1429,7 @@ export async function initRivalryDetail(params) {
             fill: '#5E1420',
         }));
         svg.appendChild(svgEl('circle', { cx: 30, cy: 30, r: 16.5, fill: 'none', stroke: 'rgba(255,235,220,.16)', 'stroke-width': 1 }));
-        const c = svgEl('text', { x: 30, y: 37, 'font-family': 'Cormorant Garamond,serif', 'font-size': 21,
+        const c = svgEl('text', { x: 30, y: 37, 'font-family': 'var(--font-content)', 'font-size': 21,
             'font-weight': 700, fill: '#F0DAC7', 'text-anchor': 'middle' });
         c.textContent = 'C';
         svg.appendChild(c);

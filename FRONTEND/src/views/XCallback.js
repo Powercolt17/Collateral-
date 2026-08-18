@@ -10,7 +10,7 @@ export function renderXCallback() {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-family: 'Sora', 'Inter', -apple-system, sans-serif;
+                font-family: var(--font-content);
                 position: relative;
                 overflow: hidden;
             }
@@ -87,7 +87,7 @@ export function renderXCallback() {
                 to { stroke-dashoffset: 0; }
             }
             .cb-status-label {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 10px;
                 font-weight: 600;
                 letter-spacing: 0.15em;
@@ -105,7 +105,7 @@ export function renderXCallback() {
                 animation: cbFadeIn 0.4s 0.35s both;
             }
             .cb-username {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 14px;
                 font-weight: 500;
                 color: #5C1414;
@@ -133,7 +133,7 @@ export function renderXCallback() {
                 padding: 14px 36px;
                 background: #0a0a0a;
                 color: #fff;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 11px;
                 font-weight: 700;
                 letter-spacing: 0.12em;
@@ -169,7 +169,7 @@ export function renderXCallback() {
             .cb-btn svg { width: 14px; height: 14px; }
             .cb-footer {
                 margin-top: 28px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 9px;
                 color: #ccc;
                 text-transform: uppercase;

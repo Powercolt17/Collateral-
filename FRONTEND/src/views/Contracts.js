@@ -11,7 +11,7 @@ export function renderContracts() {
             .ext {
                 background: #FAF4E6;
                 min-height: calc(100vh - 64px);
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 color: #111;
             }
 
@@ -34,20 +34,20 @@ export function renderContracts() {
                 font-size: 12px; color: #888;
                 background: none; border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px; cursor: pointer;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 transition: all 0.15s;
             }
             .ext-back-btn:hover { border-color: #bbb; color: #333; }
             .ext-head-id {
                 font-size: 11px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 color: #999;
                 letter-spacing: 0.5px;
             }
             .ext-head-status {
                 display: inline-flex; align-items: center; gap: 6px;
                 font-size: 11px; color: #065f46;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
             }
@@ -72,14 +72,14 @@ export function renderContracts() {
                 font-weight: 700;
                 letter-spacing: -0.5px;
                 color: #0a0a0a;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 margin: 0 0 6px;
                 text-transform: uppercase;
             }
             .ext-page-sub {
                 font-size: 13px;
                 color: #666;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 margin: 0;
                 line-height: 1.5;
             }
@@ -110,7 +110,7 @@ export function renderContracts() {
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
                 color: #555;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 margin: 0;
             }
             .ext-card-bd { padding: 24px; }
@@ -134,7 +134,7 @@ export function renderContracts() {
                 color: #888;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-weight: 500;
                 margin-bottom: 4px;
             }
@@ -142,7 +142,7 @@ export function renderContracts() {
                 font-size: 18px;
                 font-weight: 600;
                 color: #111;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 letter-spacing: -0.3px;
             }
             .ext-val.green { color: #065f46; }
@@ -155,7 +155,7 @@ export function renderContracts() {
             .ext-base-note {
                 font-size: 11px;
                 color: #999;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 padding: 12px 24px;
                 border-top: 1px solid #f0f0f0;
                 background: #FAF4E6;
@@ -176,13 +176,13 @@ export function renderContracts() {
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
                 color: #752122;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 margin: 0 0 12px;
             }
             .ext-forfeit-body {
                 font-size: 14px;
                 color: #333;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 line-height: 1.6;
                 margin: 0;
             }
@@ -205,7 +205,7 @@ export function renderContracts() {
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
                 color: #555;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 margin: 0 0 12px;
             }
             .ext-warn-list {
@@ -215,7 +215,7 @@ export function renderContracts() {
             .ext-warn-list li {
                 font-size: 13px;
                 color: #444;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 padding: 6px 0;
                 border-bottom: 1px solid #f0f0f0;
                 display: flex;
@@ -269,7 +269,7 @@ export function renderContracts() {
                 cursor: pointer; text-transform: uppercase;
                 letter-spacing: 0.3px;
                 transition: background 0.15s;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
             }
             .ext-gate-btn:hover { background: #333; }
             .ext-gate-btn:disabled { background: #ccc; cursor: not-allowed; }
@@ -296,7 +296,7 @@ export function renderContracts() {
                 font-size: 12px;
                 font-weight: 600;
                 color: #065f46;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
             }
 
             /* Acknowledgement */
@@ -324,7 +324,7 @@ export function renderContracts() {
             .ext-ack-text {
                 font-size: 13px;
                 color: #333;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 line-height: 1.5;
                 user-select: none;
             }
@@ -342,7 +342,7 @@ export function renderContracts() {
                 border: 1px solid rgba(70,55,35,.22);
                 border-radius: 8px;
                 cursor: pointer;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 transition: all 150ms ease;
                 position: relative;
                 overflow: hidden;
@@ -380,7 +380,7 @@ export function renderContracts() {
             .ext-foot-text {
                 font-size: 11px;
                 color: #bbb;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 letter-spacing: 0.3px;
             }
 
@@ -398,7 +398,7 @@ export function renderContracts() {
             .ext-loading-text {
                 font-size: 12px;
                 color: #999;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
             }
@@ -430,7 +430,7 @@ export function renderContracts() {
             .enf-title {
                 font-size: 16px; font-weight: 600;
                 color: #111; margin: 0 0 8px;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
             }
             .enf-msg {
                 font-size: 13px; color: #555;
@@ -438,7 +438,7 @@ export function renderContracts() {
             }
             .enf-rule {
                 font-size: 10px; color: #bbb;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 letter-spacing: 0.5px;
                 text-transform: uppercase;
                 margin-bottom: 16px;
@@ -452,7 +452,7 @@ export function renderContracts() {
                 font-size: 12px; font-weight: 600;
                 border-radius: 4px;
                 cursor: pointer;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 border: 1px solid rgba(70,55,35,.22);
                 background: #F5EDDA; color: #333;
                 transition: all 0.15s;
@@ -548,7 +548,7 @@ export function renderContracts() {
                             <div class="ext-grid">
                                 <div>
                                     <div class="ext-lbl">Snapshot ID</div>
-                                    <div class="ext-val sm" id="ext-snap-id" style="font-family:'JetBrains Mono', monospace;font-size:12px;color:#888;">—</div>
+                                    <div class="ext-val sm" id="ext-snap-id" style="font-family:var(--font-data);font-size:12px;color:#888;">—</div>
                                 </div>
                                 <div>
                                     <div class="ext-lbl">Measured Period</div>
@@ -819,7 +819,7 @@ export function initContracts() {
     function showToast(title, message) {
         const toast = document.createElement('div');
         toast.className = 'fixed bottom-6 right-6 bg-[#1F7A4D] text-white px-6 py-4 rounded-lg shadow-lg z-50';
-        toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#065f46;color:#fff;padding:16px 24px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:9999;font-family:"Neue Haas Grotesk Display","Helvetica Neue",Helvetica,Arial,sans-serif;';
+        toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#065f46;color:#fff;padding:16px 24px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:9999;font-family:var(--font-content);';
         toast.innerHTML = `<div style="font-size:13px;font-weight:600;">${title}</div><div style="font-size:11px;opacity:0.9;margin-top:4px;">${message}</div>`;
         document.body.appendChild(toast);
         setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 4000);

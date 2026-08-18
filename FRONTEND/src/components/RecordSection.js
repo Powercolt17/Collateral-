@@ -121,9 +121,9 @@ export function renderRecordSection() {
           --rec-dot:rgba(60,48,30,.30);
           --rec-win-tint:rgba(78,107,62,.12);
           --rec-loss-tint:rgba(124,29,43,.08);
-          --rec-serif:"EB Garamond",Georgia,serif;
-          --rec-display:"Cormorant Garamond","EB Garamond",Georgia,serif;
-          --rec-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+          --rec-serif:var(--font-content);
+          --rec-display:var(--font-display);
+          --rec-mono:var(--font-data);
 
           background:var(--rec-parch);
           color:var(--rec-ink);

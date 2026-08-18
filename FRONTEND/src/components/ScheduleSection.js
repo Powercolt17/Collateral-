@@ -140,9 +140,9 @@ export function renderScheduleSection() {
         .sch{
           --parch:#F1E8D3; --ink:#211B12; --ink-soft:#5B5140; --muted:#9A8C6F;
           --ox:#7C1D2B; --line:rgba(60,48,30,.16); --line-soft:rgba(60,48,30,.10);
-          --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
-          --serif:"EB Garamond",Georgia,serif;
-          --display:"Cormorant Garamond",Georgia,serif;
+          --mono:var(--font-data);
+          --serif:var(--font-content);
+          --display:var(--font-display);
           width:100%;max-width:1440px;margin:0 auto;padding:52px 90px 48px;
           background:var(--parch);color:var(--ink);font-family:var(--serif);
           -webkit-font-smoothing:antialiased;

@@ -73,7 +73,7 @@ export function renderResetPassword() {
             font-weight: 800;
             color: #111;
             letter-spacing: 0.1em;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-data);
         }
         .rp-title {
             font-size: 24px;
@@ -104,7 +104,7 @@ export function renderResetPassword() {
             color: #888;
             letter-spacing: 1.5px;
             text-transform: uppercase;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-data);
         }
         .rp-input {
             width: 100%;
@@ -150,7 +150,7 @@ export function renderResetPassword() {
             text-transform: uppercase;
             cursor: pointer;
             transition: opacity 0.2s;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-data);
         }
         .rp-button:hover { opacity: 0.85; }
         .rp-button:disabled {

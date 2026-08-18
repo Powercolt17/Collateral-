@@ -7,7 +7,7 @@ export function renderTerms() {
             .legal-page {
                 background: #F5EDDA;
                 min-height: 100vh;
-                font-family: 'Sora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-family: var(--font-content), 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 color: #111;
                 padding: 80px 32px 120px;
             }
@@ -16,7 +16,7 @@ export function renderTerms() {
                 margin: 0 auto;
             }
             .legal-tag {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 10px;
                 text-transform: uppercase;
                 letter-spacing: 1.5px;
@@ -42,7 +42,7 @@ export function renderTerms() {
             .legal-updated {
                 font-size: 12px;
                 color: #999;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 margin-bottom: 48px;
             }
             .legal-section {

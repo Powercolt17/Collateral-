@@ -23,6 +23,6 @@ export function collateralFullLoader(message = '', size = 32) {
     return `
         <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 0;gap:12px;">
             ${collateralSpinner(size)}
-            ${message ? `<div style="font-family:'JetBrains Mono', monospace;font-size:10px;color:#888;letter-spacing:0.12em;text-transform:uppercase;margin:0;">${message}</div>` : ''}
+            ${message ? `<div style="font-family:var(--font-data);font-size:10px;color:#888;letter-spacing:0.12em;text-transform:uppercase;margin:0;">${message}</div>` : ''}
         </div>`;
 }

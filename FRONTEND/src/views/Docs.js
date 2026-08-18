@@ -12,7 +12,7 @@ export function renderDocs() {
             .doc {
                 background: #FAF4E6;
                 min-height: calc(100vh - 72px);
-                font-family: 'Inter', sans-serif;
+                font-family: var(--font-content);
                 color: #111111;
             }
 
@@ -55,7 +55,7 @@ export function renderDocs() {
                 font-size: 11px;
                 color: rgba(255, 255, 255, 0.7);
                 margin: 12px 0 0;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-weight: 500;
                 letter-spacing: 2px;
                 text-transform: uppercase;
@@ -85,7 +85,7 @@ export function renderDocs() {
                 margin-bottom: 28px;
             }
             .doc-nav-label {
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 10px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -198,7 +198,7 @@ export function renderDocs() {
                 background: #F5EDDA;
                 border: 1px solid rgba(70,55,35,.22);
                 border-radius: 4px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-size: 12px;
                 padding: 16px 20px;
                 margin: 18px 0;
@@ -217,7 +217,7 @@ export function renderDocs() {
                 background: #FAF4E6;
                 text-align: left;
                 padding: 10px 12px;
-                font-family: 'JetBrains Mono', monospace;
+                font-family: var(--font-data);
                 font-weight: 700;
                 font-size: 10px;
                 letter-spacing: 0.5px;

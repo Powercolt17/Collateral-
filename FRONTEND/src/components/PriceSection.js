@@ -83,9 +83,9 @@ export function renderPriceSection() {
           --muted:#9A8C6F; --ox:#7C1D2B; --ox-deep:#651522; --win:#4E6B3E;
           --line:rgba(60,48,30,.16); --dot:rgba(60,48,30,.28); --track:rgba(60,48,30,.16);
           --win-tint:rgba(78,107,62,.10); --loss-tint:rgba(124,29,43,.07);
-          --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
-          --serif:"EB Garamond",Georgia,serif;
-          --display:"Cormorant Garamond",Georgia,serif;
+          --mono:var(--font-data);
+          --serif:var(--font-content);
+          --display:var(--font-display);
           position:relative;width:100%;max-width:1440px;margin:0 auto;
           padding:52px 90px 48px;background:var(--parch);color:var(--ink);
           font-family:var(--serif);-webkit-font-smoothing:antialiased;
@@ -195,7 +195,7 @@ export function renderPriceSection() {
         .prc-tier:focus-visible{outline:2px solid var(--ox);outline-offset:3px}
         .prc-tc{font-family:var(--mono);font-size:10px;letter-spacing:.16em;
           text-transform:uppercase;color:var(--muted);margin-bottom:10px}
-        .prc-tm{font-family:var(--display);font-size:46px;font-weight:600;color:var(--ox);
+        .prc-tm{font-family:var(--font-content);font-variant-numeric:tabular-nums;font-size:46px;font-weight:600;color:var(--ox);
           line-height:.9;letter-spacing:.01em}
         .prc-tm .prc-x{font-size:24px;color:var(--muted);margin-left:2px}
         .prc-tw{font-family:var(--mono);font-size:10px;letter-spacing:.14em;

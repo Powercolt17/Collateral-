@@ -8,13 +8,13 @@ export function renderSEOLanding(params) {
 
     return `
         <style>
-            .seo { min-height: 100vh; background: #F5EDDA; font-family: 'Sora', sans-serif; }
+            .seo { min-height: 100vh; background: #F5EDDA; font-family: var(--font-content); }
             .seo-hero {
                 text-align: center; padding: 100px 24px 60px;
                 max-width: 720px; margin: 0 auto;
             }
             .seo-badge {
-                display: inline-block; font-family: 'JetBrains Mono', monospace;
+                display: inline-block; font-family: var(--font-data);
                 font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
                 color: #5C1414; border: 1px solid #5C1414; padding: 6px 16px;
                 margin-bottom: 28px;
@@ -32,7 +32,7 @@ export function renderSEOLanding(params) {
                 display: inline-block; background: #5C1414; color: #fff;
                 padding: 18px 48px; font-size: 14px; font-weight: 700;
                 letter-spacing: 1px; text-transform: uppercase; border: none;
-                cursor: pointer; font-family: 'Sora', sans-serif;
+                cursor: pointer; font-family: var(--font-content);
                 text-decoration: none; transition: background 0.3s;
             }
             .seo-cta:hover { background: #6e1c1c; }
@@ -41,7 +41,7 @@ export function renderSEOLanding(params) {
             .seo-how { background: #FAF4E6; padding: 80px 24px; }
             .seo-how-inner { max-width: 900px; margin: 0 auto; }
             .seo-how-tag {
-                font-family: 'JetBrains Mono', monospace; font-size: 10px;
+                font-family: var(--font-data); font-size: 10px;
                 letter-spacing: 2px; text-transform: uppercase; color: #aaa;
                 margin-bottom: 32px;
             }
@@ -49,7 +49,7 @@ export function renderSEOLanding(params) {
             .seo-how-step {}
             .seo-how-num {
                 font-size: 36px; font-weight: 900; color: #5C1414; opacity: 0.3;
-                margin-bottom: 12px; font-family: 'JetBrains Mono', monospace;
+                margin-bottom: 12px; font-family: var(--font-data);
             }
             .seo-how-title { font-size: 16px; font-weight: 700; color: #111; margin-bottom: 8px; }
             .seo-how-desc { font-size: 13px; color: #888; line-height: 1.7; }
@@ -57,7 +57,7 @@ export function renderSEOLanding(params) {
             /* Use cases */
             .seo-use { padding: 80px 24px; max-width: 720px; margin: 0 auto; }
             .seo-use-tag {
-                font-family: 'JetBrains Mono', monospace; font-size: 10px;
+                font-family: var(--font-data); font-size: 10px;
                 letter-spacing: 2px; text-transform: uppercase; color: #aaa;
                 margin-bottom: 32px;
             }
@@ -81,13 +81,13 @@ export function renderSEOLanding(params) {
                 display: inline-block; background: #5C1414; color: #fff;
                 padding: 18px 48px; font-size: 14px; font-weight: 700;
                 letter-spacing: 1px; text-transform: uppercase; border: none;
-                cursor: pointer; font-family: 'Sora', sans-serif;
+                cursor: pointer; font-family: var(--font-content);
                 text-decoration: none;
             }
 
             .seo-footer {
                 text-align: center; padding: 32px; font-size: 11px; color: #ccc;
-                font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px;
+                font-family: var(--font-data); letter-spacing: 0.5px;
             }
 
             @media (max-width: 768px) {

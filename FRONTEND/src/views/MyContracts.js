@@ -25,10 +25,10 @@ export function renderMyContracts() {
               --rule: #DCD5C6;
               --rule-soft: #EAE4D8;
               --rule-strong: #BDB3A0;
-              --display: "Archivo", system-ui, sans-serif;
-              --wordmark: "Archivo", system-ui, sans-serif;
-              --body: "Public Sans", system-ui, sans-serif;
-              --mono: "IBM Plex Mono", ui-monospace, monospace;
+              --display: var(--font-display);
+              --wordmark: var(--font-display);
+              --body: var(--font-content);
+              --mono: var(--font-data), ui-monospace, monospace;
               --r: 2px;
               --lift: 0 1px 2px rgba(14,20,32,.04), 0 12px 28px -18px rgba(14,20,32,.22);
             }
@@ -36,7 +36,7 @@ export function renderMyContracts() {
             .myc {
                 background: var(--paper, #F7F4ED);
                 min-height: 100vh;
-                font-family: var(--body, 'Public Sans', sans-serif);
+                font-family: var(--body, var(--font-content));
                 color: var(--ink, #0E1420);
                 padding-bottom: 100px;
                 position: relative;
@@ -55,7 +55,7 @@ export function renderMyContracts() {
 
             /* Clerical Mono Label Utility */
             .mono-lbl {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 10.5px;
                 letter-spacing: .16em;
                 text-transform: uppercase;
@@ -72,7 +72,7 @@ export function renderMyContracts() {
                 align-items: flex-start;
             }
             .myc-page-title {
-                font-family: var(--display, 'Archivo', sans-serif);
+                font-family: var(--display, var(--font-content));
                 font-size: 40px;
                 font-weight: 700;
                 letter-spacing: -.026em;
@@ -103,7 +103,7 @@ export function renderMyContracts() {
                 letter-spacing: .16em;
                 cursor: pointer;
                 color: var(--ink, #0E1420) !important;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 transition: all 0.2s ease;
             }
             .myc-btn-secondary:hover {
@@ -120,7 +120,7 @@ export function renderMyContracts() {
                 text-transform: uppercase;
                 letter-spacing: .16em;
                 cursor: pointer;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 transition: all 0.2s ease;
                 box-shadow: 0 1px 3px rgba(122, 28, 41, 0.2);
             }
@@ -149,7 +149,7 @@ export function renderMyContracts() {
                 flex-direction: column;
             }
             .myc-metric-value {
-                font-family: var(--display, 'Archivo', sans-serif);
+                font-family: var(--display, var(--font-content));
                 font-size: 32px;
                 font-weight: 700;
                 color: var(--ink, #0E1420);
@@ -159,7 +159,7 @@ export function renderMyContracts() {
                 font-variant-numeric: tabular-nums;
             }
             .myc-metric-label {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 10.5px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -210,7 +210,7 @@ export function renderMyContracts() {
                 margin-bottom: 12px;
             }
             .myo-temp-platform {
-                font-family: var(--body, 'Public Sans', sans-serif);
+                font-family: var(--body, var(--font-content));
                 font-size: 13px;
                 font-weight: 700;
                 color: var(--ink, #0E1420);
@@ -226,7 +226,7 @@ export function renderMyContracts() {
                 background: var(--ink-3, #6E7686);
             }
             .myo-temp-category {
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 9.5px;
                 font-weight: 700;
                 color: var(--blood, #7A1C29);
@@ -238,7 +238,7 @@ export function renderMyContracts() {
                 letter-spacing: .12em;
             }
             .myo-temp-title {
-                font-family: var(--display, 'Archivo', sans-serif);
+                font-family: var(--display, var(--font-content));
                 font-size: 17px;
                 font-weight: 700;
                 letter-spacing: -.02em;
@@ -257,7 +257,7 @@ export function renderMyContracts() {
                 border: 1px solid #7A1C29 !important;
                 border-radius: var(--r, 2px);
                 padding: 12px 16px;
-                font-family: var(--mono, 'IBM Plex Mono', monospace);
+                font-family: var(--mono, var(--font-data));
                 font-size: 10.5px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -384,7 +384,7 @@ export async function initMyContracts() {
 
                     <!-- Centered Empty-State Onboarding Hero -->
                     <div style="border: 1px solid var(--rule, #DCD5C6); padding: 40px; background: var(--plate, #FFFDF9); text-align: center; border-radius: var(--r, 2px); box-shadow: var(--lift);">
-                        <h2 style="font-family: var(--display, 'Archivo', sans-serif); font-size: 24px; margin-bottom: 12px; font-weight: 700; color: var(--ink, #0E1420);">No Active Commitments Yet</h2>
+                        <h2 style="font-family: var(--display, var(--font-content)); font-size: 24px; margin-bottom: 12px; font-weight: 700; color: var(--ink, #0E1420);">No Active Commitments Yet</h2>
                         <p style="max-width: 620px; margin: 0 auto 24px; line-height: 1.6; color: var(--ink-2, #4A5464); font-size: 14px;">
                             Prove you can do what you say you will. When you set a goal, lock a small deposit to hold yourself accountable. Reaching your goal returns your money and builds your profile's success score. Fail, and you forfeit the deposit.
                         </p>

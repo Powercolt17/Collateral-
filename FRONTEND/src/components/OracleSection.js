@@ -86,9 +86,9 @@ export function renderOracleSection() {
           --orc-logo:#2C2418;
           --orc-ox:#7C1D2B;
           --orc-line:rgba(60,48,30,.16);
-          --orc-serif:"EB Garamond",Georgia,serif;
-          --orc-display:"Cormorant Garamond","EB Garamond",Georgia,serif;
-          --orc-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+          --orc-serif:var(--font-content);
+          --orc-display:var(--font-display);
+          --orc-mono:var(--font-data);
 
           background:var(--orc-parch);
           color:var(--orc-ink);

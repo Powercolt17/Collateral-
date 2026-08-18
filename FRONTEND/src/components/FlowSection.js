@@ -76,9 +76,9 @@ export function renderFlowSection() {
              stay phase-locked whatever it is set to. Change this one value and
              the whole panel re-times together. */
           --T:5s;
-          --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
-          --serif:"EB Garamond",Georgia,serif;
-          --display:"Cormorant Garamond",Georgia,serif;
+          --mono:var(--font-data);
+          --serif:var(--font-content);
+          --display:var(--font-display);
           position:relative;width:100%;max-width:1440px;margin:0 auto;
           padding:52px 90px 48px;
           background:var(--parch);color:var(--ink);

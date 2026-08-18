@@ -6,7 +6,7 @@ export function renderResults() {
         <style>
             .res {
                 max-width: 960px; margin: 0 auto; padding: 48px 32px 120px;
-                font-family: 'Inter', 'Helvetica Neue', sans-serif; color: #111;
+                font-family: var(--font-content); color: #111;
             }
             .res-hero { margin-bottom: 48px; }
             .res-title {

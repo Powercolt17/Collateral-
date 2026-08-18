@@ -120,9 +120,9 @@ export function renderDuelSection() {
           --muted:#9A8C6F; --faint:#B4A98C; --ox:#7C1D2B; --win:#4E6B3E;
           --line:rgba(60,48,30,.16);
           --win-tint:rgba(78,107,62,.14); --loss-tint:rgba(124,29,43,.10);
-          --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
-          --serif:"EB Garamond",Georgia,serif;
-          --display:"Cormorant Garamond",Georgia,serif;
+          --mono:var(--font-data);
+          --serif:var(--font-content);
+          --display:var(--font-display);
           position:relative;width:100%;max-width:1440px;margin:0 auto;
           padding:52px 90px 48px;background:var(--parch);color:var(--ink);
           font-family:var(--serif);-webkit-font-smoothing:antialiased;

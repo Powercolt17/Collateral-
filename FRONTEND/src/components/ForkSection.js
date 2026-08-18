@@ -188,8 +188,8 @@ export function renderForkSection(options = {}) {
           --fk-ox-deep:#651522;
           --fk-line:rgba(70,55,35,.22);
           --fk-line-soft:rgba(70,55,35,.14);
-          --fk-serif:"EB Garamond",Georgia,serif;
-          --fk-display:"Cormorant Garamond","EB Garamond",Georgia,serif;
+          --fk-serif:var(--font-content);
+          --fk-display:var(--font-content),var(--font-content);
 
           background:var(--fk-parch);
           color:var(--fk-ink);

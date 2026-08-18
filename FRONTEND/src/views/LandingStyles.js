@@ -34,9 +34,9 @@ export const landingCSS = `
   --rule: #DCD5C6;
   --rule-soft: #EAE4D8;
   --rule-strong: #BDB3A0;
-  --display: "Archivo", system-ui, sans-serif;
-  --wordmark: "Archivo", system-ui, sans-serif;
-  --body: "Public Sans", system-ui, sans-serif;
+  --display: var(--font-display);
+  --wordmark: var(--font-display);
+  --body: var(--font-content);
   --mono: "Roboto Mono", "Segoe UI Mono", "Cascadia Code", system-ui, monospace;
   --shell: 1240px;
   --gutter: 28px;
@@ -899,7 +899,7 @@ footer .logo-wordmark-light,
 }
 
 .leaf--cream .leaf-mode-tag, .leaf--cream .leaf-form-ref {
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .14em;
@@ -907,7 +907,7 @@ footer .logo-wordmark-light,
 }
 
 .leaf--dark .leaf-mode-tag, .leaf--dark .leaf-form-ref {
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .14em;
@@ -917,7 +917,7 @@ footer .logo-wordmark-light,
 /* SHARED HEADLINE BASELINE GRID */
 .leaf-name {
   margin: 0 0 6px;
-  font-family: var(--display, 'Archivo', sans-serif);
+  font-family: var(--display, var(--font-content));
   font-size: 20px;
   font-weight: 700;
   line-height: 1.2;
@@ -960,7 +960,7 @@ footer .logo-wordmark-light,
 .cm-term {
   position: relative;
   padding: 4px 0 4px 18px;
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 12.5px;
   line-height: 1.5;
 }
@@ -978,7 +978,7 @@ footer .logo-wordmark-light,
 
 /* Mode Hero Title Display (SOLO / RIVALRY) */
 .cm-hero-title {
-  font-family: var(--display, 'Archivo', sans-serif);
+  font-family: var(--display, var(--font-content));
   font-weight: 700;
   font-size: clamp(36px, 6.2vw, 72px);
   letter-spacing: -0.035em;
@@ -998,7 +998,7 @@ footer .logo-wordmark-light,
 
 /* Demoted Single Inline Versus Line */
 .cm-vs-line {
-  font-family: var(--display, 'Archivo', sans-serif);
+  font-family: var(--display, var(--font-content));
   font-weight: 600;
   font-size: 15px;
   letter-spacing: 0.06em;
@@ -1133,7 +1133,7 @@ footer .logo-wordmark-light,
 
 .hl-headline {
   position: relative;
-  font-family: var(--display, 'Archivo', sans-serif);
+  font-family: var(--display, var(--font-content));
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.08;
@@ -1187,7 +1187,7 @@ footer .logo-wordmark-light,
 }
 
 .hl-meta {
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 11px;
   letter-spacing: 0.16em;
   color: var(--slate, #8C877B);
@@ -1270,7 +1270,7 @@ footer .logo-wordmark-light,
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 10px;
   letter-spacing: 0.15em;
   margin-bottom: 0;
@@ -1296,7 +1296,7 @@ footer .logo-wordmark-light,
 .cm-term {
   position: relative;
   padding: 5px 0 5px 22px;
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 13.5px !important;
   line-height: 1.55;
   font-weight: 500;
@@ -1314,7 +1314,7 @@ footer .logo-wordmark-light,
   position: absolute;
   left: 0;
   top: 5px;
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-weight: 700;
   font-size: 14px;
 }
@@ -1329,7 +1329,7 @@ footer .logo-wordmark-light,
 
 .cm-cta-link {
   display: inline-block;
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
@@ -1370,7 +1370,7 @@ footer .logo-wordmark-light,
 }
 
 .cm-settle-title {
-  font-family: var(--display, 'Archivo', sans-serif);
+  font-family: var(--display, var(--font-content));
   font-weight: 600;
   font-size: 15px;
   letter-spacing: -0.01em;
@@ -1378,7 +1378,7 @@ footer .logo-wordmark-light,
 }
 
 .cm-settle-tag {
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 10px;
   letter-spacing: 0.15em;
   color: #8C877B;
@@ -1401,7 +1401,7 @@ footer .logo-wordmark-light,
 }
 
 .cm-step-n {
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 10px;
   letter-spacing: 0.16em;
   color: #2F4370;
@@ -1409,7 +1409,7 @@ footer .logo-wordmark-light,
 }
 
 .cm-step-title {
-  font-family: var(--display, 'Archivo', sans-serif);
+  font-family: var(--display, var(--font-content));
   font-weight: 600;
   font-size: 14px;
   letter-spacing: -0.01em;
@@ -1418,7 +1418,7 @@ footer .logo-wordmark-light,
 }
 
 .cm-step-body {
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 13px !important;
   line-height: 1.6;
   color: #2D2B26 !important;
@@ -1479,7 +1479,7 @@ footer .logo-wordmark-light,
 
 /* SPEC SUBLINES MATCHING TYPOGRAPHY */
 .leaf-spec-line {
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 9.5px;
   font-weight: 500;
   letter-spacing: 0.12em;
@@ -1519,7 +1519,7 @@ footer .logo-wordmark-light,
 
 .leaf-list li::before {
   content: "§";
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 11px;
   flex: none;
   padding-top: 2px;
@@ -1531,7 +1531,7 @@ footer .logo-wordmark-light,
 .leaf-cta {
   margin-top: auto !important;
   align-self: flex-start;
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
@@ -2648,7 +2648,7 @@ footer .logo-wordmark-light,
 }
 
 .sign-script {
-  font-family: var(--wordmark, var(--display, 'Archivo', sans-serif));
+  font-family: var(--wordmark, var(--display, var(--font-content)));
   font-size: 22px;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -2685,7 +2685,7 @@ footer .logo-wordmark-light,
   gap: 4px;
 }
 .sign-sub-label {
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -2693,7 +2693,7 @@ footer .logo-wordmark-light,
   color: var(--ink-3, #6E7686);
 }
 .sign-date-stamp {
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -2705,7 +2705,7 @@ footer .logo-wordmark-light,
   max-width: 640px;
   margin: 48px auto 0 auto !important;
   text-align: left;
-  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-family: var(--mono, var(--font-data));
   font-size: 12px !important;
   line-height: 1.75 !important;
   color: #333F51 !important;
@@ -3142,7 +3142,7 @@ html.js-motion-active .reveal.is-in .r-rule {
     --rule: #D8D2C6;
     --rule-soft: #E4DFD5;
     --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --sans: var(--font-content);
     --ease: cubic-bezier(.16,.84,.44,1);
     background: var(--bg);
     font-family: var(--sans);
