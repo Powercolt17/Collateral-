@@ -1,518 +1,531 @@
-import { collateralFullLoader } from '../components/CollateralLoader.js';
+/**
+ * Collateral — "Active Contracts", the operator's own portfolio. /my-contracts
+ *
+ * ── THE CHECKLIST WAS A DECORATION ───────────────────────────────────────────
+ * "Getting Started · 1 OF 4 COMPLETE" shipped as literal markup: a green tick
+ * beside Identity Verified, a green tick beside Source Connected, and a
+ * progress bar hardcoded to 50% under a label that said 1 of 4. Every visitor
+ * was told their identity was verified and a source was attached whether or
+ * not either was true, and the bar disagreed with its own caption.
+ *
+ * On a product whose claim is that nothing on screen is asserted without a
+ * record behind it, a fabricated onboarding state is the first thing a new
+ * operator sees. Every step now reads real state — the stored identity, the
+ * live Plaid/Stripe/Shopify/YouTube status, the contract list — and the count
+ * and the bar are computed from the same array, so they cannot disagree again.
+ *
+ * ── THE PALETTE WAS THE OLD ONE, AND IT WAS GLOBAL ───────────────────────────
+ * This file opened with a bare :root block redefining --paper, --ink, --blood
+ * and twenty more to the pre-migration blue-grey scheme (#0E1420 ink on a
+ * #FFFDF9 plate). :root from a view stylesheet is not scoped to the view — it
+ * repainted whatever else was mounted alongside it. It is now the house
+ * parchment, scoped under .myc.
+ *
+ * ── THE SUGGESTIONS ARE TEMPLATES, AND SAY SO ────────────────────────────────
+ * The six cards are prompts for the create flow, not contracts anyone holds.
+ * They carry no stake, no multiplier, no operator and no progress — nothing
+ * that could be mistaken for a record — and each opens the real wizard.
+ */
+
+const TEMPLATES = [
+    { plat: 'YouTube', cat: 'Creators', title: 'Reach 10,000 subscribers',
+      desc: 'Stake on growing your channel to a subscriber milestone, verified at the deadline.',
+      src: 'YouTube API' },
+    { plat: 'Stripe', cat: 'Finance', title: 'Generate $10,000 in monthly revenue',
+      desc: 'Commit to a monthly recurring revenue target read straight from Stripe.',
+      src: 'Stripe API' },
+    { plat: 'YouTube', cat: 'Creators', title: 'Reach 50,000 video views',
+      desc: 'Set a public view-count milestone and let the channel record settle it.',
+      src: 'YouTube API' },
+    { plat: 'Shopify', cat: 'Commerce', title: 'Complete 100 orders',
+      desc: 'Stake on fulfilling a paid-order threshold in your connected store.',
+      src: 'Shopify API' },
+    { plat: 'X', cat: 'Social', title: 'Grow to 5,000 followers',
+      desc: 'Commit to a public follower milestone, verified from your X profile.',
+      src: 'X API' },
+    { plat: 'Amazon', cat: 'Commerce', title: 'Fulfill 200 orders',
+      desc: 'Stake on an order-volume target read from your seller account.',
+      src: 'Amazon Seller API' },
+];
+
+function esc(v) {
+    return String(v == null ? '' : v)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/* Whole dollars with separators, the site rule: cents only when the record has
+   them. Nothing is rounded into existence — a null stays a dash. */
+function money(n) {
+    if (n == null || !isFinite(Number(n))) return '—';
+    const v = Number(n);
+    return '$' + v.toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: Number.isInteger(v) ? 0 : 2,
+    });
+}
 
 export function renderMyContracts() {
+    const cards = TEMPLATES.map((t) => `
+        <article class="myc-card">
+            <div class="myc-c-top">
+                <span class="myc-plat"><span class="d"></span>${esc(t.plat)}</span>
+                <span class="myc-cat">${esc(t.cat)}</span>
+            </div>
+            <h4>${esc(t.title)}</h4>
+            <p class="myc-c-desc">${esc(t.desc)}</p>
+            <div class="myc-c-src"><span class="myc-mark sm"></span> Verified by &middot; <b>${esc(t.src)}</b></div>
+            <button type="button" class="myc-c-btn">Create contract &rarr;</button>
+        </article>`).join('');
+
     return `
         <style>
-            :root {
-              --paper: #F7F4ED;
-              --paper-alt: #EFEAE0;
-              --paper-deep: #E7E1D4;
-              --plate: #FFFDF9;
-              --notch: #F7F4ED;
-              --ink: #0E1420;
-              --ink-2: #4A5464;
-              --ink-3: #6E7686;
-              --ink-4: #9AA0AC;
-              --blood: #7A1C29;
-              --blood-deep: #54111B;
-              --blood-mid: #9B3341;
-              --blood-tint: #F5E6E8;
-              --blood-wash: #FBF3F4;
-              --win: #186B4A;
-              --win-tint: #E6F1EA;
-              --win-wash: #F2F8F4;
-              --gilt: #A8854E;
-              --rule: #DCD5C6;
-              --rule-soft: #EAE4D8;
-              --rule-strong: #BDB3A0;
-              --display: var(--font-display);
-              --wordmark: var(--font-display);
-              --body: var(--font-content);
-              --mono: var(--font-data), ui-monospace, monospace;
-              --r: 2px;
-              --lift: 0 1px 2px rgba(14,20,32,.04), 0 12px 28px -18px rgba(14,20,32,.22);
-            }
+        /* SCOPED. The sheet this is built from styles bare *, body and h1, and
+           the file it replaces redefined :root globally. Everything here sits
+           under .myc and uses the house tokens. */
+        .myc {
+            --myc-parch:#EEE5D8; --myc-paper:#F5EDDA; --myc-paper2:#FAF4E6;
+            --myc-ink:#211B12; --myc-ink-soft:#574E3D; --myc-muted:#7A6E52;
+            --myc-faint:#B4A98C; --myc-ox:#7C1D2B; --myc-ox-deep:#5E1420;
+            --myc-win:#4E6B3E;
+            --myc-line:rgba(70,55,35,.18); --myc-line-soft:rgba(70,55,35,.10);
+            --myc-line-firm:rgba(70,55,35,.28);
+            --myc-mono:var(--font-data);
+            background:var(--myc-parch); color:var(--myc-ink);
+            font-family:var(--font-content); -webkit-font-smoothing:antialiased;
+            min-height:100vh; box-sizing:border-box;
+            margin-top:-96px; padding-top:96px; position:relative;
+        }
+        .myc *, .myc *::before, .myc *::after { box-sizing:border-box; }
+        .myc::before{
+            content:""; position:absolute; inset:0; pointer-events:none; z-index:0;
+            background:repeating-linear-gradient(0deg,transparent 0 29px,rgba(70,55,35,.025) 29px 30px);
+        }
+        .myc-wrap{max-width:1200px;margin:0 auto;padding:46px clamp(20px,5vw,60px) 72px;position:relative;z-index:1}
+        .myc-mark{width:8px;height:8px;background:var(--myc-ox-deep);transform:rotate(45deg);display:inline-block;flex:none}
+        .myc-mark.sm{width:6px;height:6px}
 
-            .myc {
-                background: var(--paper, #F7F4ED);
-                min-height: 100vh;
-                font-family: var(--body, var(--font-content));
-                color: var(--ink, #0E1420);
-                padding-bottom: 100px;
-                position: relative;
-                font-variant-numeric: tabular-nums;
-            }
+        .myc-phead{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-bottom:34px;flex-wrap:wrap}
+        .myc-kick{display:inline-flex;align-items:center;gap:12px;font-family:var(--myc-mono);
+            font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--myc-ox);
+            font-weight:500;margin-bottom:16px}
+        .myc-kick .r{height:1px;width:28px;background:var(--myc-ox);opacity:.75}
+        .myc h1{font-family:var(--font-display);font-size:clamp(34px,5vw,50px);font-weight:400;
+            line-height:1;margin:0 0 14px}
+        .myc h1 .ox{color:var(--myc-ox)}
+        .myc-lead{font-size:16px;line-height:1.55;color:var(--myc-ink-soft);max-width:540px;margin:0}
+        .myc-pact{display:flex;gap:12px;flex:none;flex-wrap:wrap}
+        .myc-btn{font-family:var(--myc-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+            padding:13px 22px;white-space:nowrap;display:inline-flex;align-items:center;gap:9px;cursor:pointer}
+        .myc-btn.out{border:1px solid var(--myc-ink);background:var(--myc-paper2);color:var(--myc-ink)}
+        .myc-btn.out:hover{background:var(--myc-paper)}
+        .myc-btn.ox{background:var(--myc-ox);border:1px solid var(--myc-ox);color:var(--myc-paper2);
+            box-shadow:0 8px 20px rgba(124,29,43,.15)}
+        .myc-btn.ox:hover{background:var(--myc-ox-deep);border-color:var(--myc-ox-deep)}
 
-            /* Fixed Grain Overlay */
-            .cl-grain {
-                position: fixed;
-                inset: 0;
-                pointer-events: none;
-                z-index: 9999;
-                opacity: .035;
-                background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-            }
+        .myc-statreg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--myc-line-firm);
+            border-top:2px solid var(--myc-ink);background:var(--myc-paper);margin-bottom:26px;
+            box-shadow:0 12px 28px rgba(60,40,20,.06)}
+        .myc-stat{padding:22px 26px;border-left:1px solid var(--myc-line-soft);min-width:0}
+        .myc-stat:first-child{border-left:0}
+        .myc-stat .v{font-family:var(--font-content);font-variant-numeric:tabular-nums;
+            font-size:clamp(28px,3.2vw,38px);font-weight:600;line-height:1}
+        .myc-stat .v.win{color:var(--myc-win)}
+        /* A figure with no record behind it is a rule, not a zero — zero is a
+           measurement, and these have not been measured. */
+        .myc-stat .eln{display:inline-block;width:32px;height:3px;background:var(--myc-faint);
+            vertical-align:middle;margin:16px 0 3px}
+        .myc-stat .k{font-family:var(--myc-mono);font-size:9px;letter-spacing:.18em;
+            text-transform:uppercase;color:var(--myc-ink-soft);margin-top:12px}
+        .myc-stat .s{font-size:13px;color:var(--myc-muted);margin-top:5px}
 
-            /* Clerical Mono Label Utility */
-            .mono-lbl {
-                font-family: var(--mono, var(--font-data));
-                font-size: 10.5px;
-                letter-spacing: .16em;
-                text-transform: uppercase;
-                color: var(--ink-3, #6E7686);
-            }
+        .myc-gs{border:1px solid var(--myc-line-firm);background:var(--myc-paper);padding:20px 26px 24px;margin-bottom:26px}
+        .myc-gstop{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap}
+        .myc-gstop .l{font-family:var(--myc-mono);font-size:10px;letter-spacing:.22em;
+            text-transform:uppercase;color:var(--myc-ox);font-weight:500}
+        .myc-gstop .c{font-family:var(--myc-mono);font-size:10px;letter-spacing:.14em;
+            text-transform:uppercase;color:var(--myc-muted)}
+        .myc-gstop .c b{color:var(--myc-ink);font-weight:500}
+        .myc-gsrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+        .myc-gstep{display:flex;align-items:center;gap:11px;padding-right:16px;min-width:0}
+        .myc-gstep .m{width:20px;height:20px;border-radius:50%;flex:none;display:flex;
+            align-items:center;justify-content:center;font-size:10px;font-family:var(--myc-mono)}
+        .myc-gstep.done .m{background:var(--myc-win);color:var(--myc-paper2)}
+        .myc-gstep.next .m{background:transparent;border:2px solid var(--myc-ox)}
+        .myc-gstep.wait .m{background:transparent;border:1.5px solid var(--myc-faint)}
+        .myc-gstep .t{font-family:var(--myc-mono);font-size:10px;letter-spacing:.1em;
+            text-transform:uppercase;line-height:1.4}
+        .myc-gstep.done .t{color:var(--myc-ink-soft)}
+        .myc-gstep.next{cursor:pointer}
+        .myc-gstep.next .t{color:var(--myc-ink);font-weight:500}
+        .myc-gstep.wait .t{color:var(--myc-faint)}
+        .myc-gstep .nx{font-family:var(--myc-mono);font-size:8px;letter-spacing:.12em;
+            background:rgba(124,29,43,.06);border:1px solid rgba(124,29,43,.4);
+            color:var(--myc-ox);padding:2px 6px;margin-left:6px;white-space:nowrap}
+        .myc-gsbar{height:2px;background:var(--myc-line);margin-top:18px;position:relative}
+        .myc-gsbar .f{position:absolute;left:0;top:0;height:2px;background:var(--myc-ox);
+            transition:width .5s cubic-bezier(.22,1,.36,1)}
 
-            /* ── Page Header ── */
-            .myc-header {
-                padding: 60px 32px 20px;
-                max-width: 1300px;
-                margin: 0 auto;
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-            }
-            .myc-page-title {
-                font-family: var(--display, var(--font-content));
-                font-size: 40px;
-                font-weight: 700;
-                letter-spacing: -.026em;
-                color: var(--ink, #0E1420);
-                margin: 0;
-            }
-            .myc-page-title strong { color: var(--blood, #7A1C29); }
-            .myc-page-sub {
-                font-size: 14px;
-                color: var(--ink-2, #4A5464);
-                margin: 8px 0 0;
-                line-height: 1.6;
-                max-width: 600px;
-            }
+        .myc-none{border:1px solid var(--myc-line-firm);background:var(--myc-paper);
+            padding:44px 40px;text-align:center;margin-bottom:44px}
+        .myc-none .seal{width:40px;height:40px;margin:0 auto 18px;display:block}
+        .myc-none h3{font-family:var(--font-display);font-size:28px;font-weight:400;margin:0 0 12px}
+        .myc-none p{font-size:15px;line-height:1.6;color:var(--myc-ink-soft);max-width:560px;margin:0 auto}
+        .myc-none p b{color:var(--myc-ink);font-weight:600}
+        .myc-none-act{display:flex;gap:14px;justify-content:center;margin-top:24px;flex-wrap:wrap}
 
-            .myc-header-actions {
-                display: flex;
-                gap: 12px;
-            }
-            .myc-btn-secondary {
-                padding: 12px 20px;
-                background: transparent !important;
-                border: 1px solid var(--ink, #0E1420) !important;
-                border-radius: var(--r, 2px);
-                font-size: 11px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: .16em;
-                cursor: pointer;
-                color: var(--ink, #0E1420) !important;
-                font-family: var(--mono, var(--font-data));
-                transition: all 0.2s ease;
-            }
-            .myc-btn-secondary:hover {
-                background: var(--paper-alt, #EFEAE0) !important;
-            }
-            .myc-btn-primary {
-                padding: 12px 20px;
-                background: #7A1C29 !important;
-                color: #FFF8F5 !important;
-                border: 1px solid #7A1C29 !important;
-                border-radius: var(--r, 2px);
-                font-size: 11px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: .16em;
-                cursor: pointer;
-                font-family: var(--mono, var(--font-data));
-                transition: all 0.2s ease;
-                box-shadow: 0 1px 3px rgba(122, 28, 41, 0.2);
-            }
-            .myc-btn-primary:hover {
-                background: #54111B !important;
-                border-color: #54111B !important;
-                transform: translateY(-1px);
-            }
+        .myc-shead{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+        .myc-shead .l{font-family:var(--myc-mono);font-size:11px;letter-spacing:.24em;
+            text-transform:uppercase;color:var(--myc-ox);font-weight:500;white-space:nowrap}
+        .myc-shead .ln{flex:1;height:1px;background:linear-gradient(90deg,var(--myc-line-firm),var(--myc-line-soft))}
+        .myc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+        .myc-card{border:1px solid var(--myc-line-firm);background:var(--myc-paper);
+            padding:22px 22px 20px;display:flex;flex-direction:column;min-width:0;cursor:pointer}
+        .myc-card:hover{border-color:var(--myc-ox);box-shadow:0 10px 24px rgba(60,40,20,.07)}
+        .myc-c-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+        .myc-plat{display:flex;align-items:center;gap:9px;font-family:var(--myc-mono);
+            font-size:11px;letter-spacing:.08em;color:var(--myc-ink)}
+        .myc-plat .d{width:7px;height:7px;border-radius:50%;background:var(--myc-ox);flex:none}
+        .myc-cat{font-family:var(--myc-mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase;
+            color:var(--myc-muted);border:1px solid var(--myc-line-firm);padding:3px 8px;white-space:nowrap}
+        .myc-card h4{font-family:var(--font-content);font-size:22px;font-weight:600;line-height:1.1;margin:0 0 9px}
+        .myc-c-desc{font-size:14px;line-height:1.5;color:var(--myc-ink-soft);margin:0 0 16px;flex:1}
+        .myc-c-src{display:flex;align-items:center;gap:8px;font-family:var(--myc-mono);font-size:9px;
+            letter-spacing:.08em;text-transform:uppercase;color:var(--myc-muted);
+            padding-top:13px;border-top:1px solid var(--myc-line-soft);margin-bottom:16px}
+        .myc-c-src b{color:var(--myc-ink-soft);font-weight:500}
+        .myc-c-btn{font-family:var(--myc-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+            color:var(--myc-paper2);background:var(--myc-ox);border:1px solid var(--myc-ox);
+            padding:12px 0;text-align:center;display:block;width:100%;cursor:pointer}
+        .myc-c-btn:hover{background:var(--myc-ox-deep);border-color:var(--myc-ox-deep)}
 
-            /* ── Stat Strip (Order Aligned with Market Page: Value -> Label -> Subtext) ── */
-            .myc-metrics {
-                max-width: 1300px;
-                margin: 20px auto 32px;
-                padding: 0 32px;
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 24px;
-            }
-            .myc-metric {
-                background: var(--plate, #FFFDF9);
-                border: 1px solid var(--rule, #DCD5C6);
-                border-radius: var(--r, 2px);
-                padding: 20px 24px;
-                box-shadow: var(--lift);
-                display: flex;
-                flex-direction: column;
-            }
-            .myc-metric-value {
-                font-family: var(--display, var(--font-content));
-                font-size: 32px;
-                font-weight: 700;
-                color: var(--ink, #0E1420);
-                letter-spacing: -.026em;
-                line-height: 1.1;
-                margin-bottom: 6px;
-                font-variant-numeric: tabular-nums;
-            }
-            .myc-metric-label {
-                font-family: var(--mono, var(--font-data));
-                font-size: 10.5px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: .16em;
-                color: var(--ink-3, #6E7686);
-                margin-bottom: 4px;
-            }
-            .myc-metric-subtext {
-                font-size: 12px;
-                color: var(--ink-3, #6E7686);
-                line-height: 1.4;
-            }
+        /* The operator's own open contracts, once there are any. */
+        .myc-list{display:flex;flex-direction:column;border-top:2px solid var(--myc-ink);margin-bottom:44px}
+        .myc-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr) minmax(0,.8fr);
+            gap:16px;align-items:center;padding:18px 12px;border-bottom:1px solid var(--myc-line-soft);
+            background:var(--myc-paper);cursor:pointer}
+        .myc-row:hover{background:var(--myc-paper2)}
+        .myc-row .mt{font-family:var(--font-content);font-size:19px;font-weight:600;line-height:1.1}
+        .myc-row .ms{font-family:var(--myc-mono);font-size:9.5px;letter-spacing:.12em;
+            text-transform:uppercase;color:var(--myc-muted);margin-top:5px}
+        .myc-row .amt{font-family:var(--myc-mono);font-size:14px;color:var(--myc-ink);font-variant-numeric:tabular-nums}
+        .myc-row .lb{font-family:var(--myc-mono);font-size:8.5px;letter-spacing:.14em;
+            text-transform:uppercase;color:var(--myc-muted);display:block;margin-bottom:4px}
+        .myc-row .pill{font-family:var(--myc-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+            padding:5px 10px;border:1px solid var(--myc-line-firm);color:var(--myc-muted);justify-self:start}
+        .myc-row .pill.live{color:var(--myc-ox);border-color:rgba(124,29,43,.4)}
+        .myc-row .pill.won{color:var(--myc-win);border-color:rgba(78,107,62,.5);background:rgba(78,107,62,.10)}
+        .myc-row .pill.lost{color:var(--myc-ox);background:rgba(124,29,43,.06)}
 
-            .myc-feed {
-                max-width: 1300px;
-                margin: 0 auto;
-                padding: 0 32px 48px;
-            }
+        .myc-err{border:1px solid rgba(124,29,43,.4);background:rgba(124,29,43,.06);
+            padding:16px 20px;margin-bottom:44px;font-size:14px;line-height:1.55;color:var(--myc-ink-soft)}
+        .myc-err b{color:var(--myc-ink);font-weight:600}
 
-            /* ── Templates Grid & Cards (Plates) ── */
-            .myo-templates-grid-3 {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 24px;
-            }
-            .myo-temp-card {
-                background: var(--plate, #FFFDF9);
-                border: 1px solid var(--rule, #DCD5C6);
-                border-radius: var(--r, 2px);
-                padding: 24px;
-                box-shadow: var(--lift);
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                cursor: pointer;
-                transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-                position: relative;
-            }
-            .myo-temp-card:hover {
-                transform: translateY(-2px);
-                border-color: var(--blood, #7A1C29);
-                box-shadow: 0 4px 16px rgba(14, 20, 32, 0.08);
-            }
-            .myo-temp-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 12px;
-            }
-            .myo-temp-platform {
-                font-family: var(--body, var(--font-content));
-                font-size: 13px;
-                font-weight: 700;
-                color: var(--ink, #0E1420);
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            /* Monochrome Platform Dot Indicator (#6E7686) */
-            .myo-platform-dot {
-                width: 6px;
-                height: 6px;
-                border-radius: 50%;
-                background: var(--ink-3, #6E7686);
-            }
-            .myo-temp-category {
-                font-family: var(--mono, var(--font-data));
-                font-size: 9.5px;
-                font-weight: 700;
-                color: var(--blood, #7A1C29);
-                background: rgba(122, 28, 41, 0.08);
-                border: 1px solid rgba(122, 28, 41, 0.2);
-                border-radius: var(--r, 2px);
-                padding: 2px 8px;
-                text-transform: uppercase;
-                letter-spacing: .12em;
-            }
-            .myo-temp-title {
-                font-family: var(--display, var(--font-content));
-                font-size: 17px;
-                font-weight: 700;
-                letter-spacing: -.02em;
-                color: var(--ink, #0E1420);
-                line-height: 1.3;
-                margin-bottom: 8px;
-                display: block;
-            }
-            .myo-temp-divider {
-                border-bottom: 1px dotted var(--rule, #DCD5C6);
-                margin: 16px 0;
-            }
-            .myo-temp-btn {
-                background: #7A1C29 !important;
-                color: #FFF8F5 !important;
-                border: 1px solid #7A1C29 !important;
-                border-radius: var(--r, 2px);
-                padding: 12px 16px;
-                font-family: var(--mono, var(--font-data));
-                font-size: 10.5px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: .16em;
-                cursor: pointer;
-                width: 100%;
-                text-align: center;
-                transition: all 0.2s ease;
-            }
-            .myo-temp-btn:hover {
-                background: #54111B !important;
-                border-color: #54111B !important;
-            }
-
-            /* Responsive */
-            @media (max-width: 1024px) {
-                .myc-metrics { grid-template-columns: repeat(2, 1fr); }
-                .myo-templates-grid-3 { grid-template-columns: repeat(2, 1fr); }
-            }
-            @media (max-width: 768px) {
-                .myc-metrics { grid-template-columns: 1fr; }
-                .myo-templates-grid-3 { grid-template-columns: 1fr; }
-                .myc-header { flex-direction: column; gap: 20px; }
-            }
+        @media (max-width:900px){
+            .myc-statreg{grid-template-columns:repeat(2,minmax(0,1fr))}
+            .myc-stat:nth-child(3){border-left:0}
+            .myc-stat:nth-child(n+3){border-top:1px solid var(--myc-line-soft)}
+            .myc-gsrow{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+            .myc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+            .myc-row{grid-template-columns:minmax(0,1fr) auto;row-gap:10px}
+        }
+        @media (max-width:620px){
+            .myc-statreg,.myc-gsrow,.myc-grid{grid-template-columns:minmax(0,1fr)}
+            .myc-stat{border-left:0;border-top:1px solid var(--myc-line-soft)}
+            .myc-stat:first-child{border-top:0}
+        }
+        @media (prefers-reduced-motion:reduce){ .myc-gsbar .f{transition:none} }
         </style>
 
-        <div class="cl-grain" aria-hidden="true"></div>
+        <section class="myc">
+            <div class="myc-wrap">
+                <div class="myc-phead">
+                    <div>
+                        <div class="myc-kick"><span class="r"></span> Your portfolio</div>
+                        <h1>Active <span class="ox">Contracts.</span></h1>
+                        <p class="myc-lead">Every contract you open lives here. Meet a goal and your
+                            locked capital returns with your payout &mdash; and your verified track
+                            record grows.</p>
+                    </div>
+                    <div class="myc-pact">
+                        <button type="button" class="myc-btn out" id="myc-identity">View identity</button>
+                        <button type="button" class="myc-btn ox" id="myc-new">New contract &rarr;</button>
+                    </div>
+                </div>
 
-        <div class="myc">
-            <div class="myc-header" data-reveal>
-                <div>
-                    <h1 class="myc-page-title">Active <strong>Commitments.</strong></h1>
-                    <p class="myc-page-sub">Track and manage your active commitments. Completing your goals successfully returns your locked collateral and builds your profile's success score.</p>
+                <div class="myc-statreg">
+                    <div class="myc-stat">
+                        <div class="v" id="myc-locked"><span class="eln"></span></div>
+                        <div class="k">Total locked</div>
+                        <div class="s" id="myc-locked-s">Reading your record&hellip;</div>
+                    </div>
+                    <div class="myc-stat">
+                        <div class="v" id="myc-active"><span class="eln"></span></div>
+                        <div class="k">Active contracts</div>
+                        <div class="s" id="myc-active-s">Reading your record&hellip;</div>
+                    </div>
+                    <div class="myc-stat">
+                        <div class="v" id="myc-rate"><span class="eln"></span></div>
+                        <div class="k">Settlement rate</div>
+                        <div class="s" id="myc-rate-s">Reading your record&hellip;</div>
+                    </div>
+                    <div class="myc-stat">
+                        <div class="v" id="myc-payout"><span class="eln"></span></div>
+                        <div class="k">Total payout</div>
+                        <div class="s" id="myc-payout-s">Reading your record&hellip;</div>
+                    </div>
                 </div>
-                <div class="myc-header-actions">
-                    <button class="myc-btn-secondary" onclick="window.router.navigate('/profile')">View Identity</button>
-                    <button class="myc-btn-primary" onclick="window.router.navigate('/market')">New Contract</button>
-                </div>
-            </div>
 
-            <!-- Stat Strip (Order Aligned with Market Page: Value -> Label -> Subtext) -->
-            <div class="myc-metrics" data-reveal>
-                <div class="myc-metric">
-                    <div class="myc-metric-value" id="myc-total-locked">—</div>
-                    <div class="myc-metric-label">TOTAL LOCKED</div>
-                    <div class="myc-metric-subtext">No capital currently committed</div>
+                <div class="myc-gs">
+                    <div class="myc-gstop">
+                        <span class="l">Getting started</span>
+                        <span class="c" id="myc-gs-count"><b>&mdash;</b> of 4 complete</span>
+                    </div>
+                    <div class="myc-gsrow" id="myc-gs-row"></div>
+                    <div class="myc-gsbar"><div class="f" id="myc-gs-bar" style="width:0%"></div></div>
                 </div>
-                <div class="myc-metric">
-                    <div class="myc-metric-value" id="myc-active-count">0</div>
-                    <div class="myc-metric-label">ACTIVE COMMITMENTS</div>
-                    <div class="myc-metric-subtext">Ready to create your first</div>
-                </div>
-                <div class="myc-metric">
-                    <div class="myc-metric-value" id="myc-settle-rate">—</div>
-                    <div class="myc-metric-label">SETTLEMENT RATE</div>
-                    <div class="myc-metric-subtext">No settlements yet</div>
-                </div>
-                <div class="myc-metric">
-                    <div class="myc-metric-value" id="myc-avg-risk">—</div>
-                    <div class="myc-metric-label">TOTAL PAYOUT</div>
-                    <div class="myc-metric-subtext">No payouts yet</div>
-                </div>
-            </div>
 
-            <div class="myc-feed" data-reveal>
-                <div id="myc-content">
-                    ${collateralFullLoader('Retrieving personal record...')}
-                </div>
+                <div id="myc-content"></div>
+
+                <div class="myc-shead"><span class="l">Suggested contracts</span><span class="ln"></span></div>
+                <div class="myc-grid">${cards}</div>
             </div>
-        </div>
+        </section>
     `;
 }
 
+const SEAL = '<svg class="seal" viewBox="0 0 40 40" fill="none" aria-hidden="true">'
+    + '<circle cx="20" cy="20" r="15" fill="#7C1D2B"/>'
+    + '<circle cx="20" cy="20" r="15" stroke="#5E1420" stroke-width="1.4"/>'
+    + '<circle cx="20" cy="20" r="11" stroke="rgba(255,240,225,.35)" stroke-width=".8"/>'
+    + '<text x="20" y="26" font-size="16" font-weight="700" fill="#F0DAC7" text-anchor="middle">C</text></svg>';
+
 export async function initMyContracts() {
+    const root = document.querySelector('.myc');
+    if (!root) return;
+    const go = (path) => { if (window.router) window.router.navigate(path); };
+
+    const nb = document.getElementById('myc-new');
+    if (nb) nb.addEventListener('click', () => go('/market'));
+    const ib = document.getElementById('myc-identity');
+    if (ib) ib.addEventListener('click', () => go('/profile'));
+    root.querySelectorAll('.myc-card').forEach((c) => {
+        c.addEventListener('click', () => go('/market'));
+    });
+
+    /* Read the record, then say what it says. Every request is wrapped
+       separately: one unreachable status endpoint must not decide that the
+       operator has no contracts, and a failed contract read must not be drawn
+       as an empty portfolio — an operator with capital locked who is shown
+       "no active contracts" would reasonably think their money had gone. */
+    const safe = async (fn) => { try { return await fn(); } catch { return null; } };
+    const api = window.api || {};
+
+    const [contractsRes, bank, stripe, shopify, youtube] = await Promise.all([
+        safe(() => (api.getContracts ? api.getContracts() : null)),
+        safe(() => (api.getPlaidStatus ? api.getPlaidStatus() : null)),
+        safe(() => (api.getStripeStatus ? api.getStripeStatus() : null)),
+        safe(() => (api.getShopifyStatus ? api.getShopifyStatus() : null)),
+        safe(() => (api.getYouTubeStatus ? api.getYouTubeStatus() : null)),
+    ]);
+
+    const failed = contractsRes == null;
+    const contracts = (contractsRes && contractsRes.contracts) || [];
+
+    // ---- the four figures, all from the one array ------------------------
+    const cents = (v) => (v == null ? 0 : Number(v) || 0);
+    const isSettled = (k) => k.result === 'WIN' || k.result === 'LOSS'
+        || k.status === 'SETTLED_SUCCESS' || k.status === 'SETTLED_FAILURE';
+    const isWin = (k) => k.result === 'WIN' || k.status === 'SETTLED_SUCCESS';
+    const isLive = (k) => !isSettled(k) && k.status !== 'DRAFT';
+
+    const live = contracts.filter(isLive);
+    const settled = contracts.filter(isSettled);
+    const won = settled.filter(isWin);
+    const lockedUsd = live.reduce((s, k) => s + cents(k.lockAmountUsdCents), 0) / 100;
+    const paidUsd = won.reduce((s, k) => s + cents(k.payoutAmountUsdCents), 0) / 100;
+
+    const setStat = (id, value, sub) => {
+        const v = document.getElementById(id);
+        const s = document.getElementById(id + '-s');
+        if (v) {
+            if (value == null) v.innerHTML = '<span class="eln"></span>';
+            else v.textContent = value;
+        }
+        if (s && sub != null) s.textContent = sub;
+    };
+
+    if (failed) {
+        ['myc-locked', 'myc-active', 'myc-rate', 'myc-payout']
+            .forEach((id) => setStat(id, null, 'Could not be read'));
+    } else {
+        setStat('myc-locked', live.length ? money(lockedUsd) : null,
+            live.length
+                ? 'Across ' + live.length + (live.length === 1 ? ' contract' : ' contracts')
+                : 'No capital committed');
+        setStat('myc-active', String(live.length),
+            live.length ? 'Settling automatically' : 'Ready to open your first');
+        setStat('myc-rate', settled.length ? Math.round((won.length / settled.length) * 100) + '%' : null,
+            settled.length ? won.length + ' of ' + settled.length + ' met' : 'No settlements yet');
+        setStat('myc-payout', won.length ? money(paidUsd) : null,
+            won.length ? 'Returned to you' : 'No payouts yet');
+        const rate = document.getElementById('myc-rate');
+        if (rate && settled.length && won.length === settled.length) rate.classList.add('win');
+    }
+
+    // ---- the checklist, every step a real reading ------------------------
+    const user = api.getStoredUser ? api.getStoredUser() : null;
+    const identityOk = !!(user && (user.username || user.displayName));
+    const sourceOk = !!((bank && bank.connected) || (stripe && stripe.connected)
+        || (shopify && shopify.connected) || (youtube && youtube.connected));
+
+    const steps = [
+        { t: 'Identity verified', done: identityOk, go: '/profile' },
+        { t: 'Source connected', done: sourceOk, go: '/sources' },
+        { t: 'Open your first contract', done: contracts.length > 0, go: '/market' },
+        { t: 'Complete first settlement', done: settled.length > 0, go: null },
+    ];
+    /* The FIRST unfinished step is the next one, and only that one is marked.
+       The bar and the count both come from this same array, so a bar drawn at
+       50% under a caption reading "1 of 4" cannot happen again. */
+    const nextIdx = steps.findIndex((s) => !s.done);
+    const doneCount = steps.filter((s) => s.done).length;
+
+    const row = document.getElementById('myc-gs-row');
+    if (row) {
+        row.innerHTML = '';
+        steps.forEach((s, i) => {
+            const state = s.done ? 'done' : (i === nextIdx ? 'next' : 'wait');
+            const d = document.createElement('div');
+            d.className = 'myc-gstep ' + state;
+            const m = document.createElement('span');
+            m.className = 'm';
+            m.textContent = s.done ? '✓' : '';
+            d.appendChild(m);
+            const t = document.createElement('span');
+            t.className = 't';
+            t.appendChild(document.createTextNode(s.t));
+            if (state === 'next') {
+                const nx = document.createElement('span');
+                nx.className = 'nx';
+                nx.textContent = 'Next';
+                t.appendChild(nx);
+            }
+            d.appendChild(t);
+            if (state === 'next' && s.go) d.addEventListener('click', () => go(s.go));
+            row.appendChild(d);
+        });
+    }
+    const cnt = document.getElementById('myc-gs-count');
+    if (cnt) {
+        cnt.innerHTML = '';
+        const b = document.createElement('b');
+        b.textContent = String(doneCount);
+        cnt.appendChild(b);
+        cnt.appendChild(document.createTextNode(' of ' + steps.length + ' complete'));
+    }
+    const bar = document.getElementById('myc-gs-bar');
+    if (bar) bar.style.width = (doneCount / steps.length * 100) + '%';
+
+    // ---- the portfolio itself -------------------------------------------
     const container = document.getElementById('myc-content');
     if (!container) return;
+    container.innerHTML = '';
 
-    try {
-        let contracts = [];
-        try {
-            const response = await window.api.getContracts();
-            contracts = response?.contracts || [];
-        } catch (fetchErr) {
-            console.warn('[MyContracts] Empty onboarding state:', fetchErr);
-        }
-
-        if (contracts.length === 0) {
-            document.getElementById('myc-total-locked').textContent = '—';
-            document.getElementById('myc-active-count').textContent = '0';
-            document.getElementById('myc-settle-rate').textContent = '—';
-            document.getElementById('myc-avg-risk').textContent = '—';
-
-            container.innerHTML = `
-                <div class="myc-onboarding-wrapper" style="display: flex; flex-direction: column; gap: 32px;">
-                    
-                    <!-- Getting Started Progress Bar -->
-                    <div style="background: var(--plate, #FFFDF9); border: 1px solid var(--rule, #DCD5C6); padding: 24px; border-radius: var(--r, 2px); box-shadow: var(--lift);">
-                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
-                            <span class="mono-lbl">GETTING STARTED</span>
-                            <span class="mono-lbl" style="color: var(--ink-2, #4A5464);">1 OF 4 COMPLETE</span>
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px;">
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <span style="color: var(--win, #186B4A); font-weight:700;">✓</span>
-                                <span class="mono-lbl" style="color: var(--ink, #0E1420);">Identity Verified</span>
-                            </div>
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <span style="color: var(--win, #186B4A); font-weight:700;">✓</span>
-                                <span class="mono-lbl" style="color: var(--ink, #0E1420);">Source Connected</span>
-                            </div>
-                            <div style="display:flex; align-items:center; gap:8px; cursor:pointer;" onclick="window.router.navigate('/market')">
-                                <span style="color: var(--blood, #7A1C29); font-weight:700;">○</span>
-                                <span class="mono-lbl" style="color: var(--blood, #7A1C29); font-weight:700;">Create Commitment <span style="font-size:9px; background:rgba(122,28,41,0.1); padding:2px 4px;">NEXT</span></span>
-                            </div>
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <span style="color: var(--ink-4, #9AA0AC);">○</span>
-                                <span class="mono-lbl" style="color: var(--ink-4, #9AA0AC);">Complete First Settlement</span>
-                            </div>
-                        </div>
-                        <div style="width: 100%; height: 3px; background: var(--rule-soft, #EAE4D8); border-radius: 2px; overflow: hidden;">
-                            <div style="width: 50%; height: 100%; background: var(--blood, #7A1C29);"></div>
-                        </div>
-                    </div>
-
-                    <!-- Centered Empty-State Onboarding Hero -->
-                    <div style="border: 1px solid var(--rule, #DCD5C6); padding: 40px; background: var(--plate, #FFFDF9); text-align: center; border-radius: var(--r, 2px); box-shadow: var(--lift);">
-                        <h2 style="font-family: var(--display, var(--font-content)); font-size: 24px; margin-bottom: 12px; font-weight: 700; color: var(--ink, #0E1420);">No Active Commitments Yet</h2>
-                        <p style="max-width: 620px; margin: 0 auto 24px; line-height: 1.6; color: var(--ink-2, #4A5464); font-size: 14px;">
-                            Prove you can do what you say you will. When you set a goal, lock a small deposit to hold yourself accountable. Reaching your goal returns your money and builds your profile's success score. Fail, and you forfeit the deposit.
-                        </p>
-                        <div style="display: flex; gap: 16px; justify-content: center;">
-                            <button class="myc-btn-primary" onclick="window.router.navigate('/market')">Create Your First Commitment</button>
-                            <button class="myc-btn-secondary" onclick="document.getElementById('suggested-commitments-lbl').scrollIntoView({ behavior: 'smooth' })">Browse Templates</button>
-                        </div>
-                    </div>
-
-                    <!-- Suggested Commitments Grid -->
-                    <div style="margin-bottom: 24px;">
-                        <div class="mono-lbl" id="suggested-commitments-lbl" style="margin-bottom: 16px;">SUGGESTED COMMITMENTS</div>
-                        
-                        <div class="myo-templates-grid-3">
-                            <div class="myo-temp-card" onclick="window.router.navigate('/market')">
-                                <div>
-                                    <div class="myo-temp-header">
-                                        <span class="myo-temp-platform">
-                                            <span class="myo-platform-dot"></span> YouTube
-                                        </span>
-                                        <span class="myo-temp-category">CREATORS</span>
-                                    </div>
-                                    <span class="myo-temp-title">Reach 10,000 YouTube Subscribers</span>
-                                    <p style="font-size: 13px; color: var(--ink-2, #4A5464); margin: 0 0 12px; line-height: 1.5;">Establish verification of creator channel subscriber milestones.</p>
-                                    <div class="mono-lbl" style="font-size: 9.5px; color: var(--ink-3, #6E7686);">
-                                        ESTIMATED VERIFICATION SOURCE: YOUTUBE API
-                                    </div>
-                                </div>
-                                <div class="myo-temp-divider"></div>
-                                <button class="myo-temp-btn">Create Commitment</button>
-                            </div>
-
-                            <div class="myo-temp-card" onclick="window.router.navigate('/market')">
-                                <div>
-                                    <div class="myo-temp-header">
-                                        <span class="myo-temp-platform">
-                                            <span class="myo-platform-dot"></span> Stripe
-                                        </span>
-                                        <span class="myo-temp-category">FINANCE</span>
-                                    </div>
-                                    <span class="myo-temp-title">Generate $10,000 Monthly Revenue</span>
-                                    <p style="font-size: 13px; color: var(--ink-2, #4A5464); margin: 0 0 12px; line-height: 1.5;">Verify monthly stripe revenue metric triggers.</p>
-                                    <div class="mono-lbl" style="font-size: 9.5px; color: var(--ink-3, #6E7686);">
-                                        ESTIMATED VERIFICATION SOURCE: STRIPE API
-                                    </div>
-                                </div>
-                                <div class="myo-temp-divider"></div>
-                                <button class="myo-temp-btn">Create Commitment</button>
-                            </div>
-
-                            <div class="myo-temp-card" onclick="window.router.navigate('/market')">
-                                <div>
-                                    <div class="myo-temp-header">
-                                        <span class="myo-temp-platform">
-                                            <span class="myo-platform-dot"></span> YouTube
-                                        </span>
-                                        <span class="myo-temp-category">CREATORS</span>
-                                    </div>
-                                    <span class="myo-temp-title">Achieve 50,000 YouTube Views</span>
-                                    <p style="font-size: 13px; color: var(--ink-2, #4A5464); margin: 0 0 12px; line-height: 1.5;">Track and verify video view count milestones.</p>
-                                    <div class="mono-lbl" style="font-size: 9.5px; color: var(--ink-3, #6E7686);">
-                                        ESTIMATED VERIFICATION SOURCE: YOUTUBE API
-                                    </div>
-                                </div>
-                                <div class="myo-temp-divider"></div>
-                                <button class="myo-temp-btn">Create Commitment</button>
-                            </div>
-
-                            <div class="myo-temp-card" onclick="window.router.navigate('/market')">
-                                <div>
-                                    <div class="myo-temp-header">
-                                        <span class="myo-temp-platform">
-                                            <span class="myo-platform-dot"></span> Shopify
-                                        </span>
-                                        <span class="myo-temp-category">COMMERCE</span>
-                                    </div>
-                                    <span class="myo-temp-title">Complete 100 Shopify Orders</span>
-                                    <p style="font-size: 13px; color: var(--ink-2, #4A5464); margin: 0 0 12px; line-height: 1.5;">Fulfill orders threshold verification.</p>
-                                    <div class="mono-lbl" style="font-size: 9.5px; color: var(--ink-3, #6E7686);">
-                                        ESTIMATED VERIFICATION SOURCE: SHOPIFY API
-                                    </div>
-                                </div>
-                                <div class="myo-temp-divider"></div>
-                                <button class="myo-temp-btn">Create Commitment</button>
-                            </div>
-
-                            <div class="myo-temp-card" onclick="window.router.navigate('/market')">
-                                <div>
-                                    <div class="myo-temp-header">
-                                        <span class="myo-temp-platform">
-                                            <span class="myo-platform-dot"></span> X (Twitter)
-                                        </span>
-                                        <span class="myo-temp-category">SOCIAL</span>
-                                    </div>
-                                    <span class="myo-temp-title">Grow to 5,000 X Followers</span>
-                                    <p style="font-size: 13px; color: var(--ink-2, #4A5464); margin: 0 0 12px; line-height: 1.5;">Verify follower count milestones on X.</p>
-                                    <div class="mono-lbl" style="font-size: 9.5px; color: var(--ink-3, #6E7686);">
-                                        ESTIMATED VERIFICATION SOURCE: X API
-                                    </div>
-                                </div>
-                                <div class="myo-temp-divider"></div>
-                                <button class="myo-temp-btn">Create Commitment</button>
-                            </div>
-
-                            <!-- Fixed Amazon Card with Monochrome Dot Indicator (#6E7686) -->
-                            <div class="myo-temp-card" onclick="window.router.navigate('/market')">
-                                <div>
-                                    <div class="myo-temp-header">
-                                        <span class="myo-temp-platform">
-                                            <span class="myo-platform-dot"></span> Amazon
-                                        </span>
-                                        <span class="myo-temp-category">COMMERCE</span>
-                                    </div>
-                                    <span class="myo-temp-title">Fulfill 200 Amazon Orders</span>
-                                    <p style="font-size: 13px; color: var(--ink-2, #4A5464); margin: 0 0 12px; line-height: 1.5;">Fulfill order volume threshold verification.</p>
-                                    <div class="mono-lbl" style="font-size: 9.5px; color: var(--ink-3, #6E7686);">
-                                        ESTIMATED VERIFICATION SOURCE: AMAZON SELLER API
-                                    </div>
-                                </div>
-                                <div class="myo-temp-divider"></div>
-                                <button class="myo-temp-btn">Create Commitment</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-    } catch (err) {
-        console.error('[MyContracts] Init error:', err);
+    if (failed) {
+        const e = document.createElement('div');
+        e.className = 'myc-err';
+        const b = document.createElement('b');
+        b.textContent = 'Your contracts could not be loaded. ';
+        e.appendChild(b);
+        e.appendChild(document.createTextNode(
+            'This is a read problem, not a change to your position — nothing has been altered. '
+            + 'Reload to try again.'));
+        container.appendChild(e);
+        return;
     }
+
+    if (!contracts.length) {
+        const n = document.createElement('div');
+        n.className = 'myc-none';
+        n.innerHTML = SEAL;
+        const h = document.createElement('h3');
+        h.textContent = 'No active contracts yet.';
+        n.appendChild(h);
+        const p = document.createElement('p');
+        p.appendChild(document.createTextNode(
+            'Prove you can do what you say you will. Lock a small stake behind a goal, hit it by '
+            + 'the deadline, and your capital returns with a payout. '));
+        const b = document.createElement('b');
+        b.textContent = 'Miss it, and the stake settles to the pool.';
+        p.appendChild(b);
+        n.appendChild(p);
+        const act = document.createElement('div');
+        act.className = 'myc-none-act';
+        const primary = document.createElement('button');
+        primary.type = 'button';
+        primary.className = 'myc-btn ox';
+        primary.textContent = 'Open your first contract →';
+        primary.addEventListener('click', () => go('/market'));
+        act.appendChild(primary);
+        n.appendChild(act);
+        container.appendChild(n);
+        return;
+    }
+
+    const list = document.createElement('div');
+    list.className = 'myc-list';
+    contracts.forEach((k) => {
+        const r = document.createElement('div');
+        r.className = 'myc-row';
+
+        const left = document.createElement('div');
+        const mt = document.createElement('div');
+        mt.className = 'mt';
+        mt.textContent = String(k.metricType || 'Contract').replace(/_/g, ' ').toLowerCase()
+            .replace(/\b\w/g, (ch) => ch.toUpperCase());
+        left.appendChild(mt);
+        const ms = document.createElement('div');
+        ms.className = 'ms';
+        ms.textContent = String(k.platform || '').toUpperCase();
+        left.appendChild(ms);
+        r.appendChild(left);
+
+        const stake = document.createElement('div');
+        const sl = document.createElement('span');
+        sl.className = 'lb';
+        sl.textContent = 'At risk';
+        stake.appendChild(sl);
+        const sv = document.createElement('span');
+        sv.className = 'amt';
+        sv.textContent = money(cents(k.lockAmountUsdCents) / 100);
+        stake.appendChild(sv);
+        r.appendChild(stake);
+
+        /* Labelled "you receive", and the total — the same split the
+           certificate makes. A bare payout figure beside a stake is the
+           total-versus-profit ambiguity all over again. */
+        const pay = document.createElement('div');
+        const pl = document.createElement('span');
+        pl.className = 'lb';
+        pl.textContent = 'If met · you receive';
+        pay.appendChild(pl);
+        const pv = document.createElement('span');
+        pv.className = 'amt';
+        pv.textContent = k.payoutAmountUsdCents != null
+            ? money(cents(k.payoutAmountUsdCents) / 100) + ' total'
+            : '—';
+        pay.appendChild(pv);
+        r.appendChild(pay);
+
+        const pill = document.createElement('span');
+        const st = isSettled(k) ? (isWin(k) ? 'won' : 'lost') : 'live';
+        pill.className = 'pill ' + st;
+        pill.textContent = st === 'won' ? 'Met' : st === 'lost' ? 'Missed' : 'Live';
+        r.appendChild(pill);
+
+        if (k.id) r.addEventListener('click', () => go('/contract/' + encodeURIComponent(k.id)));
+        list.appendChild(r);
+    });
+    container.appendChild(list);
 }
