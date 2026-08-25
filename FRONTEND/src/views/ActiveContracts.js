@@ -4498,37 +4498,26 @@ export function initActiveContracts() {
         }
 
         /** The wax "C", drawn rather than fetched so it stamps in instantly. */
+        /* THE SEAL IS THE PHOTOGRAPH NOW, not a vector approximation of one.
+           This drew a wax blob out of paths: an irregular body, a ring and a
+           cream C. It was the better of the two hand-drawn seals on the site
+           and it still read as a sticker — gloss, an uneven rim and pressed
+           grain are what make wax look like wax, and none of them survive being
+           reduced to flat fills.
+
+           Same signature, so every call site is unchanged; it returns an <img>
+           instead of an <svg>. The asset is keyed to transparency, so it sits
+           on the certificate stock without carrying a square of its own. */
         function sealSvg(size) {
-            const NS = 'http://www.w3.org/2000/svg';
-            const svg = document.createElementNS(NS, 'svg');
-            svg.setAttribute('viewBox', '0 0 60 60');
-            svg.setAttribute('width', String(size));
-            svg.setAttribute('height', String(size));
-            svg.setAttribute('role', 'img');
-            const title = document.createElementNS(NS, 'title');
-            title.textContent = 'Sealed';
-            svg.appendChild(title);
-            const d = 'M30 4 C40 4 47 12 50 22 C53 30 56 34 54 42 C52 50 44 56 34 56 C22 57 12 52 8 42 C4 33 6 24 10 17 C14 10 20 4 30 4 Z';
-            const body = document.createElementNS(NS, 'path');
-            body.setAttribute('d', d); body.setAttribute('fill', '#5E1420');
-            svg.appendChild(body);
-            const edge = document.createElementNS(NS, 'path');
-            edge.setAttribute('d', d); edge.setAttribute('fill', 'none');
-            edge.setAttribute('stroke', '#4E0F19'); edge.setAttribute('stroke-width', '1.2');
-            svg.appendChild(edge);
-            const ring = document.createElementNS(NS, 'circle');
-            ring.setAttribute('cx', '30'); ring.setAttribute('cy', '30'); ring.setAttribute('r', '16.5');
-            ring.setAttribute('fill', 'none'); ring.setAttribute('stroke', 'rgba(255,235,220,.16)');
-            ring.setAttribute('stroke-width', '1');
-            svg.appendChild(ring);
-            const c = document.createElementNS(NS, 'text');
-            c.setAttribute('x', '30'); c.setAttribute('y', '37');
-            c.setAttribute('font-family', 'var(--font-content)');
-            c.setAttribute('font-size', '21'); c.setAttribute('font-weight', '700');
-            c.setAttribute('fill', '#F0DAC7'); c.setAttribute('text-anchor', 'middle');
-            c.textContent = 'C';
-            svg.appendChild(c);
-            return svg;
+            const img = document.createElement('img');
+            img.src = '/wax-seal.png';
+            img.width = size;
+            img.height = size;
+            img.alt = 'Sealed';
+            img.decoding = 'async';
+            img.style.display = 'block';
+            img.style.objectFit = 'contain';
+            return img;
         }
 
         function operatorName() {
