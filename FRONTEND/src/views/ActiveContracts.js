@@ -4622,7 +4622,7 @@ export function initActiveContracts() {
             const line = document.querySelector('#mb-wstep-3 .mb-sig .line');
             if (line) { line.innerHTML = ''; line.appendChild(wEl('span', 'nm', operatorName())); }
             const wax = document.querySelector('#mb-wstep-3 .mb-docwax');
-            if (wax) { wax.className = 'mb-docwax'; wax.innerHTML = ''; wax.appendChild(sealSvg(52)); }
+            if (wax) { wax.className = 'mb-docwax'; wax.innerHTML = ''; wax.appendChild(sealSvg(58)); }
 
             wiz.busy = false;
             wiz.contract = {

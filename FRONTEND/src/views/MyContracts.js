@@ -201,7 +201,7 @@ export function renderMyContracts() {
         /* 30px was a bullet point. The wax is struck now, so it gets the room to
            read as struck — the rim, the rings and the letter need the size.
            Still the tightest block on the page. */
-        .myc-none .seal{width:54px;height:54px;margin:0 auto 14px;display:block;object-fit:contain}
+        .myc-none .seal{width:64px;height:64px;margin:0 auto 15px;display:block;object-fit:contain}
         .myc-none h3{font-family:var(--font-display);font-size:25px;font-weight:400;margin:0 0 10px}
         .myc-none p{font-size:14.5px;line-height:1.6;color:var(--myc-ink-soft);max-width:520px;margin:0 auto}
         .myc-none p b{color:var(--myc-ink);font-weight:600}
@@ -356,7 +356,7 @@ export function renderMyContracts() {
  * "light" to any threshold loose enough to catch the background.
  */
 const SEAL = '<img class="seal" src="/wax-seal.png" alt="" aria-hidden="true"'
-    + ' width="54" height="54" decoding="async" />';
+    + ' width="64" height="64" decoding="async" />';
 
 export async function initMyContracts() {
     const root = document.querySelector('.myc');
