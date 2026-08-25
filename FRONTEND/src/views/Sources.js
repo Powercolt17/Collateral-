@@ -169,11 +169,11 @@ export function renderSources() {
         .src h1{font-family:var(--font-display);font-size:clamp(34px,5vw,50px);font-weight:400;
             line-height:1;margin:0 0 14px}
         .src h1 .ox{color:var(--src-ox)}
-        .src-lead{font-size:16px;line-height:1.55;color:var(--src-ink-soft);max-width:560px;margin:0 0 34px}
+        .src-lead{font-size:16px;line-height:1.55;color:var(--src-ink-soft);max-width:560px;margin:0 0 30px}
 
         .src-statreg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
             border:1px solid var(--src-line-firm);border-top:2px solid var(--src-ink);
-            background:var(--src-paper);margin-bottom:44px}
+            background:var(--src-paper);margin-bottom:36px}
         .src-stat{padding:19px 24px 18px;border-left:1px solid var(--src-line-soft);min-width:0}
         .src-stat:first-child{border-left:0}
         .src-stat .v{font-family:var(--font-content);font-variant-numeric:lining-nums tabular-nums;
@@ -184,18 +184,24 @@ export function renderSources() {
         .src-stat .k{font-family:var(--src-mono);font-size:9px;letter-spacing:.18em;
             text-transform:uppercase;color:var(--src-ink-soft);margin-top:9px}
 
-        .src-shead{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 20px}
+        .src-shead{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 17px}
         .src-shead .l{font-family:var(--src-mono);font-size:11px;letter-spacing:.24em;
             text-transform:uppercase;color:var(--src-ox);font-weight:500;white-space:nowrap;
             display:flex;align-items:center;gap:12px}
         .src-shead .r{font-family:var(--src-mono);font-size:10px;letter-spacing:.14em;
             text-transform:uppercase;color:var(--src-muted)}
         .src-shead .r b{color:var(--src-ink);font-weight:500}
-        .src-sect{margin-bottom:44px}
+        .src-sect{margin-bottom:38px}
 
         .src-conns{border-top:2px solid var(--src-ink)}
-        .src-conn{display:grid;grid-template-columns:44px minmax(0,1fr) auto auto;
-            gap:24px;align-items:center;padding:20px 4px;border-bottom:1px solid var(--src-line-soft)}
+        /* FIXED COLUMNS, NOT auto auto. The metric and the authorization pill
+           sized themselves to their own content, so a row reading "8h · POLL
+           CADENCE" and one reading "12,480 · SUBSCRIBERS" put their figures and
+           their pills at different x-positions — the register did not line up
+           down the page. Both columns are struck to a width now, so the figure
+           column and the status column each hold one vertical line. */
+        .src-conn{display:grid;grid-template-columns:44px minmax(0,1fr) 132px 148px;
+            gap:24px;align-items:center;padding:19px 4px;border-bottom:1px solid var(--src-line-soft)}
         .src-badge{width:40px;height:40px;border:1px solid var(--src-line-firm);background:var(--src-paper2);
             display:flex;align-items:center;justify-content:center;flex:none;color:var(--src-ink-soft)}
         .src-badge svg{width:20px;height:20px;fill:currentColor;display:block}
@@ -206,16 +212,16 @@ export function renderSources() {
             font-size:23px;font-weight:600;line-height:1}
         .src-ck{font-family:var(--src-mono);font-size:8px;letter-spacing:.14em;
             text-transform:uppercase;color:var(--src-faint);margin-top:5px}
-        .src-auth{font-family:var(--src-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+        .src-auth{font-family:var(--src-mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
             color:var(--src-win);border:1px solid rgba(78,107,62,.5);background:rgba(78,107,62,.10);
-            padding:8px 13px;white-space:nowrap;justify-self:end}
+            padding:8px 0;white-space:nowrap;text-align:center;display:block;width:100%}
         .src-auth.pending{color:var(--src-ox);border-color:rgba(124,29,43,.45);background:rgba(124,29,43,.06)}
         .src-none{padding:34px 4px;font-family:var(--src-mono);font-size:11px;letter-spacing:.14em;
             text-transform:uppercase;color:var(--src-muted);border-bottom:1px solid var(--src-line-soft)}
         .src-none .sub{display:block;margin-top:10px;letter-spacing:.01em;text-transform:none;
             font-family:var(--font-content);font-size:15px;color:var(--src-ink-soft)}
 
-        .src-panel{border:1px solid var(--src-line-firm);background:var(--src-paper);padding:30px 34px}
+        .src-panel{border:1px solid var(--src-line-firm);background:var(--src-paper);padding:26px 30px}
         .src-pipe{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
         .src-pstep{display:flex;flex-direction:column;align-items:center;text-align:center;flex:1;gap:14px;min-width:0}
         .src-pnode{width:42px;height:42px;border-radius:50%;border:1px solid var(--src-ox);
@@ -226,47 +232,70 @@ export function renderSources() {
             text-transform:uppercase;color:var(--src-ink-soft);line-height:1.5;max-width:140px}
         .src-parrow{color:var(--src-faint);font-size:18px;padding-top:11px;flex:none}
 
-        .src-prin h3{font-family:var(--font-content);font-size:27px;font-weight:600;margin:0 0 16px}
-        .src-prin p{font-size:15.5px;line-height:1.6;color:var(--src-ink-soft);margin:0 0 14px;max-width:960px}
+        .src-prin h3{font-family:var(--font-content);font-size:25px;font-weight:600;margin:0 0 14px}
+        /* One measure, so the argument reads as a column of text rather than
+           running the full width of the panel. */
+        .src-prin p{font-size:15.5px;line-height:1.6;color:var(--src-ink-soft);margin:0 0 13px;max-width:76ch}
+        .src-prin p:last-of-type{margin-bottom:0}
         .src-prin p b{color:var(--src-ink);font-weight:600}
-        .src-flow{display:flex;align-items:stretch;gap:8px;margin-top:26px}
-        .src-fcard{flex:1;border:1px solid var(--src-line-firm);background:var(--src-paper2);
-            padding:20px 18px;text-align:center;display:flex;flex-direction:column;justify-content:center;min-width:0}
-        .src-fcard.ink{background:var(--src-ink);border-color:var(--src-ink)}
-        .src-fcard h5{font-family:var(--font-content);font-size:19px;font-weight:600;margin:0 0 6px}
-        .src-fcard.ink h5{color:var(--src-paper2)}
-        .src-fcard .fs{font-family:var(--src-mono);font-size:9px;letter-spacing:.08em;
-            text-transform:uppercase;color:var(--src-muted)}
-        .src-fcard.ink .fs{color:var(--src-faint)}
-        .src-farrow{display:flex;align-items:center;color:var(--src-faint);font-size:18px;flex:none}
+        /* THE GUARANTEES, RULED OFF — not a second diagram.
+           Four terms on one hairline: the claims the prose just made, in the
+           form the rest of the product states facts. It adds no process arrows
+           and no boxes, so it cannot be mistaken for the pipeline above. */
+        .src-guar{list-style:none;display:flex;flex-wrap:wrap;gap:10px 34px;margin:20px 0 0;padding:18px 0 0;
+            border-top:1px solid var(--src-line-soft)}
+        .src-guar li{display:flex;align-items:center;gap:9px;font-family:var(--src-mono);
+            font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--src-ink-soft)}
 
         .src-pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-        .src-pv{border:1px solid var(--src-line-firm);background:var(--src-paper);
-            padding:22px 22px 20px;display:flex;flex-direction:column;min-width:0}
-        .src-pv.soon{background:var(--src-paper2)}
-        /* A connected provider is stated on the row above; the card marks it so
-           the two halves of the page cannot disagree. */
-        .src-pv.done{border-color:rgba(78,107,62,.45)}
-        .src-pv-t{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+        /* THREE STATES, TOLD APART BEFORE THE BUTTON IS READ.
+           They differed only in button text, so the grid read as six identical
+           cards. Each state now carries a rule at the top edge — the register's
+           own device — and the weight of that rule IS the state:
+
+             available   a struck ink rule    the card asks to be acted on
+             connected   a green rule         settled, and it stays full-weight
+             unavailable no rule, paper2      recessed, nothing to do here
+
+           Connected is deliberately NOT dimmed. An authorized source is the
+           strongest thing on this grid, not a spent one — it keeps its stock,
+           its ink and its full contrast, and only the control goes quiet. */
+        .src-pv{border:1px solid var(--src-line-firm);border-top:2px solid var(--src-ink);
+            background:var(--src-paper);padding:20px 20px 18px;display:flex;flex-direction:column;min-width:0}
+        .src-pv.done{border-color:var(--src-line-firm);border-top-color:var(--src-win)}
+        .src-pv.soon{background:var(--src-paper2);border-top:1px solid var(--src-line-soft)}
+        .src-pv-t{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
         .src-pn{display:flex;align-items:center;gap:9px;font-family:var(--font-content);
-            font-size:19px;font-weight:600;min-width:0}
+            font-size:19px;font-weight:600;line-height:1.15;min-width:0;color:var(--src-ink)}
+        .src-pv.soon .src-pn{color:var(--src-ink-soft)}
         .src-pn .d{width:7px;height:7px;background:var(--src-ox);flex:none;transform:rotate(45deg)}
         .src-pv.soon .src-pn .d{background:var(--src-faint)}
         .src-pv.done .src-pn .d{background:var(--src-win)}
         .src-tag{font-family:var(--src-mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;
             color:var(--src-muted);border:1px solid var(--src-line-soft);padding:3px 8px;white-space:nowrap}
-        .src-pd{font-size:14px;line-height:1.55;color:var(--src-muted);margin:0 0 16px;flex:1}
-        .src-ex{padding-top:13px;border-top:1px solid var(--src-line-soft);margin-bottom:16px}
-        .src-exk{font-family:var(--src-mono);font-size:8.5px;letter-spacing:.14em;
-            text-transform:uppercase;color:var(--src-faint);margin-bottom:6px}
-        .src-exv{font-family:var(--src-mono);font-size:12px;color:var(--src-ink);font-weight:500}
+        .src-pv.done .src-tag{color:var(--src-win);border-color:rgba(78,107,62,.4)}
+        /* Description steps down from the name; the example steps up from the
+           description. Name -> body -> label -> figure, four clear levels. */
+        .src-pd{font-size:13.5px;line-height:1.55;color:var(--src-muted);margin:0 0 16px;flex:1}
+        .src-ex{padding-top:12px;border-top:1px solid var(--src-line-soft);margin-bottom:16px}
+        .src-exk{font-family:var(--src-mono);font-size:8px;letter-spacing:.18em;
+            text-transform:uppercase;color:var(--src-faint);margin-bottom:7px}
+        .src-exv{font-family:var(--src-mono);font-size:12.5px;color:var(--src-ink);font-weight:500;
+            letter-spacing:.01em}
         .src-cbtn{font-family:var(--src-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
             padding:12px 0;text-align:center;display:block;width:100%;
             transition:background-color .18s ease,border-color .18s ease}
+        /* Oxblood stays the only filled control on the page: an unconnected
+           provider is the one thing here asking to be acted on. */
         .src-cbtn.ox{background:var(--src-ox);border:1px solid var(--src-ox);color:var(--src-paper2);cursor:pointer}
         .src-cbtn.ox:hover{background:var(--src-ox-deep);border-color:var(--src-ox-deep)}
-        .src-cbtn.ox.done{background:transparent;border-color:rgba(78,107,62,.5);color:var(--src-win)}
-        .src-cbtn.soonb{background:transparent;border:1px solid var(--src-line-firm);color:var(--src-faint);cursor:not-allowed}
+        /* Authorized is a statement of record, so it is set as one — tinted
+           stock, green rule, no fill competing with the live CTAs beside it. */
+        .src-cbtn.ox.done{background:rgba(78,107,62,.10);border-color:rgba(78,107,62,.5);
+            color:var(--src-win);cursor:default}
+        .src-cbtn.ox.done:hover{background:rgba(78,107,62,.10);border-color:rgba(78,107,62,.5)}
+        .src-cbtn.soonb{background:transparent;border:1px dashed var(--src-line-firm);
+            color:var(--src-faint);cursor:not-allowed}
 
         @media (max-width:900px){
             .src-statreg{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -274,8 +303,9 @@ export function renderSources() {
             .src-stat:nth-child(n+3){border-top:1px solid var(--src-line-soft)}
             .src-conn{grid-template-columns:44px minmax(0,1fr);row-gap:14px}
             .src-col,.src-auth{grid-column:2;text-align:left;justify-self:start}
-            .src-pipe,.src-flow{flex-direction:column;align-items:stretch;gap:14px}
-            .src-parrow,.src-farrow{display:none}
+            .src-pipe{flex-direction:column;align-items:stretch;gap:14px}
+            .src-guar{gap:10px 22px}
+            .src-parrow{display:none}
             .src-pstep{flex-direction:row;gap:14px;text-align:left}
             .src-plab{max-width:none}
             .src-pgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -337,28 +367,30 @@ export function renderSources() {
                     <div class="src-shead">
                         <span class="l"><span class="src-mark sm"></span> Verification principles</span>
                     </div>
+                    <!-- THE SECOND DIAGRAM IS GONE. Platform API → Read-only
+                         telemetry → Oracle verifier → Execution engine drew the
+                         same left-to-right process the 01–05 pipeline draws
+                         directly above it, in different words. Two diagrams of
+                         one mechanism make the page look like it is explaining
+                         itself twice. The pipeline is the process drawing; this
+                         panel is the argument, and it now runs as prose with
+                         the four guarantees ruled off beneath it. -->
                     <div class="src-panel src-prin">
                         <h3>Why platform verification matters</h3>
                         <p>Collateral never asks you to report your own results. Every contract settles on
-                            <b>read-only telemetry pulled directly from the platform where the goal lives</b>
-                            &mdash; the same numbers your own dashboard already shows you.</p>
-                        <p><b>USD contracts</b> settle through custodial escrow via Stripe Connect.
-                            <b>CLTR contracts</b> settle on the CLTR rail on Robinhood Chain.</p>
-                        <p>Each contract is polled on a fixed schedule for its provider &mdash; hourly for X
-                            and YouTube, every six hours for Stripe and Shopify. The threshold is evaluated
-                            server-side against the reading, with no operator input at any point, and every
-                            settled contract is written to the public ledger with a
-                            <b>SHA-256 record hash</b> you can check against it. No manual submissions,
-                            no dispute period, no human bias.</p>
-                        <div class="src-flow">
-                            <div class="src-fcard"><h5>Platform API</h5><div class="fs">Authoritative metric source</div></div>
-                            <span class="src-farrow" aria-hidden="true">&rarr;</span>
-                            <div class="src-fcard"><h5>Read-only telemetry</h5><div class="fs">Scheduled poll</div></div>
-                            <span class="src-farrow" aria-hidden="true">&rarr;</span>
-                            <div class="src-fcard"><h5>Oracle verifier</h5><div class="fs">Threshold computation</div></div>
-                            <span class="src-farrow" aria-hidden="true">&rarr;</span>
-                            <div class="src-fcard ink"><h5>Execution engine</h5><div class="fs">Deterministic escrow release</div></div>
-                        </div>
+                            <b>read-only telemetry pulled from the platform where the goal lives</b> &mdash;
+                            the same numbers your own dashboard shows you &mdash; polled on a fixed schedule
+                            and evaluated server-side, with no operator input at any point.</p>
+                        <p>Settled contracts are written to the public ledger with a
+                            <b>SHA-256 record hash</b> you can check against it. <b>USD</b> settles through
+                            custodial escrow via Stripe Connect; <b>CLTR</b> settles on the CLTR rail on
+                            Robinhood Chain.</p>
+                        <ul class="src-guar">
+                            <li><span class="src-mark sm" aria-hidden="true"></span>Read-only access</li>
+                            <li><span class="src-mark sm" aria-hidden="true"></span>Server-side verification</li>
+                            <li><span class="src-mark sm" aria-hidden="true"></span>Deterministic settlement</li>
+                            <li><span class="src-mark sm" aria-hidden="true"></span>Public, hashed record</li>
+                        </ul>
                     </div>
                 </div>
 
@@ -501,7 +533,16 @@ export async function initSources() {
         const btn = card.querySelector('[data-connect]');
         if (s && s.connected) {
             card.classList.add('done');
-            if (btn) { btn.classList.add('done'); btn.textContent = '✓ Connected'; }
+            if (btn) {
+                btn.classList.add('done');
+                btn.textContent = '✓ Authorized';
+                /* An authorized source has nothing to press. The control states
+                   the record rather than offering an action, so it stops being
+                   one — no handler, and disabled so the keyboard agrees with
+                   the cursor. */
+                btn.disabled = true;
+                return;
+            }
         }
         if (btn) {
             btn.addEventListener('click', () => {
