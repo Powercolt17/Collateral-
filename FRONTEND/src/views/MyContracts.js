@@ -123,81 +123,122 @@ export function renderMyContracts() {
             box-shadow:0 8px 20px rgba(124,29,43,.15)}
         .myc-btn.ox:hover{background:var(--myc-ox-deep);border-color:var(--myc-ox-deep)}
 
+        /* ── WEIGHT, DELIBERATELY UNEQUAL ────────────────────────────────────
+           The page ran as four consecutive cream rectangles of near-identical
+           weight — register, progress, empty state, cards — so the eye had
+           nothing to descend by. Each band now carries a different amount:
+
+             the register   a closed plate under a heavy ink rule   (heaviest)
+             the progress   an open band between two hairlines      (lightest)
+             the cards      closed plates again, but smaller        (medium)
+
+           Nothing was restyled to achieve it; the progress band simply stopped
+           being a card, which is the one change that separates the three. */
         .myc-statreg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--myc-line-firm);
-            border-top:2px solid var(--myc-ink);background:var(--myc-paper);margin-bottom:26px;
-            box-shadow:0 12px 28px rgba(60,40,20,.06)}
-        .myc-stat{padding:22px 26px;border-left:1px solid var(--myc-line-soft);min-width:0}
+            border-top:2px solid var(--myc-ink);background:var(--myc-paper);margin-bottom:30px}
+        /* COMPRESSED. 22/26 with a 16px rule lead ran the strip to 127px while
+           every figure in it was an em-dash — a tall plate saying nothing. The
+           type is untouched; only the air around it is smaller. */
+        .myc-stat{padding:15px 22px 14px;border-left:1px solid var(--myc-line-soft);min-width:0}
         .myc-stat:first-child{border-left:0}
         .myc-stat .v{font-family:var(--font-content);font-variant-numeric:tabular-nums;
             font-size:clamp(28px,3.2vw,38px);font-weight:600;line-height:1}
         .myc-stat .v.win{color:var(--myc-win)}
         /* A figure with no record behind it is a rule, not a zero — zero is a
            measurement, and these have not been measured. */
-        .myc-stat .eln{display:inline-block;width:32px;height:3px;background:var(--myc-faint);
-            vertical-align:middle;margin:16px 0 3px}
+        .myc-stat .eln{display:inline-block;width:30px;height:2px;background:var(--myc-faint);
+            vertical-align:middle;margin:14px 0 2px}
         .myc-stat .k{font-family:var(--myc-mono);font-size:9px;letter-spacing:.18em;
-            text-transform:uppercase;color:var(--myc-ink-soft);margin-top:12px}
-        .myc-stat .s{font-size:13px;color:var(--myc-muted);margin-top:5px}
+            text-transform:uppercase;color:var(--myc-ink-soft);margin-top:8px}
+        .myc-stat .s{font-size:12.5px;color:var(--myc-muted);margin-top:4px}
 
-        .myc-gs{border:1px solid var(--myc-line-firm);background:var(--myc-paper);padding:20px 26px 24px;margin-bottom:26px}
-        .myc-gstop{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap}
+        /* An open band, not a panel: hairline above and below, the parchment
+           itself showing through. It is a marginal note on the register above
+           it, and it should not weigh the same as one. */
+        .myc-gs{border-top:1px solid var(--myc-line-firm);border-bottom:1px solid var(--myc-line-soft);
+            padding:20px 2px 22px;margin-bottom:40px}
+        .myc-gstop{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:16px;flex-wrap:wrap}
         .myc-gstop .l{font-family:var(--myc-mono);font-size:10px;letter-spacing:.22em;
             text-transform:uppercase;color:var(--myc-ox);font-weight:500}
         .myc-gstop .c{font-family:var(--myc-mono);font-size:10px;letter-spacing:.14em;
             text-transform:uppercase;color:var(--myc-muted)}
         .myc-gstop .c b{color:var(--myc-ink);font-weight:500}
         .myc-gsrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
-        .myc-gstep{display:flex;align-items:center;gap:11px;padding-right:16px;min-width:0}
-        .myc-gstep .m{width:20px;height:20px;border-radius:50%;flex:none;display:flex;
-            align-items:center;justify-content:center;font-size:10px;font-family:var(--myc-mono)}
-        .myc-gstep.done .m{background:var(--myc-win);color:var(--myc-paper2)}
-        .myc-gstep.next .m{background:transparent;border:2px solid var(--myc-ox)}
-        .myc-gstep.wait .m{background:transparent;border:1.5px solid var(--myc-faint)}
+        .myc-gstep{display:flex;align-items:center;gap:12px;padding-right:16px;min-width:0}
+        /* THE MARK IS THE HOUSE DIAMOND, NOT A TICK IN A CIRCLE.
+           A green circle with a ✓ is the onboarding checklist every product
+           ships. The seal mark this site already uses everywhere — a filled
+           square turned 45° — says the same thing in the building's own hand:
+           struck for done, outlined for the step in hand, a hairline ghost for
+           what has not been reached. Green is kept for settlement, where a gain
+           is actually being reported. */
+        .myc-gstep .m{width:9px;height:9px;flex:none;transform:rotate(45deg);
+            border-radius:0;display:block;font-size:0}
+        .myc-gstep.done .m{background:var(--myc-ox-deep);border:0}
+        .myc-gstep.next .m{background:transparent;border:1.5px solid var(--myc-ox);
+            box-shadow:0 0 0 3px rgba(124,29,43,.10)}
+        .myc-gstep.wait .m{background:transparent;border:1px solid var(--myc-faint)}
         .myc-gstep .t{font-family:var(--myc-mono);font-size:10px;letter-spacing:.1em;
             text-transform:uppercase;line-height:1.4}
         .myc-gstep.done .t{color:var(--myc-ink-soft)}
         .myc-gstep.next{cursor:pointer}
         .myc-gstep.next .t{color:var(--myc-ink);font-weight:500}
         .myc-gstep.wait .t{color:var(--myc-faint)}
-        .myc-gstep .nx{font-family:var(--myc-mono);font-size:8px;letter-spacing:.12em;
-            background:rgba(124,29,43,.06);border:1px solid rgba(124,29,43,.4);
-            color:var(--myc-ox);padding:2px 6px;margin-left:6px;white-space:nowrap}
-        .myc-gsbar{height:2px;background:var(--myc-line);margin-top:18px;position:relative}
-        .myc-gsbar .f{position:absolute;left:0;top:0;height:2px;background:var(--myc-ox);
+        .myc-gstep .nx{font-family:var(--myc-mono);font-size:8px;letter-spacing:.14em;
+            border:1px solid rgba(124,29,43,.4);color:var(--myc-ox);
+            padding:2px 6px;margin-left:8px;white-space:nowrap}
+        /* One hairline, struck to the position reached. A 2px bar on a page of
+           1px rules was the loudest line in the section. */
+        .myc-gsbar{height:1px;background:var(--myc-line);margin-top:20px;position:relative}
+        .myc-gsbar .f{position:absolute;left:0;top:0;height:1px;background:var(--myc-ox);
             transition:width .5s cubic-bezier(.22,1,.36,1)}
 
+        /* The notice was 44px of padding around three lines and then 44px more
+           before the next heading — a third of a screen to say "nothing here
+           yet". Tightened, and the run into Suggested Contracts closed up. */
         .myc-none{border:1px solid var(--myc-line-firm);background:var(--myc-paper);
-            padding:44px 40px;text-align:center;margin-bottom:44px}
-        .myc-none .seal{width:40px;height:40px;margin:0 auto 18px;display:block}
-        .myc-none h3{font-family:var(--font-display);font-size:28px;font-weight:400;margin:0 0 12px}
-        .myc-none p{font-size:15px;line-height:1.6;color:var(--myc-ink-soft);max-width:560px;margin:0 auto}
+            padding:30px 32px 28px;text-align:center;margin-bottom:30px}
+        .myc-none .seal{width:30px;height:30px;margin:0 auto 13px;display:block}
+        .myc-none h3{font-family:var(--font-display);font-size:25px;font-weight:400;margin:0 0 10px}
+        .myc-none p{font-size:14.5px;line-height:1.6;color:var(--myc-ink-soft);max-width:520px;margin:0 auto}
         .myc-none p b{color:var(--myc-ink);font-weight:600}
-        .myc-none-act{display:flex;gap:14px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+        .myc-none-act{display:flex;gap:14px;justify-content:center;margin-top:20px;flex-wrap:wrap}
 
-        .myc-shead{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+        .myc-shead{display:flex;align-items:center;gap:18px;margin-bottom:18px}
         .myc-shead .l{font-family:var(--myc-mono);font-size:11px;letter-spacing:.24em;
             text-transform:uppercase;color:var(--myc-ox);font-weight:500;white-space:nowrap}
         .myc-shead .ln{flex:1;height:1px;background:linear-gradient(90deg,var(--myc-line-firm),var(--myc-line-soft))}
-        .myc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+        .myc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
         .myc-card{border:1px solid var(--myc-line-firm);background:var(--myc-paper);
-            padding:22px 22px 20px;display:flex;flex-direction:column;min-width:0;cursor:pointer}
-        .myc-card:hover{border-color:var(--myc-ox);box-shadow:0 10px 24px rgba(60,40,20,.07)}
-        .myc-c-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+            padding:24px 24px 22px;display:flex;flex-direction:column;min-width:0;cursor:pointer;
+            position:relative;transition:border-color .18s ease, background-color .18s ease}
+        /* HOVER IS A RULE, NOT A LIFT. The card carried a 24px drop shadow on
+           hover — the one soft edge on a page built from hairlines. The border
+           takes the oxblood, the stock lightens a shade, and a struck rule
+           appears down the left edge: the same gesture the selected row uses. */
+        .myc-card::before{content:"";position:absolute;left:-1px;top:-1px;bottom:-1px;width:2px;
+            background:var(--myc-ox);opacity:0;transition:opacity .18s ease}
+        .myc-card:hover{border-color:var(--myc-line-firm);background:var(--myc-paper2)}
+        .myc-card:hover::before{opacity:1}
+        .myc-c-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
         .myc-plat{display:flex;align-items:center;gap:9px;font-family:var(--myc-mono);
-            font-size:11px;letter-spacing:.08em;color:var(--myc-ink)}
-        .myc-plat .d{width:7px;height:7px;border-radius:50%;background:var(--myc-ox);flex:none}
-        .myc-cat{font-family:var(--myc-mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase;
-            color:var(--myc-muted);border:1px solid var(--myc-line-firm);padding:3px 8px;white-space:nowrap}
-        .myc-card h4{font-family:var(--font-content);font-size:22px;font-weight:600;line-height:1.1;margin:0 0 9px}
-        .myc-c-desc{font-size:14px;line-height:1.5;color:var(--myc-ink-soft);margin:0 0 16px;flex:1}
-        .myc-c-src{display:flex;align-items:center;gap:8px;font-family:var(--myc-mono);font-size:9px;
-            letter-spacing:.08em;text-transform:uppercase;color:var(--myc-muted);
+            font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--myc-ink-soft)}
+        .myc-plat .d{width:6px;height:6px;background:var(--myc-ox);flex:none;transform:rotate(45deg)}
+        .myc-cat{font-family:var(--myc-mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;
+            color:var(--myc-muted);border:1px solid var(--myc-line-soft);padding:3px 8px;white-space:nowrap}
+        /* The title is the card. Everything else steps down from it. */
+        .myc-card h4{font-family:var(--font-content);font-size:21px;font-weight:600;
+            line-height:1.18;letter-spacing:-.005em;margin:0 0 8px;color:var(--myc-ink)}
+        .myc-c-desc{font-size:13.5px;line-height:1.55;color:var(--myc-muted);margin:0 0 18px;flex:1}
+        .myc-c-src{display:flex;align-items:center;gap:8px;font-family:var(--myc-mono);font-size:8.5px;
+            letter-spacing:.14em;text-transform:uppercase;color:var(--myc-faint);
             padding-top:13px;border-top:1px solid var(--myc-line-soft);margin-bottom:16px}
         .myc-c-src b{color:var(--myc-ink-soft);font-weight:500}
-        .myc-c-btn{font-family:var(--myc-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+        .myc-c-btn{font-family:var(--myc-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
             color:var(--myc-paper2);background:var(--myc-ox);border:1px solid var(--myc-ox);
-            padding:12px 0;text-align:center;display:block;width:100%;cursor:pointer}
-        .myc-c-btn:hover{background:var(--myc-ox-deep);border-color:var(--myc-ox-deep)}
+            padding:13px 0;text-align:center;display:block;width:100%;cursor:pointer;
+            transition:background-color .18s ease, border-color .18s ease}
+        .myc-c-btn:hover, .myc-card:hover .myc-c-btn{background:var(--myc-ox-deep);border-color:var(--myc-ox-deep)}
 
         /* The operator's own open contracts, once there are any. */
         .myc-list{display:flex;flex-direction:column;border-top:2px solid var(--myc-ink);margin-bottom:44px}
@@ -234,7 +275,9 @@ export function renderMyContracts() {
             .myc-stat{border-left:0;border-top:1px solid var(--myc-line-soft)}
             .myc-stat:first-child{border-top:0}
         }
-        @media (prefers-reduced-motion:reduce){ .myc-gsbar .f{transition:none} }
+        @media (prefers-reduced-motion:reduce){
+            .myc-gsbar .f, .myc-card, .myc-card::before, .myc-c-btn{transition:none}
+        }
         </style>
 
         <section class="myc">
@@ -398,10 +441,16 @@ export async function initMyContracts() {
             const state = s.done ? 'done' : (i === nextIdx ? 'next' : 'wait');
             const d = document.createElement('div');
             d.className = 'myc-gstep ' + state;
+            /* The mark is the house diamond, drawn in CSS — no glyph inside it.
+               A ✓ set in a 9px rotated square renders as a smear, and the
+               struck/outlined/ghost states already carry the meaning. The step
+               is still named in words beside it, so nothing rests on shape
+               alone. */
             const m = document.createElement('span');
             m.className = 'm';
-            m.textContent = s.done ? '✓' : '';
+            m.setAttribute('aria-hidden', 'true');
             d.appendChild(m);
+            d.setAttribute('data-state', state);
             const t = document.createElement('span');
             t.className = 't';
             t.appendChild(document.createTextNode(s.t));
