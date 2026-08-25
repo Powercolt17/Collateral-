@@ -2033,8 +2033,47 @@ export function renderActiveContracts() {
                 border: 1px solid var(--mb-line-firm); padding: 18px 20px;
                 display: flex; flex-direction: column;
                 box-shadow: 0 10px 24px rgba(60,40,20,.06);
+                transition: border-color 220ms cubic-bezier(.22,1,.36,1),
+                            background-color 220ms cubic-bezier(.22,1,.36,1);
             }
-            .mb-card::after { content: ""; position: absolute; inset: 5px; border: 1px solid var(--mb-line-soft); pointer-events: none; }
+            .mb-card::after {
+                content: ""; position: absolute; inset: 5px; pointer-events: none;
+                border: 1px solid var(--mb-line-soft);
+                transition: inset 220ms cubic-bezier(.22,1,.36,1),
+                            border-color 220ms cubic-bezier(.22,1,.36,1);
+            }
+
+            /* ── THE HOVER IS THE DIE COMING DOWN ────────────────────────────
+               The card already carries an engraved inner frame at inset 5px.
+               Rather than bolt a new effect onto it, the hover animates the
+               engraving itself: the inner rule draws inward to 8px and takes
+               the oxblood, the outer border goes to ink, and the stock lifts
+               one shade. It reads as a plate being pressed — which is what this
+               product does — and it is the same gesture at every scale, so
+               nothing new had to be invented to carry it.
+
+               NO LIFT, NO SCALE, NO GLOW. The shadow is left exactly as it was.
+               A card that rises off the page on hover is the fintech tell this
+               design is built to avoid; a contract does not float, it is struck.
+               Everything here is a rule moving or a tone changing.
+
+               The left rule is the same struck accent the portfolio cards and
+               the selected metric row use, so the whole product answers a
+               pointer in one language. */
+            .mb-card::before {
+                content: ""; position: absolute; left: -1px; top: -1px; bottom: -1px;
+                width: 2px; background: var(--mb-ox); opacity: 0; pointer-events: none; z-index: 3;
+                transition: opacity 220ms cubic-bezier(.22,1,.36,1);
+            }
+            .mb-card:hover { border-color: var(--mb-ink); background: var(--mb-paper2, #FAF4E6); }
+            .mb-card:hover::after { inset: 8px; border-color: rgba(124,29,43,.28); }
+            .mb-card:hover::before { opacity: 1; }
+            /* The card is a link to the rivalry, so it says so under the
+               pointer and the control inside it answers at the same moment
+               rather than waiting to be found separately. */
+            .mb-card { cursor: pointer; }
+            .mb-card:hover .mb-c-act.view { border-color: var(--mb-ink); background: rgba(70,55,35,.05); }
+            .mb-card:hover .mb-c-rcpt { color: var(--mb-ink-soft); }
             .mb-c-in { position: relative; z-index: 2; display: flex; flex-direction: column; height: 100%; }
             .mb-c-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
             .mb-badge {
@@ -2316,8 +2355,11 @@ export function renderActiveContracts() {
             .mb-rm-back select:focus-visible { outline: 2px solid var(--mb-ox); outline-offset: 2px; }
             @media (prefers-reduced-motion: reduce) {
                 .mb-c-act, .mb-chip, .mb-seg button, .mb-issue .a,
-                .mb-wbtn, .mb-pill, .mb-stp .disc, .mb-src-btn, .mb-src-big { transition: none; }
+                .mb-wbtn, .mb-pill, .mb-stp .disc, .mb-src-btn, .mb-src-big,
+                .mb-card, .mb-card::after, .mb-card::before { transition: none; }
                 .mb-c-act.accept:hover, .mb-wbtn:hover { transform: none; }
+                /* The hover states still resolve — they carry which card is
+                   under the pointer — they simply arrive rather than travel. */
                 /* The seal stamps in on signing. Under reduced motion it is
                    simply there — the fact is the seal, not the impact. */
                 .mb-docwax svg { animation: none; }
