@@ -1387,25 +1387,39 @@ export function renderActiveContracts() {
                fact to a screen reader that the discs are to everyone else. */
             .mb-stp { display: flex; align-items: center; list-style: none; margin: 0; padding: 0; }
             .mb-stp .n { display: flex; align-items: center; gap: 9px; }
+            /* THE NUMERALS ARE SET, NOT TYPED.
+               They were mono at 11px, which reads as a code token — the one
+               place in this header where a figure looks like console output
+               next to a wax seal and a serif wordmark. They are lining tabular
+               figures in the content face now: the same numerals the stake, the
+               multiplier and the ledger use, so a step number belongs to the
+               same family as every other number on the page.
+
+               1px border, not 1.4 — the whole sheet is drawn in hairlines and
+               the discs were the only thing carrying a heavier stroke. */
             .mb-stp .disc {
-                width: 26px; height: 26px; border-radius: 50%;
+                width: 25px; height: 25px; border-radius: 50%;
                 display: flex; align-items: center; justify-content: center;
-                font-family: var(--mono, var(--font-data)); font-size: 11px;
-                line-height: 1;
-                border: 1.4px solid var(--mb-line-firm); color: var(--mb-muted); background: var(--mb-paper);
+                font-family: var(--font-content); font-size: 12.5px; font-weight: 500;
+                font-variant-numeric: lining-nums tabular-nums;
+                letter-spacing: 0; line-height: 1;
+                border: 1px solid var(--mb-line-firm); color: var(--mb-muted); background: var(--mb-paper);
                 flex: none; transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
             }
             .mb-stp .disc.done { background: var(--mb-win); border-color: var(--mb-win); color: #F1EAD8; }
-            /* The step you are on is the one thing in this bar that should
-               carry weight: two pixels larger, the deep oxblood rather than the
-               mid tone, and a wider, fainter ring so it reads as emphasis
-               rather than as a focus outline. Terms and Sign stay as they are.
-               The negative margin keeps the extra 2px from nudging the row. */
+            /* The step you are on is the one thing in this bar that should carry
+               weight: the deep oxblood rather than the mid tone, and one hairline
+               struck concentric around it.
+
+               NOT A GLOW. This was a 5px soft shadow at 10% oxblood, which on
+               parchment read as a smudge around the disc rather than emphasis —
+               a focus ring the browser did not ask for. It is now a ring of
+               paper followed by a single hairline: an engraved annulus, drawn
+               with the same weight as every other rule on the page. */
             .mb-stp .disc.on {
-                width: 28px; height: 28px; margin: -1px;
                 background: var(--mb-ox-deep); border-color: var(--mb-ox-deep); color: #F6EEDD;
-                font-weight: 500;
-                box-shadow: 0 0 0 5px rgba(94,20,32,.10);
+                font-weight: 600;
+                box-shadow: 0 0 0 3px var(--mb-paper), 0 0 0 4px rgba(124,29,43,.32);
             }
             .mb-stp .lb { font-family: var(--mono, var(--font-data)); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--mb-muted); }
             .mb-stp .lb.act { color: var(--mb-ink); font-weight: 500; }
