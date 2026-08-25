@@ -198,7 +198,10 @@ export function renderMyContracts() {
            yet". Tightened, and the run into Suggested Contracts closed up. */
         .myc-none{border:1px solid var(--myc-line-firm);background:var(--myc-paper);
             padding:30px 32px 28px;text-align:center;margin-bottom:30px}
-        .myc-none .seal{width:30px;height:30px;margin:0 auto 13px;display:block}
+        /* 30px was a bullet point. The seal is struck now, so it is given
+           enough room to read as struck — the rings and the letter need the
+           size. Still the tightest block on the page. */
+        .myc-none .seal{width:54px;height:54px;margin:0 auto 14px;display:block}
         .myc-none h3{font-family:var(--font-display);font-size:25px;font-weight:400;margin:0 0 10px}
         .myc-none p{font-size:14.5px;line-height:1.6;color:var(--myc-ink-soft);max-width:520px;margin:0 auto}
         .myc-none p b{color:var(--myc-ink);font-weight:600}
@@ -337,11 +340,72 @@ export function renderMyContracts() {
     `;
 }
 
-const SEAL = '<svg class="seal" viewBox="0 0 40 40" fill="none" aria-hidden="true">'
-    + '<circle cx="20" cy="20" r="15" fill="#7C1D2B"/>'
-    + '<circle cx="20" cy="20" r="15" stroke="#5E1420" stroke-width="1.4"/>'
-    + '<circle cx="20" cy="20" r="11" stroke="rgba(255,240,225,.35)" stroke-width=".8"/>'
-    + '<text x="20" y="26" font-size="16" font-weight="700" fill="#F0DAC7" text-anchor="middle">C</text></svg>';
+/* THE SEAL — struck wax, not a dot with a letter in it.
+ *
+ * What was here: a flat #7C1D2B circle, a second circle for a rule, and a
+ * cream "C" set on top. At 30px it read as a bullet point. The seal is the
+ * mark this whole product is named around, and it was the one piece of the
+ * page carrying no craft at all.
+ *
+ * Drawn rather than photographed, for three reasons: it is crisp at any size
+ * on any display, it costs no request, and it stays the house oxblood instead
+ * of whatever a photograph's white balance happens to be.
+ *
+ * How the depth is made, all of it geometry:
+ *   - the rim is an irregular lobed path, not a circle — wax spreads unevenly
+ *     and a perfect circle reads as a UI token
+ *   - a radial gradient lights it from the upper left, so the far rim falls
+ *     into shadow
+ *   - the engraved rings are struck twice, a dark pass nudged down and a light
+ *     pass nudged up, which is what makes a groove look cut rather than drawn
+ *   - the C is struck the same way, and sits in the recessed field
+ *   - one soft highlight arc rides the upper-left rim where the wax pooled
+ *
+ * Ids are suffixed so two seals on one page cannot capture each other's
+ * gradients — a duplicated id would make the second seal render flat.
+ */
+function sealMarkup(uid) {
+    const g = 'sl' + uid;
+    return '<svg class="seal" viewBox="0 0 100 100" role="img" aria-label="Collateral seal">'
+        + '<defs>'
+        + '<radialGradient id="' + g + 'w" cx="36%" cy="30%" r="78%">'
+        + '<stop offset="0%" stop-color="#9B2B37"/>'
+        + '<stop offset="45%" stop-color="#7C1D2B"/>'
+        + '<stop offset="100%" stop-color="#4A0F19"/>'
+        + '</radialGradient>'
+        + '<radialGradient id="' + g + 'f" cx="40%" cy="34%" r="70%">'
+        + '<stop offset="0%" stop-color="#83202E"/>'
+        + '<stop offset="100%" stop-color="#5E1420"/>'
+        + '</radialGradient>'
+        + '</defs>'
+        // the molten rim
+        + '<path d="M50 5 C61 5 70 9 77 17 C84 24 93 30 94 42 C95 54 89 62 85 70'
+        + ' C80 80 68 95 55 95 C43 95 32 91 24 84 C16 77 6 67 6 54'
+        + ' C6 42 11 31 17 23 C24 13 39 5 50 5 Z" fill="url(#' + g + 'w)"/>'
+        // the recessed field the die pressed
+        + '<circle cx="50" cy="50" r="35" fill="url(#' + g + 'f)"/>'
+        + '<circle cx="50" cy="50" r="35" fill="none" stroke="#3F0C15" stroke-width="1.1" opacity=".55"/>'
+        // engraved rings: dark pass low, light pass high, then the groove
+        + '<circle cx="50" cy="50" r="30" fill="none" stroke="#3F0C15" stroke-width="1.6" opacity=".5" transform="translate(0 .8)"/>'
+        + '<circle cx="50" cy="50" r="30" fill="none" stroke="#C46B72" stroke-width="1.1" opacity=".28" transform="translate(0 -.8)"/>'
+        + '<circle cx="50" cy="50" r="30" fill="none" stroke="#6B1826" stroke-width="1.3"/>'
+        + '<circle cx="50" cy="50" r="26.5" fill="none" stroke="#3F0C15" stroke-width="1.2" opacity=".45" transform="translate(0 .7)"/>'
+        + '<circle cx="50" cy="50" r="26.5" fill="none" stroke="#C46B72" stroke-width=".9" opacity=".24" transform="translate(0 -.7)"/>'
+        // the letter, struck the same way as the rings
+        // style, not a font-family attribute: var() resolves in a style
+        // declaration and is ignored in a presentation attribute.
+        + '<g style="font-family:var(--font-display),Georgia,serif" font-size="46" font-weight="400" text-anchor="middle">'
+        + '<text x="50" y="66.4" fill="#3F0C15" opacity=".62">C</text>'
+        + '<text x="50" y="64.8" fill="#C4767C" opacity=".34">C</text>'
+        + '<text x="50" y="65.6" fill="#77202D">C</text>'
+        + '</g>'
+        // where the wax pooled brightest
+        + '<path d="M22 34 C27 22 38 13 50 11" fill="none" stroke="#D08A8E"'
+        + ' stroke-width="3.2" stroke-linecap="round" opacity=".2"/>'
+        + '</svg>';
+}
+
+const SEAL = sealMarkup('a');
 
 export async function initMyContracts() {
     const root = document.querySelector('.myc');
