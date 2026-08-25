@@ -1378,7 +1378,7 @@ export function renderActiveContracts() {
                 padding: 18px 28px; border-bottom: 1px solid var(--mb-line);
             }
             .mb-wiz-brand { display: flex; align-items: center; gap: 13px; }
-            .mb-wiz-brand img { height: 34px; width: auto; flex: none; }
+            .mb-wiz-brand img { height: 34px; width: 34px; flex: none; object-fit: contain; }
             .mb-wiz-brand .nm { font-family: var(--font-display); font-size: 17px; font-weight: 400; letter-spacing: .14em; text-transform: uppercase; }
             .mb-wiz-brand .sb { font-family: var(--mono, var(--font-data)); font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--mb-ox); }
 
@@ -2465,8 +2465,12 @@ export function renderActiveContracts() {
                     <div class="mb-wiz" id="mb-wiz">
                         <div class="mb-wiz-top">
                             <div class="mb-wiz-brand">
-                                <!-- The site's own oxblood seal, at 34px. -->
-                                <img src="/assets/images/wax-seal-verification.png" alt="" aria-hidden="true" width="34" height="30">
+                                <!-- The same struck seal the certificate and the
+                                     portfolio use. This was a different asset,
+                                     drawn 34x30 — off-square, so the wax sat
+                                     slightly squashed against a mark that is
+                                     round everywhere else it appears. -->
+                                <img class="mb-wiz-seal" src="/wax-seal.png" alt="" aria-hidden="true" width="34" height="34" decoding="async">
                                 <div>
                                     <div class="nm">Collateral</div>
                                     <div class="sb">Solo Contract</div>
