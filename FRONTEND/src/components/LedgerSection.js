@@ -153,13 +153,29 @@ async function fromApi() {
     return list.map(fromRivalry);
 }
 
-/* The summary bar. Four figures, each one a field on /v1/rivalries/stats —
-   there is no source for "settling today" or "average completion", so those
-   two tiles carry figures that exist rather than figures that read well. */
+/* The summary bar. Every figure is either a field on /v1/rivalries/stats or
+   counted off the rivalry list itself — there is no source for "settling
+   today" or "average completion", so those tiles carry figures that exist
+   rather than figures that read well.
+
+   SETTLED WAS A ZERO, AND A ZERO IS NOT A HEADLINE. Nothing has settled yet,
+   so the tile reported 0 — true, but it spent a quarter of the summary bar
+   saying nothing has happened, directly above a register of live contracts.
+   It is replaced by the count of distinct operators holding those contracts,
+   which is counted from the same feed the rows come from and rises as the
+   market does. `rows` is passed for exactly this: a figure derived from the
+   register cannot disagree with the register. */
 const SUMMARY_KEYS = [
     { l: 'Capital Locked', f: (s) => money(s.totalCapitalLockedCents) },
     { l: 'Live Contracts', f: (s) => String(s.activeRivalries != null ? s.activeRivalries : 0) },
-    { l: 'Settled', f: (s) => String(s.settledRivalries != null ? s.settledRivalries : 0) },
+    { l: 'Operators', f: (s, rows) => {
+        const seen = new Set();
+        (rows || []).forEach((r) => {
+            if (r.op && r.op.name && r.op.name !== 'Operator') seen.add(r.op.name);
+            if (r.op && /^vs @/.test(r.op.role || '')) seen.add(r.op.role.slice(3));
+        });
+        return seen.size ? String(seen.size) : '—';
+    } },
     { l: 'Largest Pool', f: (s) => money(s.largestPoolCents) },
 ];
 
@@ -253,7 +269,13 @@ export function renderLedgerSection(options = {}) {
         <style>
         .lg{
           --lg-parch:#F1E8D3; --lg-ink:#211B12; --lg-ink-soft:#5B5140;
-          --lg-muted:#9A8C6F; --lg-faint:#B4A98C; --lg-logo:#2C2418;
+          /* CONTRAST, ONE STEP UP. #9A8C6F on this parchment lands near 3:1 and
+             it carried every column head, every unit label and every secondary
+             line in the register — the densest text on the page set in the
+             lightest tone available. Both tones move one step darker to the
+             values the rest of the product already uses for muted and faint, so
+             the small text is legible without anything being resized to shout. */
+          --lg-muted:#7A6E52; --lg-faint:#9A8C6F; --lg-logo:#2C2418;
           --lg-ox:#7C1D2B; --lg-win:#4E6B3E;
           --lg-line:rgba(60,48,30,.16); --lg-line-soft:rgba(60,48,30,.09);
           --lg-track:rgba(60,48,30,.14);
@@ -266,7 +288,15 @@ export function renderLedgerSection(options = {}) {
         .lg *{box-sizing:border-box;margin:0;padding:0}
         .lg-wrap{width:100%;max-width:1360px;margin:0 auto;padding:38px 51px 38px}
 
-        .lg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:51px;margin-bottom:17px}
+        /* THE HEAD SITS ON THE LEDGER GRID BENEATH IT.
+           It was a flex row with a 51px gap: the intro took whatever width its
+           text wanted and the summary floated at the right margin, so neither
+           side lined up with a single column of the register below. It is a
+           grid now — the lede holds one measure on the left, the summary is
+           struck to the right edge, and both settle to the same baseline as the
+           table's first rule. The empty middle is deliberate, not leftover. */
+        .lg-head{display:grid;grid-template-columns:minmax(0,1fr) auto;
+          align-items:end;gap:24px 51px;margin-bottom:20px}
         .lg-head-l{min-width:0}
         /* ONE HOUSE VOICE FOR HEADINGS. This was set entirely in wine, in
            uppercase small-caps, with no full stop — three departures at once
@@ -279,9 +309,9 @@ export function renderLedgerSection(options = {}) {
           font-size:clamp(28.9px,2.9vw,41px);line-height:1.06;
           letter-spacing:.01em;margin-bottom:11px}
         .lg h2 .ox{color:var(--lg-ox)}
-        .lg-lede{font-size:14px;line-height:1.6;color:var(--lg-ink-soft);max-width:527px}
+        .lg-lede{font-size:14.5px;line-height:1.62;color:var(--lg-ink-soft);max-width:498px}
 
-        .lg-sum{padding-top:5.1px}
+        .lg-sum{padding-top:0}
         .lg-stats{display:flex;gap:0}
         .lg-stat{padding:0 25.5px;text-align:center;border-left:1px solid var(--lg-line)}
         .lg-stat:first-child{border-left:0;padding-left:0}
@@ -302,28 +332,31 @@ export function renderLedgerSection(options = {}) {
         .lg-cols,.lg-row{display:grid;
           grid-template-columns:39.1px 212.5px minmax(195.5px,1fr) 178.5px 91.8px 197.2px 142.8px;
           column-gap:22.1px;align-items:center}
-        .lg-table{margin-top:18px}
+        .lg-table{margin-top:20px}
         .lg-cols{padding:0 0 11.9px;border-bottom:1px solid var(--lg-ink)}
         .lg-cols span{font-family:var(--lg-mono);font-size:10px;letter-spacing:.2em;
           text-transform:uppercase;color:var(--lg-faint)}
 
-        .lg-row{padding:12px 0;border-bottom:1px solid var(--lg-line-soft);position:relative}
+        .lg-row{padding:13px 0;border-bottom:1px solid var(--lg-line-soft);position:relative}
         .lg-row::after{content:"";position:absolute;inset:0;background:rgba(124,29,43,.05);
           opacity:0;pointer-events:none}
 
-        .lg-n{font-family:var(--lg-mono);font-size:10.2px;color:var(--lg-muted)}
+        /* The register number and the Verified mark are metadata: true, checkable,
+           and not what anyone reads a row for. Both step back to faint so the
+           operator, the goal, the stake and the status carry the row. */
+        .lg-n{font-family:var(--lg-mono);font-size:10.2px;color:var(--lg-faint)}
         .lg-op{display:flex;align-items:center;gap:11.9px;min-width:0}
         .lg-ava{width:34px;height:34px;border-radius:50%;flex:none;
           border:1px solid rgba(124,29,43,.3);display:flex;align-items:center;
           justify-content:center;font-family:var(--lg-mono);font-size:10.2px;color:var(--lg-ox)}
         .lg-op-name{display:block;font-family:var(--lg-display);font-size:18.7px;
           font-weight:600;color:var(--lg-ink);line-height:1.1}
-        .lg-op-role{display:block;font-family:var(--lg-mono);font-size:9.5px;
+        .lg-op-role{display:block;font-family:var(--lg-mono);font-size:10.1px;
           letter-spacing:.14em;text-transform:uppercase;color:var(--lg-muted);margin-top:2.6px}
 
         .lg-g-title{display:block;font-family:var(--lg-display);font-size:17.8px;
           font-weight:600;color:var(--lg-ink);line-height:1.15}
-        .lg-g-sub{display:block;margin-top:2px;font-family:var(--lg-mono);font-size:9.5px;
+        .lg-g-sub{display:block;margin-top:2px;font-family:var(--lg-mono);font-size:10.1px;
           letter-spacing:.14em;text-transform:uppercase;color:var(--lg-muted);margin-top:4.2px}
 
         .lg-ver{display:flex;align-items:center;gap:10.2px;min-width:0}
@@ -335,21 +368,21 @@ export function renderLedgerSection(options = {}) {
         .lg-b-shopify svg{height:13.6px} .lg-b-stripe svg{height:11px}
         .lg-b-x svg{height:10.2px}
         .lg-mono-mark{font-family:var(--lg-mono);font-weight:600;font-size:11px}
-        .lg-brand{display:block;font-family:var(--lg-mono);font-size:10px;
+        .lg-brand{display:block;font-family:var(--lg-mono);font-size:10.6px;
           letter-spacing:.1em;text-transform:uppercase;color:var(--lg-ink)}
         .lg-vtag{display:flex;align-items:center;gap:4.2px;font-family:var(--lg-mono);
-          font-size:9px;letter-spacing:.12em;text-transform:uppercase;
-          color:var(--lg-muted);margin-top:3.4px}
+          font-size:9.6px;letter-spacing:.12em;text-transform:uppercase;
+          color:var(--lg-faint);margin-top:3.4px}
         .lg-shield{width:9.4px;height:9.4px;flex:none;color:var(--lg-win)}
 
-        .lg-st-v{display:block;font-family:var(--lg-mono);font-size:13.6px;color:var(--lg-ink)}
+        .lg-st-v{display:block;font-family:var(--lg-mono);font-size:14.2px;font-weight:500;color:var(--lg-ink)}
         /* THE RAIL, NOT "USDC". The unit under every stake read USDC — a
            stablecoin this product does not settle in. Contracts settle in USD
            or in CLTR, and the row now prints whichever the record carries, as
            a bordered mark rather than loose text so it reads as a rail and not
            as part of the figure. Same badge as the /ledger register. */
         .lg-rail{display:inline-block;margin-top:4.6px;font-family:var(--lg-mono);
-          font-size:8.6px;letter-spacing:.12em;text-transform:uppercase;
+          font-size:9.2px;letter-spacing:.12em;text-transform:uppercase;
           border:1px solid var(--lg-line);padding:2.4px 5.4px;color:var(--lg-muted)}
         .lg-rail.cltr{color:var(--lg-ox);border-color:rgba(124,29,43,.4)}
 
@@ -363,7 +396,7 @@ export function renderLedgerSection(options = {}) {
           margin:7px 0 5px;border-radius:2px;overflow:hidden}
         .lg-pfill{position:absolute;left:0;top:0;height:100%;width:0;background:var(--lg-ox);
           opacity:.55;border-radius:2px;transition:width .9s cubic-bezier(.22,1,.36,1)}
-        .lg-pcap{font-family:var(--lg-mono);font-size:9px;letter-spacing:.14em;
+        .lg-pcap{font-family:var(--lg-mono);font-size:9.6px;letter-spacing:.14em;
           text-transform:uppercase;color:var(--lg-faint)}
 
         .lg-loading,.lg-none{padding:44px 12px;text-align:center;font-family:var(--lg-mono);
@@ -439,9 +472,9 @@ export function renderLedgerSection(options = {}) {
                     <div class="lg-head-l">
                         <h2 id="lg-title">Every contract<br />settles in <span class="ox">public</span>.</h2>
                         <p class="lg-lede">Every contract follows the same rules. Performance is
-                            verified by the connected data source, settlement happens automatically,
-                            and the final result becomes part of a permanent public execution record.
-                            No discretion. No negotiation after the deadline.</p>
+                            verified by connected data, settlement happens automatically, and every
+                            result becomes part of a permanent execution record. No discretion.
+                            No renegotiation.</p>
                     </div>
                     <div class="lg-sum">
                         <div class="lg-stats">${stats}
@@ -509,6 +542,11 @@ export function initLedgerSection() {
         body.innerHTML = rows.slice(0, VISIBLE_ROWS).map(renderRow).join('');
     };
 
+    /* The rows the register last drew. The Operators tile is counted off these
+       rather than off a second request, so the figure and the names beneath it
+       are read from one source and cannot contradict each other. */
+    let lastRows = [];
+
     const loadRows = async () => {
         let rows;
         try {
@@ -520,6 +558,7 @@ export function initLedgerSection() {
             if (!last) body.innerHTML = '<div class="lg-none">Register unavailable</div>';
             return;
         }
+        lastRows = rows;
         const sig = signature(rows);
         if (sig === last) return;
         last = sig;
@@ -536,20 +575,22 @@ export function initLedgerSection() {
         }
         if (!s) return;
         SUMMARY_KEYS.forEach((k, i) => {
-            if (statEls[i]) statEls[i].textContent = k.f(s);
+            if (statEls[i]) statEls[i].textContent = k.f(s, lastRows);
         });
     };
 
-    loadRows();
-    loadStats();
+    /* Rows first, then the summary. The Operators tile counts the rows, so
+       firing both at once would have it counting an empty array on the first
+       paint and printing a dash until the next poll. */
+    const refresh = () => loadRows().then(loadStats);
+    refresh();
 
     /* One clock, stopped while the tab is hidden — a landing page left open in
        a background tab should not keep hitting the API all afternoon. */
     if (window._lgPoll) clearInterval(window._lgPoll);
     window._lgPoll = setInterval(() => {
         if (document.hidden) return;
-        loadRows();
-        loadStats();
+        refresh();
     }, POLL_MS);
 
     /* The verifying row's sub-label cycles through what the oracle is doing.

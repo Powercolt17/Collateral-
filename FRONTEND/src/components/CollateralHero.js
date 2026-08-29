@@ -1171,7 +1171,7 @@ export function renderCollateralHero(options = {}) {
            leaves the rest alone. .clt .clt-sub is two classes and wins outright.
            The mobile override below is raised to match, or it would lose to
            this instead. */
-        .clt .clt-sub{margin-top:clamp(13px,1.42cqw,22px)}
+        .clt .clt-sub{margin-top:clamp(14px,1.50cqw,23px)}
         .clt-hero h1{
           /* 1.05 -> 1.70 var(--u), about +10px at desktop. Part of the
              deliberate-pacing pass: eyebrow, headline and CTA all gained
@@ -1249,7 +1249,7 @@ export function renderCollateralHero(options = {}) {
            the primary and secondary read as two separate decisions rather than
            a button pair. */
         /* paragraph -> buttons = 32px. */
-        .clt-cta{margin-top:clamp(20px,2.06cqw,32px);display:flex;align-items:center;gap:calc(1.70 * var(--u))}
+        .clt-cta{margin-top:clamp(22px,2.10cqw,33px);display:flex;align-items:center;gap:calc(1.70 * var(--u))}
         /* The px FLOOR on the two CTA labels stops them collapsing to ~8px on a
            1024 laptop. It does not engage on a full-size screen. */
         /* ox-deep FILL with an ox shadow — the inverse of the first attempt.
@@ -1369,8 +1369,8 @@ export function renderCollateralHero(options = {}) {
           /* buttons -> metrics = 40px, the largest gap in the stack. The rhythm
              widens as it descends so the column reads as deliberate rather
              than evenly stacked. */
-          margin-top:clamp(26px,2.58cqw,40px);
-          padding-top:clamp(12px,1.45cqw,20px);
+          margin-top:clamp(25px,2.30cqw,36px);
+          padding-top:clamp(13px,1.40cqw,18px);
           border-top:1px solid rgba(60,48,30,.18);
           display:flex;align-items:stretch;flex-wrap:nowrap;
           /* 40px minimum between the two cells, per the brief. */
@@ -2125,7 +2125,14 @@ export function renderCollateralHero(options = {}) {
              top of 78 would sit 14px UNDER the nav. At 50% the card top is 92,
              exactly the header's bottom, which leaves 5px of crown showing —
              and those 5px are behind the header itself. */
-          right:25cqw;top:50%;
+          /* 25px right of where it sat, to uncover more of the central figure.
+             Expressed as a subtraction from the container percentage rather
+             than by tuning 25cqw down to 23.4: cqw scales with the viewport, so
+             a percentage change would shift the card a few pixels on a laptop
+             and forty on a wide display, and the figure it is uncovering does
+             not scale the same way. This is 25px at every width, and the card
+             is not resized — the width below is untouched. */
+          right:calc(25cqw - 25px);top:50%;
           transform:translateY(-50%);
           width:min(462px,38cqw);
         }
@@ -2594,7 +2601,7 @@ export function renderCollateralHero(options = {}) {
                 <div class="clt-lockup">
                     <div class="clt-eyebrow clt-mono clt-in" style="--d:60ms">SELF-ENFORCING PERFORMANCE CONTRACTS</div>
                     <h1><span class="clt-line" style="--d:150ms">Put money</span><br /><span class="clt-line" style="--d:240ms">on your own</span><br /><span class="clt-line" style="--d:330ms"><span class="clt-accent">deadline</span></span></h1>
-                    <p class="clt-sub clt-in" style="--d:400ms">Stake your own money on a goal. Hit the deadline and you keep it &mdash; miss it, and it&rsquo;s gone.</p>
+                    <p class="clt-sub clt-in" style="--d:400ms">Stake your own money on a verified goal. Hit the target by the deadline and earn the return. Miss it, and your stake settles against you.</p>
                     <div class="clt-cta clt-in" style="--d:520ms">
                         <button type="button" class="clt-btn"${onWriteContract ? ` onclick="${onWriteContract}"` : ''}>Create a contract <span class="clt-arrow">&rarr;</span></button>
                         <button type="button" class="clt-link"${onWatchFlow ? ` onclick="${onWatchFlow}"` : ''}>See how it works &darr;</button>
